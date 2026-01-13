@@ -35,10 +35,10 @@ async def generate_chinese_exam(
     }
 
 
-@router.post("/grade")
+@router.post("/grade", response_model=GradeResponse)
 async def grade_chinese_exam(request: SubmitRequest):
     """
-    批改语文考题 (待完善)
+    批改语文考题并生成总结
     """
     return await chinese_service.grade_exam(request)
 

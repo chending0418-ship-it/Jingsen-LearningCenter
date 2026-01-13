@@ -42,14 +42,8 @@ app.include_router(math.router)
 
 @app.get("/")
 async def root():
-    """根路径 - 系统信息"""
-    return {
-        "name": "Jingsen 学习中心 1.0",
-        "version": "1.0.0",
-        "subjects": ["english", "chinese", "math"],
-        "docs": "/docs",
-        "status": "running"
-    }
+    """根路径 - 重定向到门户页面"""
+    return RedirectResponse(url="/portal")
 
 
 @app.get("/health")

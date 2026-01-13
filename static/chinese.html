@@ -14,9 +14,32 @@
         }
         body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: var(--bg-main); }
         .option-btn { transition: all 0.2s ease; }
+        .option-btn.selected { background-color: #FFEDED; border-color: #FF4B4B; color: #FF4B4B; }
+        .option-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .option-btn.correct { background-color: #DEF7EC; border-color: #31C48D; color: #03543F; }
         .option-btn.wrong { background-color: #FDE8E8; border-color: #F98080; color: #9B1C1C; }
-        .option-btn.correct-hint { border-color: #31C48D; border-width: 2px; }
+        
+        .blank-space { 
+            display: inline-block;
+            min-width: 80px;
+            padding: 0 8px;
+            margin: 0 4px;
+            border-bottom: 2px solid #FF4B4B;
+            text-align: center;
+            font-weight: bold;
+            color: #FF4B4B;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .blank-space.active {
+            background-color: #FFF5F5;
+            border-bottom-width: 4px;
+        }
+        .blank-space.filled {
+            color: #E02424;
+        }
+        .blank-space.correct { color: #057A55; border-color: #31C48D; }
+        .blank-space.wrong { color: #C81E1E; border-color: #F98080; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
@@ -91,19 +114,25 @@
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/10 backdrop-blur-sm hidden flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--chinese-accent)] border-t-transparent mb-4"></div>
-            <p class="font-medium text-gray-700">正在为您精心出题...</p>
+        <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center min-w-[300px]">
+            <div class="relative w-20 h-20 mb-4">
+                <div class="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+                <div id="loading-circle" class="absolute inset-0 border-4 border-[var(--chinese-accent)] rounded-full border-t-transparent animate-spin"></div>
+                <div id="loading-percent" class="absolute inset-0 flex items-center justify-center font-bold text-[var(--chinese-accent)]">0%</div>
+            </div>
+            <p class="font-medium text-gray-700" id="loading-text">正在为您精心出题...</p>
         </div>
     </div>
 
     <script>
-        let questions = [];
+        let groups = [];
         let currentIndex = 0;
         let score = 0;
+        let totalSubQuestions = 0;
         let results = [];
-        let isAnswered = false;
         let quizInProgress = false;
+        let activeBlankIndex = -1;
+        let currentGroupAnswers = [];
 
         // Prevent browser back
         window.addEventListener('popstate', function (event) {
@@ -114,103 +143,215 @@
 
         async function startQuiz() {
             const mode = document.getElementById('quiz-mode').value;
-            const count = document.getElementById('quiz-count').value;
+            const count = parseInt(document.getElementById('quiz-count').value);
             const library = mode === 'word_discrim' ? 'chinese_words' : 'chinese_idioms';
             
-            showLoading(true);
+            showLoading(true, 0);
+            groups = [];
+            totalSubQuestions = 0;
+            
             try {
-                const response = await fetch(`/api/chinese/generate?count=${count}&mode=${mode}&library=${library}`);
-                const data = await response.json();
-                if (data.error) throw new Error(data.error);
+                for (let i = 0; i < count; i++) {
+                    const response = await fetch(`/api/chinese/generate?count=1&mode=${mode}&library=${library}`);
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.error);
+                    
+                    // For word_discrim, count=1 returns 4 questions as one group
+                    // For idiom_fill, count=1 returns 1 question (with 4 blanks)
+                    if (mode === 'word_discrim') {
+                        groups.push({
+                            type: 'group',
+                            questions: data.questions,
+                            options: data.questions[0].options
+                        });
+                        totalSubQuestions += 4;
+                    } else {
+                        groups.push({
+                            type: 'single',
+                            question: data.questions[0],
+                            options: data.questions[0].options
+                        });
+                        totalSubQuestions += 4;
+                    }
+                    
+                    const percent = Math.round(((i + 1) / count) * 100);
+                    showLoading(true, percent);
+                }
                 
-                questions = data.questions;
                 currentIndex = 0;
                 score = 0;
                 results = [];
                 quizInProgress = true;
 
-                // Push state to detect back button
                 history.pushState(null, null, window.location.href);
-                
                 document.getElementById('back-btn').classList.add('invisible');
                 document.getElementById('setup-section').classList.add('hidden');
                 document.getElementById('quiz-section').classList.remove('hidden');
                 showQuestion();
             } catch (err) {
                 alert('出题失败: ' + err.message);
+                showLoading(false);
             } finally {
                 showLoading(false);
             }
         }
 
         function showQuestion() {
-            isAnswered = false;
-            const q = questions[currentIndex];
+            const group = groups[currentIndex];
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
             
-            const progress = ((currentIndex + 1) / questions.length) * 100;
+            const progress = ((currentIndex + 1) / groups.length) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
-            document.getElementById('progress-text').innerText = `题目 ${currentIndex + 1} / ${questions.length}`;
+            document.getElementById('progress-text').innerText = `组 ${currentIndex + 1} / ${groups.length}`;
 
-            let sentence = q.sentence;
-            if (document.getElementById('quiz-mode').value === 'word_discrim') {
-                sentence = q.sentence.replace('____', '<span id="placeholder" class="px-4 border-b-2 border-red-400 font-bold text-red-600">?</span>');
+            activeBlankIndex = 0;
+            currentGroupAnswers = [null, null, null, null];
+            
+            let html = '';
+            if (group.type === 'group') {
+                // Word Discrimination (4 separate sentences)
+                html = `
+                    <div class="mb-8 space-y-6">
+                        ${group.questions.map((q, idx) => `
+                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <p class="text-lg leading-relaxed text-gray-800">
+                                    ${(idx + 1)}. ${q.sentence.replace('____', `<span onclick="selectBlank(${idx})" id="blank-${idx}" class="blank-space active">?</span>`)}
+                                </p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
             } else {
-                sentence = q.sentence.replace(/\(\d\)____/g, (match) => `<span class="px-4 border-b-2 border-red-400 font-bold text-red-600">${match.charAt(1)}</span>`);
+                // Idiom Fill (one paragraph with 4 blanks)
+                let sentence = group.question.sentence;
+                let blankIdx = 0;
+                sentence = sentence.replace(/\(\d\)____/g, (match) => {
+                    const idx = blankIdx++;
+                    return `<span onclick="selectBlank(${idx})" id="blank-${idx}" class="blank-space ${idx === 0 ? 'active' : ''}">(${idx+1})?</span>`;
+                });
+                html = `
+                    <div class="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p class="text-xl leading-relaxed text-gray-800">${sentence}</p>
+                    </div>
+                `;
             }
 
-            container.innerHTML = `
-                <div class="mb-8">
-                    ${q.options && q.options.length > 0 && document.getElementById('quiz-mode').value === 'idiom_fill' ? `
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            ${q.options.map(opt => `<span class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-100">${opt}</span>`).join('')}
-                        </div>
-                    ` : ''}
-                    <p class="text-xl leading-relaxed text-gray-800">${sentence}</p>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    ${q.options.map(opt => `
-                        <button onclick="checkAnswer(this, '${opt}')" class="option-btn p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 font-medium text-gray-700">
+            // Options Section
+            html += `
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                    ${group.options.map(opt => `
+                        <button onclick="fillBlank('${opt}')" class="option-btn p-4 border border-gray-200 rounded-2xl hover:bg-white hover:shadow-md font-medium text-gray-700 bg-white">
                             ${opt}
                         </button>
                     `).join('')}
                 </div>
-                <div id="explanation" class="hidden mt-8 p-5 bg-red-50 rounded-2xl text-red-800 text-sm">
-                    <strong>解析：</strong> ${q.analysis || '暂无解析'}
+                <button id="confirm-btn" onclick="checkGroupAnswer()" class="w-full py-4 bg-gray-800 text-white rounded-2xl font-bold text-lg opacity-50 cursor-not-allowed" disabled>
+                    确认提交
+                </button>
+                <div id="explanation" class="hidden mt-8 p-6 bg-red-50 rounded-2xl text-red-800">
+                    <h4 class="font-bold mb-2">解析：</h4>
+                    <div id="explanation-content" class="text-sm leading-relaxed"></div>
                 </div>
             `;
+            
+            container.innerHTML = html;
+            selectBlank(0); // Auto select first blank
         }
 
-        function checkAnswer(btn, selected) {
-            if (isAnswered) return;
-            isAnswered = true;
-            const q = questions[currentIndex];
-            const isCorrect = selected.trim() === q.answer.trim();
+        function selectBlank(idx) {
+            if (document.getElementById('confirm-btn').classList.contains('hidden')) return;
+            activeBlankIndex = idx;
+            document.querySelectorAll('.blank-space').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+        }
+
+        function fillBlank(word) {
+            if (activeBlankIndex === -1) return;
             
-            if (isCorrect) {
-                score++;
-                btn.classList.add('correct');
-            } else {
-                btn.classList.add('wrong');
-                document.querySelectorAll('.option-btn').forEach(b => {
-                    if (b.innerText.trim() === q.answer.trim()) b.classList.add('correct-hint');
-                });
+            currentGroupAnswers[activeBlankIndex] = word;
+            const blank = document.getElementById(`blank-${activeBlankIndex}`);
+            blank.innerText = word;
+            blank.classList.add('filled');
+            
+            // Check if all filled
+            const allFilled = currentGroupAnswers.every(a => a !== null);
+            const confirmBtn = document.getElementById('confirm-btn');
+            if (allFilled) {
+                confirmBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                confirmBtn.disabled = false;
+                confirmBtn.classList.add('bg-[var(--chinese-accent)]');
             }
 
-            results.push({ ...q, userAnswer: selected, isCorrect });
-            document.getElementById('explanation').classList.remove('hidden');
-            document.getElementById('next-btn').classList.remove('hidden');
-            const placeholder = document.getElementById('placeholder');
-            if (placeholder) {
-                placeholder.innerText = q.answer;
-                placeholder.className = `px-4 border-b-2 font-bold ${isCorrect ? 'text-green-600 border-green-300' : 'text-red-600 border-red-300'}`;
+            // Auto move to next empty blank
+            let nextEmpty = currentGroupAnswers.findIndex((a, i) => a === null && i > activeBlankIndex);
+            if (nextEmpty === -1) nextEmpty = currentGroupAnswers.findIndex(a => a === null);
+            if (nextEmpty !== -1) selectBlank(nextEmpty);
+        }
+
+        function checkGroupAnswer() {
+            const group = groups[currentIndex];
+            const confirmBtn = document.getElementById('confirm-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const explanation = document.getElementById('explanation');
+            const explanationContent = document.getElementById('explanation-content');
+            
+            confirmBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            explanation.classList.remove('hidden');
+
+            let isGroupCorrect = true;
+            let analysisHtml = '';
+
+            if (group.type === 'group') {
+                group.questions.forEach((q, idx) => {
+                    const userAns = currentGroupAnswers[idx];
+                    const isCorrect = userAns === q.answer;
+                    const blank = document.getElementById(`blank-${idx}`);
+                    
+                    blank.classList.remove('active');
+                    if (isCorrect) {
+                        blank.classList.add('correct');
+                        score++;
+                    } else {
+                        blank.classList.add('wrong');
+                        blank.innerHTML = `${userAns} <span class="text-xs font-normal opacity-70">(正:${q.answer})</span>`;
+                    }
+                    
+                    results.push({ ...q, userAnswer: userAns, isCorrect });
+                    analysisHtml += `<div class="mb-2"><strong>${idx + 1}.</strong> ${q.analysis || '暂无解析'}</div>`;
+                });
+            } else {
+                // Idiom Fill (answer is "(1)A, (2)B...")
+                const answers = group.question.answer.split(',').map(s => s.replace(/\(\d\)/, '').trim());
+                currentGroupAnswers.forEach((userAns, idx) => {
+                    const correctAns = answers[idx];
+                    const isCorrect = userAns === correctAns;
+                    const blank = document.getElementById(`blank-${idx}`);
+                    
+                    blank.classList.remove('active');
+                    if (isCorrect) {
+                        blank.classList.add('correct');
+                        score++;
+                    } else {
+                        blank.classList.add('wrong');
+                        blank.innerHTML = `${userAns} <span class="text-xs font-normal opacity-70">(正:${correctAns})</span>`;
+                    }
+                    
+                    results.push({ ...group.question, subIndex: idx, userAnswer: userAns, isCorrect, subAnswer: correctAns });
+                });
+                analysisHtml = group.question.analysis || '暂无解析';
             }
+
+            explanationContent.innerHTML = analysisHtml;
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.add('disabled'));
+            document.querySelectorAll('.blank-space').forEach(b => b.onclick = null);
         }
 
         function nextQuestion() {
             currentIndex++;
-            if (currentIndex < questions.length) showQuestion();
+            if (currentIndex < groups.length) showQuestion();
             else showReport();
         }
 
@@ -219,30 +360,61 @@
             document.getElementById('back-btn').classList.remove('invisible');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
-            const accuracy = Math.round((score / questions.length) * 100);
+            
+            const accuracy = Math.round((score / totalSubQuestions) * 100);
             document.getElementById('score-display').innerText = `${accuracy}%`;
 
             const wrongList = document.getElementById('wrong-questions-list');
+            wrongList.innerHTML = '<h3 class="font-bold text-gray-900 px-2">错题回顾</h3>';
+            
             results.filter(r => !r.isCorrect).forEach(w => {
                 const item = document.createElement('div');
                 item.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100';
-                item.innerHTML = `<p class="mb-2">${w.sentence}</p><p class="text-sm"><span class="text-red-500">你的答案: ${w.userAnswer}</span> | <span class="text-green-600">正确答案: ${w.answer}</span></p><p class="text-xs text-gray-500 mt-2 italic">${w.analysis}</p>`;
+                const correctAns = w.subAnswer || w.answer;
+                item.innerHTML = `
+                    <p class="mb-2 text-gray-800">${w.sentence}</p>
+                    <div class="flex gap-4 text-sm">
+                        <span class="text-red-500 font-bold">你的答案: ${w.userAnswer}</span>
+                        <span class="text-green-600 font-bold">正确答案: ${correctAns}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3 p-3 bg-gray-50 rounded-xl italic">${w.analysis}</p>
+                `;
                 wrongList.appendChild(item);
             });
 
             try {
-                const response = await fetch('/api/english/grade', {
+                // Call Chinese grade endpoint for AI summary
+                const response = await fetch('/api/chinese/grade', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ questions, answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), mode: document.getElementById('quiz-mode').value })
+                    body: JSON.stringify({ 
+                        questions: results, 
+                        answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), 
+                        mode: document.getElementById('quiz-mode').value 
+                    })
                 });
                 const data = await response.json();
                 document.getElementById('summary-text').innerText = data.summary;
-            } catch (e) { document.getElementById('summary-text').innerText = "练习结束，继续保持哦！"; }
+            } catch (e) { 
+                document.getElementById('summary-text').innerText = "练习结束，你的准确率为 " + accuracy + "%，继续加油！"; 
+            }
         }
 
-        function showLoading(show) {
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        function showLoading(show, percent = 0) {
+            const overlay = document.getElementById('loading-overlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+                document.getElementById('loading-percent').innerText = `${percent}%`;
+                // Simple circle animation sync
+                const circle = document.getElementById('loading-circle');
+                if (percent === 100) {
+                    circle.classList.remove('animate-spin');
+                } else {
+                    circle.classList.add('animate-spin');
+                }
+            } else {
+                overlay.classList.add('hidden');
+            }
         }
     </script>
 </body>
