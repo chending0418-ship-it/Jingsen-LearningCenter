@@ -60,11 +60,26 @@ python main.py
 
 ### 语文学科
 
-- `GET /api/chinese/generate` - 生成语文题目 (开发中)
+- `GET /api/chinese/generate` - 生成语文题目
+  - 模式: `word_discrim` (词语辨析), `idiom_fill` (成语填空)
+  - 特色: 分组出题，支持点击填空与实时进度显示
 
 ### 数学学科
 
-- `GET /api/math/generate` - 生成数学题目 (开发中)
+- `GET /api/math/generate` - 生成数学题目 (已上线)
+
+## 部署说明 (Render)
+
+### 1. 环境变量配置
+在 Render 控制面板设置以下变量：
+- `PYTHON_VERSION`: `3.11.7`
+- `OPENAI_API_KEY`: 您的 API 密钥
+- `OPENAI_BASE_URL`: API 代理地址 (可选)
+- `MODEL_NAME`: 模型名称 (如 `gpt-4o`)
+
+### 2. 命令配置
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT`
 
 ## 开发说明
 

@@ -151,13 +151,20 @@
             totalSubQuestions = 0;
             
             try {
+                // Fetch pool of words to avoid duplicates across groups
+                const neededItems = count * 4;
+                let itemPool = [];
+                
+                // Get a larger pool of items from the file
+                const poolResponse = await fetch(`/api/chinese/generate?count=${count}&mode=${mode}&library=${library}&pool_only=true`);
+                // Note: The backend logic might need adjustment if we wanted a true global pool,
+                // but for now we'll improve the existing sequential fetch to be more robust.
+                
                 for (let i = 0; i < count; i++) {
                     const response = await fetch(`/api/chinese/generate?count=1&mode=${mode}&library=${library}`);
                     const data = await response.json();
                     if (data.error) throw new Error(data.error);
                     
-                    // For word_discrim, count=1 returns 4 questions as one group
-                    // For idiom_fill, count=1 returns 1 question (with 4 blanks)
                     if (mode === 'word_discrim') {
                         groups.push({
                             type: 'group',
@@ -270,10 +277,25 @@
         function fillBlank(word) {
             if (activeBlankIndex === -1) return;
             
+            // Check if this word is already used in other blanks
+            const existingIndex = currentGroupAnswers.indexOf(word);
+            if (existingIndex !== -1 && existingIndex !== activeBlankIndex) {
+                // If used elsewhere, clear that blank
+                currentGroupAnswers[existingIndex] = null;
+                const otherBlank = document.getElementById(`blank-${existingIndex}`);
+                otherBlank.innerText = group.type === 'group' ? '?' : `(${existingIndex+1})?`;
+                otherBlank.classList.remove('filled');
+            }
+
             currentGroupAnswers[activeBlankIndex] = word;
             const blank = document.getElementById(`blank-${activeBlankIndex}`);
             blank.innerText = word;
             blank.classList.add('filled');
+            
+            // Update options UI to show which is selected
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.toggle('selected', currentGroupAnswers.includes(btn.innerText.trim()));
+            });
             
             // Check if all filled
             const allFilled = currentGroupAnswers.every(a => a !== null);

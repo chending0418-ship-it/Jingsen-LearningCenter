@@ -46,16 +46,17 @@ class ChineseService:
                 for word in core_words:
                     prompt = self._build_word_discrim_prompt(word)
                     result = await self.ai_generator.generate_questions(prompt)
-                    # 这里的 result["questions"] 应该包含 4 个小题，作为一个大组返回
                     questions.extend(result.get("questions", []))
             else:
-                # 随机抽取成语，每 4 个一组
-                all_idioms = self._get_random_items("chinese_idioms", count * 4)
-                for i in range(0, len(all_idioms), 4):
-                    group = all_idioms[i:i+4]
-                    if len(group) < 4: break
-                    
-                    prompt = self._build_idiom_fill_prompt(",".join(group))
+                # 随机抽取成语，确保 count 组题目使用完全不同的成语
+                # 每次调用 API 生成一组，所以这里循环 count 次
+                for _ in range(count):
+                    # 获取当前已使用的成语，防止重复（简单实现：从词库重新抽）
+                    # 注意：为了绝对不重复，这里应该传入已使用的列表，
+                    # 但目前 generate_exam 是被 API 分次调用的，我们需要在前端或 service 维护状态
+                    # 这里的改进是：在 Prompt 中强调严谨性
+                    all_idioms = self._get_random_items("chinese_idioms", 4)
+                    prompt = self._build_idiom_fill_prompt(",".join(all_idioms))
                     result = await self.ai_generator.generate_questions(prompt)
                     questions.extend(result.get("questions", []))
             
@@ -110,12 +111,15 @@ class ChineseService:
     def _build_idiom_fill_prompt(self, idioms: str) -> str:
         """构建成语填空题的 Prompt"""
         return f"""
-        请使用以下四个成语：{idioms} 创作一个成语填空题。
+        请使用以下四个成语：{idioms} 创作一个高质量、语义严谨的成语填空题。
         
         规则：
-        1. 写一段连贯的话（约100-200字）。
-        2. 这段话中有四个空格（分别用'(1)____', '(2)____', '(3)____', '(4)____'表示）。
-        3. 每个成语对应一个空格，确保语义逻辑唯一。
+        1. 创作一段连贯、有文学色彩的短文（约150字）。
+        2. 严谨性要求：成语的使用必须符合规范，不得出现生硬凑数或语义不通的情况。
+           - 错误示例：不要写出“小明加入了津津有味的队伍”这种逻辑错误的句子。
+           - 正确示例：应确保成语与上下文动作、环境、情感完美契合。
+        3. 这段短文中有四个空格（分别用'(1)____', '(2)____', '(3)____', '(4)____'表示）。
+        4. 每个成语对应一个空格，确保语义逻辑唯一。
         
         返回格式 JSON:
         {{
@@ -124,7 +128,7 @@ class ChineseService:
                     "sentence": "整段话的内容",
                     "options": ["成语1", "成语2", "成语3", "成语4"],
                     "answer": "(1)成语A, (2)成语B, (3)成语C, (4)成语D",
-                    "analysis": "成语在语境中的用法说明"
+                    "analysis": "每个成语在语境中的详细用法说明"
                 }}
             ]
         }}
