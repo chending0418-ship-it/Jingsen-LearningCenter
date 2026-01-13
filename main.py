@@ -5,7 +5,7 @@ Jingsen 学习中心 1.0 - 主应用入口
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math
 from config import config
 
