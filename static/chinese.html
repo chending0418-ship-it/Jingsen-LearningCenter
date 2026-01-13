@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Learning - Jingsen 学习中心 1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-main: #F8F9FB;
+            --chinese-accent: #FF4B4B;
+            --chinese-theme: #FFEDED;
+        }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background-color: var(--bg-main); }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn.correct { background-color: #DEF7EC; border-color: #31C48D; color: #03543F; }
+        .option-btn.wrong { background-color: #FDE8E8; border-color: #F98080; color: #9B1C1C; }
+        .option-btn.correct-hint { border-color: #31C48D; border-width: 2px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <button id="back-btn" onclick="location.href='/portal'" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    返回门户
+                </button>
+                <h1 class="text-3xl font-bold text-gray-900">语文学习中心</h1>
+            </div>
+            <div id="progress-text" class="text-sm font-bold text-gray-400">准备就绪</div>
+        </header>
+
+        <!-- Configuration -->
+        <div id="setup-section" class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold mb-6">题目设置</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">题型选择</label>
+                    <select id="quiz-mode" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--chinese-accent)] outline-none">
+                        <option value="word_discrim">词语辨析 (四个句子)</option>
+                        <option value="idiom_fill">成语填空 (一段话)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">题目组数</label>
+                    <select id="quiz-count" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--chinese-accent)] outline-none">
+                        <option value="5">5 组</option>
+                        <option value="10">10 组</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="startQuiz()" id="start-btn" class="w-full py-4 bg-[var(--chinese-accent)] text-white rounded-2xl font-bold text-lg hover:opacity-90 transition-all shadow-lg shadow-red-100">
+                开始出题
+            </button>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section" class="hidden">
+            <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                    <div id="progress-bar" class="h-full bg-[var(--chinese-accent)] transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="question-content"></div>
+            </div>
+            <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-4 bg-gray-800 text-white rounded-2xl font-bold text-lg hover:bg-black transition-all">
+                下一题
+            </button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="hidden">
+            <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mb-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-red-50 rounded-full mb-6">
+                    <span id="score-display" class="text-4xl font-bold text-red-600">0</span>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">练习完成!</h2>
+                <div id="summary-text" class="text-gray-600 mb-8 p-6 bg-gray-50 rounded-2xl text-left leading-relaxed"></div>
+                <button onclick="location.reload()" class="px-8 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">
+                    重新开始
+                </button>
+            </div>
+            <div id="wrong-questions-list" class="space-y-4">
+                <h3 class="font-bold text-gray-900 px-2">错题回顾</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/10 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--chinese-accent)] border-t-transparent mb-4"></div>
+            <p class="font-medium text-gray-700">正在为您精心出题...</p>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let results = [];
+        let isAnswered = false;
+        let quizInProgress = false;
+
+        // Prevent browser back
+        window.addEventListener('popstate', function (event) {
+            if (quizInProgress) {
+                history.pushState(null, null, window.location.href);
+            }
+        });
+
+        async function startQuiz() {
+            const mode = document.getElementById('quiz-mode').value;
+            const count = document.getElementById('quiz-count').value;
+            const library = mode === 'word_discrim' ? 'chinese_words' : 'chinese_idioms';
+            
+            showLoading(true);
+            try {
+                const response = await fetch(`/api/chinese/generate?count=${count}&mode=${mode}&library=${library}`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                
+                questions = data.questions;
+                currentIndex = 0;
+                score = 0;
+                results = [];
+                quizInProgress = true;
+
+                // Push state to detect back button
+                history.pushState(null, null, window.location.href);
+                
+                document.getElementById('back-btn').classList.add('invisible');
+                document.getElementById('setup-section').classList.add('hidden');
+                document.getElementById('quiz-section').classList.remove('hidden');
+                showQuestion();
+            } catch (err) {
+                alert('出题失败: ' + err.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showQuestion() {
+            isAnswered = false;
+            const q = questions[currentIndex];
+            const container = document.getElementById('question-content');
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            const progress = ((currentIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').innerText = `题目 ${currentIndex + 1} / ${questions.length}`;
+
+            let sentence = q.sentence;
+            if (document.getElementById('quiz-mode').value === 'word_discrim') {
+                sentence = q.sentence.replace('____', '<span id="placeholder" class="px-4 border-b-2 border-red-400 font-bold text-red-600">?</span>');
+            } else {
+                sentence = q.sentence.replace(/\(\d\)____/g, (match) => `<span class="px-4 border-b-2 border-red-400 font-bold text-red-600">${match.charAt(1)}</span>`);
+            }
+
+            container.innerHTML = `
+                <div class="mb-8">
+                    ${q.options && q.options.length > 0 && document.getElementById('quiz-mode').value === 'idiom_fill' ? `
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${q.options.map(opt => `<span class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-xs font-medium border border-red-100">${opt}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <p class="text-xl leading-relaxed text-gray-800">${sentence}</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    ${q.options.map(opt => `
+                        <button onclick="checkAnswer(this, '${opt}')" class="option-btn p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 font-medium text-gray-700">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="explanation" class="hidden mt-8 p-5 bg-red-50 rounded-2xl text-red-800 text-sm">
+                    <strong>解析：</strong> ${q.analysis || '暂无解析'}
+                </div>
+            `;
+        }
+
+        function checkAnswer(btn, selected) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const q = questions[currentIndex];
+            const isCorrect = selected.trim() === q.answer.trim();
+            
+            if (isCorrect) {
+                score++;
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    if (b.innerText.trim() === q.answer.trim()) b.classList.add('correct-hint');
+                });
+            }
+
+            results.push({ ...q, userAnswer: selected, isCorrect });
+            document.getElementById('explanation').classList.remove('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+            const placeholder = document.getElementById('placeholder');
+            if (placeholder) {
+                placeholder.innerText = q.answer;
+                placeholder.className = `px-4 border-b-2 font-bold ${isCorrect ? 'text-green-600 border-green-300' : 'text-red-600 border-red-300'}`;
+            }
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < questions.length) showQuestion();
+            else showReport();
+        }
+
+        async function showReport() {
+            quizInProgress = false;
+            document.getElementById('back-btn').classList.remove('invisible');
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+            const accuracy = Math.round((score / questions.length) * 100);
+            document.getElementById('score-display').innerText = `${accuracy}%`;
+
+            const wrongList = document.getElementById('wrong-questions-list');
+            results.filter(r => !r.isCorrect).forEach(w => {
+                const item = document.createElement('div');
+                item.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100';
+                item.innerHTML = `<p class="mb-2">${w.sentence}</p><p class="text-sm"><span class="text-red-500">你的答案: ${w.userAnswer}</span> | <span class="text-green-600">正确答案: ${w.answer}</span></p><p class="text-xs text-gray-500 mt-2 italic">${w.analysis}</p>`;
+                wrongList.appendChild(item);
+            });
+
+            try {
+                const response = await fetch('/api/english/grade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions, answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), mode: document.getElementById('quiz-mode').value })
+                });
+                const data = await response.json();
+                document.getElementById('summary-text').innerText = data.summary;
+            } catch (e) { document.getElementById('summary-text').innerText = "练习结束，继续保持哦！"; }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        }
+    </script>
+</body>
+</html>

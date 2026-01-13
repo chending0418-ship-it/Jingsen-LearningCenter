@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jingsen 学习中心 1.0</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-main: #F8F9FB;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B7280;
+            --chinese-theme: #FFEDED;
+            --chinese-accent: #FF4B4B;
+            --math-theme: #EEF7FF;
+            --math-accent: #3B82F6;
+            --english-theme: #ECFDF5;
+            --english-accent: #10B981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container-custom {
+            width: 100%;
+            max-width: 1024px;
+            margin: 0 auto;
+        }
+
+        .course-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .course-card:active {
+            transform: scale(0.98);
+        }
+
+        .progress-bar-container {
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Subject Image Placeholder Styles */
+        .subject-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .subject-img {
+                width: 100px;
+                height: 100px;
+            }
+            .course-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        .img-chinese { background: linear-gradient(135deg, #FFE4E1, #FFB6C1); }
+        .img-math { background: linear-gradient(135deg, #B0C4DE, #87CEEB); }
+        .img-english { background: linear-gradient(135deg, #E0FFF0, #98FB98); }
+
+        .btn-enter {
+            transition: all 0.2s ease;
+        }
+
+        .btn-enter:hover {
+            opacity: 0.9;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-32 md:pb-40">
+    <!-- Main Content -->
+    <main class="container-custom px-6 py-4 md:py-12">
+        <header class="mb-6 md:mb-12">
+            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">Choose your course</h2>
+            <p class="text-gray-500 text-base md:text-xl">Pick a subject to start your learning journey.</p>
+        </header>
+
+        <!-- Course List -->
+        <div class="course-grid space-y-4 md:space-y-0">
+            <!-- Chinese Language -->
+            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('chinese')">
+                <div class="flex-1 md:w-full">
+                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
+                        <span class="text-xl md:text-2xl">📖</span>
+                        <h3 class="text-lg md:text-xl font-bold">Chinese Language</h3>
+                    </div>
+                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--chinese-theme)] text-[var(--chinese-accent)] rounded-full font-bold text-xs md:text-sm">
+                        Enter
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="subject-img img-chinese ml-4 md:ml-0 md:mt-6">
+                    <span class="text-3xl md:text-4xl">🖌️</span>
+                </div>
+            </div>
+
+            <!-- Mathematics -->
+            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('math')">
+                <div class="flex-1 md:w-full">
+                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
+                        <span class="text-xl md:text-2xl">🔢</span>
+                        <h3 class="text-lg md:text-xl font-bold">Mathematics</h3>
+                    </div>
+                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--math-theme)] text-[var(--math-accent)] rounded-full font-bold text-xs md:text-sm">
+                        Enter
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="subject-img img-math ml-4 md:ml-0 md:mt-6">
+                    <span class="text-3xl md:text-4xl">📐</span>
+                </div>
+            </div>
+
+            <!-- English -->
+            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('english')">
+                <div class="flex-1 md:w-full">
+                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
+                        <span class="text-xl md:text-2xl">🔤</span>
+                        <h3 class="text-lg md:text-xl font-bold">English</h3>
+                    </div>
+                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--english-theme)] text-[var(--english-accent)] rounded-full font-bold text-xs md:text-sm">
+                        Enter
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="subject-img img-english ml-4 md:ml-0 md:mt-6">
+                    <span class="text-3xl md:text-4xl">🌍</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Progress Bar Removed -->
+
+    <script>
+        function selectSubject(subject) {
+            console.log('Selected subject:', subject);
+            if (subject === 'english') {
+                window.location.href = '/english';
+            } else if (subject === 'chinese') {
+                window.location.href = '/chinese';
+            } else {
+                alert(subject.charAt(0).toUpperCase() + subject.slice(1) + ' module is coming soon!');
+            }
+        }
+    </script>
+</body>
+</html>
