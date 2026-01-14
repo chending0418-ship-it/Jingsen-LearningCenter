@@ -151,6 +151,18 @@
             totalSubQuestions = 0;
             
             try {
+<<<<<<< HEAD
+=======
+                // Fetch pool of words to avoid duplicates across groups
+                const neededItems = count * 4;
+                let itemPool = [];
+                
+                // Get a larger pool of items from the file
+                const poolResponse = await fetch(`/api/chinese/generate?count=${count}&mode=${mode}&library=${library}&pool_only=true`);
+                // Note: The backend logic might need adjustment if we wanted a true global pool,
+                // but for now we'll improve the existing sequential fetch to be more robust.
+                
+>>>>>>> 6dac691 (fix: 修复重定向报错并全面优化语文填空交互与生成质量)
                 for (let i = 0; i < count; i++) {
                     const response = await fetch(`/api/chinese/generate?count=1&mode=${mode}&library=${library}`);
                     const data = await response.json();
@@ -274,7 +286,10 @@
                 // If used elsewhere, clear that blank
                 currentGroupAnswers[existingIndex] = null;
                 const otherBlank = document.getElementById(`blank-${existingIndex}`);
+<<<<<<< HEAD
                 const group = groups[currentIndex];
+=======
+>>>>>>> 6dac691 (fix: 修复重定向报错并全面优化语文填空交互与生成质量)
                 otherBlank.innerText = group.type === 'group' ? '?' : `(${existingIndex+1})?`;
                 otherBlank.classList.remove('filled');
             }

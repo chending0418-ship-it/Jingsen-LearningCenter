@@ -52,6 +52,12 @@ class ChineseService:
                 # 每次调用 API 生成一组，所以这里循环 count 次
                 for _ in range(count):
                     # 获取当前已使用的成语，防止重复（简单实现：从词库重新抽）
+<<<<<<< HEAD
+=======
+                    # 注意：为了绝对不重复，这里应该传入已使用的列表，
+                    # 但目前 generate_exam 是被 API 分次调用的，我们需要在前端或 service 维护状态
+                    # 这里的改进是：在 Prompt 中强调严谨性
+>>>>>>> 6dac691 (fix: 修复重定向报错并全面优化语文填空交互与生成质量)
                     all_idioms = self._get_random_items("chinese_idioms", 4)
                     prompt = self._build_idiom_fill_prompt(",".join(all_idioms))
                     result = await self.ai_generator.generate_questions(prompt)
