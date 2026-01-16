@@ -16,7 +16,7 @@ chinese_service = ChineseService()
 async def generate_chinese_exam(
     count: int = Query(5, ge=1, le=10, description="题目组数"),
     library: str = Query("chinese_words", description="词库名称"),
-    mode: str = Query("word_discrim", description="题型模式: word_discrim(词语辨析) 或 idiom_fill(成语填空)")
+    mode: str = Query("conj_fill", description="题型模式: word_discrim(词语辨析) 或 conj_fill(关联词填空)")
 ):
     """
     生成语文考题

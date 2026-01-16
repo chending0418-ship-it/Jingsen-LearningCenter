@@ -64,15 +64,15 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">题型选择</label>
                     <select id="quiz-mode" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--chinese-accent)] outline-none">
+                        <option value="conj_fill">关联词填空 (五句话)</option>
                         <option value="word_discrim">词语辨析 (四个句子)</option>
-                        <option value="idiom_fill">成语填空 (一段话)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">题目组数</label>
+                <div id="count-container" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">题目数量</label>
                     <select id="quiz-count" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--chinese-accent)] outline-none">
-                        <option value="5">5 组</option>
-                        <option value="10">10 组</option>
+                        <option value="5">5 组/题</option>
+                        <option value="10">10 组/题</option>
                     </select>
                 </div>
             </div>
@@ -143,46 +143,45 @@
 
         async function startQuiz() {
             const mode = document.getElementById('quiz-mode').value;
-            const count = parseInt(document.getElementById('quiz-count').value);
-            const library = mode === 'word_discrim' ? 'chinese_words' : 'chinese_idioms';
+            // 关联词模式固定为 5 组
+            const count = mode === 'conj_fill' ? 5 : parseInt(document.getElementById('quiz-count').value);
+            const library = mode === 'word_discrim' ? 'chinese_words' : 'chinese_conjunctions';
             
             showLoading(true, 0);
             groups = [];
             totalSubQuestions = 0;
             
             try {
-                // Fetch pool of words to avoid duplicates across groups
-                const neededItems = count * 4;
-                let itemPool = [];
-                
-                // Get a larger pool of items from the file
-                const poolResponse = await fetch(`/api/chinese/generate?count=${count}&mode=${mode}&library=${library}&pool_only=true`);
-                // Note: The backend logic might need adjustment if we wanted a true global pool,
-                // but for now we'll improve the existing sequential fetch to be more robust.
-                
-                for (let i = 0; i < count; i++) {
-                    const response = await fetch(`/api/chinese/generate?count=1&mode=${mode}&library=${library}`);
+                if (mode === 'conj_fill') {
+                    // 关联词模式：一次性获取 5 道题作为一组练习
+                    const response = await fetch(`/api/chinese/generate?count=5&mode=conj_fill&library=chinese_conjunctions`);
                     const data = await response.json();
                     if (data.error) throw new Error(data.error);
                     
-                    if (mode === 'word_discrim') {
+                    groups.push({
+                        type: 'group',
+                        questions: data.questions,
+                        options: data.questions[0].options
+                    });
+                    totalSubQuestions = 5;
+                    showLoading(true, 100);
+                } else {
+                    // 词语辨析模式：按原有逻辑分次获取
+                    for (let i = 0; i < count; i++) {
+                        const response = await fetch(`/api/chinese/generate?count=1&mode=${mode}&library=${library}`);
+                        const data = await response.json();
+                        if (data.error) throw new Error(data.error);
+                        
                         groups.push({
                             type: 'group',
                             questions: data.questions,
                             options: data.questions[0].options
                         });
                         totalSubQuestions += 4;
-                    } else {
-                        groups.push({
-                            type: 'single',
-                            question: data.questions[0],
-                            options: data.questions[0].options
-                        });
-                        totalSubQuestions += 4;
+                        
+                        const percent = Math.round(((i + 1) / count) * 100);
+                        showLoading(true, percent);
                     }
-                    
-                    const percent = Math.round(((i + 1) / count) * 100);
-                    showLoading(true, percent);
                 }
                 
                 currentIndex = 0;
@@ -205,48 +204,32 @@
 
         function showQuestion() {
             const group = groups[currentIndex];
+            const mode = document.getElementById('quiz-mode').value;
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
             
             const progress = ((currentIndex + 1) / groups.length) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
-            document.getElementById('progress-text').innerText = `组 ${currentIndex + 1} / ${groups.length}`;
+            document.getElementById('progress-text').innerText = mode === 'conj_fill' ? '关联词练习' : `组 ${currentIndex + 1} / ${groups.length}`;
 
             activeBlankIndex = 0;
-            currentGroupAnswers = [null, null, null, null];
+            currentGroupAnswers = new Array(group.questions.length).fill(null);
             
-            let html = '';
-            if (group.type === 'group') {
-                // Word Discrimination (4 separate sentences)
-                html = `
-                    <div class="mb-8 space-y-6">
-                        ${group.questions.map((q, idx) => `
-                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <p class="text-lg leading-relaxed text-gray-800">
-                                    ${(idx + 1)}. ${q.sentence.replace('____', `<span onclick="selectBlank(${idx})" id="blank-${idx}" class="blank-space active">?</span>`)}
-                                </p>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                // Idiom Fill (one paragraph with 4 blanks)
-                let sentence = group.question.sentence;
-                let blankIdx = 0;
-                sentence = sentence.replace(/\(\d\)____/g, (match) => {
-                    const idx = blankIdx++;
-                    return `<span onclick="selectBlank(${idx})" id="blank-${idx}" class="blank-space ${idx === 0 ? 'active' : ''}">(${idx+1})?</span>`;
-                });
-                html = `
-                    <div class="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p class="text-xl leading-relaxed text-gray-800">${sentence}</p>
-                    </div>
-                `;
-            }
+            let html = `
+                <div class="mb-8 space-y-6">
+                    ${group.questions.map((q, idx) => `
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-lg leading-relaxed text-gray-800">
+                                ${(idx + 1)}. ${q.sentence.replace(/____/g, `<span onclick="selectBlank(${idx})" id="blank-${idx}" class="blank-space active">?</span>`)}
+                            </p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
 
             // Options Section
             html += `
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
                     ${group.options.map(opt => `
                         <button onclick="fillBlank('${opt}')" class="option-btn p-4 border border-gray-200 rounded-2xl hover:bg-white hover:shadow-md font-medium text-gray-700 bg-white">
                             ${opt}
@@ -277,24 +260,15 @@
         function fillBlank(word) {
             if (activeBlankIndex === -1) return;
             
-            // Check if this word is already used in other blanks
-            const existingIndex = currentGroupAnswers.indexOf(word);
-            if (existingIndex !== -1 && existingIndex !== activeBlankIndex) {
-                // If used elsewhere, clear that blank
-                currentGroupAnswers[existingIndex] = null;
-                const otherBlank = document.getElementById(`blank-${existingIndex}`);
-                otherBlank.innerText = group.type === 'group' ? '?' : `(${existingIndex+1})?`;
-                otherBlank.classList.remove('filled');
-            }
-
             currentGroupAnswers[activeBlankIndex] = word;
             const blank = document.getElementById(`blank-${activeBlankIndex}`);
             blank.innerText = word;
             blank.classList.add('filled');
             
-            // Update options UI to show which is selected
+            // 关联词模式下不限制一个选项只能用一次（因为是5选5，可能重复）
+            // 但为了交互，可以高亮当前填入的
             document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.toggle('selected', currentGroupAnswers.includes(btn.innerText.trim()));
+                // btn.classList.toggle('selected', currentGroupAnswers[activeBlankIndex] === btn.innerText.trim());
             });
             
             // Check if all filled
@@ -323,48 +297,25 @@
             nextBtn.classList.remove('hidden');
             explanation.classList.remove('hidden');
 
-            let isGroupCorrect = true;
             let analysisHtml = '';
 
-            if (group.type === 'group') {
-                group.questions.forEach((q, idx) => {
-                    const userAns = currentGroupAnswers[idx];
-                    const isCorrect = userAns === q.answer;
-                    const blank = document.getElementById(`blank-${idx}`);
-                    
-                    blank.classList.remove('active');
-                    if (isCorrect) {
-                        blank.classList.add('correct');
-                        score++;
-                    } else {
-                        blank.classList.add('wrong');
-                        blank.innerHTML = `${userAns} <span class="text-xs font-normal opacity-70">(正:${q.answer})</span>`;
-                    }
-                    
-                    results.push({ ...q, userAnswer: userAns, isCorrect });
-                    analysisHtml += `<div class="mb-2"><strong>${idx + 1}.</strong> ${q.analysis || '暂无解析'}</div>`;
-                });
-            } else {
-                // Idiom Fill (answer is "(1)A, (2)B...")
-                const answers = group.question.answer.split(',').map(s => s.replace(/\(\d\)/, '').trim());
-                currentGroupAnswers.forEach((userAns, idx) => {
-                    const correctAns = answers[idx];
-                    const isCorrect = userAns === correctAns;
-                    const blank = document.getElementById(`blank-${idx}`);
-                    
-                    blank.classList.remove('active');
-                    if (isCorrect) {
-                        blank.classList.add('correct');
-                        score++;
-                    } else {
-                        blank.classList.add('wrong');
-                        blank.innerHTML = `${userAns} <span class="text-xs font-normal opacity-70">(正:${correctAns})</span>`;
-                    }
-                    
-                    results.push({ ...group.question, subIndex: idx, userAnswer: userAns, isCorrect, subAnswer: correctAns });
-                });
-                analysisHtml = group.question.analysis || '暂无解析';
-            }
+            group.questions.forEach((q, idx) => {
+                const userAns = currentGroupAnswers[idx];
+                const isCorrect = userAns.trim() === q.answer.trim();
+                const blank = document.getElementById(`blank-${idx}`);
+                
+                blank.classList.remove('active');
+                if (isCorrect) {
+                    blank.classList.add('correct');
+                    score++;
+                } else {
+                    blank.classList.add('wrong');
+                    blank.innerHTML = `${userAns} <span class="text-xs font-normal opacity-70">(正:${q.answer})</span>`;
+                }
+                
+                results.push({ ...q, userAnswer: userAns, isCorrect });
+                analysisHtml += `<div class="mb-4 pb-2 border-b border-red-100 last:border-0"><strong>${idx + 1}.</strong> ${q.analysis || '暂无解析'}</div>`;
+            });
 
             explanationContent.innerHTML = analysisHtml;
             document.querySelectorAll('.option-btn').forEach(btn => btn.classList.add('disabled'));
@@ -392,12 +343,11 @@
             results.filter(r => !r.isCorrect).forEach(w => {
                 const item = document.createElement('div');
                 item.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100';
-                const correctAns = w.subAnswer || w.answer;
                 item.innerHTML = `
                     <p class="mb-2 text-gray-800">${w.sentence}</p>
                     <div class="flex gap-4 text-sm">
                         <span class="text-red-500 font-bold">你的答案: ${w.userAnswer}</span>
-                        <span class="text-green-600 font-bold">正确答案: ${correctAns}</span>
+                        <span class="text-green-600 font-bold">正确答案: ${w.answer}</span>
                     </div>
                     <p class="text-xs text-gray-500 mt-3 p-3 bg-gray-50 rounded-xl italic">${w.analysis}</p>
                 `;
@@ -405,7 +355,6 @@
             });
 
             try {
-                // Call Chinese grade endpoint for AI summary
                 const response = await fetch('/api/chinese/grade', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -427,17 +376,23 @@
             if (show) {
                 overlay.classList.remove('hidden');
                 document.getElementById('loading-percent').innerText = `${percent}%`;
-                // Simple circle animation sync
                 const circle = document.getElementById('loading-circle');
-                if (percent === 100) {
-                    circle.classList.remove('animate-spin');
-                } else {
-                    circle.classList.add('animate-spin');
-                }
+                if (percent === 100) circle.classList.remove('animate-spin');
+                else circle.classList.add('animate-spin');
             } else {
                 overlay.classList.add('hidden');
             }
         }
+        
+        // 动态显示数量选择
+        document.getElementById('quiz-mode').addEventListener('change', function(e) {
+            const countContainer = document.getElementById('count-container');
+            if (e.target.value === 'conj_fill') {
+                countContainer.classList.add('hidden');
+            } else {
+                countContainer.classList.remove('hidden');
+            }
+        });
     </script>
 </body>
 </html>

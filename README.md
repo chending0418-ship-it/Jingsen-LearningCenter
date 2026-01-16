@@ -61,8 +61,8 @@ python main.py
 ### 语文学科
 
 - `GET /api/chinese/generate` - 生成语文题目
-  - 模式: `word_discrim` (词语辨析), `idiom_fill` (成语填空)
-  - 特色: 分组出题，支持点击填空与实时进度显示
+  - 模式: `word_discrim` (词语辨析), `conj_fill` (关联词填空)
+  - 特色: 关联词模式支持五联题交互，支持点击填空与 AI 深度解析
 
 ### 数学学科
 
