@@ -15,14 +15,14 @@ english_service = EnglishService()
 @router.get("/generate", response_model=QuestionsResponse)
 async def generate_english_exam(
     count: int = Query(10, ge=1, le=50, description="题目数量"),
-    library: str = Query("book123", description="词库名称"),
+    library: str = Query("4000-202603", description="词库名称"),
     mode: str = Query("cloze", description="题型模式: cloze(完形填空) 或 match(匹配题)")
 ):
     """
     生成英语考题
     
     - **count**: 题目数量 (1-50)
-    - **library**: 词库名称 (默认: book123)
+    - **library**: 词库名称 (默认: 4000-202603)
     - **mode**: 题型模式 (cloze/match)
     """
     result = await english_service.generate_exam(count, library, mode)

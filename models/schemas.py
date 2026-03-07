@@ -32,7 +32,7 @@ class ErrorResponse(BaseModel):
 class GenerateRequest(BaseModel):
     """题目生成请求模型"""
     count: int = Field(10, ge=1, le=50, description="题目数量")
-    library: Optional[str] = Field("book123", description="词库名称")
+    library: Optional[str] = Field("4000-202603", description="词库名称")
     mode: Optional[Literal["cloze", "match"]] = Field("cloze", description="题型模式")
     difficulty: Optional[Literal["easy", "medium", "hard"]] = Field("medium", description="难度级别")
 

@@ -23,7 +23,7 @@ class EnglishService:
     async def generate_exam(
         self,
         count: int = 10,
-        library: str = "book123",
+        library: str = "4000-202603",
         mode: str = "cloze"
     ) -> Dict[str, Any]:
         """
