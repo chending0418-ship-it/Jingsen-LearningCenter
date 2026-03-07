@@ -19,6 +19,8 @@
             --math-accent: #3B82F6;
             --english-theme: #ECFDF5;
             --english-accent: #10B981;
+            --admin-theme: #EEF2FF;
+            --admin-accent: #4F46E5;
         }
 
         body {
@@ -35,7 +37,25 @@
         }
 
         .course-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .course-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(130deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
+            filter: saturate(1.05);
         }
 
         .course-card:active {
@@ -66,23 +86,21 @@
             }
             .course-grid {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 1.5rem;
             }
         }
 
+        .card-chinese { background: linear-gradient(145deg, #fff4f4, #ffe2e2); }
+        .card-math { background: linear-gradient(145deg, #f2f8ff, #dbeafe); }
+        .card-english { background: linear-gradient(145deg, #effef6, #d1fae5); }
+        .card-admin { background: linear-gradient(145deg, #f3f4ff, #e0e7ff); }
+
         .img-chinese { background: linear-gradient(135deg, #FFE4E1, #FFB6C1); }
         .img-math { background: linear-gradient(135deg, #B0C4DE, #87CEEB); }
         .img-english { background: linear-gradient(135deg, #E0FFF0, #98FB98); }
+        .img-admin { background: linear-gradient(135deg, #E0E7FF, #C7D2FE); }
 
-        .btn-enter {
-            transition: all 0.2s ease;
-        }
-
-        .btn-enter:hover {
-            opacity: 0.9;
-            transform: translateX(4px);
-        }
     </style>
 </head>
 <body class="min-h-screen pb-32 md:pb-40">
@@ -95,60 +113,43 @@
 
         <!-- Course List -->
         <div class="course-grid space-y-4 md:space-y-0">
-            <!-- Chinese Language -->
-            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('chinese')">
-                <div class="flex-1 md:w-full">
-                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
-                        <span class="text-xl md:text-2xl">📖</span>
-                        <h3 class="text-lg md:text-xl font-bold">Chinese Language</h3>
-                    </div>
-                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--chinese-theme)] text-[var(--chinese-accent)] rounded-full font-bold text-xs md:text-sm">
-                        Enter
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </button>
+            <div class="course-card card-chinese rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('chinese')">
+                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
+                    <span class="text-xl md:text-2xl">📖</span>
+                    <h3 class="text-lg md:text-xl font-bold">Chinese</h3>
                 </div>
                 <div class="subject-img img-chinese ml-4 md:ml-0 md:mt-6">
                     <span class="text-3xl md:text-4xl">🖌️</span>
                 </div>
             </div>
 
-            <!-- Mathematics -->
-            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('math')">
-                <div class="flex-1 md:w-full">
-                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
-                        <span class="text-xl md:text-2xl">🔢</span>
-                        <h3 class="text-lg md:text-xl font-bold">Mathematics</h3>
-                    </div>
-                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--math-theme)] text-[var(--math-accent)] rounded-full font-bold text-xs md:text-sm">
-                        Enter
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </button>
+            <div class="course-card card-math rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('math')">
+                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
+                    <span class="text-xl md:text-2xl">🔢</span>
+                    <h3 class="text-lg md:text-xl font-bold">Math</h3>
                 </div>
                 <div class="subject-img img-math ml-4 md:ml-0 md:mt-6">
                     <span class="text-3xl md:text-4xl">📐</span>
                 </div>
             </div>
 
-            <!-- English -->
-            <div class="course-card bg-white rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between shadow-sm border border-gray-50 cursor-pointer" onclick="selectSubject('english')">
-                <div class="flex-1 md:w-full">
-                    <div class="flex items-center md:justify-center gap-2 mb-4 md:mb-6">
-                        <span class="text-xl md:text-2xl">🔤</span>
-                        <h3 class="text-lg md:text-xl font-bold">English</h3>
-                    </div>
-                    <button class="btn-enter flex items-center md:mx-auto gap-2 px-5 py-1.5 md:px-6 md:py-2 bg-[var(--english-theme)] text-[var(--english-accent)] rounded-full font-bold text-xs md:text-sm">
-                        Enter
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </button>
+            <div class="course-card card-english rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('english')">
+                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
+                    <span class="text-xl md:text-2xl">🔤</span>
+                    <h3 class="text-lg md:text-xl font-bold">English</h3>
                 </div>
                 <div class="subject-img img-english ml-4 md:ml-0 md:mt-6">
                     <span class="text-3xl md:text-4xl">🌍</span>
+                </div>
+            </div>
+
+            <div class="course-card card-admin rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('admin')">
+                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
+                    <span class="text-xl md:text-2xl">🛠️</span>
+                    <h3 class="text-lg md:text-xl font-bold">Admin</h3>
+                </div>
+                <div class="subject-img img-admin ml-4 md:ml-0 md:mt-6">
+                    <span class="text-3xl md:text-4xl">⚙️</span>
                 </div>
             </div>
         </div>
@@ -156,17 +157,66 @@
 
     <!-- Bottom Progress Bar Removed -->
 
+    <div id="admin-auth-modal" class="fixed inset-0 bg-black/40 hidden items-start justify-center pt-[12vh] md:pt-[16vh] z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-[92%] max-w-sm p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">管理员验证</h3>
+            <p class="text-sm text-gray-500 mb-4">请输入后台密码</p>
+            <input id="admin-password-input" type="password" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="请输入密码" />
+            <p id="admin-auth-error" class="text-sm text-red-500 mt-2 hidden">密码错误，请重试</p>
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeAdminAuth()" class="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">取消</button>
+                <button onclick="confirmAdminAuth()" class="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl hover:opacity-90">确认</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openAdminAuth() {
+            const modal = document.getElementById('admin-auth-modal');
+            const input = document.getElementById('admin-password-input');
+            const error = document.getElementById('admin-auth-error');
+            error.classList.add('hidden');
+            input.value = '';
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 0);
+        }
+
+        function closeAdminAuth() {
+            const modal = document.getElementById('admin-auth-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        function confirmAdminAuth() {
+            const input = document.getElementById('admin-password-input');
+            const error = document.getElementById('admin-auth-error');
+            if (input.value.trim() !== '0418') {
+                error.classList.remove('hidden');
+                return;
+            }
+            closeAdminAuth();
+            window.location.href = '/admin';
+        }
+
         function selectSubject(subject) {
             console.log('Selected subject:', subject);
             if (subject === 'english') {
                 window.location.href = '/english';
             } else if (subject === 'chinese') {
                 window.location.href = '/chinese';
+            } else if (subject === 'admin') {
+                openAdminAuth();
             } else {
                 alert(subject.charAt(0).toUpperCase() + subject.slice(1) + ' module is coming soon!');
             }
         }
+
+        document.getElementById('admin-password-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAdminAuth();
+        });
     </script>
 </body>
 </html>

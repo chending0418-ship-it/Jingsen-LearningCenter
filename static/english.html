@@ -34,6 +34,8 @@
             <div id="progress-text" class="text-sm font-bold text-gray-400">Ready</div>
         </header>
 
+        <div id="page-notice" class="hidden mb-4 px-4 py-3 rounded-xl text-sm font-medium"></div>
+
         <!-- Configuration -->
         <div id="setup-section" class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
             <h2 class="text-xl font-bold mb-6">Quiz Configuration</h2>
@@ -41,8 +43,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Select Library</label>
                     <select id="word-library" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
-                        <option value="4000-202603">4000-202603</option>
-                        <option value="暂时不用">暂时不用</option>
+                        <option value="">自动选择已启用词库</option>
                     </select>
                 </div>
                 <div>
@@ -123,19 +124,22 @@
             const count = document.getElementById('word-count').value;
             const mode = document.getElementById('quiz-mode').value;
             const library = document.getElementById('word-library').value;
-            
+
             showLoading(true);
             try {
-                const response = await fetch(`/api/english/generate?count=${count}&mode=${mode}&library=${library}`);
+                const params = new URLSearchParams({ count: String(count), mode });
+                if (library) params.set('library', library);
+                const response = await fetch(`/api/english/generate?${params.toString()}`);
                 const data = await response.json();
-                if (data.error) throw new Error(data.error);
-                
+                if (!response.ok) throw new Error(getErrorMessage(data, '出题失败'));
+                if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效题目，请稍后重试');
+
                 questions = data.questions;
                 currentIndex = 0;
                 score = 0;
                 results = [];
                 quizInProgress = true;
-                
+
                 // Push state to detect back button
                 history.pushState(null, null, window.location.href);
 
@@ -144,7 +148,7 @@
                 document.getElementById('quiz-section').classList.remove('hidden');
                 showQuestion();
             } catch (err) {
-                alert('Failed: ' + err.message);
+                showNotice('error', err.message || '出题失败，请稍后重试');
             } finally {
                 showLoading(false);
             }
@@ -230,13 +234,73 @@
                     body: JSON.stringify({ questions, answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), mode: document.getElementById('quiz-mode').value })
                 });
                 const data = await response.json();
+                if (!response.ok) throw new Error(getErrorMessage(data, '总结生成失败'));
                 document.getElementById('summary-text').innerText = data.summary;
-            } catch (e) { document.getElementById('summary-text').innerText = "Good job! Keep practicing."; }
+            } catch (e) {
+                document.getElementById('summary-text').innerText = "Good job! Keep practicing.";
+                showNotice('error', e.message || '总结生成失败，已使用默认文案');
+            }
         }
 
         function showLoading(show) {
             document.getElementById('loading-overlay').classList.toggle('hidden', !show);
         }
+
+        function getErrorMessage(payload, fallback) {
+            if (!payload) return fallback;
+            return payload.detail || payload.error || fallback;
+        }
+
+        function showNotice(type, message) {
+            const el = document.getElementById('page-notice');
+            el.className = `mb-4 px-4 py-3 rounded-xl text-sm font-medium ${type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            el.textContent = message;
+            el.classList.remove('hidden');
+            clearTimeout(window.__pageNoticeTimer__);
+            window.__pageNoticeTimer__ = setTimeout(() => el.classList.add('hidden'), 2800);
+        }
+
+        function setStartAvailability(enabled, reason = '') {
+            const btn = document.getElementById('start-btn');
+            btn.disabled = !enabled;
+            btn.classList.toggle('opacity-50', !enabled);
+            btn.classList.toggle('cursor-not-allowed', !enabled);
+            if (reason) showNotice('error', reason);
+        }
+
+        async function loadEnabledLibraries() {
+            const mode = document.getElementById('quiz-mode').value;
+            const select = document.getElementById('word-library');
+            const previous = select.value;
+            select.innerHTML = '<option value="">自动选择已启用词库</option>';
+            try {
+                const res = await fetch(`/api/english/libraries?mode=${mode}`);
+                const libraries = await res.json();
+                if (!res.ok) throw new Error(getErrorMessage(libraries, '加载词库失败'));
+                if (!Array.isArray(libraries)) throw new Error('词库响应格式错误');
+
+                libraries.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                });
+                if (previous && libraries.includes(previous)) {
+                    select.value = previous;
+                }
+
+                if (!libraries.length) {
+                    setStartAvailability(false, '当前题型下没有可用词库，请先在后台启用词库');
+                } else {
+                    setStartAvailability(true);
+                }
+            } catch (e) {
+                setStartAvailability(false, e.message || '加载词库失败，请稍后重试');
+            }
+        }
+
+        document.getElementById('quiz-mode').addEventListener('change', loadEnabledLibraries);
+        loadEnabledLibraries();
     </script>
 </body>
 </html>

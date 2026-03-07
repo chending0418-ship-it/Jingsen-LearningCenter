@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "libraries": [
+    {
+      "id": "f8275129d4964f6c83720578910c95db",
+      "subject": "english",
+      "name": "暂时不用",
+      "file_name": "暂时不用",
+      "enabled": true,
+      "library_type": null,
+      "created_at": "2026-03-07T02:04:15.410228Z",
+      "updated_at": "2026-03-07T02:26:24.260784Z"
+    },
+    {
+      "id": "b70ed8fe36c249d0988598a97a3349f0",
+      "subject": "chinese",
+      "name": "chinese_words",
+      "file_name": "chinese_words",
+      "enabled": true,
+      "library_type": "word_discrim",
+      "created_at": "2026-03-07T02:04:15.410228Z",
+      "updated_at": "2026-03-07T02:24:51.042748Z"
+    },
+    {
+      "id": "dcf2c9828f324579ae81dbd04b2dc0d9",
+      "subject": "chinese",
+      "name": "chinese_idioms",
+      "file_name": "chinese_idioms",
+      "enabled": true,
+      "library_type": "idiom_fill",
+      "created_at": "2026-03-07T02:04:15.410228Z",
+      "updated_at": "2026-03-07T02:19:13.652481Z"
+    },
+    {
+      "id": "6311d45e027b4c669e66b4766d06f3a2",
+      "subject": "chinese",
+      "name": "chinese_conjunctions",
+      "file_name": "chinese_conjunctions",
+      "enabled": true,
+      "library_type": "conj_fill",
+      "created_at": "2026-03-07T02:04:15.410228Z",
+      "updated_at": "2026-03-07T02:04:15.410228Z"
+    },
+    {
+      "id": "ef3395435ea047428964f2e5d4d24184",
+      "subject": "english",
+      "name": "4000-202603",
+      "file_name": "4000-202603",
+      "enabled": true,
+      "library_type": null,
+      "created_at": "2026-03-07T02:04:15.410228Z",
+      "updated_at": "2026-03-07T02:04:15.410228Z"
+    }
+  ]
+}

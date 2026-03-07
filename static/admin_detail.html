@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词库详情</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --bg-main: #F8F9FB; --accent: #4F46E5; }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background: var(--bg-main); }
+        .card { border: 1px solid #E5E7EB; border-radius: 16px; background: #fff; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div id="notice" class="hidden fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg"></div>
+
+    <div class="max-w-4xl mx-auto space-y-4">
+        <header>
+            <button onclick="location.href='/admin'" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                返回列表
+            </button>
+            <h1 class="text-3xl font-bold text-gray-900">词库详情 / 编辑</h1>
+        </header>
+
+        <div id="missing" class="card p-5 hidden text-red-600">缺少词库 id，请从列表页进入。</div>
+
+        <div id="panel" class="card p-5 space-y-4 hidden">
+            <input id="detail-id" type="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">学科</label>
+                    <input id="detail-subject" type="text" disabled class="w-full p-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">启用状态</label>
+                    <div class="flex gap-2">
+                        <input id="detail-enabled-text" type="text" disabled class="flex-1 p-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-500">
+                        <button onclick="toggleStatus()" id="toggle-btn" class="px-4 py-2.5 rounded-xl bg-amber-500 text-white hover:opacity-90">停用</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">词库名称</label>
+                <input id="detail-name" type="text" class="w-full p-2.5 border border-gray-200 rounded-xl">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">词库类型</label>
+                <select id="detail-type" class="w-full p-2.5 border border-gray-200 rounded-xl"></select>
+            </div>
+            <button onclick="saveMeta()" class="w-full py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">保存元信息</button>
+
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">词条（每行一个）</label>
+                <textarea id="detail-items" rows="12" class="w-full p-2.5 border border-gray-200 rounded-xl"></textarea>
+            </div>
+            <button onclick="saveItems()" class="w-full py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">保存词条</button>
+        </div>
+    </div>
+
+    <script>
+        let current = null;
+
+        const CHINESE_TYPES = [
+            { value: '', label: '无指定类型' },
+            { value: 'word_discrim', label: '词语辨析' },
+            { value: 'conj_fill', label: '关联词填空' },
+            { value: 'idiom_fill', label: '成语填空' }
+        ];
+        const ENGLISH_TYPES = [
+            { value: '', label: '无指定类型' },
+            { value: 'cloze', label: '完形填空' },
+            { value: 'match', label: '词义匹配' }
+        ];
+
+        function showNotice(type, message) {
+            const el = document.getElementById('notice');
+            el.className = `fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg ${type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
+            el.textContent = message;
+            el.classList.remove('hidden');
+            clearTimeout(window.__noticeTimer__);
+            window.__noticeTimer__ = setTimeout(() => el.classList.add('hidden'), 2800);
+        }
+
+        function fillSelect(subject, selected = '') {
+            const opts = subject === 'chinese' ? CHINESE_TYPES : ENGLISH_TYPES;
+            const target = document.getElementById('detail-type');
+            target.innerHTML = opts.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+            target.value = selected || '';
+        }
+
+        function updateStatusUI() {
+            const enabled = !!current.enabled;
+            document.getElementById('detail-enabled-text').value = enabled ? '启用中' : '已停用';
+            const btn = document.getElementById('toggle-btn');
+            btn.textContent = enabled ? '停用' : '启用';
+            btn.className = `px-4 py-2.5 rounded-xl text-white hover:opacity-90 ${enabled ? 'bg-amber-500' : 'bg-emerald-600'}`;
+        }
+
+        async function loadDetail() {
+            const id = new URLSearchParams(location.search).get('id');
+            if (!id) {
+                document.getElementById('missing').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/libraries/${id}`);
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `加载详情失败：${data.detail || '未知错误'}`);
+
+                current = data;
+                document.getElementById('panel').classList.remove('hidden');
+                document.getElementById('detail-id').value = data.id;
+                document.getElementById('detail-subject').value = data.subject === 'chinese' ? '语文' : '英语';
+                document.getElementById('detail-name').value = data.name;
+                fillSelect(data.subject, data.library_type || '');
+                document.getElementById('detail-items').value = (data.items || []).join('\n');
+                updateStatusUI();
+            } catch (e) {
+                showNotice('error', `加载详情失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        async function toggleStatus() {
+            try {
+                const res = await fetch(`/api/admin/libraries/${current.id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: !current.enabled })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `状态更新失败：${data.detail || '未知错误'}`);
+                current = data;
+                updateStatusUI();
+                showNotice('success', '状态更新成功');
+            } catch (e) {
+                showNotice('error', `状态更新失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        async function saveMeta() {
+            const name = document.getElementById('detail-name').value.trim();
+            const library_type = document.getElementById('detail-type').value || null;
+            if (!name) return showNotice('error', '保存失败：名称不能为空');
+
+            try {
+                const res = await fetch(`/api/admin/libraries/${current.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, library_type })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `保存失败：${data.detail || '未知错误'}`);
+                await loadDetail();
+                showNotice('success', '元信息已保存');
+            } catch (e) {
+                showNotice('error', `保存失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        async function saveItems() {
+            const items = document.getElementById('detail-items').value.split('\n').map(x => x.trim()).filter(Boolean);
+            if (!items.length) return showNotice('error', '保存失败：请至少保留 1 条词条');
+
+            try {
+                const res = await fetch(`/api/admin/libraries/${current.id}/items`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `保存失败：${data.detail || '未知错误'}`);
+                await loadDetail();
+                showNotice('success', '词条已保存');
+            } catch (e) {
+                showNotice('error', `保存失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        loadDetail();
+    </script>
+</body>
+</html>

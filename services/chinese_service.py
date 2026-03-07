@@ -4,9 +4,10 @@
 """
 import random
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from core.ai_generator import get_ai_generator
 from core.vocabulary import get_vocabulary_manager
+from services.library_admin_service import get_library_admin_service
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +19,13 @@ class ChineseService:
         """初始化语文服务"""
         self.ai_generator = get_ai_generator()
         self.vocab_manager = get_vocabulary_manager()
+        self.library_admin_service = get_library_admin_service()
         logger.info("ChineseService initialized")
     
     async def generate_exam(
         self,
         count: int = 5,
-        library: str = "chinese_words",
+        library: Optional[str] = None,
         mode: str = "word_discrim"
     ) -> Dict[str, Any]:
         """
@@ -31,42 +33,60 @@ class ChineseService:
         
         Args:
             count: 题目数量
-            library: 词库名称
-            mode: 题型模式 (word_discrim: 词语辨析, conj_fill: 关联词填空)
+            library: 词库名称(可选，不传自动选择已启用词库)
+            mode: 题型模式 (word_discrim: 词语辨析, conj_fill: 关联词填空, idiom_fill: 成语填空)
         
         Returns:
             包含题目列表的字典
         """
         try:
             questions = []
-            
+            mode_to_library_type = {
+                "word_discrim": "word_discrim",
+                "conj_fill": "conj_fill",
+                "idiom_fill": "idiom_fill"
+            }
+
+            if mode not in mode_to_library_type:
+                return {"error": f"不支持的题型: {mode}", "questions": []}
+
+            resolved_library = self.library_admin_service.resolve_enabled_library(
+                subject="chinese",
+                requested_library=library,
+                library_type=mode_to_library_type[mode]
+            )
+            selected_library = resolved_library["file_name"]
+
             if mode == "word_discrim":
-                # 随机抽取核心词
-                core_words = self._get_random_items("chinese_words", count)
+                core_words = self._get_random_items(selected_library, count)
+                if not core_words:
+                    return {"error": f"词库 {resolved_library['name']} 为空或不可用", "questions": []}
                 for word in core_words:
                     prompt = self._build_word_discrim_prompt(word)
                     result = await self.ai_generator.generate_questions(prompt)
                     questions.extend(result.get("questions", []))
             elif mode == "conj_fill":
-                # 关联词填空逻辑
-                # 1. 随机抽取 5 组关联词作为备选项
-                conjunctions = self._get_random_items("chinese_conjunctions", count)
-                # 2. 为每组关联词生成一个句子
+                conjunctions = self._get_random_items(selected_library, count)
+                if not conjunctions:
+                    return {"error": f"词库 {resolved_library['name']} 为空或不可用", "questions": []}
                 for conj in conjunctions:
                     prompt = self._build_conj_fill_prompt(conj, conjunctions)
                     result = await self.ai_generator.generate_questions(prompt)
-                    # 确保每个问题都带上所有的备选项
                     for q in result.get("questions", []):
                         q["options"] = conjunctions
                     questions.extend(result.get("questions", []))
-            else:
-                # 默认成语填空（保留或根据需要移除）
+            elif mode == "idiom_fill":
                 for _ in range(count):
-                    all_idioms = self._get_random_items("chinese_idioms", 4)
+                    all_idioms = self._get_random_items(selected_library, 4)
+                    if len(all_idioms) < 4:
+                        return {"error": f"词库 {resolved_library['name']} 词条不足，至少需要 4 条", "questions": []}
                     prompt = self._build_idiom_fill_prompt(",".join(all_idioms))
                     result = await self.ai_generator.generate_questions(prompt)
                     questions.extend(result.get("questions", []))
-            
+
+            if not questions:
+                return {"error": "AI 未返回有效题目，请稍后重试", "questions": []}
+
             logger.info(f"Successfully generated {len(questions)} {mode} questions")
             return {"questions": questions}
         
@@ -171,6 +191,16 @@ class ChineseService:
             ]
         }}
         """
+
+    async def get_library_list(self, mode: Optional[str] = None) -> List[str]:
+        """获取语文可用且已启用的词库列表"""
+        mode_to_library_type = {
+            "word_discrim": "word_discrim",
+            "conj_fill": "conj_fill",
+            "idiom_fill": "idiom_fill"
+        }
+        library_type = mode_to_library_type.get(mode) if mode else None
+        return self.library_admin_service.get_enabled_library_names(subject="chinese", library_type=library_type)
 
     async def grade_exam(self, submit_data: Any) -> Dict[str, Any]:
         """批改考试并生成总结"""

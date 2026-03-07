@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词库管理后台 - 列表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --bg-main: #F8F9FB; --accent: #4F46E5; }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background: var(--bg-main); }
+        .card { border: 1px solid #E5E7EB; border-radius: 16px; background: #fff; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div id="notice" class="hidden fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg"></div>
+
+    <div class="max-w-7xl mx-auto space-y-4">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <button onclick="location.href='/portal'" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    返回门户
+                </button>
+                <h1 class="text-3xl font-bold text-gray-900">词库管理后台</h1>
+                <p class="text-gray-500 mt-1">列表页：查看词库状态，进入新增页和详情页。</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="location.href='/admin/new'" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:opacity-90">新增词库</button>
+                <button onclick="loadLibraries()" class="px-5 py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">刷新列表</button>
+            </div>
+        </header>
+
+        <div class="card p-4 md:p-5">
+            <div class="flex flex-col md:flex-row gap-3 md:items-end">
+                <div class="flex-1">
+                    <label class="block text-sm text-gray-600 mb-1">学科筛选</label>
+                    <select id="filter-subject" class="w-full p-2.5 border border-gray-200 rounded-xl bg-white">
+                        <option value="">全部</option>
+                        <option value="english">英语</option>
+                        <option value="chinese">语文</option>
+                    </select>
+                </div>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input id="filter-include-disabled" type="checkbox" checked class="w-4 h-4">
+                    包含未启用词库
+                </label>
+                <button onclick="loadLibraries()" class="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">查询</button>
+            </div>
+        </div>
+
+        <div class="card p-0 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 text-gray-500">
+                        <tr>
+                            <th class="text-left p-3">词库名称</th>
+                            <th class="text-left p-3">学科</th>
+                            <th class="text-left p-3">类型</th>
+                            <th class="text-left p-3">词条数</th>
+                            <th class="text-left p-3">状态</th>
+                            <th class="text-left p-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="library-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showNotice(type, message) {
+            const el = document.getElementById('notice');
+            el.className = `fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg ${type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
+            el.textContent = message;
+            el.classList.remove('hidden');
+            clearTimeout(window.__noticeTimer__);
+            window.__noticeTimer__ = setTimeout(() => el.classList.add('hidden'), 2600);
+        }
+
+        function subjectLabel(value) {
+            return value === 'chinese' ? '语文' : '英语';
+        }
+
+        function typeLabel(type) {
+            const map = {
+                word_discrim: '词语辨析',
+                conj_fill: '关联词填空',
+                idiom_fill: '成语填空',
+                cloze: '完形填空',
+                match: '词义匹配'
+            };
+            return map[type] || '-';
+        }
+
+        async function toggleStatus(libraryId, enabled) {
+            try {
+                const res = await fetch(`/api/admin/libraries/${libraryId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `状态更新失败：${data.detail || '未知错误'}`);
+                showNotice('success', '状态更新成功');
+                await loadLibraries();
+            } catch (e) {
+                showNotice('error', `状态更新失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        async function loadLibraries() {
+            const subject = document.getElementById('filter-subject').value;
+            const includeDisabled = document.getElementById('filter-include-disabled').checked;
+            const query = new URLSearchParams();
+            if (subject) query.set('subject', subject);
+            query.set('include_disabled', includeDisabled ? 'true' : 'false');
+
+            try {
+                const res = await fetch(`/api/admin/libraries?${query.toString()}`);
+                const data = await res.json();
+                if (!res.ok) {
+                    showNotice('error', `加载词库失败：${data.detail || '未知错误'}`);
+                    return;
+                }
+
+                const libraries = data.libraries || [];
+                const tbody = document.getElementById('library-tbody');
+
+                if (!libraries.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">暂无词库</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = libraries.map(lib => {
+                    const statusClass = lib.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+                    const statusText = lib.enabled ? '启用中' : '已停用';
+                    return `
+                        <tr>
+                            <td class="p-3 font-medium text-gray-800">${lib.name}</td>
+                            <td class="p-3 text-gray-600">${subjectLabel(lib.subject)}</td>
+                            <td class="p-3 text-gray-600">${typeLabel(lib.library_type)}</td>
+                            <td class="p-3 text-gray-600">${lib.total_items}</td>
+                            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
+                            <td class="p-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="location.href='/admin/library?id=${lib.id}'" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
+                                    <button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                showNotice('error', `加载词库失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        loadLibraries();
+    </script>
+</body>
+</html>

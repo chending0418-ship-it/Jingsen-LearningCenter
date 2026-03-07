@@ -74,3 +74,52 @@ class GradeResponse(BaseModel):
     correct_count: int = Field(..., description="正确数")
     results: List[GradeResult] = Field(..., description="逐题批改结果")
     summary: str = Field(..., description="学习总结")
+
+
+class LibraryAdminItem(BaseModel):
+    """后台词库条目"""
+    id: str = Field(..., description="词库ID")
+    subject: Literal["english", "chinese"] = Field(..., description="学科")
+    name: str = Field(..., description="词库名称")
+    file_name: str = Field(..., description="文件名(不含扩展名)")
+    enabled: bool = Field(..., description="是否启用")
+    library_type: Optional[str] = Field(None, description="词库用途类型")
+    total_items: int = Field(0, description="词条数量")
+    created_at: str = Field(..., description="创建时间")
+    updated_at: str = Field(..., description="更新时间")
+
+
+class LibraryListResponse(BaseModel):
+    """词库列表响应"""
+    libraries: List[LibraryAdminItem] = Field(..., description="词库列表")
+    total: int = Field(..., description="总数")
+
+
+class LibraryDetailResponse(LibraryAdminItem):
+    """词库详情响应"""
+    items: List[str] = Field(default_factory=list, description="词条列表")
+
+
+class LibraryCreateRequest(BaseModel):
+    """新建词库请求"""
+    subject: Literal["english", "chinese"] = Field(..., description="学科")
+    name: str = Field(..., min_length=1, description="词库名称")
+    items: List[str] = Field(default_factory=list, description="词条列表")
+    enabled: bool = Field(True, description="是否启用")
+    library_type: Optional[str] = Field(None, description="词库用途类型")
+
+
+class LibraryUpdateRequest(BaseModel):
+    """更新词库元信息请求"""
+    name: Optional[str] = Field(None, min_length=1, description="词库名称")
+    library_type: Optional[str] = Field(None, description="词库用途类型")
+
+
+class LibraryStatusRequest(BaseModel):
+    """更新词库启用状态请求"""
+    enabled: bool = Field(..., description="是否启用")
+
+
+class LibraryItemsUpdateRequest(BaseModel):
+    """更新词条请求"""
+    items: List[str] = Field(default_factory=list, description="词条列表")

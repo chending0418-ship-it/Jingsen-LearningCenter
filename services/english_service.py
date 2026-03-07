@@ -4,9 +4,10 @@
 """
 import random
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from core.ai_generator import get_ai_generator
 from core.vocabulary import get_vocabulary_manager
+from services.library_admin_service import get_library_admin_service
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +19,13 @@ class EnglishService:
         """初始化英语服务"""
         self.ai_generator = get_ai_generator()
         self.vocab_manager = get_vocabulary_manager()
+        self.library_admin_service = get_library_admin_service()
         logger.info("EnglishService initialized")
     
     async def generate_exam(
         self,
         count: int = 10,
-        library: str = "4000-202603",
+        library: Optional[str] = None,
         mode: str = "cloze"
     ) -> Dict[str, Any]:
         """
@@ -31,19 +33,26 @@ class EnglishService:
         
         Args:
             count: 题目数量
-            library: 词库名称
+            library: 词库名称(可选，不传自动选择已启用词库)
             mode: 题型模式 (cloze/match)
         
         Returns:
             包含题目列表的字典
         """
         try:
-            # 获取随机词汇
-            selected_words = self.vocab_manager.get_random_words(library, count)
+            if mode not in ["cloze", "match"]:
+                return {"error": f"不支持的题型: {mode}", "questions": []}
+
+            resolved_library = self.library_admin_service.resolve_enabled_library(
+                subject="english",
+                requested_library=library,
+                library_type=mode
+            )
+            selected_words = self.vocab_manager.get_random_words(resolved_library["file_name"], count)
             
             if not selected_words:
                 return {
-                    "error": f"Library {library}.txt not found or empty",
+                    "error": f"Library {resolved_library['name']}.txt not found or empty",
                     "questions": []
                 }
             
@@ -58,10 +67,13 @@ class EnglishService:
             # 调用 AI 生成题目
             result = await self.ai_generator.generate_questions(prompt)
             questions = result.get("questions", [])
-            
+
             # 后处理：打散选项顺序
             questions = self._shuffle_options(questions)
-            
+
+            if not questions:
+                return {"error": "AI 未返回有效题目，请稍后重试", "questions": []}
+
             logger.info(f"Successfully generated {len(questions)} {mode} questions")
             return {"questions": questions}
         
@@ -122,7 +134,7 @@ class EnglishService:
         Return JSON format: {{"questions": [...]}}
         """
     
-    def _shuffle_options(self, questions: List[Dict]) -> List[Dict]:
+    def _shuffle_options(self, questions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         打散题目选项顺序，确保正确答案位置随机
         
@@ -153,18 +165,25 @@ class EnglishService:
         
         return questions
     
-    async def get_library_list(self) -> List[str]:
+    async def get_library_list(self, mode: Optional[str] = None) -> List[str]:
         """
-        获取可用的词库列表
-        
+        获取可用且已启用的词库列表
+
+        Args:
+            mode: 题型模式（cloze/match，可选）
+
         Returns:
             词库名称列表
         """
-        return self.vocab_manager.get_all_libraries()
+        library_type = mode if mode in ["cloze", "match"] else None
+        return self.library_admin_service.get_enabled_library_names(
+            subject="english",
+            library_type=library_type
+        )
     
     async def get_library_info(self, library_name: str) -> Dict[str, Any]:
         """
-        获取指定词库的详细信息
+        获取指定词库的详细信息（仅已启用词库）
         
         Args:
             library_name: 词库名称
@@ -172,7 +191,11 @@ class EnglishService:
         Returns:
             词库信息字典
         """
-        return self.vocab_manager.get_library_info(library_name)
+        resolved = self.library_admin_service.resolve_enabled_library(
+            subject="english",
+            requested_library=library_name
+        )
+        return self.vocab_manager.get_library_info(resolved["file_name"])
 
     async def grade_exam(self, submit_data: Any) -> Dict[str, Any]:
         """
@@ -224,7 +247,7 @@ class EnglishService:
             "summary": summary
         }
 
-    def _build_summary_prompt(self, results: List[Dict], mode: str, score: float) -> str:
+    def _build_summary_prompt(self, results: List[Dict[str, Any]], mode: str, score: float) -> str:
         """构建总结 Prompt"""
         perf_data = []
         for r in results:

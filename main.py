@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math
+from api import english, chinese, math, admin
 from config import config
 
 # 配置日志
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(english.router)
 app.include_router(chinese.router)
 app.include_router(math.router)
+app.include_router(admin.router)
 
 
 @app.get("/")
@@ -91,6 +92,45 @@ async def serve_chinese_portal():
         return JSONResponse(
             status_code=404,
             content={"error": "Chinese page not found"}
+        )
+
+
+@app.get("/admin")
+async def serve_admin_portal():
+    """提供词库管理后台列表页面"""
+    try:
+        return FileResponse("static/admin.html")
+    except Exception as e:
+        logger.error(f"Failed to serve admin page: {str(e)}")
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Admin page not found"}
+        )
+
+
+@app.get("/admin/new")
+async def serve_admin_create_page():
+    """提供新增词库页面"""
+    try:
+        return FileResponse("static/admin_create.html")
+    except Exception as e:
+        logger.error(f"Failed to serve admin create page: {str(e)}")
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Admin create page not found"}
+        )
+
+
+@app.get("/admin/library")
+async def serve_admin_detail_page():
+    """提供词库详情页面"""
+    try:
+        return FileResponse("static/admin_detail.html")
+    except Exception as e:
+        logger.error(f"Failed to serve admin detail page: {str(e)}")
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Admin detail page not found"}
         )
 
 
