@@ -22,8 +22,11 @@ class Config:
     HOST: str = os.environ.get("HOST", "0.0.0.0")
     PORT: int = int(os.environ.get("PORT", 8000))
     
-    # 数据目录配置
+    # 数据目录配置（仅用于初始化导入）
     DATA_DIR: str = os.path.join(os.path.dirname(__file__), "data")
+
+    # PostgreSQL 配置
+    DATABASE_URL: str = os.environ.get("DATABASE_URL", "")
     
     # CORS 配置
     CORS_ORIGINS: list = ["*"]
@@ -42,6 +45,17 @@ class Config:
         if api_base and "vveai" in api_base and not api_base.endswith("/v1"):
             api_base = api_base.rstrip("/") + "/v1"
         return api_base
+
+    @classmethod
+    def database_url_for_sqlalchemy(cls) -> str:
+        """将 DATABASE_URL 规范化为 SQLAlchemy 可识别格式"""
+        if not cls.DATABASE_URL:
+            return ""
+        if cls.DATABASE_URL.startswith("postgres://"):
+            return "postgresql+psycopg2://" + cls.DATABASE_URL[len("postgres://"):]
+        if cls.DATABASE_URL.startswith("postgresql://"):
+            return cls.DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return cls.DATABASE_URL
 
 
 # 全局配置实例

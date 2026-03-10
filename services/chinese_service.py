@@ -2,11 +2,9 @@
 语文学科服务模块
 提供词语辨析和关联词填空两种题型的生成逻辑
 """
-import random
 import logging
 from typing import Dict, Any, List, Optional
 from core.ai_generator import get_ai_generator
-from core.vocabulary import get_vocabulary_manager
 from services.library_admin_service import get_library_admin_service
 
 logger = logging.getLogger(__name__)
@@ -18,7 +16,6 @@ class ChineseService:
     def __init__(self):
         """初始化语文服务"""
         self.ai_generator = get_ai_generator()
-        self.vocab_manager = get_vocabulary_manager()
         self.library_admin_service = get_library_admin_service()
         logger.info("ChineseService initialized")
     
@@ -96,15 +93,8 @@ class ChineseService:
     
     def _get_random_items(self, library: str, count: int) -> List[str]:
         """从词库中随机获取指定数量的单项"""
-        file_path = f"data/{library}.txt"
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                items = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-            
-            if not items:
-                return []
-                
-            return random.sample(items, min(count, len(items)))
+            return self.library_admin_service.get_random_library_items(library, count)
         except Exception as e:
             logger.error(f"Error reading {library}: {str(e)}")
             return []
