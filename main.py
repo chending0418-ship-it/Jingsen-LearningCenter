@@ -16,6 +16,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+BASE_PATH = "/learningcenter"
+
 # 创建 FastAPI 应用
 app = FastAPI(
     title="Jingsen 学习中心 1.0",
@@ -34,20 +36,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册各学科路由
+# 注册各学科路由（兼容根路径与 /learningcenter 前缀）
 app.include_router(english.router)
 app.include_router(chinese.router)
 app.include_router(math.router)
 app.include_router(admin.router)
 
+app.include_router(english.router, prefix=BASE_PATH)
+app.include_router(chinese.router, prefix=BASE_PATH)
+app.include_router(math.router, prefix=BASE_PATH)
+app.include_router(admin.router, prefix=BASE_PATH)
+
+
+def serve_static_file(path: str, not_found_message: str):
+    try:
+        return FileResponse(path)
+    except Exception as e:
+        logger.error(f"Failed to serve static file {path}: {str(e)}")
+        return JSONResponse(status_code=404, content={"error": not_found_message})
+
 
 @app.get("/")
 async def root():
     """根路径 - 重定向到门户页面"""
-    return RedirectResponse(url="/portal")
+    return RedirectResponse(url=f"{BASE_PATH}/portal")
+
+
+@app.get(BASE_PATH)
+@app.get(f"{BASE_PATH}/")
+async def learningcenter_root():
+    """学习中心前缀根路径"""
+    return RedirectResponse(url=f"{BASE_PATH}/portal")
 
 
 @app.get("/health")
+@app.get(f"{BASE_PATH}/health")
 async def health_check():
     """健康检查"""
     return {
@@ -57,81 +80,52 @@ async def health_check():
 
 
 @app.get("/portal")
+@app.get(f"{BASE_PATH}/portal")
 async def serve_portal():
     """提供学科选择门户页面"""
-    try:
-        return FileResponse("static/portal.html")
-    except Exception as e:
-        logger.error(f"Failed to serve portal: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Portal page not found"}
-        )
+    return serve_static_file("static/portal.html", "Portal page not found")
 
 
 @app.get("/english")
+@app.get(f"{BASE_PATH}/english")
 async def serve_english_portal():
     """提供英语学习页面"""
-    try:
-        return FileResponse("static/english.html")
-    except Exception as e:
-        logger.error(f"Failed to serve english page: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "English page not found"}
-        )
+    return serve_static_file("static/english.html", "English page not found")
 
 
 @app.get("/chinese")
+@app.get(f"{BASE_PATH}/chinese")
 async def serve_chinese_portal():
     """提供语文学习页面"""
-    try:
-        return FileResponse("static/chinese.html")
-    except Exception as e:
-        logger.error(f"Failed to serve chinese page: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Chinese page not found"}
-        )
+    return serve_static_file("static/chinese.html", "Chinese page not found")
+
+
+@app.get("/math")
+@app.get(f"{BASE_PATH}/math")
+async def serve_math_portal():
+    """提供数学学习页面"""
+    return serve_static_file("static/math.html", "Math page not found")
 
 
 @app.get("/admin")
+@app.get(f"{BASE_PATH}/admin")
 async def serve_admin_portal():
     """提供词库管理后台列表页面"""
-    try:
-        return FileResponse("static/admin.html")
-    except Exception as e:
-        logger.error(f"Failed to serve admin page: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Admin page not found"}
-        )
+    return serve_static_file("static/admin.html", "Admin page not found")
 
 
 @app.get("/admin/new")
+@app.get(f"{BASE_PATH}/admin/new")
 async def serve_admin_create_page():
     """提供新增词库页面"""
-    try:
-        return FileResponse("static/admin_create.html")
-    except Exception as e:
-        logger.error(f"Failed to serve admin create page: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Admin create page not found"}
-        )
+    return serve_static_file("static/admin_create.html", "Admin create page not found")
 
 
 @app.get("/admin/library")
+@app.get(f"{BASE_PATH}/admin/library")
 async def serve_admin_detail_page():
     """提供词库详情页面"""
-    try:
-        return FileResponse("static/admin_detail.html")
-    except Exception as e:
-        logger.error(f"Failed to serve admin detail page: {str(e)}")
-        return JSONResponse(
-            status_code=404,
-            content={"error": "Admin detail page not found"}
-        )
+    return serve_static_file("static/admin_detail.html", "Admin detail page not found")
 
 
 @app.on_event("startup")
@@ -142,7 +136,7 @@ async def startup_event():
     logger.info(f"模型: {config.MODEL_NAME}")
     logger.info(f"端口: {config.PORT}")
     logger.info("="*50)
-    
+
     # 验证配置
     try:
         config.validate()
@@ -159,7 +153,7 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     logger.info(f"Starting server on {config.HOST}:{config.PORT}")
     uvicorn.run(
         app,

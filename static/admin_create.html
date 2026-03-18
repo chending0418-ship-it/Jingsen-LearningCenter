@@ -17,7 +17,7 @@
 
     <div class="max-w-3xl mx-auto space-y-4">
         <header>
-            <button onclick="location.href='/admin'" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
+            <button onclick="location.href=withBasePath('/admin')" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                 </svg>
@@ -50,13 +50,23 @@
                 <textarea id="create-items" rows="10" class="w-full p-2.5 border border-gray-200 rounded-xl" placeholder="apple\nbanana\ncherry"></textarea>
             </div>
             <div class="flex gap-2">
-                <button onclick="location.href='/admin'" class="flex-1 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">取消</button>
+                <button onclick="location.href=withBasePath('/admin')" class="flex-1 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">取消</button>
                 <button onclick="createLibrary()" class="flex-1 py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">创建</button>
             </div>
         </div>
     </div>
 
     <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path) => `${BASE_PATH}${path}`;
+        const rawFetch = window.fetch.bind(window);
+        window.fetch = (input, init) => {
+            if (typeof input === 'string' && input.startsWith('/') && !input.startsWith('//')) {
+                return rawFetch(withBasePath(input), init);
+            }
+            return rawFetch(input, init);
+        };
+
         const CHINESE_TYPES = [
             { value: '', label: '无指定类型' },
             { value: 'word_discrim', label: '词语辨析' },
@@ -116,7 +126,7 @@
                 if (!res.ok) return showNotice('error', `创建失败：${data.detail || '未知错误'}`);
 
                 showNotice('success', '创建成功，正在跳转详情页...');
-                setTimeout(() => { location.href = `/admin/library?id=${data.id}`; }, 500);
+                setTimeout(() => { location.href = withBasePath(`/admin/library?id=${data.id}`); }, 500);
             } catch (e) {
                 showNotice('error', `创建失败：${e.message || '网络错误'}`);
             }

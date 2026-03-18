@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Learning - Jingsen 学习中心 1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-main: #F8F9FB;
+            --math-accent: #3B82F6;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-3xl mx-auto">
+        <button onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            返回门户
+        </button>
+
+        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+            <h1 class="text-3xl font-bold text-gray-900 mb-3">Math Learning</h1>
+            <p class="text-gray-600 mb-6">数学页面已就绪，后续可在此接入完整练习交互。</p>
+
+            <button id="test-btn" onclick="testMathApi()" class="px-5 py-2.5 rounded-xl bg-[var(--math-accent)] text-white font-semibold hover:opacity-90">
+                测试数学 API
+            </button>
+
+            <pre id="result" class="mt-6 p-4 bg-gray-50 rounded-xl text-sm text-gray-700 whitespace-pre-wrap"></pre>
+        </div>
+    </div>
+
+    <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path) => `${BASE_PATH}${path}`;
+
+        async function testMathApi() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = '请求中...';
+            try {
+                const res = await fetch(withBasePath('/api/math/generate?count=3&topic=algebra&difficulty=easy'));
+                const data = await res.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                resultEl.textContent = `请求失败: ${e.message || '网络错误'}`;
+            }
+        }
+    </script>
+</body>
+</html>

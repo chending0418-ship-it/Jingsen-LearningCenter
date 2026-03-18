@@ -171,6 +171,9 @@
     </div>
 
     <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path) => `${BASE_PATH}${path}`;
+
         function openAdminAuth() {
             const modal = document.getElementById('admin-auth-modal');
             const input = document.getElementById('admin-password-input');
@@ -198,15 +201,17 @@
                 return;
             }
             closeAdminAuth();
-            window.location.href = '/admin';
+            window.location.href = withBasePath('/admin');
         }
 
         function selectSubject(subject) {
             console.log('Selected subject:', subject);
             if (subject === 'english') {
-                window.location.href = '/english';
+                window.location.href = withBasePath('/english');
             } else if (subject === 'chinese') {
-                window.location.href = '/chinese';
+                window.location.href = withBasePath('/chinese');
+            } else if (subject === 'math') {
+                window.location.href = withBasePath('/math');
             } else if (subject === 'admin') {
                 openAdminAuth();
             } else {
