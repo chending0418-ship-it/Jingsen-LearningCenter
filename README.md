@@ -2,119 +2,167 @@
 
 ## 项目简介
 
-多学科智能题目生成系统，支持英语、语文、数学三个学科的题目自动生成。
+多学科智能题目生成系统，支持英语、语文、数学三个学科。
 
-## 阶段进度（Roadmap）
+当前版本已完成**词库本地持久化升级**：
+- 词库元数据存储在 `data/library_registry.json`。
+- 词条内容存储在 `data/*.txt`。
+- 应用重部署后，只要保留服务器目录，词库数据不会丢失。
 
-- Phase 1：已完成（词库注册表与后台管理 API）
-- Phase 2：已完成（出题逻辑接入“仅启用词库”）
-- Phase 3：已完成（后台列表/新增/详情三页面 + 门户管理入口）
-- Phase 4：已完成（前台英语/语文页面动态加载启用词库并按题型联动）
-- Phase 5：已完成（稳定性与异常提示收敛）
-  - 出题与词库接口增加题型参数校验与明确错误信息
-  - 前台页面在“无可用词库”时禁用开始按钮并展示原因
-  - 后台保存类动作统一成功/失败提示，网络异常也会明确提示
-  - 词库类型、词条保存增加服务端校验（含空词条拦截）
+---
 
 ## 技术栈
 
-- **后端框架**: FastAPI
-- **AI 服务**: OpenAI API
-- **Python 版本**: 3.8+
+- 后端框架：FastAPI
+- AI 服务：OpenAI API
+- 数据持久化：本地文件（`library_registry.json` + `*.txt`）
+- Python：3.11+（建议）
+
+---
 
 ## 目录结构
 
-```
+```text
 Jingsen-LearningCenter-V1/
 ├── api/              # API 路由层
-├── services/         # 业务逻辑层
+├── services/         # 业务逻辑层（含词库文件存储服务）
 ├── core/             # 核心组件
 ├── models/           # 数据模型
-├── data/             # 数据文件(词库等)
+├── data/             # 词库主存储目录（registry + txt）
 ├── config.py         # 配置管理
 ├── main.py           # 应用入口
 └── requirements.txt  # 依赖管理
 ```
 
-## 快速开始
+---
 
-### 1. 安装依赖
+## 本地快速开始
+
+### 1) 安装依赖
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
-### 2. 配置环境变量
+### 2) 配置环境变量
 
-创建 `.env` 文件并配置以下变量:
+创建 `.env` 文件：
 
-```
+```env
 OPENAI_API_KEY=your_api_key_here
 OPENAI_BASE_URL=https://api.openai.com/v1
 MODEL_NAME=gpt-3.5-turbo
 PORT=8000
+# DATABASE_URL 已不再需要
 ```
 
-### 3. 运行服务
+> 词库直接保存在服务器本地 `data/` 目录，无需数据库配置。
+
+### 3) 启动服务
 
 ```bash
-python main.py
+python3 main.py
 ```
 
-服务将在 `http://localhost:8000` 启动。
+服务默认启动在：`http://localhost:8000`
 
-> 管理后台入口说明：从 `/portal` 点击 `Library Admin` 时需要输入固定密码 `0418` 才可进入。
+---
 
-## API 接口
+## 词库持久化说明（重要）
 
-### 英语学科
+应用启动时会执行以下逻辑：
 
-- `GET /api/english/generate` - 生成英语题目
-  - 参数: `count`, `library`, `mode` (cloze/match)
-- `GET /api/english/libraries` - 获取英语可用词库
-  - 参数: `mode`（可选，cloze/match）
+1. 确保 `data/` 目录存在
+2. 读取 `data/library_registry.json` 作为词库元数据
+3. 读取对应的 `data/*.txt` 作为词条内容
+4. 若缺少 registry，会根据现有 `*.txt` 自动生成基础元数据
 
-### 语文学科
+因此：
+- `data/` 是生产主存储目录，请务必做备份。
+- 后续管理可通过 Admin 页面/API 修改本地文件词库。
 
-- `GET /api/chinese/generate` - 生成语文题目
-  - 模式: `word_discrim` (词语辨析), `conj_fill` (关联词填空), `idiom_fill`（成语填空）
-  - 特色: 关联词模式支持五联题交互，支持点击填空与 AI 深度解析
-- `GET /api/chinese/libraries` - 获取语文可用词库
-  - 参数: `mode`（可选，word_discrim/conj_fill/idiom_fill）
+---
+
+## 页面入口
+
+- `/portal`：学科门户
+- `/english`：英语练习
+- `/chinese`：语文练习
+- `/admin`：词库后台（列表）
+- `/admin/new`：新增词库
+- `/admin/library?id=<library_id>`：词库详情/编辑
+
+> 从 `/portal` 进入 `Library Admin` 需要输入固定密码 `0418`。
+
+---
+
+## 主要 API
+
+### 英语
+
+- `GET /api/english/generate`
+  - 参数：`count`, `library`, `mode`（`cloze` / `match`）
+- `GET /api/english/libraries`
+  - 参数：`mode`（可选）
+- `POST /api/english/grade`
+- `GET /api/english/library/{library_name}`
+
+### 语文
+
+- `GET /api/chinese/generate`
+  - 参数：`count`, `library`, `mode`（`word_discrim` / `conj_fill` / `idiom_fill`）
+- `GET /api/chinese/libraries`
+  - 参数：`mode`（可选）
+- `POST /api/chinese/grade`
 
 ### 后台词库管理
 
-- 页面路由：
-  - `/admin`（列表）
-  - `/admin/new`（新增）
-  - `/admin/library?id=<library_id>`（详情/编辑）
-- 管理 API：
-  - `GET /api/admin/libraries`
-  - `GET /api/admin/libraries/{library_id}`
-  - `POST /api/admin/libraries`
-  - `PUT /api/admin/libraries/{library_id}`
-  - `PATCH /api/admin/libraries/{library_id}/status`
-  - `PUT /api/admin/libraries/{library_id}/items`
+- `GET /api/admin/libraries`
+- `GET /api/admin/libraries/{library_id}`
+- `POST /api/admin/libraries`
+- `PUT /api/admin/libraries/{library_id}`
+- `PATCH /api/admin/libraries/{library_id}/status`
+- `PUT /api/admin/libraries/{library_id}/items`
 
-### 数学学科
+### 数学
 
-- `GET /api/math/generate` - 生成数学题目 (已上线)
+- `GET /api/math/generate`
 
-## 部署说明 (Render)
+---
 
-### 1. 环境变量配置
-在 Render 控制面板设置以下变量：
-- `PYTHON_VERSION`: `3.11.7`
-- `OPENAI_API_KEY`: 您的 API 密钥
-- `OPENAI_BASE_URL`: API 代理地址 (可选)
-- `MODEL_NAME`: 模型名称 (如 `gpt-4o`)
+## 服务器部署（本地文件持久化）
 
-### 2. 命令配置
-- **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: `gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT`
+### 1) 准备环境变量
 
-## 开发说明
+至少包含：
 
-- 各学科逻辑独立封装在 `services/` 目录
-- 公共组件(AI生成器、词库管理)位于 `core/` 目录
-- 遵循轻量级设计原则，易于维护和扩展
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`（可选）
+- `MODEL_NAME`
+- `PORT`（可选）
+
+### 2) 构建与启动命令
+
+- Build Command:
+
+```bash
+pip3 install -r requirements.txt
+```
+
+- Start Command:
+
+```bash
+gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+```
+
+### 3) 持久化结果
+
+确保服务器上的项目目录（尤其是 `data/`）不被清理或覆盖，即可长期保留词库数据。
+
+---
+
+## 开发建议
+
+- 词库变更优先通过 Admin API 操作。
+- `data/` 是主存储目录，建议定期备份。
+- 新词库可直接通过 Admin 新建，或手动维护 `data/*.txt` 与 `library_registry.json`。

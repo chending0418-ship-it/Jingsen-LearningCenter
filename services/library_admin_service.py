@@ -1,29 +1,16 @@
 """
-词库管理服务模块（PostgreSQL 版）
+词库管理服务模块（本地文件持久化版）
 提供词库元数据、词条存储、启用状态管理
 """
+
 import json
 import os
 import random
+import tempfile
+import threading
 import uuid
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-
-from sqlalchemy import (
-    MetaData,
-    Table,
-    Column,
-    String,
-    Integer,
-    Boolean,
-    Text,
-    ForeignKey,
-    UniqueConstraint,
-    create_engine,
-    select,
-    func,
-    and_,
-)
 
 from config import config
 
@@ -35,60 +22,64 @@ ALLOWED_LIBRARY_TYPES = {
 
 
 class LibraryAdminService:
-    """词库管理服务（数据库持久化）"""
+    """词库管理服务（本地文件持久化）"""
 
     def __init__(self):
         self.data_dir = config.DATA_DIR
         self.registry_path = os.path.join(self.data_dir, "library_registry.json")
+        self._lock = threading.RLock()
 
-        database_url = config.database_url_for_sqlalchemy()
-        if not database_url:
-            raise ValueError("DATABASE_URL 未配置，无法使用 PostgreSQL 词库存储")
-
-        self.engine = create_engine(database_url, future=True, pool_pre_ping=True)
-        self.metadata = MetaData()
-
-        self.libraries = Table(
-            "libraries",
-            self.metadata,
-            Column("id", String(64), primary_key=True),
-            Column("subject", String(32), nullable=False),
-            Column("name", String(255), nullable=False, unique=True),
-            Column("file_name", String(255), nullable=False, unique=True),
-            Column("enabled", Boolean, nullable=False, default=True),
-            Column("library_type", String(64), nullable=True),
-            Column("created_at", String(64), nullable=False),
-            Column("updated_at", String(64), nullable=False),
-        )
-
-        self.library_items = Table(
-            "library_items",
-            self.metadata,
-            Column("id", Integer, primary_key=True, autoincrement=True),
-            Column("library_id", String(64), ForeignKey("libraries.id", ondelete="CASCADE"), nullable=False),
-            Column("item_order", Integer, nullable=False, default=0),
-            Column("item_text", Text, nullable=False),
-            UniqueConstraint("library_id", "item_order", name="uq_library_items_order"),
-        )
-
-        self.metadata.create_all(self.engine)
+        os.makedirs(self.data_dir, exist_ok=True)
         self._bootstrap_from_files_if_needed()
 
     def _now(self) -> str:
         return datetime.utcnow().isoformat() + "Z"
 
-    def _read_registry(self) -> Dict[str, Any]:
+    def _atomic_write_text(self, path: str, content: str) -> None:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        fd, temp_path = tempfile.mkstemp(prefix=".tmp_", dir=os.path.dirname(path), text=True)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(content)
+            os.replace(temp_path, path)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def _atomic_write_json(self, path: str, payload: Dict[str, Any]) -> None:
+        self._atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=2))
+
+    def _read_registry_unlocked(self) -> Dict[str, Any]:
         if not os.path.exists(self.registry_path):
             return {"version": 1, "libraries": []}
         with open(self.registry_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return {"version": 1, "libraries": []}
+        data.setdefault("version", 1)
+        data.setdefault("libraries", [])
+        if not isinstance(data["libraries"], list):
+            data["libraries"] = []
+        return data
+
+    def _write_registry_unlocked(self, registry: Dict[str, Any]) -> None:
+        registry.setdefault("version", 1)
+        registry.setdefault("libraries", [])
+        self._atomic_write_json(self.registry_path, registry)
 
     def _infer_subject(self, library_name: str) -> str:
         return "chinese" if library_name.startswith("chinese_") else "english"
 
     def _infer_library_type(self, library_name: str, subject: str) -> Optional[str]:
+        if subject == "english":
+            if "match" in library_name:
+                return "match"
+            if "cloze" in library_name:
+                return "cloze"
+            return None
+
         if subject == "chinese":
-            if "conjunction" in library_name:
+            if "conjunction" in library_name or "conj" in library_name:
                 return "conj_fill"
             if "idiom" in library_name:
                 return "idiom_fill"
@@ -121,132 +112,173 @@ class LibraryAdminService:
 
         return [x.strip() for x in content.splitlines() if x.strip() and not x.strip().startswith("#")]
 
+    def _write_items_file(self, file_name: str, subject: str, items: List[str]) -> None:
+        file_path = os.path.join(self.data_dir, f"{file_name}.txt")
+        if subject == "english":
+            content = ", ".join(items)
+        else:
+            content = "\n".join(items)
+        self._atomic_write_text(file_path, content)
+
     def _clean_items(self, items: List[str]) -> List[str]:
         cleaned = [x.strip() for x in items if x and x.strip()]
         if not cleaned:
             raise ValueError("词条不能为空，至少需要 1 条")
         return cleaned
 
-    def _bootstrap_from_files_if_needed(self) -> None:
-        os.makedirs(self.data_dir, exist_ok=True)
-        with self.engine.begin() as conn:
-            total = conn.execute(select(func.count()).select_from(self.libraries)).scalar_one()
-            if total > 0:
-                return
+    def _list_txt_names(self) -> List[str]:
+        names: List[str] = []
+        for filename in sorted(os.listdir(self.data_dir)):
+            if filename.endswith(".txt"):
+                names.append(filename[:-4])
+        return names
 
-            registry = self._read_registry()
-            registry_map = {
-                x.get("name"): x for x in registry.get("libraries", []) if x.get("name")
-            }
-            now = self._now()
+    def _normalize_library_entry(self, entry: Dict[str, Any], now: str) -> Dict[str, Any]:
+        name = (entry.get("name") or entry.get("file_name") or "").strip()
+        if not name:
+            return {}
 
-            for filename in sorted(os.listdir(self.data_dir)):
-                if not filename.endswith(".txt"):
-                    continue
+        subject = entry.get("subject") or self._infer_subject(name)
+        if subject not in ["english", "chinese"]:
+            subject = self._infer_subject(name)
 
-                name = filename[:-4]
-                subject = self._infer_subject(name)
-                items = self._parse_items_from_file(name, subject)
-                meta = registry_map.get(name, {})
+        library_type = entry.get("library_type")
+        if library_type is None:
+            library_type = self._infer_library_type(name, subject)
 
-                library_type = meta.get("library_type")
-                if library_type is None:
-                    library_type = self._infer_library_type(name, subject)
+        try:
+            self._validate_library_type(subject, library_type)
+        except ValueError:
+            library_type = None
 
-                try:
-                    self._validate_library_type(subject, library_type)
-                except ValueError:
-                    library_type = None
-
-                lib_id = meta.get("id") or uuid.uuid4().hex
-                created_at = meta.get("created_at") or now
-                updated_at = meta.get("updated_at") or now
-                enabled = bool(meta.get("enabled", len(items) > 0))
-
-                conn.execute(
-                    self.libraries.insert().values(
-                        id=lib_id,
-                        subject=subject,
-                        name=name,
-                        file_name=name,
-                        enabled=enabled,
-                        library_type=library_type,
-                        created_at=created_at,
-                        updated_at=updated_at,
-                    )
-                )
-
-                if items:
-                    conn.execute(
-                        self.library_items.insert(),
-                        [
-                            {
-                                "library_id": lib_id,
-                                "item_order": idx,
-                                "item_text": item,
-                            }
-                            for idx, item in enumerate(items)
-                        ],
-                    )
-
-    def _library_with_count(self, conn, row) -> Dict[str, Any]:
-        total_items = conn.execute(
-            select(func.count()).select_from(self.library_items).where(self.library_items.c.library_id == row.id)
-        ).scalar_one()
         return {
-            "id": row.id,
-            "subject": row.subject,
-            "name": row.name,
-            "file_name": row.file_name,
-            "enabled": row.enabled,
-            "library_type": row.library_type,
-            "total_items": total_items,
-            "created_at": row.created_at,
-            "updated_at": row.updated_at,
+            "id": entry.get("id") or uuid.uuid4().hex,
+            "subject": subject,
+            "name": name,
+            "file_name": name,
+            "enabled": bool(entry.get("enabled", True)),
+            "library_type": library_type,
+            "created_at": entry.get("created_at") or now,
+            "updated_at": entry.get("updated_at") or now,
         }
 
-    def _get_library_by_id(self, conn, library_id: str):
-        return conn.execute(
-            select(self.libraries).where(self.libraries.c.id == library_id)
-        ).mappings().first()
+    def _bootstrap_from_files_if_needed(self) -> None:
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            now = self._now()
+            normalized: List[Dict[str, Any]] = []
+            changed = False
 
-    def _get_library_by_name(self, conn, name: str):
-        return conn.execute(
-            select(self.libraries).where(self.libraries.c.name == name)
-        ).mappings().first()
+            for raw in registry.get("libraries", []):
+                if not isinstance(raw, dict):
+                    changed = True
+                    continue
+                normalized_item = self._normalize_library_entry(raw, now)
+                if not normalized_item:
+                    changed = True
+                    continue
+                if normalized_item != raw:
+                    changed = True
+                normalized.append(normalized_item)
 
-    def _get_library_by_file_name(self, conn, file_name: str):
-        return conn.execute(
-            select(self.libraries).where(self.libraries.c.file_name == file_name)
-        ).mappings().first()
+            # 若 registry 为空，自动从 data/*.txt 导入
+            if not normalized:
+                for name in self._list_txt_names():
+                    subject = self._infer_subject(name)
+                    items = self._parse_items_from_file(name, subject)
+                    library_type = self._infer_library_type(name, subject)
+                    try:
+                        self._validate_library_type(subject, library_type)
+                    except ValueError:
+                        library_type = None
+
+                    normalized.append({
+                        "id": uuid.uuid4().hex,
+                        "subject": subject,
+                        "name": name,
+                        "file_name": name,
+                        "enabled": len(items) > 0,
+                        "library_type": library_type,
+                        "created_at": now,
+                        "updated_at": now,
+                    })
+                changed = True
+
+            # 若 registry 有条目但 data 下新增了 txt，也补充进来
+            existing_names = {x["name"] for x in normalized}
+            for name in self._list_txt_names():
+                if name in existing_names:
+                    continue
+                subject = self._infer_subject(name)
+                items = self._parse_items_from_file(name, subject)
+                normalized.append({
+                    "id": uuid.uuid4().hex,
+                    "subject": subject,
+                    "name": name,
+                    "file_name": name,
+                    "enabled": len(items) > 0,
+                    "library_type": self._infer_library_type(name, subject),
+                    "created_at": now,
+                    "updated_at": now,
+                })
+                changed = True
+
+            registry["libraries"] = sorted(normalized, key=lambda x: x.get("created_at", ""))
+            if changed or not os.path.exists(self.registry_path):
+                self._write_registry_unlocked(registry)
+
+    def _library_with_count(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        subject = row["subject"]
+        items = self._parse_items_from_file(row["file_name"], subject)
+        return {
+            "id": row["id"],
+            "subject": subject,
+            "name": row["name"],
+            "file_name": row["file_name"],
+            "enabled": row["enabled"],
+            "library_type": row.get("library_type"),
+            "total_items": len(items),
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+        }
+
+    def _find_library_by_id(self, libraries: List[Dict[str, Any]], library_id: str) -> Optional[Dict[str, Any]]:
+        for lib in libraries:
+            if lib.get("id") == library_id:
+                return lib
+        return None
+
+    def _find_library_by_name(self, libraries: List[Dict[str, Any]], name: str) -> Optional[Dict[str, Any]]:
+        for lib in libraries:
+            if lib.get("name") == name:
+                return lib
+        return None
+
+    def _find_library_by_file_name(self, libraries: List[Dict[str, Any]], file_name: str) -> Optional[Dict[str, Any]]:
+        for lib in libraries:
+            if lib.get("file_name") == file_name:
+                return lib
+        return None
 
     def list_libraries(self, subject: Optional[str] = None, include_disabled: bool = True) -> List[Dict[str, Any]]:
-        with self.engine.connect() as conn:
-            stmt = select(self.libraries).order_by(self.libraries.c.created_at.asc())
-            conditions = []
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            rows = sorted(registry.get("libraries", []), key=lambda x: x.get("created_at", ""))
             if subject:
-                conditions.append(self.libraries.c.subject == subject)
+                rows = [x for x in rows if x.get("subject") == subject]
             if not include_disabled:
-                conditions.append(self.libraries.c.enabled.is_(True))
-            if conditions:
-                stmt = stmt.where(and_(*conditions))
-
-            rows = conn.execute(stmt).mappings().all()
-            return [self._library_with_count(conn, row) for row in rows]
+                rows = [x for x in rows if bool(x.get("enabled"))]
+            return [self._library_with_count(row) for row in rows]
 
     def get_library(self, library_id: str) -> Dict[str, Any]:
-        with self.engine.connect() as conn:
-            row = self._get_library_by_id(conn, library_id)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            row = self._find_library_by_id(registry.get("libraries", []), library_id)
             if not row:
                 raise ValueError("词库不存在")
 
-            result = self._library_with_count(conn, row)
-            items = conn.execute(
-                select(self.library_items.c.item_text)
-                .where(self.library_items.c.library_id == library_id)
-                .order_by(self.library_items.c.item_order.asc(), self.library_items.c.id.asc())
-            ).scalars().all()
-            result["items"] = items
+            result = self._library_with_count(row)
+            result["items"] = self._parse_items_from_file(row["file_name"], row["subject"])
             return result
 
     def create_library(
@@ -263,39 +295,36 @@ class LibraryAdminService:
         self._validate_library_type(subject, library_type)
         cleaned = self._clean_items(items)
 
-        with self.engine.begin() as conn:
-            if self._get_library_by_name(conn, name):
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            libraries = registry.get("libraries", [])
+
+            if self._find_library_by_name(libraries, name):
                 raise ValueError("词库名称已存在")
 
+            if self._find_library_by_file_name(libraries, name):
+                raise ValueError("词库文件名已存在")
+
             now = self._now()
-            lib_id = uuid.uuid4().hex
+            entry = {
+                "id": uuid.uuid4().hex,
+                "subject": subject,
+                "name": name,
+                "file_name": name,
+                "enabled": enabled,
+                "library_type": library_type,
+                "created_at": now,
+                "updated_at": now,
+            }
 
-            conn.execute(
-                self.libraries.insert().values(
-                    id=lib_id,
-                    subject=subject,
-                    name=name,
-                    file_name=name,
-                    enabled=enabled,
-                    library_type=library_type,
-                    created_at=now,
-                    updated_at=now,
-                )
-            )
+            self._write_items_file(name, subject, cleaned)
+            libraries.append(entry)
+            registry["libraries"] = sorted(libraries, key=lambda x: x.get("created_at", ""))
+            self._write_registry_unlocked(registry)
 
-            conn.execute(
-                self.library_items.insert(),
-                [
-                    {
-                        "library_id": lib_id,
-                        "item_order": idx,
-                        "item_text": item,
-                    }
-                    for idx, item in enumerate(cleaned)
-                ],
-            )
-
-        return self.get_library(lib_id)
+            result = self._library_with_count(entry)
+            result["items"] = cleaned
+            return result
 
     def update_library(
         self,
@@ -303,99 +332,80 @@ class LibraryAdminService:
         name: Optional[str] = None,
         library_type: Optional[str] = None,
     ) -> Dict[str, Any]:
-        with self.engine.begin() as conn:
-            target = self._get_library_by_id(conn, library_id)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            libraries = registry.get("libraries", [])
+            target = self._find_library_by_id(libraries, library_id)
             if not target:
                 raise ValueError("词库不存在")
 
-            updates: Dict[str, Any] = {}
-
             if name and name != target["name"]:
-                if self._get_library_by_name(conn, name):
+                by_name = self._find_library_by_name(libraries, name)
+                if by_name and by_name.get("id") != library_id:
                     raise ValueError("词库名称已存在")
-                updates["name"] = name
-                updates["file_name"] = name
+
+                old_path = os.path.join(self.data_dir, f"{target['file_name']}.txt")
+                new_path = os.path.join(self.data_dir, f"{name}.txt")
+                if os.path.exists(new_path):
+                    raise ValueError("目标词库文件已存在")
+                if os.path.exists(old_path):
+                    os.replace(old_path, new_path)
+
+                target["name"] = name
+                target["file_name"] = name
 
             if library_type is not None:
                 self._validate_library_type(target["subject"], library_type)
-                updates["library_type"] = library_type
+                target["library_type"] = library_type
 
-            if updates:
-                updates["updated_at"] = self._now()
-                conn.execute(
-                    self.libraries.update().where(self.libraries.c.id == library_id).values(**updates)
-                )
-
-        return self.get_library(library_id)
+            target["updated_at"] = self._now()
+            self._write_registry_unlocked(registry)
+            return self._library_with_count(target)
 
     def set_library_enabled(self, library_id: str, enabled: bool) -> Dict[str, Any]:
-        with self.engine.begin() as conn:
-            target = self._get_library_by_id(conn, library_id)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            target = self._find_library_by_id(registry.get("libraries", []), library_id)
             if not target:
                 raise ValueError("词库不存在")
 
-            conn.execute(
-                self.libraries.update()
-                .where(self.libraries.c.id == library_id)
-                .values(enabled=enabled, updated_at=self._now())
-            )
-
-        return self.get_library(library_id)
+            target["enabled"] = enabled
+            target["updated_at"] = self._now()
+            self._write_registry_unlocked(registry)
+            return self._library_with_count(target)
 
     def replace_library_items(self, library_id: str, items: List[str]) -> Dict[str, Any]:
         cleaned = self._clean_items(items)
 
-        with self.engine.begin() as conn:
-            target = self._get_library_by_id(conn, library_id)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            target = self._find_library_by_id(registry.get("libraries", []), library_id)
             if not target:
                 raise ValueError("词库不存在")
 
-            conn.execute(
-                self.library_items.delete().where(self.library_items.c.library_id == library_id)
-            )
-            conn.execute(
-                self.library_items.insert(),
-                [
-                    {
-                        "library_id": library_id,
-                        "item_order": idx,
-                        "item_text": item,
-                    }
-                    for idx, item in enumerate(cleaned)
-                ],
-            )
-            conn.execute(
-                self.libraries.update()
-                .where(self.libraries.c.id == library_id)
-                .values(updated_at=self._now())
-            )
+            self._write_items_file(target["file_name"], target["subject"], cleaned)
+            target["updated_at"] = self._now()
+            self._write_registry_unlocked(registry)
 
-        return self.get_library(library_id)
+            result = self._library_with_count(target)
+            result["items"] = cleaned
+            return result
 
     def get_enabled_library_names(self, subject: str, library_type: Optional[str] = None) -> List[str]:
-        with self.engine.connect() as conn:
-            conditions = [self.libraries.c.subject == subject, self.libraries.c.enabled.is_(True)]
-            if library_type:
-                typed_count = conn.execute(
-                    select(func.count())
-                    .select_from(self.libraries)
-                    .where(
-                        and_(
-                            self.libraries.c.subject == subject,
-                            self.libraries.c.enabled.is_(True),
-                            self.libraries.c.library_type == library_type,
-                        )
-                    )
-                ).scalar_one()
-                if typed_count > 0:
-                    conditions.append(self.libraries.c.library_type == library_type)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            enabled_rows = [
+                x for x in registry.get("libraries", [])
+                if x.get("subject") == subject and bool(x.get("enabled"))
+            ]
 
-            rows = conn.execute(
-                select(self.libraries.c.name)
-                .where(and_(*conditions))
-                .order_by(self.libraries.c.created_at.asc())
-            ).scalars().all()
-            return rows
+            if library_type:
+                typed = [x for x in enabled_rows if x.get("library_type") == library_type]
+                if typed:
+                    enabled_rows = typed
+
+            enabled_rows = sorted(enabled_rows, key=lambda x: x.get("created_at", ""))
+            return [x["name"] for x in enabled_rows]
 
     def resolve_enabled_library(
         self,
@@ -403,40 +413,43 @@ class LibraryAdminService:
         requested_library: Optional[str] = None,
         library_type: Optional[str] = None,
     ) -> Dict[str, Any]:
-        with self.engine.connect() as conn:
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            libraries = registry.get("libraries", [])
+
             if requested_library:
-                target = self._get_library_by_name(conn, requested_library)
-                if not target or target["subject"] != subject:
+                target = self._find_library_by_name(libraries, requested_library)
+                if not target or target.get("subject") != subject:
                     raise ValueError(f"词库不存在: {requested_library}")
-                if not target["enabled"]:
+                if not target.get("enabled"):
                     raise ValueError(f"词库未启用: {requested_library}")
                 if library_type and target.get("library_type") and target.get("library_type") != library_type:
                     raise ValueError(f"词库类型不匹配: {requested_library} 不支持 {library_type}")
-                return self._library_with_count(conn, target)
+                return self._library_with_count(target)
 
-            conditions = [self.libraries.c.subject == subject, self.libraries.c.enabled.is_(True)]
-            enabled_rows = conn.execute(select(self.libraries).where(and_(*conditions)).order_by(self.libraries.c.created_at.asc())).mappings().all()
+            enabled_rows = [
+                x for x in libraries
+                if x.get("subject") == subject and bool(x.get("enabled"))
+            ]
+            enabled_rows = sorted(enabled_rows, key=lambda x: x.get("created_at", ""))
+
             if not enabled_rows:
                 raise ValueError(f"{subject} 学科暂无启用词库")
 
             if library_type:
                 typed = [x for x in enabled_rows if x.get("library_type") == library_type]
                 if typed:
-                    return self._library_with_count(conn, typed[0])
+                    return self._library_with_count(typed[0])
 
-            return self._library_with_count(conn, enabled_rows[0])
+            return self._library_with_count(enabled_rows[0])
 
     def get_random_library_items(self, file_name: str, count: int) -> List[str]:
-        with self.engine.connect() as conn:
-            lib = self._get_library_by_file_name(conn, file_name)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            lib = self._find_library_by_file_name(registry.get("libraries", []), file_name)
             if not lib:
                 return []
-
-            items = conn.execute(
-                select(self.library_items.c.item_text)
-                .where(self.library_items.c.library_id == lib["id"])
-                .order_by(self.library_items.c.item_order.asc(), self.library_items.c.id.asc())
-            ).scalars().all()
+            items = self._parse_items_from_file(file_name, lib.get("subject", "english"))
 
         if not items:
             return []
@@ -445,19 +458,20 @@ class LibraryAdminService:
         return random.sample(items, safe_count)
 
     def get_public_library_info(self, file_name: str) -> Dict[str, Any]:
-        with self.engine.connect() as conn:
-            lib = self._get_library_by_file_name(conn, file_name)
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            lib = self._find_library_by_file_name(registry.get("libraries", []), file_name)
             if not lib:
                 raise ValueError("词库不存在")
-            total_words = conn.execute(
-                select(func.count()).select_from(self.library_items).where(self.library_items.c.library_id == lib["id"])
-            ).scalar_one()
+
+            total_words = len(self._parse_items_from_file(file_name, lib.get("subject", "english")))
+            file_path = os.path.join(self.data_dir, f"{file_name}.txt")
 
         return {
             "name": file_name,
             "total_words": total_words,
             "is_cached": False,
-            "file_path": f"db://{file_name}",
+            "file_path": file_path,
         }
 
 
