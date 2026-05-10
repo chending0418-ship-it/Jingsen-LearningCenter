@@ -94,13 +94,12 @@
             return value === 'chinese' ? '语文' : '英语';
         }
 
-        function typeLabel(type) {
+        function typeLabel(type, subject) {
+            if (subject === 'english') return '通用';
             const map = {
                 word_discrim: '词语辨析',
                 conj_fill: '关联词填空',
-                idiom_fill: '成语填空',
-                cloze: '完形填空',
-                match: '词义匹配'
+                idiom_fill: '成语填空'
             };
             return map[type] || '-';
         }
@@ -151,7 +150,7 @@
                         <tr>
                             <td class="p-3 font-medium text-gray-800">${lib.name}</td>
                             <td class="p-3 text-gray-600">${subjectLabel(lib.subject)}</td>
-                            <td class="p-3 text-gray-600">${typeLabel(lib.library_type)}</td>
+                            <td class="p-3 text-gray-600">${typeLabel(lib.library_type, lib.subject)}</td>
                             <td class="p-3 text-gray-600">${lib.total_items}</td>
                             <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
                             <td class="p-3">

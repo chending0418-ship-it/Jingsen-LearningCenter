@@ -80,6 +80,39 @@ class AIGenerator:
             logger.error(f"AI generation error: {str(e)}")
             raise Exception(f"AI generation failed: {str(e)}")
     
+    async def generate_json(
+        self,
+        prompt: str,
+        system_message: str = "You are a teacher. Output valid JSON only.",
+        temperature: float = 0.7,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """生成并返回完整 JSON 对象，适用于题目以外的结构化结果。"""
+        try:
+            logger.info(f"Generating JSON with prompt length: {len(prompt)}")
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=temperature,
+                **kwargs
+            )
+            content = response.choices[0].message.content
+            data = json.loads(content)
+            if not isinstance(data, dict):
+                raise ValueError("AI response is not a JSON object")
+            logger.info("Successfully generated JSON content")
+            return data
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {str(e)}")
+            raise Exception(f"Failed to parse AI response: {str(e)}")
+        except Exception as e:
+            logger.error(f"AI JSON generation error: {str(e)}")
+            raise Exception(f"AI JSON generation failed: {str(e)}")
+
     async def generate_content(
         self,
         prompt: str,

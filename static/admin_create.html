@@ -38,9 +38,10 @@
                 <label class="block text-sm text-gray-600 mb-1">词库名称</label>
                 <input id="create-name" type="text" placeholder="例如: english_core_3000" class="w-full p-2.5 border border-gray-200 rounded-xl">
             </div>
-            <div>
+            <div id="create-type-row">
                 <label class="block text-sm text-gray-600 mb-1">词库类型</label>
                 <select id="create-type" class="w-full p-2.5 border border-gray-200 rounded-xl"></select>
+                <p id="english-type-note" class="hidden mt-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">英语词库为通用词库，可用于 Word Palace 的所有练习类型。</p>
             </div>
             <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                 <input id="create-enabled" type="checkbox" checked class="w-4 h-4"> 创建后立即启用
@@ -74,9 +75,7 @@
             { value: 'idiom_fill', label: '成语填空' }
         ];
         const ENGLISH_TYPES = [
-            { value: '', label: '无指定类型' },
-            { value: 'cloze', label: '完形填空' },
-            { value: 'match', label: '词义匹配' }
+            { value: '', label: '通用' }
         ];
 
         function showNotice(type, message) {
@@ -95,13 +94,16 @@
 
         function syncTypeOptions() {
             const subject = document.getElementById('create-subject').value;
-            fillSelect('create-type', subject === 'chinese' ? CHINESE_TYPES : ENGLISH_TYPES);
+            const isEnglish = subject === 'english';
+            fillSelect('create-type', isEnglish ? ENGLISH_TYPES : CHINESE_TYPES);
+            document.getElementById('create-type').classList.toggle('hidden', isEnglish);
+            document.getElementById('english-type-note').classList.toggle('hidden', !isEnglish);
         }
 
         function normalizeItems(raw, subject) {
             if (!raw.trim()) return [];
-            if (subject === 'english' && raw.includes(',')) {
-                return raw.split(',').map(x => x.trim()).filter(Boolean);
+            if (subject === 'english') {
+                return raw.split(/[,，\n]/).map(x => x.trim()).filter(Boolean);
             }
             return raw.split('\n').map(x => x.trim()).filter(Boolean);
         }
@@ -109,7 +111,7 @@
         async function createLibrary() {
             const subject = document.getElementById('create-subject').value;
             const name = document.getElementById('create-name').value.trim();
-            const library_type = document.getElementById('create-type').value || null;
+            const library_type = subject === 'english' ? null : (document.getElementById('create-type').value || null);
             const enabled = document.getElementById('create-enabled').checked;
             const items = normalizeItems(document.getElementById('create-items').value, subject);
 

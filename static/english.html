@@ -4,100 +4,335 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>English Learning - Jingsen 学习中心 1.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-main: #F8F9FB;
+            --bg-main: #F8FAFC;
             --english-accent: #10B981;
-            --english-theme: #ECFDF5;
+            --blue-accent: #2563EB;
+            --purple-accent: #7C3AED;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 32rem),
+                radial-gradient(circle at 85% 12%, rgba(37, 99, 235, 0.14), transparent 28rem),
+                linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%);
+        }
+        .glass-card { background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.72); box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08); }
+        .module-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+        .module-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12); }
+        .module-card.active { border-color: rgba(16, 185, 129, 0.72); box-shadow: 0 26px 80px rgba(16, 185, 129, 0.18); }
         .option-btn { transition: all 0.2s ease; }
         .option-btn.correct { background-color: #DEF7EC; border-color: #31C48D; color: #03543F; }
         .option-btn.wrong { background-color: #FDE8E8; border-color: #F98080; color: #9B1C1C; }
         .option-btn.correct-hint { border-color: #31C48D; border-width: 2px; }
+        .skill-card { transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease; }
+        .skill-card:hover { transform: translateY(-2px); }
+        .skill-card.selected { border-color: rgba(37, 99, 235, 0.72); background: rgba(239, 246, 255, 0.88); }
+        .la-choice { transition: all 0.18s ease; }
+        .la-choice.selected { border-color: #2563EB !important; background: #DBEAFE !important; color: #1D4ED8; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); transform: translateY(-1px); }
+        .la-choice.selected .choice-badge { background: #2563EB; color: #FFFFFF; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
+<body class="min-h-screen p-4 md:p-8 text-gray-900">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row md:justify-between md:items-center gap-5 mb-8">
             <div>
-                <button id="back-btn" onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
+                <button id="back-btn" onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-800 flex items-center gap-2 mb-3 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                     </svg>
                     Back to Portal
                 </button>
-                <h1 class="text-3xl font-bold text-gray-900">English Learning</h1>
+                <p class="text-sm font-bold text-emerald-600 tracking-[0.24em] uppercase">English Learning</p>
+                <h1 id="page-title" class="text-4xl md:text-5xl font-extrabold tracking-tight mt-2">English Learning</h1>
+                <p id="page-subtitle" class="text-gray-500 mt-3 max-w-2xl">Choose Word Palace for vocabulary training, or enter MAP Test for Language Arts and Reading.</p>
             </div>
-            <div id="progress-text" class="text-sm font-bold text-gray-400">Ready</div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <button onclick="showReportHistory()" class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-blue-600 hover:text-blue-800 hover:bg-white shadow-sm transition-colors">Daily Reports</button>
+                <div id="progress-text" class="hidden inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-500 shadow-sm"></div>
+            </div>
         </header>
 
         <div id="page-notice" class="hidden mb-4 px-4 py-3 rounded-xl text-sm font-medium"></div>
 
-        <!-- Configuration -->
-        <div id="setup-section" class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8">
-            <h2 class="text-xl font-bold mb-6">Quiz Configuration</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Library</label>
-                    <select id="word-library" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
-                        <option value="">自动选择已启用词库</option>
-                    </select>
+        <button id="module-home-btn" onclick="showModuleHome()" class="hidden mb-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white shadow-sm transition-colors">
+            ← Back to English Modules
+        </button>
+
+        <section id="module-overview" class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+            <button id="word-palace-card" onclick="showModule('word-palace')" class="module-card text-left glass-card rounded-[2rem] p-6 md:p-7">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Vocabulary Training</span>
+                        <h2 class="text-3xl font-extrabold mt-4">Word Palace</h2>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Use your general English libraries for cloze and word-meaning matching. Options are refined with stronger distractors.</p>
+                    </div>
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-100"></div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Word Count</label>
-                    <select id="word-count" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
-                        <option value="10">10 Words</option>
-                        <option value="20">20 Words</option>
-                    </select>
+                <div class="grid grid-cols-3 gap-3 mt-6 text-sm">
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>10-50</strong><br><span class="text-gray-500">words</span></div>
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>2 modes</strong><br><span class="text-gray-500">cloze/match</span></div>
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>General</strong><br><span class="text-gray-500">libraries</span></div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Quiz Mode</label>
-                    <select id="quiz-mode" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
-                        <option value="cloze">Cloze (完形填空)</option>
-                        <option value="match">Match (词义匹配)</option>
+            </button>
+
+            <button id="map-test-card" onclick="showModule('map-test')" class="module-card text-left glass-card rounded-[2rem] p-6 md:p-7">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <span class="inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">Assessment Pathway</span>
+                        <h2 class="text-3xl font-extrabold mt-4">MAP Test</h2>
+                        <p class="text-gray-500 mt-3 leading-relaxed">A new English test-training space with Language Arts and Reading. Question strategy will be skill-driven in the next phase.</p>
+                    </div>
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-100"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-6 text-sm">
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>Language Arts</strong><br><span class="text-gray-500">P1 priority</span></div>
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>Reading</strong><br><span class="text-gray-500">planned</span></div>
+                </div>
+            </button>
+        </section>
+
+        <section id="report-history-section" class="hidden space-y-6">
+            <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+                    <div>
+                        <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Daily Reports</p>
+                        <h2 class="text-3xl font-extrabold mt-2">Learning History</h2>
+                        <p class="text-gray-500 mt-3 max-w-3xl">Word Palace and MAP Test reports are saved locally on the server by day. This view reads the local history file directly.</p>
+                    </div>
+                    <select id="report-module-filter" onchange="loadReportHistory()" class="p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                        <option value="">All Modules</option>
+                        <option value="word_palace">Word Palace</option>
+                        <option value="map_language_arts">MAP Language Arts</option>
                     </select>
                 </div>
             </div>
-            <button onclick="startQuiz()" id="start-btn" class="w-full py-4 bg-[var(--english-accent)] text-white rounded-2xl font-bold text-lg hover:opacity-90 transition-all shadow-lg shadow-emerald-100">
-                Generate Quiz
-            </button>
-        </div>
+            <div id="report-history-content" class="space-y-5"></div>
+        </section>
 
-        <!-- Quiz Section -->
-        <div id="quiz-section" class="hidden">
-            <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-6 relative overflow-hidden">
-                <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
-                    <div id="progress-bar" class="h-full bg-[var(--english-accent)] transition-all duration-300" style="width: 0%"></div>
+        <main id="word-palace-section" class="hidden">
+            <div id="setup-section" class="glass-card rounded-[2rem] p-6 md:p-8 mb-8">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-7">
+                    <div>
+                        <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Word Palace</p>
+                        <h2 class="text-2xl font-bold mt-2">Quiz Configuration</h2>
+                    </div>
+                    <p class="text-sm text-gray-500">All English libraries support both practice modes.</p>
                 </div>
-                <div id="question-content"></div>
-            </div>
-            <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-4 bg-gray-800 text-white rounded-2xl font-bold text-lg hover:bg-black transition-all">
-                Next Question
-            </button>
-        </div>
-
-        <!-- Result Section -->
-        <div id="result-section" class="hidden">
-            <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mb-8">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-50 rounded-full mb-6">
-                    <span id="score-display" class="text-4xl font-bold text-blue-600">0</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Library</label>
+                        <select id="word-library" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
+                            <option value="">自动选择已启用词库</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Word Count</label>
+                        <select id="word-count" onchange="toggleCustomCount()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
+                            <option value="10">10 Words</option>
+                            <option value="20">20 Words</option>
+                            <option value="30">30 Words</option>
+                            <option value="50">50 Words</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <input id="custom-count" type="number" min="1" max="50" placeholder="输入 1-50" class="hidden mt-3 w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quiz Mode</label>
+                        <select id="quiz-mode" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
+                            <option value="cloze">Cloze (完形填空)</option>
+                            <option value="match">Match (词义匹配)</option>
+                        </select>
+                    </div>
                 </div>
-                <h2 class="text-2xl font-bold mb-4">Quiz Completed!</h2>
-                <div id="summary-text" class="text-gray-600 mb-8 p-6 bg-gray-50 rounded-2xl text-left leading-relaxed"></div>
-                <button onclick="location.reload()" class="px-8 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">
-                    Try Another One
+                <button onclick="startQuiz()" id="start-btn" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg hover:opacity-95 transition-all shadow-lg shadow-emerald-100">
+                    Generate Word Palace Quiz
                 </button>
             </div>
-            <div id="wrong-questions-list" class="space-y-4">
-                <h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>
+
+            <div id="quiz-section" class="hidden">
+                <div class="glass-card rounded-[2rem] p-8 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                        <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="question-content"></div>
+                </div>
+                <button id="next-btn" onclick="nextQuestion()" class="hidden w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-black transition-all">
+                    Next Question
+                </button>
             </div>
-        </div>
+
+            <div id="result-section" class="hidden">
+                <div class="glass-card rounded-[2rem] p-8 text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-50 rounded-full mb-6">
+                        <span id="score-display" class="text-4xl font-bold text-blue-600">0</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-4">Quiz Completed!</h2>
+                    <div id="summary-text" class="text-gray-600 mb-8 p-6 bg-white/70 rounded-2xl text-left leading-relaxed"></div>
+                    <button onclick="location.reload()" class="px-8 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-white">
+                        Try Another One
+                    </button>
+                </div>
+                <div id="wrong-questions-list" class="space-y-4">
+                    <h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>
+                </div>
+            </div>
+        </main>
+
+        <main id="map-test-section" class="hidden">
+            <section id="map-overview" class="space-y-6">
+                <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                    <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">MAP Test</p>
+                    <h2 class="text-3xl font-extrabold mt-2">Choose a MAP Pathway</h2>
+                    <p class="text-gray-500 mt-3 max-w-3xl">MAP Test will be built as a skill tree, question template, evaluation report, and next-practice recommendation system. P0 provides the front-end structure; P1 starts with Language Arts.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <button onclick="showMapArea('language-arts')" class="module-card text-left glass-card rounded-[2rem] p-6 border-blue-100">
+                        <span class="inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">P1 Priority</span>
+                        <h3 class="text-2xl font-bold mt-4">Language Arts</h3>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Skill-driven practice for grammar, usage, pronouns, punctuation, capitalization, sentence revision, paragraph organization, and source integration.</p>
+                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>8 Skills</strong><br><span class="text-gray-500">skill tree</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Diagnosis</strong><br><span class="text-gray-500">next practice</span></div>
+                        </div>
+                    </button>
+                    <button onclick="showMapArea('reading')" class="module-card text-left glass-card rounded-[2rem] p-6 border-purple-100">
+                        <span class="inline-flex px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold">Planned</span>
+                        <h3 class="text-2xl font-bold mt-4">Reading</h3>
+                        <p class="text-gray-500 mt-3 leading-relaxed">A later pathway for comprehension, inference, vocabulary in context, evidence, and passage-based reasoning.</p>
+                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Passages</strong><br><span class="text-gray-500">future</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Evidence</strong><br><span class="text-gray-500">future</span></div>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <section id="language-arts-area" class="hidden space-y-6">
+                <button onclick="showMapArea('overview')" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white shadow-sm transition-colors">
+                    ← Back to MAP Test
+                </button>
+
+                <div id="la-setup-section" class="space-y-6">
+                    <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+                            <div>
+                                <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">MAP Language Arts</p>
+                                <h2 class="text-3xl font-extrabold mt-2">Skill Tree Practice</h2>
+                                <p class="text-gray-500 mt-3 max-w-3xl">Select a skill, question count, and difficulty. The system generates MAP-style questions, grades answers by skill, and recommends the next focused practice.</p>
+                            </div>
+                            <span class="inline-flex px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100">Live Language Arts</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <div class="xl:col-span-2 glass-card rounded-[2rem] p-6">
+                            <div class="flex items-center justify-between gap-4 mb-5">
+                                <div>
+                                    <h3 class="text-xl font-bold">1. Choose a Skill</h3>
+                                    <p class="text-sm text-gray-500 mt-1">The system diagnoses by skill, not random question generation.</p>
+                                </div>
+                                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">8 skills</span>
+                            </div>
+                            <div id="la-skill-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="glass-card rounded-[2rem] p-6">
+                                <h3 class="text-xl font-bold mb-5">2. Practice Settings</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Grade Level</label>
+                                        <select id="la-grade-level" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="3">Grade 3</option>
+                                            <option value="4">Grade 4</option>
+                                            <option value="5" selected>Grade 5</option>
+                                            <option value="6">Grade 6</option>
+                                            <option value="7">Grade 7</option>
+                                            <option value="8">Grade 8</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Skill Area</label>
+                                        <select id="la-skill-select" onchange="selectLanguageArtsSkill(this.value)" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Question Count</label>
+                                        <select id="la-question-count" onchange="toggleLaCustomCount()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="5">5 Questions</option>
+                                            <option value="10" selected>10 Questions</option>
+                                            <option value="15">15 Questions</option>
+                                            <option value="20">20 Questions</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                        <input id="la-custom-count" type="number" min="1" max="20" placeholder="输入 1-20" class="hidden mt-3 w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                                        <select id="la-difficulty" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="easy">Easy</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="hard">Hard</option>
+                                            <option value="adaptive">Adaptive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="startLanguageArtsPractice()" id="la-generate-btn" class="mt-6 w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg shadow-blue-100 hover:opacity-95 transition-all">Generate Language Arts Practice</button>
+                            </div>
+
+                            <div id="la-selected-skill" class="glass-card rounded-[2rem] p-6 bg-blue-50/60"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="glass-card rounded-[2rem] p-5">
+                            <h4 class="font-bold text-gray-900">Question Templates</h4>
+                            <p class="text-sm text-gray-500 mt-2">Each skill uses a dedicated prompt and distractor strategy.</p>
+                        </div>
+                        <div class="glass-card rounded-[2rem] p-5">
+                            <h4 class="font-bold text-gray-900">Evaluation Report</h4>
+                            <p class="text-sm text-gray-500 mt-2">Scores are grouped by skill, subskill, and error pattern.</p>
+                        </div>
+                        <div class="glass-card rounded-[2rem] p-5">
+                            <h4 class="font-bold text-gray-900">Next Practice</h4>
+                            <p class="text-sm text-gray-500 mt-2">Weak skills recommend the next focused practice set.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="la-practice-section" class="hidden">
+                    <div class="glass-card rounded-[2rem] p-8 mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                            <div id="la-progress-bar" class="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div id="la-question-content"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="la-submit-btn" onclick="submitLanguageArtsAnswer()" class="py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all">Submit Answer</button>
+                        <button id="la-next-btn" onclick="nextLanguageArtsQuestion()" class="hidden py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-black transition-all">Next Question</button>
+                    </div>
+                </div>
+
+                <div id="la-report-section" class="hidden space-y-5"></div>
+            </section>
+
+            <section id="reading-area" class="hidden space-y-6">
+                <button onclick="showMapArea('overview')" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white shadow-sm transition-colors">
+                    ← Back to MAP Test
+                </button>
+                <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                    <p class="text-sm font-bold text-purple-600 uppercase tracking-[0.18em]">MAP Reading</p>
+                    <h2 class="text-3xl font-extrabold mt-2">Reading Pathway</h2>
+                    <p class="text-gray-500 mt-3 max-w-3xl">Reading will be designed after Language Arts. It will focus on passage comprehension, inference, vocabulary in context, textual evidence, and source-based reasoning.</p>
+                    <div class="mt-6 rounded-2xl bg-purple-50 border border-purple-100 p-5 text-purple-700 font-medium">Planned for a later phase. No question generation is enabled in P0.</div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/10 backdrop-blur-sm hidden flex items-center justify-center z-50">
         <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--english-accent)] border-t-transparent mb-4"></div>
@@ -122,16 +357,645 @@
         let results = [];
         let isAnswered = false;
         let quizInProgress = false;
+        let librariesLoaded = false;
+        let selectedLanguageArtsSkill = 'grammar_usage';
+        let laQuestions = [];
+        let laCurrentIndex = 0;
+        let laAnswers = [];
+        let laSelectedAnswers = [];
+        let laAnswered = false;
+        let laSubskillFocus = '';
 
-        // Prevent browser back
-        window.addEventListener('popstate', function (event) {
-            if (quizInProgress) {
-                history.pushState(null, null, window.location.href);
+        const LANGUAGE_ARTS_SKILLS = [
+            {
+                key: 'grammar_usage',
+                title: 'Grammar & Usage',
+                cn: '语法与用法',
+                summary: 'Verb tense, subject-verb agreement, pronoun case, possessives, comparatives, conjunctions, and clauses.',
+                questionTypes: 'Choose the correct word / Which sentence is written correctly?'
+            },
+            {
+                key: 'pronoun_reference',
+                title: 'Pronoun Reference',
+                cn: '代词指代',
+                summary: 'Vague pronouns and clear noun replacement for it, they, this, that, he, she, and them.',
+                questionTypes: 'Which revision corrects the vague pronoun?'
+            },
+            {
+                key: 'punctuation',
+                title: 'Punctuation',
+                cn: '标点',
+                summary: 'Commas, quotation marks, ending punctuation, ellipses, addresses, dialogue, and direct speech.',
+                questionTypes: 'Choose the correctly punctuated sentence.'
+            },
+            {
+                key: 'capitalization',
+                title: 'Capitalization',
+                cn: '大小写',
+                summary: 'Letter greetings, names, titles, places, sentence beginnings, and closings.',
+                questionTypes: 'Which sentence uses capitalization correctly?'
+            },
+            {
+                key: 'sentence_combining',
+                title: 'Sentence Combining',
+                cn: '句子合并',
+                summary: 'Use because, although, if, when, even though, and other connectors while keeping the original meaning.',
+                questionTypes: 'Which revision best combines the sentences?'
+            },
+            {
+                key: 'sentence_revision',
+                title: 'Sentence Revision',
+                cn: '句子修改',
+                summary: 'Complete sentences, sentence errors, repetition, wordiness, clearer wording, and sentence order.',
+                questionTypes: 'Which revision improves the sentence?'
+            },
+            {
+                key: 'paragraph_organization',
+                title: 'Paragraph Organization',
+                cn: '段落组织',
+                summary: 'Topic sentences, beginnings, conclusions, supporting details, and paragraph order.',
+                questionTypes: 'Which sentence best supports the main idea?'
+            },
+            {
+                key: 'research_source_integration',
+                title: 'Research & Source Integration',
+                cn: '信息整合',
+                summary: 'Combine notes from two sources, judge evidence, and identify details that support a claim.',
+                questionTypes: 'Which details are supported by both sources?'
             }
+        ];
+
+        window.addEventListener('popstate', function () {
+            if (quizInProgress) history.pushState(null, null, window.location.href);
         });
 
+        function showModule(module) {
+            if (quizInProgress) return;
+
+            const isWordPalace = module === 'word-palace';
+            document.getElementById('module-overview').classList.add('hidden');
+            document.getElementById('module-home-btn').classList.remove('hidden');
+            document.getElementById('word-palace-section').classList.toggle('hidden', !isWordPalace);
+            document.getElementById('map-test-section').classList.toggle('hidden', isWordPalace);
+            document.getElementById('report-history-section').classList.add('hidden');
+            document.getElementById('word-palace-card').classList.toggle('active', isWordPalace);
+            document.getElementById('map-test-card').classList.toggle('active', !isWordPalace);
+            document.getElementById('setup-section').classList.toggle('hidden', !isWordPalace);
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('page-title').innerText = isWordPalace ? 'Word Palace' : 'MAP Test';
+            document.getElementById('page-subtitle').innerText = isWordPalace
+                ? 'Build vocabulary power with general libraries, cloze practice, and word-meaning matching.'
+                : 'Explore Language Arts and Reading pathways for future MAP Test practice.';
+            document.getElementById('progress-text').classList.remove('hidden');
+            document.getElementById('progress-text').innerText = isWordPalace ? 'Word Palace' : 'MAP Test Preview';
+
+            if (isWordPalace && !librariesLoaded) {
+                loadEnabledLibraries();
+            }
+            if (!isWordPalace) {
+                showMapArea('overview');
+            }
+        }
+
+        function showModuleHome() {
+            if (quizInProgress) return;
+
+            document.getElementById('module-overview').classList.remove('hidden');
+            document.getElementById('module-home-btn').classList.add('hidden');
+            document.getElementById('word-palace-section').classList.add('hidden');
+            document.getElementById('map-test-section').classList.add('hidden');
+            document.getElementById('report-history-section').classList.add('hidden');
+            document.getElementById('word-palace-card').classList.remove('active');
+            document.getElementById('map-test-card').classList.remove('active');
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('page-title').innerText = 'English Learning';
+            document.getElementById('page-subtitle').innerText = 'Choose Word Palace for vocabulary training, or enter MAP Test for Language Arts and Reading.';
+            document.getElementById('progress-text').classList.add('hidden');
+            document.getElementById('progress-text').innerText = '';
+            showMapArea('overview');
+        }
+
+        async function showReportHistory() {
+            if (quizInProgress) return;
+            document.getElementById('module-overview').classList.add('hidden');
+            document.getElementById('module-home-btn').classList.remove('hidden');
+            document.getElementById('word-palace-section').classList.add('hidden');
+            document.getElementById('map-test-section').classList.add('hidden');
+            document.getElementById('report-history-section').classList.remove('hidden');
+            document.getElementById('page-title').innerText = 'Daily Reports';
+            document.getElementById('page-subtitle').innerText = 'Review daily Word Palace and MAP Test practice history saved in the local server file.';
+            document.getElementById('progress-text').classList.remove('hidden');
+            document.getElementById('progress-text').innerText = 'History';
+            await loadReportHistory();
+        }
+
+        async function loadReportHistory() {
+            const container = document.getElementById('report-history-content');
+            const module = document.getElementById('report-module-filter').value;
+            container.innerHTML = '<div class="glass-card rounded-[2rem] p-6 text-gray-500">Loading reports...</div>';
+            try {
+                const params = new URLSearchParams({ days: '60' });
+                if (module) params.set('module', module);
+                const response = await fetch(`/api/reports/history?${params.toString()}`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(getErrorMessage(data, '加载历史报告失败'));
+                renderReportHistory(data);
+            } catch (err) {
+                container.innerHTML = `<div class="glass-card rounded-[2rem] p-6 text-red-600">${escapeHtml(err.message || '加载历史报告失败')}</div>`;
+            }
+        }
+
+        function renderReportHistory(data) {
+            const daily = data.daily || [];
+            const reports = data.reports || [];
+            const container = document.getElementById('report-history-content');
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    ${daily.slice(0, 12).map(day => `
+                        <div class="glass-card rounded-[2rem] p-5">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <div class="text-xl font-extrabold">${escapeHtml(day.date)}</div>
+                                    <p class="text-sm text-gray-500 mt-1">${escapeHtml(day.sessions)} session(s)</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-bold">${escapeHtml(day.accuracy)}</span>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-600">${escapeHtml(day.correct_count)} / ${escapeHtml(day.total_questions)} correct</div>
+                            <div class="mt-4 space-y-2">
+                                ${(day.modules || []).map(item => `
+                                    <div class="rounded-2xl bg-white/75 p-3 border border-gray-100">
+                                        <div class="flex justify-between gap-2 font-bold text-sm"><span>${escapeHtml(item.module_label)}</span><span>${escapeHtml(item.accuracy)}</span></div>
+                                        <div class="text-xs text-gray-500 mt-1">${escapeHtml(item.sessions)} session(s) · ${escapeHtml(item.correct_count)}/${escapeHtml(item.total_questions)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('') || '<div class="glass-card rounded-[2rem] p-6 text-gray-500 lg:col-span-3">No reports yet. Finish a Word Palace or Language Arts practice to create today\'s report.</div>'}
+                </div>
+                <div class="glass-card rounded-[2rem] p-6">
+                    <h3 class="text-xl font-bold mb-5">Recent Practice Reports</h3>
+                    <div class="space-y-4">
+                        ${reports.slice(0, 30).map(report => `
+                            <div class="p-5 rounded-2xl bg-white/75 border border-gray-100">
+                                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                                    <div>
+                                        <div class="font-extrabold text-lg">${escapeHtml(report.title || report.module_label || '')}</div>
+                                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(report.created_at || '')}</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold">${escapeHtml(Math.round(Number(report.score || 0)))}%</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">${escapeHtml(report.correct_count || 0)} / ${escapeHtml(report.total_count || 0)} correct</p>
+                                ${report.summary ? `<p class="text-sm text-gray-600 mt-3 p-3 rounded-xl bg-gray-50">${escapeHtml(report.summary)}</p>` : ''}
+                                ${(report.weak_knowledge_points || []).length ? `
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        ${(report.weak_knowledge_points || []).slice(0, 4).map(point => `<span class="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold">${escapeHtml(point.knowledge_point || point.subskill || '')}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('') || '<p class="text-gray-500">No recent practice reports.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showMapArea(area) {
+            const showOverview = area === 'overview';
+            const showLanguageArts = area === 'language-arts';
+            const showReading = area === 'reading';
+
+            document.getElementById('map-overview').classList.toggle('hidden', !showOverview);
+            document.getElementById('language-arts-area').classList.toggle('hidden', !showLanguageArts);
+            document.getElementById('reading-area').classList.toggle('hidden', !showReading);
+            if (showOverview || showReading) resetLanguageArtsPractice(false);
+
+            if (showLanguageArts) {
+                if (!laQuestions.length) {
+                    document.getElementById('la-setup-section')?.classList.remove('hidden');
+                    document.getElementById('la-practice-section')?.classList.add('hidden');
+                    document.getElementById('la-report-section')?.classList.add('hidden');
+                }
+                renderLanguageArtsSkills();
+                selectLanguageArtsSkill(selectedLanguageArtsSkill);
+                document.getElementById('progress-text').innerText = 'MAP Language Arts';
+            } else if (showReading) {
+                document.getElementById('progress-text').innerText = 'MAP Reading Planned';
+            } else if (!document.getElementById('map-test-section').classList.contains('hidden')) {
+                document.getElementById('progress-text').innerText = 'MAP Test Preview';
+            }
+        }
+
+        function renderLanguageArtsSkills() {
+            const grid = document.getElementById('la-skill-grid');
+            const select = document.getElementById('la-skill-select');
+            if (!grid || !select) return;
+
+            grid.innerHTML = LANGUAGE_ARTS_SKILLS.map(skill => `
+                <button type="button" onclick="selectLanguageArtsSkill('${skill.key}')" class="skill-card text-left border border-gray-100 rounded-2xl p-5 bg-white/70 ${skill.key === selectedLanguageArtsSkill ? 'selected' : ''}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-gray-900">${skill.title}</h4>
+                            <p class="text-sm text-blue-600 font-semibold mt-1">${skill.cn}</p>
+                        </div>
+                        <span class="text-[11px] uppercase tracking-wide font-bold text-gray-400">Skill</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-3 leading-relaxed">${skill.summary}</p>
+                </button>
+            `).join('');
+
+            select.innerHTML = LANGUAGE_ARTS_SKILLS.map(skill => `<option value="${skill.key}">${skill.title}</option>`).join('');
+            select.value = selectedLanguageArtsSkill;
+        }
+
+        function selectLanguageArtsSkill(skillKey) {
+            selectedLanguageArtsSkill = skillKey;
+            const skill = LANGUAGE_ARTS_SKILLS.find(item => item.key === skillKey) || LANGUAGE_ARTS_SKILLS[0];
+            const select = document.getElementById('la-skill-select');
+            if (select) select.value = skill.key;
+
+            document.querySelectorAll('.skill-card').forEach(card => {
+                card.classList.toggle('selected', card.getAttribute('onclick')?.includes(skill.key));
+            });
+
+            const detail = document.getElementById('la-selected-skill');
+            if (detail) {
+                detail.innerHTML = `
+                    <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.16em]">Selected Skill</p>
+                    <h3 class="text-xl font-extrabold mt-2">${skill.title}</h3>
+                    <p class="text-sm text-gray-500 font-semibold mt-1">${skill.cn}</p>
+                    <p class="text-sm text-gray-600 mt-4 leading-relaxed">${skill.summary}</p>
+                    <div class="mt-4 p-4 rounded-2xl bg-white/75 border border-blue-100">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Typical Template</p>
+                        <p class="text-sm text-gray-700 mt-1">${skill.questionTypes}</p>
+                    </div>
+                    <div class="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+                        P1 will use this skill to generate questions, evaluate common errors, and recommend the next focused practice set.
+                    </div>
+                `;
+            }
+        }
+
+        function toggleLaCustomCount() {
+            const isCustom = document.getElementById('la-question-count').value === 'custom';
+            document.getElementById('la-custom-count').classList.toggle('hidden', !isCustom);
+        }
+
+        function getLanguageArtsQuestionCount() {
+            const value = document.getElementById('la-question-count').value;
+            const raw = value === 'custom' ? document.getElementById('la-custom-count').value : value;
+            const count = Number.parseInt(raw, 10);
+            if (!Number.isInteger(count) || count < 1 || count > 20) {
+                throw new Error('请输入 1-20 之间的 MAP Language Arts 题量');
+            }
+            return count;
+        }
+
+        function resetLanguageArtsPractice(showSetup = true) {
+            laQuestions = [];
+            laCurrentIndex = 0;
+            laAnswers = [];
+            laSelectedAnswers = [];
+            laAnswered = false;
+            laSubskillFocus = '';
+            document.getElementById('la-setup-section')?.classList.toggle('hidden', !showSetup);
+            document.getElementById('la-practice-section')?.classList.add('hidden');
+            document.getElementById('la-report-section')?.classList.add('hidden');
+            const report = document.getElementById('la-report-section');
+            if (report) report.innerHTML = '';
+        }
+
+        async function startLanguageArtsPractice(options = {}) {
+            let questionCount;
+            try {
+                questionCount = getLanguageArtsQuestionCount();
+            } catch (err) {
+                showNotice('error', err.message);
+                return;
+            }
+
+            if (options.skillArea) {
+                selectedLanguageArtsSkill = options.skillArea;
+                selectLanguageArtsSkill(options.skillArea);
+            }
+            if (options.difficulty) document.getElementById('la-difficulty').value = options.difficulty;
+            if (options.questionCount) questionCount = options.questionCount;
+            laSubskillFocus = options.subskillFocus || laSubskillFocus || '';
+
+            const payload = {
+                skill_area: selectedLanguageArtsSkill,
+                grade_level: document.getElementById('la-grade-level').value,
+                difficulty: document.getElementById('la-difficulty').value,
+                question_count: questionCount,
+                option_count: selectedLanguageArtsSkill === 'research_source_integration' ? 5 : 4,
+                include_explanation: true
+            };
+            if (laSubskillFocus) payload.subskill_focus = laSubskillFocus;
+
+            showLoading(true);
+            try {
+                const response = await fetch('/api/map/language-arts/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(getErrorMessage(data, 'Language Arts 出题失败'));
+                if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效 Language Arts 题目');
+
+                laQuestions = data.questions;
+                laCurrentIndex = 0;
+                laAnswers = [];
+                laSelectedAnswers = [];
+                laAnswered = false;
+                document.getElementById('la-setup-section').classList.add('hidden');
+                document.getElementById('la-report-section').classList.add('hidden');
+                document.getElementById('la-practice-section').classList.remove('hidden');
+                document.getElementById('module-home-btn').classList.add('hidden');
+                showLanguageArtsQuestion();
+            } catch (err) {
+                showNotice('error', err.message || 'Language Arts 出题失败，请稍后重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showLanguageArtsQuestion() {
+            laAnswered = false;
+            laSelectedAnswers = [];
+            const question = laQuestions[laCurrentIndex];
+            const container = document.getElementById('la-question-content');
+            const progress = ((laCurrentIndex + 1) / laQuestions.length) * 100;
+            document.getElementById('la-progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').innerText = `Language Arts ${laCurrentIndex + 1} / ${laQuestions.length}`;
+            document.getElementById('la-submit-btn').classList.remove('hidden');
+            document.getElementById('la-next-btn').classList.add('hidden');
+
+            const isMulti = Array.isArray(question.correct_answer);
+            const choices = question.answer_choices || {};
+            const knowledgeTag = question.subskill || question.common_error_tested || laSubskillFocus || selectedLanguageArtsSkill;
+            container.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">${escapeHtml(question.skill_area || selectedLanguageArtsSkill)}</span>
+                        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold">Knowledge: ${escapeHtml(knowledgeTag)}</span>
+                        <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">${escapeHtml(question.difficulty || '')}</span>
+                        ${isMulti ? '<span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold">Choose two</span>' : ''}
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">${escapeHtml(question.question_stem || 'Choose the best answer.')}</h3>
+                    ${question.passage_or_sentence ? `<div class="mt-5 p-5 rounded-2xl bg-white/75 border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">${escapeHtml(question.passage_or_sentence)}</div>` : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${Object.entries(choices).map(([label, text]) => `
+                        <button type="button" onclick="toggleLanguageArtsChoice('${label}')" data-la-choice="${label}" class="la-choice w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70">
+                            <span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${label}</span><span>${escapeHtml(text)}</span><span class="selected-mark hidden float-right text-blue-600 font-extrabold">Selected</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="la-question-explanation" class="hidden mt-8 p-5 bg-blue-50 rounded-2xl text-blue-800 text-sm"></div>
+            `;
+        }
+
+        function toggleLanguageArtsChoice(label) {
+            if (laAnswered) return;
+            const question = laQuestions[laCurrentIndex];
+            const isMulti = Array.isArray(question.correct_answer);
+            if (isMulti) {
+                if (laSelectedAnswers.includes(label)) {
+                    laSelectedAnswers = laSelectedAnswers.filter(item => item !== label);
+                } else {
+                    laSelectedAnswers.push(label);
+                }
+            } else {
+                laSelectedAnswers = [label];
+            }
+            document.querySelectorAll('[data-la-choice]').forEach(btn => {
+                const selected = laSelectedAnswers.includes(btn.dataset.laChoice);
+                btn.classList.toggle('selected', selected);
+                btn.querySelector('.selected-mark')?.classList.toggle('hidden', !selected);
+            });
+        }
+
+        function submitLanguageArtsAnswer() {
+            if (laAnswered) return;
+            if (!laSelectedAnswers.length) {
+                showNotice('error', '请先选择一个答案');
+                return;
+            }
+
+            laAnswered = true;
+            const question = laQuestions[laCurrentIndex];
+            const correct = normalizeAnswerLabels(question.correct_answer);
+            const selected = normalizeAnswerLabels(laSelectedAnswers);
+            const isCorrect = selected.join('|') === correct.join('|');
+
+            document.querySelectorAll('[data-la-choice]').forEach(btn => {
+                const label = btn.dataset.laChoice;
+                if (correct.includes(label)) btn.classList.add('correct-hint');
+                if (selected.includes(label) && isCorrect) btn.classList.add('correct');
+                if (selected.includes(label) && !isCorrect) btn.classList.add('wrong');
+            });
+
+            laAnswers.push({
+                question_id: question.question_id,
+                student_answer: Array.isArray(question.correct_answer) ? selected : selected[0]
+            });
+
+            const explanation = document.getElementById('la-question-explanation');
+            explanation.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Review this.'}</strong> ${escapeHtml(question.explanation || 'Read the explanation and try the next question.')}`;
+            explanation.classList.remove('hidden');
+            document.getElementById('la-submit-btn').classList.add('hidden');
+            document.getElementById('la-next-btn').classList.remove('hidden');
+            document.getElementById('la-next-btn').innerText = laCurrentIndex + 1 < laQuestions.length ? 'Next Question' : 'View Evaluation Report';
+        }
+
+        async function nextLanguageArtsQuestion() {
+            laCurrentIndex++;
+            if (laCurrentIndex < laQuestions.length) {
+                showLanguageArtsQuestion();
+                return;
+            }
+            await showLanguageArtsReport();
+        }
+
+        async function showLanguageArtsReport() {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/map/language-arts/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions: laQuestions, answers: laAnswers })
+                });
+                const report = await response.json();
+                if (!response.ok) throw new Error(getErrorMessage(report, 'Language Arts 评估失败'));
+                renderLanguageArtsReport(report);
+            } catch (err) {
+                showNotice('error', err.message || 'Language Arts 评估失败');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderLanguageArtsReport(report) {
+            document.getElementById('la-practice-section').classList.add('hidden');
+            document.getElementById('la-report-section').classList.remove('hidden');
+            document.getElementById('module-home-btn').classList.remove('hidden');
+            document.getElementById('progress-text').innerText = 'Language Arts Report';
+
+            const overall = report.overall || {};
+            const breakdown = report.skill_breakdown || [];
+            const weakPoints = report.weak_knowledge_points || [];
+            const recommendations = report.recommended_next_practice || [];
+            const results = report.results || [];
+            document.getElementById('la-report-section').innerHTML = `
+                <div class="glass-card rounded-[2rem] p-8 text-center">
+                    <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Evaluation Report</p>
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-50 rounded-full my-6">
+                        <span class="text-3xl font-extrabold text-blue-600">${escapeHtml(overall.accuracy || '0%')}</span>
+                    </div>
+                    <h2 class="text-2xl font-bold">${escapeHtml(overall.correct ?? 0)} / ${escapeHtml(overall.total_questions ?? 0)} Correct</h2>
+                    <p class="text-gray-600 mt-4 max-w-3xl mx-auto">${escapeHtml(report.student_summary || 'Great effort. Review the missed questions and continue practicing.')}</p>
+                    <button onclick="resetLanguageArtsPractice(true)" class="mt-6 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">Practice Again</button>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 border border-red-100 bg-red-50/50">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-red-600 uppercase tracking-[0.16em]">Weak Knowledge Points</p>
+                            <h3 class="text-2xl font-extrabold mt-1">Most Important Areas to Fix</h3>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-white/80 text-red-600 text-xs font-bold">Practice one point at a time</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${weakPoints.map(point => `
+                            <div class="p-5 rounded-2xl bg-white/85 border border-red-100">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <div class="text-lg font-extrabold text-red-700">${escapeHtml(point.knowledge_point || point.subskill || point.skill_area || '')}</div>
+                                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(point.skill_area || '')} · missed ${escapeHtml(point.missed_count || 1)} time(s)</p>
+                                    </div>
+                                    <span class="px-2 py-1 rounded-full text-[11px] font-bold ${point.severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${escapeHtml(point.severity || 'medium')}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">${escapeHtml(point.message || 'This knowledge point needs focused practice.')}</p>
+                                <button onclick="practiceWeakPoint('${escapeAttr(point.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(point.knowledge_point || point.subskill || '')}')" class="mt-4 w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">Practice this knowledge point</button>
+                            </div>
+                        `).join('') || '<p class="text-gray-500">No major weak knowledge point found. Try a harder or mixed review set.</p>'}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <h3 class="text-xl font-bold mb-4">Skill Breakdown</h3>
+                        <div class="space-y-3">
+                            ${breakdown.map(item => `
+                                <div class="p-4 rounded-2xl bg-white/70 border border-gray-100">
+                                    <div class="flex justify-between gap-3 font-bold"><span>${escapeHtml(item.skill_area || '')}</span><span>${escapeHtml(item.accuracy || '')}</span></div>
+                                    <p class="text-sm text-gray-500 mt-2">${escapeHtml(item.diagnosis || '')}</p>
+                                </div>
+                            `).join('') || '<p class="text-gray-500">No breakdown available.</p>'}
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <h3 class="text-xl font-bold mb-4">Recommended Next Practice</h3>
+                        <div class="space-y-3">
+                            ${recommendations.map(item => `
+                                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                                    <div class="font-bold text-emerald-800">${escapeHtml(item.subskill_focus || item.skill_area || '')}</div>
+                                    <p class="text-xs text-emerald-600 mt-1">${escapeHtml(item.skill_area || '')}</p>
+                                    <p class="text-sm text-emerald-700 mt-2">${escapeHtml(item.reason || '')}</p>
+                                    <p class="text-xs text-emerald-600 mt-2">${escapeHtml(item.question_count || 10)} questions · ${escapeHtml(item.difficulty || 'medium')}</p>
+                                    <button onclick="practiceWeakPoint('${escapeAttr(item.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(item.subskill_focus || '')}', '${escapeAttr(item.difficulty || 'medium')}', ${Number(item.question_count || 10)})" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Start focused practice</button>
+                                </div>
+                            `).join('') || '<p class="text-gray-500">No recommendation available.</p>'}
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6">
+                    <h3 class="text-xl font-bold mb-4">Question Review</h3>
+                    <div class="space-y-3">
+                        ${results.map(item => `
+                            <div class="p-4 rounded-2xl bg-white/70 border border-gray-100">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <span class="font-bold">Question ${escapeHtml(item.question_id)}</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold ${item.is_correct ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${item.is_correct ? 'Correct' : 'Needs Review'}</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer))}</p>
+                                <p class="text-sm text-gray-600 mt-2">${escapeHtml(item.explanation || '')}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function practiceWeakPoint(skillArea, subskillFocus = '', difficulty = 'medium', questionCount = 10) {
+            showMapArea('language-arts');
+            selectedLanguageArtsSkill = skillArea || selectedLanguageArtsSkill;
+            selectLanguageArtsSkill(selectedLanguageArtsSkill);
+            document.getElementById('la-difficulty').value = difficulty || 'medium';
+            document.getElementById('la-question-count').value = 'custom';
+            document.getElementById('la-custom-count').classList.remove('hidden');
+            document.getElementById('la-custom-count').value = Math.min(Math.max(Number(questionCount) || 10, 1), 20);
+            laSubskillFocus = subskillFocus || '';
+            startLanguageArtsPractice({
+                skillArea: selectedLanguageArtsSkill,
+                subskillFocus: laSubskillFocus,
+                difficulty: document.getElementById('la-difficulty').value,
+                questionCount: Number(document.getElementById('la-custom-count').value)
+            });
+        }
+
+        function normalizeAnswerLabels(value) {
+            const raw = Array.isArray(value) ? value : [value];
+            return raw.map(item => String(item).trim().toUpperCase().slice(0, 1)).filter(Boolean).sort();
+        }
+
+        function formatAnswer(value) {
+            return (Array.isArray(value) ? value : [value]).join(', ');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[ch]));
+        }
+
+        function escapeAttr(value) {
+            return String(value ?? '').replace(/[\\'"\n\r]/g, ch => ({
+                '\\': '\\\\',
+                "'": "\\'",
+                '"': '&quot;',
+                '\n': ' ',
+                '\r': ' '
+            }[ch]));
+        }
+
+        function toggleCustomCount() {
+            const isCustom = document.getElementById('word-count').value === 'custom';
+            document.getElementById('custom-count').classList.toggle('hidden', !isCustom);
+        }
+
+        function getSelectedCount() {
+            const countValue = document.getElementById('word-count').value;
+            const raw = countValue === 'custom' ? document.getElementById('custom-count').value : countValue;
+            const count = Number.parseInt(raw, 10);
+            if (!Number.isInteger(count) || count < 1 || count > 50) {
+                throw new Error('请输入 1-50 之间的练习数量');
+            }
+            return count;
+        }
+
         async function startQuiz() {
-            const count = document.getElementById('word-count').value;
+            let count;
+            try {
+                count = getSelectedCount();
+            } catch (err) {
+                showNotice('error', err.message);
+                return;
+            }
+
             const mode = document.getElementById('quiz-mode').value;
             const library = document.getElementById('word-library').value;
 
@@ -149,11 +1013,11 @@
                 score = 0;
                 results = [];
                 quizInProgress = true;
-
-                // Push state to detect back button
                 history.pushState(null, null, window.location.href);
 
                 document.getElementById('back-btn').classList.add('invisible');
+                document.getElementById('module-home-btn').classList.add('hidden');
+                document.getElementById('module-overview').classList.add('hidden');
                 document.getElementById('setup-section').classList.add('hidden');
                 document.getElementById('quiz-section').classList.remove('hidden');
                 showQuestion();
@@ -169,24 +1033,44 @@
             const q = questions[currentIndex];
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
-            
             const progress = ((currentIndex + 1) / questions.length) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
             document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} / ${questions.length}`;
 
-            container.innerHTML = `
-                <p class="text-xl font-medium text-gray-900 mb-8">${q.sentence.replace('____', '<span id="placeholder" class="px-4 border-b-2 border-gray-300 font-bold text-blue-600">?</span>')}</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    ${q.options.map(opt => `
-                        <button onclick="checkAnswer(this, '${opt}')" class="option-btn w-full p-5 text-left border border-gray-100 rounded-2xl hover:bg-gray-50 font-medium">
-                            ${opt}
-                        </button>
-                    `).join('')}
-                </div>
-                <div id="explanation" class="hidden mt-8 p-5 bg-blue-50 rounded-2xl text-blue-800 text-sm">
-                    <strong>Analysis: </strong> ${q.analysis || 'Keep going!'}
-                </div>
-            `;
+            container.innerHTML = '';
+            const sentence = document.createElement('p');
+            sentence.className = 'text-xl font-medium text-gray-900 mb-8 leading-relaxed';
+            if ((q.sentence || '').includes('____')) {
+                const parts = q.sentence.split('____');
+                sentence.append(document.createTextNode(parts[0]));
+                const placeholder = document.createElement('span');
+                placeholder.id = 'placeholder';
+                placeholder.className = 'px-4 border-b-2 border-gray-300 font-bold text-blue-600';
+                placeholder.textContent = '?';
+                sentence.appendChild(placeholder);
+                sentence.append(document.createTextNode(parts.slice(1).join('____')));
+            } else {
+                sentence.textContent = q.sentence || '';
+            }
+            container.appendChild(sentence);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+            (q.options || []).forEach(opt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn w-full p-5 text-left border border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => checkAnswer(btn, opt));
+                grid.appendChild(btn);
+            });
+            container.appendChild(grid);
+
+            const explanation = document.createElement('div');
+            explanation.id = 'explanation';
+            explanation.className = 'hidden mt-8 p-5 bg-blue-50 rounded-2xl text-blue-800 text-sm';
+            explanation.innerHTML = `<strong>Analysis: </strong> ${q.analysis || 'Keep going!'}`;
+            container.appendChild(explanation);
         }
 
         function checkAnswer(btn, selected) {
@@ -194,7 +1078,7 @@
             isAnswered = true;
             const q = questions[currentIndex];
             const isCorrect = selected.trim().toLowerCase() === q.answer.trim().toLowerCase();
-            
+
             if (isCorrect) {
                 score++;
                 btn.classList.add('correct');
@@ -224,16 +1108,18 @@
         async function showReport() {
             quizInProgress = false;
             document.getElementById('back-btn').classList.remove('invisible');
+            document.getElementById('module-home-btn').classList.remove('hidden');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
             const accuracy = Math.round((score / questions.length) * 100);
             document.getElementById('score-display').innerText = `${accuracy}%`;
 
             const wrongList = document.getElementById('wrong-questions-list');
+            wrongList.innerHTML = '<h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>';
             results.filter(r => !r.isCorrect).forEach(w => {
                 const item = document.createElement('div');
-                item.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100';
-                item.innerHTML = `<p class="mb-2">${w.sentence}</p><p class="text-sm"><span class="text-red-500">Your: ${w.userAnswer}</span> | <span class="text-green-600">Correct: ${w.answer}</span></p><p class="text-xs text-gray-500 mt-2 italic">${w.analysis}</p>`;
+                item.className = 'glass-card rounded-2xl p-6';
+                item.innerHTML = `<p class="mb-2">${w.sentence}</p><p class="text-sm"><span class="text-red-500">Your: ${w.userAnswer}</span> | <span class="text-green-600">Correct: ${w.answer}</span></p><p class="text-xs text-gray-500 mt-2 italic">${w.analysis || ''}</p>`;
                 wrongList.appendChild(item);
             });
 
@@ -247,7 +1133,7 @@
                 if (!response.ok) throw new Error(getErrorMessage(data, '总结生成失败'));
                 document.getElementById('summary-text').innerText = data.summary;
             } catch (e) {
-                document.getElementById('summary-text').innerText = "Good job! Keep practicing.";
+                document.getElementById('summary-text').innerText = 'Good job! Keep practicing.';
                 showNotice('error', e.message || '总结生成失败，已使用默认文案');
             }
         }
@@ -267,7 +1153,7 @@
             el.textContent = message;
             el.classList.remove('hidden');
             clearTimeout(window.__pageNoticeTimer__);
-            window.__pageNoticeTimer__ = setTimeout(() => el.classList.add('hidden'), 2800);
+            window.__pageNoticeTimer__ = setTimeout(() => el.classList.add('hidden'), 3200);
         }
 
         function setStartAvailability(enabled, reason = '') {
@@ -279,12 +1165,11 @@
         }
 
         async function loadEnabledLibraries() {
-            const mode = document.getElementById('quiz-mode').value;
             const select = document.getElementById('word-library');
             const previous = select.value;
             select.innerHTML = '<option value="">自动选择已启用词库</option>';
             try {
-                const res = await fetch(`/api/english/libraries?mode=${mode}`);
+                const res = await fetch('/api/english/libraries');
                 const libraries = await res.json();
                 if (!res.ok) throw new Error(getErrorMessage(libraries, '加载词库失败'));
                 if (!Array.isArray(libraries)) throw new Error('词库响应格式错误');
@@ -295,12 +1180,11 @@
                     option.textContent = name;
                     select.appendChild(option);
                 });
-                if (previous && libraries.includes(previous)) {
-                    select.value = previous;
-                }
+                if (previous && libraries.includes(previous)) select.value = previous;
 
+                librariesLoaded = true;
                 if (!libraries.length) {
-                    setStartAvailability(false, '当前题型下没有可用词库，请先在后台启用词库');
+                    setStartAvailability(false, '当前没有可用英语词库，请先在后台启用非空词库');
                 } else {
                     setStartAvailability(true);
                 }
@@ -309,8 +1193,9 @@
             }
         }
 
-        document.getElementById('quiz-mode').addEventListener('change', loadEnabledLibraries);
-        loadEnabledLibraries();
+        document.getElementById('word-palace-section').classList.add('hidden');
+        document.getElementById('map-test-section').classList.add('hidden');
+        document.getElementById('report-history-section').classList.add('hidden');
     </script>
 </body>
 </html>

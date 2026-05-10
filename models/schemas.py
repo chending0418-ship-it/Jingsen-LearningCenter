@@ -3,7 +3,7 @@
 使用 Pydantic 定义请求和响应的数据模型
 """
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+from typing import Any, Dict, List, Optional, Union, Literal
 
 
 class QuestionItem(BaseModel):
@@ -123,3 +123,89 @@ class LibraryStatusRequest(BaseModel):
 class LibraryItemsUpdateRequest(BaseModel):
     """更新词条请求"""
     items: List[str] = Field(default_factory=list, description="词条列表")
+
+
+MapLanguageArtsSkillArea = Literal[
+    "grammar_usage",
+    "pronoun_reference",
+    "punctuation",
+    "capitalization",
+    "sentence_combining",
+    "sentence_revision",
+    "paragraph_organization",
+    "research_source_integration",
+    "mixed_review"
+]
+
+MapLanguageArtsDifficulty = Literal["easy", "medium", "hard", "adaptive"]
+
+
+class MapLanguageArtsSkill(BaseModel):
+    """MAP Language Arts 技能元数据"""
+    key: str
+    title: str
+    cn: str
+    summary: str
+    question_types: List[str] = Field(default_factory=list)
+    subskills: List[str] = Field(default_factory=list)
+
+
+class MapLanguageArtsGenerateRequest(BaseModel):
+    """MAP Language Arts 生成请求"""
+    skill_area: MapLanguageArtsSkillArea = Field(..., description="目标技能")
+    grade_level: str = Field("5", description="年级")
+    difficulty: MapLanguageArtsDifficulty = Field("medium", description="难度")
+    question_count: int = Field(10, ge=1, le=20, description="题目数量")
+    option_count: int = Field(4, ge=4, le=5, description="选项数量")
+    include_explanation: bool = Field(True, description="是否包含解析")
+    subskill_focus: Optional[str] = Field(None, description="具体薄弱知识点，例如 vague pronouns 或 capitalization in letters")
+
+
+class MapLanguageArtsQuestion(BaseModel):
+    """MAP Language Arts 题目"""
+    question_id: int
+    skill_area: str
+    subskill: str
+    difficulty: str
+    question_stem: str
+    passage_or_sentence: str
+    answer_choices: Dict[str, str]
+    correct_answer: Union[str, List[str]]
+    explanation: Optional[str] = None
+    common_error_tested: Optional[str] = None
+
+
+class MapLanguageArtsGenerateResponse(BaseModel):
+    """MAP Language Arts 生成响应"""
+    test_title: str = "MAP Language Arts Practice"
+    grade_level: str
+    skill_area: str
+    difficulty: str
+    question_count: int
+    questions: List[MapLanguageArtsQuestion]
+
+
+class MapLanguageArtsAnswerItem(BaseModel):
+    """MAP Language Arts 单题作答"""
+    question_id: int
+    student_answer: Union[str, List[str]]
+
+
+class MapLanguageArtsEvaluateRequest(BaseModel):
+    """MAP Language Arts 评估请求"""
+    questions: List[MapLanguageArtsQuestion]
+    answers: List[MapLanguageArtsAnswerItem]
+
+
+class MapLanguageArtsEvaluationResponse(BaseModel):
+    """MAP Language Arts 评估响应"""
+    overall: Dict[str, Any]
+    skill_breakdown: List[Dict[str, Any]] = Field(default_factory=list)
+    strongest_skills: List[str] = Field(default_factory=list)
+    weakest_skills: List[str] = Field(default_factory=list)
+    error_patterns: List[str] = Field(default_factory=list)
+    weak_knowledge_points: List[Dict[str, Any]] = Field(default_factory=list)
+    recommended_next_practice: List[Dict[str, Any]] = Field(default_factory=list)
+    student_summary: str = ""
+    parent_teacher_summary: str = ""
+    results: List[Dict[str, Any]] = Field(default_factory=list)

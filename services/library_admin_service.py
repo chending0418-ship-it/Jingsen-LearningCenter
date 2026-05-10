@@ -16,7 +16,6 @@ from config import config
 
 
 ALLOWED_LIBRARY_TYPES = {
-    "english": {"cloze", "match"},
     "chinese": {"word_discrim", "conj_fill", "idiom_fill"}
 }
 
@@ -72,10 +71,6 @@ class LibraryAdminService:
 
     def _infer_library_type(self, library_name: str, subject: str) -> Optional[str]:
         if subject == "english":
-            if "match" in library_name:
-                return "match"
-            if "cloze" in library_name:
-                return "cloze"
             return None
 
         if subject == "chinese":
@@ -88,7 +83,7 @@ class LibraryAdminService:
         return None
 
     def _validate_library_type(self, subject: str, library_type: Optional[str]) -> None:
-        if library_type is None:
+        if subject == "english" or library_type is None:
             return
         allowed = ALLOWED_LIBRARY_TYPES.get(subject, set())
         if library_type not in allowed:
@@ -107,8 +102,8 @@ class LibraryAdminService:
             return []
 
         if subject == "english":
-            raw = content.replace("，", ",").split(",")
-            return [x.strip() for x in raw if x.strip()]
+            raw = content.replace("，", ",").replace("\n", ",").split(",")
+            return list(dict.fromkeys(x.strip() for x in raw if x.strip()))
 
         return [x.strip() for x in content.splitlines() if x.strip() and not x.strip().startswith("#")]
 
@@ -143,7 +138,9 @@ class LibraryAdminService:
             subject = self._infer_subject(name)
 
         library_type = entry.get("library_type")
-        if library_type is None:
+        if subject == "english":
+            library_type = None
+        elif library_type is None:
             library_type = self._infer_library_type(name, subject)
 
         try:
@@ -236,7 +233,7 @@ class LibraryAdminService:
             "name": row["name"],
             "file_name": row["file_name"],
             "enabled": row["enabled"],
-            "library_type": row.get("library_type"),
+            "library_type": None if subject == "english" else row.get("library_type"),
             "total_items": len(items),
             "created_at": row["created_at"],
             "updated_at": row["updated_at"],
@@ -292,6 +289,8 @@ class LibraryAdminService:
         if subject not in ["english", "chinese"]:
             raise ValueError("subject 仅支持 english 或 chinese")
 
+        if subject == "english":
+            library_type = None
         self._validate_library_type(subject, library_type)
         cleaned = self._clean_items(items)
 
@@ -354,7 +353,9 @@ class LibraryAdminService:
                 target["name"] = name
                 target["file_name"] = name
 
-            if library_type is not None:
+            if target["subject"] == "english":
+                target["library_type"] = None
+            elif library_type is not None:
                 self._validate_library_type(target["subject"], library_type)
                 target["library_type"] = library_type
 
@@ -396,10 +397,12 @@ class LibraryAdminService:
             registry = self._read_registry_unlocked()
             enabled_rows = [
                 x for x in registry.get("libraries", [])
-                if x.get("subject") == subject and bool(x.get("enabled"))
+                if x.get("subject") == subject
+                and bool(x.get("enabled"))
+                and len(self._parse_items_from_file(x.get("file_name", ""), subject)) > 0
             ]
 
-            if library_type:
+            if library_type and subject != "english":
                 typed = [x for x in enabled_rows if x.get("library_type") == library_type]
                 if typed:
                     enabled_rows = typed
@@ -423,20 +426,24 @@ class LibraryAdminService:
                     raise ValueError(f"词库不存在: {requested_library}")
                 if not target.get("enabled"):
                     raise ValueError(f"词库未启用: {requested_library}")
-                if library_type and target.get("library_type") and target.get("library_type") != library_type:
+                if not self._parse_items_from_file(target["file_name"], subject):
+                    raise ValueError(f"词库为空或文件不存在: {requested_library}")
+                if subject != "english" and library_type and target.get("library_type") and target.get("library_type") != library_type:
                     raise ValueError(f"词库类型不匹配: {requested_library} 不支持 {library_type}")
                 return self._library_with_count(target)
 
             enabled_rows = [
                 x for x in libraries
-                if x.get("subject") == subject and bool(x.get("enabled"))
+                if x.get("subject") == subject
+                and bool(x.get("enabled"))
+                and len(self._parse_items_from_file(x.get("file_name", ""), subject)) > 0
             ]
             enabled_rows = sorted(enabled_rows, key=lambda x: x.get("created_at", ""))
 
             if not enabled_rows:
-                raise ValueError(f"{subject} 学科暂无启用词库")
+                raise ValueError(f"{subject} 学科暂无启用且非空词库")
 
-            if library_type:
+            if library_type and subject != "english":
                 typed = [x for x in enabled_rows if x.get("library_type") == library_type]
                 if typed:
                     return self._library_with_count(typed[0])
@@ -444,18 +451,21 @@ class LibraryAdminService:
             return self._library_with_count(enabled_rows[0])
 
     def get_random_library_items(self, file_name: str, count: int) -> List[str]:
-        with self._lock:
-            registry = self._read_registry_unlocked()
-            lib = self._find_library_by_file_name(registry.get("libraries", []), file_name)
-            if not lib:
-                return []
-            items = self._parse_items_from_file(file_name, lib.get("subject", "english"))
+        items = self.get_library_items(file_name)
 
         if not items:
             return []
 
         safe_count = min(count, len(items))
         return random.sample(items, safe_count)
+
+    def get_library_items(self, file_name: str) -> List[str]:
+        with self._lock:
+            registry = self._read_registry_unlocked()
+            lib = self._find_library_by_file_name(registry.get("libraries", []), file_name)
+            if not lib:
+                return []
+            return self._parse_items_from_file(file_name, lib.get("subject", "english"))
 
     def get_public_library_info(self, file_name: str) -> Dict[str, Any]:
         with self._lock:

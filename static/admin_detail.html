@@ -51,6 +51,7 @@
             <div>
                 <label class="block text-sm text-gray-600 mb-1">词库类型</label>
                 <select id="detail-type" class="w-full p-2.5 border border-gray-200 rounded-xl"></select>
+                <p id="english-type-note" class="hidden mt-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">英语词库为通用词库，可用于 Word Palace 的所有练习类型。</p>
             </div>
             <button onclick="saveMeta()" class="w-full py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">保存元信息</button>
 
@@ -82,9 +83,7 @@
             { value: 'idiom_fill', label: '成语填空' }
         ];
         const ENGLISH_TYPES = [
-            { value: '', label: '无指定类型' },
-            { value: 'cloze', label: '完形填空' },
-            { value: 'match', label: '词义匹配' }
+            { value: '', label: '通用' }
         ];
 
         function showNotice(type, message) {
@@ -97,10 +96,13 @@
         }
 
         function fillSelect(subject, selected = '') {
-            const opts = subject === 'chinese' ? CHINESE_TYPES : ENGLISH_TYPES;
+            const isEnglish = subject === 'english';
+            const opts = isEnglish ? ENGLISH_TYPES : CHINESE_TYPES;
             const target = document.getElementById('detail-type');
             target.innerHTML = opts.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
-            target.value = selected || '';
+            target.value = isEnglish ? '' : (selected || '');
+            target.classList.toggle('hidden', isEnglish);
+            document.getElementById('english-type-note').classList.toggle('hidden', !isEnglish);
         }
 
         function updateStatusUI() {
@@ -155,7 +157,7 @@
 
         async function saveMeta() {
             const name = document.getElementById('detail-name').value.trim();
-            const library_type = document.getElementById('detail-type').value || null;
+            const library_type = current.subject === 'english' ? null : (document.getElementById('detail-type').value || null);
             if (!name) return showNotice('error', '保存失败：名称不能为空');
 
             try {
