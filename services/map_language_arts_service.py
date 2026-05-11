@@ -3,6 +3,7 @@ MAP Language Arts 服务模块
 提供 Language Arts 技能树、题目生成和诊断评估逻辑。
 """
 import logging
+import random
 from collections import defaultdict
 from typing import Any, Dict, List, Union
 
@@ -127,18 +128,43 @@ class MapLanguageArtsService:
             if not selected_details:
                 return {"error": "没有找到匹配的 Language Arts Skills，请检查 Grade/Topic/Skill", "questions": []}
 
-            prompt = self._build_generation_prompt(request, selected_details)
-            data = await self.ai_generator.generate_json(
-                prompt,
-                system_message="You are a MAP Language Arts practice question generator. Output valid JSON only.",
-                temperature=0.65
-            )
-            questions = self._normalize_questions(data.get("questions", []), request, selected_details)
+            questions: List[Dict[str, Any]] = []
+            seen_signatures: set[tuple[str, str, str, tuple[str, ...]]] = set()
+            last_data: Dict[str, Any] = {}
+
+            for attempt in range(2):
+                remaining = request.question_count - len(questions)
+                if remaining <= 0:
+                    break
+
+                prompt = self._build_generation_prompt(
+                    request,
+                    selected_details,
+                    question_count=remaining,
+                    strict_mode=attempt > 0
+                )
+                data = await self.ai_generator.generate_json(
+                    prompt,
+                    system_message="You are a MAP Language Arts practice question generator. Output valid JSON only.",
+                    temperature=0.65
+                )
+                last_data = data or {}
+                candidate_questions = self._normalize_questions(last_data.get("questions", []), request, selected_details)
+                for question in candidate_questions:
+                    signature = self._question_signature(question)
+                    if signature in seen_signatures:
+                        continue
+                    seen_signatures.add(signature)
+                    questions.append(question)
+                    if len(questions) >= request.question_count:
+                        break
+
+            questions = self._rebalance_answer_choices(questions[:request.question_count], request.option_count)
             if not questions:
                 return {"error": "AI 未返回有效 Language Arts 题目", "questions": []}
 
             return {
-                "test_title": data.get("test_title", "MAP Language Arts Practice"),
+                "test_title": last_data.get("test_title", "MAP Language Arts Practice"),
                 "grade_level": str(request.grade_level),
                 "skill_area": request.skill_area,
                 "topic": request.topic or (selected_details[0].get("topic") if selected_details else ""),
@@ -220,13 +246,27 @@ class MapLanguageArtsService:
             return "Grade " + text.split()[-1]
         return f"Grade {text}"
 
-    def _build_generation_prompt(self, request: MapLanguageArtsGenerateRequest, selected_details: List[Dict[str, Any]]) -> str:
+    def _build_generation_prompt(
+        self,
+        request: MapLanguageArtsGenerateRequest,
+        selected_details: List[Dict[str, Any]],
+        question_count: int | None = None,
+        strict_mode: bool = False
+    ) -> str:
         topic = request.topic or selected_details[0].get("topic", "Grammar and mechanics")
         skill_name = request.skill or selected_details[0].get("skill", "Language Arts")
+        target_count = question_count or request.question_count
         details_text = "\n".join(
             f"- detail_id: {item.get('id')} | detail: {item.get('detail')}"
             for item in selected_details
         )
+        retry_rules = "" if not strict_mode else """
+Additional retry rules:
+- Do not use stems such as \"Which underlined word...\" or \"Which underlined phrase...\".
+- For capitalization and proper noun details, prefer sentence editing, revision, or \"Which word should be capitalized?\" formats.
+- Do not underline the already-correct answer in the passage.
+- Do not place the correct answer in A by default.
+"""
         return f"""
 Generate MAP-style Language Arts practice questions.
 
@@ -239,7 +279,7 @@ Target settings:
 - subskill_focus: {request.subskill_focus or 'none'}
 - detail_focus: {request.detail_focus or request.subskill_focus or 'none'}
 - difficulty: {request.difficulty}
-- question_count: {request.question_count}
+- question_count: {target_count}
 - option_count: {request.option_count}
 - include_explanation: {str(request.include_explanation).lower()}
 
@@ -253,7 +293,7 @@ Create questions for {skill_name} under {topic}.
 
 Difficulty rule:
 {DIFFICULTY_RULES.get(request.difficulty, DIFFICULTY_RULES['medium'])}
-
+{retry_rules}
 Question requirements:
 - Create original practice questions. Do not copy real MAP/NWEA questions.
 - Each question must have exactly one correct answer unless the question stem explicitly says "Choose two".
@@ -269,13 +309,17 @@ Question requirements:
 - Put the exact tested Detail in `detail` and `subskill`.
 - The `detail` value must come from Available Details.
 - Put the common mistake in `common_error_tested`, such as `unclear pronoun reference` or `lowercase proper noun`.
+- For capitalization and proper noun Details, prefer sentence revision or editing formats instead of asking students to identify an already underlined answer.
+- Do not write questions like "Which underlined word is a proper noun?".
+- If text is underlined, underline the part the student should inspect or revise, not a pre-revealed correct answer.
+- Spread correct answers across A, B, C, and D instead of defaulting to A.
 
 JSON schema:
 {{
   "test_title": "MAP Language Arts Practice",
   "grade_level": "{request.grade_level}",
   "skill_area": "{request.skill_area}",
-  "question_count": {request.question_count},
+  "question_count": {target_count},
   "questions": [
     {{
       "question_id": 1,
@@ -293,7 +337,7 @@ JSON schema:
         "C": "",
         "D": ""
       }},
-      "correct_answer": "A",
+      "correct_answer": "B",
       "explanation": "",
       "common_error_tested": ""
     }}
@@ -304,7 +348,7 @@ Rules:
 1. Do not include markdown.
 2. Do not include commentary outside JSON.
 3. Use answer choice labels as correct_answer, such as "A" or ["A", "C"] only for explicit Choose two questions.
-4. Generate exactly {request.question_count} questions.
+4. Generate exactly {target_count} questions.
 """
 
     def _normalize_questions(
@@ -347,7 +391,7 @@ Rules:
                 selected_details
             )
 
-            normalized.append({
+            question = {
                 "question_id": int(raw.get("question_id") or idx),
                 "skill_area": raw.get("skill_area") or request.skill or request.topic or request.skill_area,
                 "topic": raw.get("topic") or request.topic or "",
@@ -361,9 +405,94 @@ Rules:
                 "correct_answer": answer,
                 "explanation": str(raw.get("explanation") or raw.get("analysis") or "").strip(),
                 "common_error_tested": str(raw.get("common_error_tested") or "").strip()
-            })
+            }
+            if self._is_low_quality_question(question):
+                continue
+            normalized.append(question)
 
         return normalized
+
+    def _question_signature(self, question: Dict[str, Any]) -> tuple[str, str, str, tuple[str, ...]]:
+        return (
+            str(question.get("detail") or "").strip().lower(),
+            str(question.get("question_stem") or "").strip().lower(),
+            str(question.get("passage_or_sentence") or "").strip().lower(),
+            tuple(
+                str(value).strip().lower()
+                for value in (question.get("answer_choices") or {}).values()
+            )
+        )
+
+    def _is_low_quality_question(self, question: Dict[str, Any]) -> bool:
+        stem = str(question.get("question_stem") or "").strip().lower()
+        passage = str(question.get("passage_or_sentence") or "").strip().lower()
+        detail = str(question.get("detail") or "").strip().lower()
+
+        if "which underlined word" in stem or "which underlined phrase" in stem:
+            return True
+        if "proper noun" in stem and "<u>" in passage:
+            return True
+        if "capital" in detail and "underlined" in stem:
+            return True
+        return False
+
+    def _rebalance_answer_choices(self, questions: List[Dict[str, Any]], option_count: int) -> List[Dict[str, Any]]:
+        if not questions:
+            return []
+
+        valid_labels = ["A", "B", "C", "D", "E"][:option_count]
+        rng = random.SystemRandom()
+        balanced_questions = [dict(question) for question in questions]
+        single_answer_indexes = [
+            index for index, question in enumerate(balanced_questions)
+            if isinstance(question.get("correct_answer"), str)
+        ]
+
+        target_labels: List[str] = []
+        while len(target_labels) < len(single_answer_indexes):
+            block = valid_labels.copy()
+            rng.shuffle(block)
+            target_labels.extend(block)
+
+        for index, target_label in zip(single_answer_indexes, target_labels):
+            balanced_questions[index] = self._move_single_answer_to_label(
+                balanced_questions[index],
+                target_label,
+                valid_labels
+            )
+
+        for index, question in enumerate(balanced_questions, start=1):
+            question["question_id"] = index
+
+        return balanced_questions
+
+    def _move_single_answer_to_label(
+        self,
+        question: Dict[str, Any],
+        target_label: str,
+        valid_labels: List[str]
+    ) -> Dict[str, Any]:
+        choices = question.get("answer_choices") or {}
+        current_answer = question.get("correct_answer")
+        available_labels = [label for label in valid_labels if label in choices]
+        if current_answer not in available_labels or target_label not in available_labels:
+            return question
+
+        correct_text = choices[current_answer]
+        distractors = [choices[label] for label in available_labels if label != current_answer]
+        new_choices: Dict[str, str] = {}
+        distractor_index = 0
+        for label in available_labels:
+            if label == target_label:
+                new_choices[label] = correct_text
+            else:
+                new_choices[label] = distractors[distractor_index]
+                distractor_index += 1
+
+        updated_question = dict(question)
+        updated_question["answer_choices"] = new_choices
+        updated_question["correct_answer"] = target_label
+        return updated_question
 
     def _resolve_detail_label(self, value: Any, selected_details: List[Dict[str, Any]]) -> str:
         text = str(value or "").strip()
