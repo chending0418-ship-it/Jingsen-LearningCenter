@@ -7,11 +7,11 @@
 当前主线是英语模块升级：
 
 - `English Learning` 拆分为 `Word Palace` 和 `MAP Test`。
-- `Word Palace` 当前包含 `Daily Word` 既有词汇练习能力；后续会新增 `Vocabulary Skills`。
+- `Word Palace` 当前包含 `Daily Word` 既有词库练习能力，以及 `Vocabulary Skills` 按 Grade / Topic / Skill 的诊断练习。
 - `MAP Test` 当前包含 `Language Arts` 和 `Reading`。
 - `MAP Language Arts` 已接入用户提供的 Skills 数据，支持按 `Grade -> Topic -> Skill` 出题，并按 `Detail` 做诊断报告。
 - `MAP Reading` 已有 Skills 数据文件，但出题/评估/前端练习流程暂时 Pending。
-- 新增 `Daily Reports`，将 Word Palace 和 MAP Language Arts 的每日练习历史保存到服务器本地文件。
+- 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到服务器本地文件。
 
 当前版本仍使用本地文件持久化，不使用数据库。
 
@@ -142,48 +142,49 @@ P1 说明：
 
 ### P3：接入 Word Palace Vocabulary Skills
 
-状态：Pending，下一步建议优先做。
+状态：已完成并已验证。
 
-已完成基础：
+已完成：
 
 - `Word Palace Vocabulary Skills` 数据已导入：`data/skills/word_vocabulary_skills.json`。
 - 当前数量：`139` 条 Vocabulary Skills。
 - Skills 管理后台可以查看和启用/停用 Vocabulary Skills Details。
+- Word Palace 前端已拆分二级入口：
+  - `Daily Word`
+  - `Vocabulary Skills`
+- `Daily Word` 保留词库选择、题量、`cloze / match`、批改和 Daily Reports；答题流程已改为先选择答案，再点击 `Submit Answer` 后显示结果。
+- `Vocabulary Skills` 前端读取 Skills Tree，选择流程为：
+  - `Grade`
+  - `Topic`
+  - `Skill`
+  - 不让学生直接选择 Detail。
+- 选择 Skill 后，页面会展示该 Skill 下启用的 Detail，方便确认练习覆盖范围。
+- 新增后端服务：`services/vocabulary_skills_service.py`。
+- 新增 API：`api/vocabulary_skills.py`。
+- API 已同时注册根路径和 `/learningcenter` 前缀。
+- 出题逻辑会根据 `Grade / Topic / Skill` 自动覆盖多个 Detail。
+- 题目、评估报告和 Daily Reports 都显示真实 Detail 文本，不显示内部 detail id。
+- 评估报告输出：
+  - `score`
+  - `total`
+  - `correct_count`
+  - `accuracy`
+  - `question_results`
+  - `weak_knowledge_points`
+  - `recommended_next_practice`
+- 评估完成后写入 `data/report_history.json`：
+  - `module`: `word_vocabulary_skills`
+  - `module_label`: `Vocabulary Skills`
+- Daily Reports 前端已支持筛选和展示 `Vocabulary Skills` 历史报告。
 
-待完成：
+报告页一致性：
 
-1. Word Palace 前端结构调整：
-   - `Word Palace`
-     - `Daily Word`
-     - `Vocabulary Skills`
-2. `Daily Word`：
-   - 承接当前已有 Word Palace 词库练习。
-   - 保留：词库选择、题量、`cloze / match`、批改、Daily Reports。
-3. `Vocabulary Skills` 前端：
-   - 读取 `data/skills/word_vocabulary_skills.json`。
-   - 选择流程：`Grade -> Topic -> Skill`。
-   - 不直接选择 Detail。
-   - 系统自动覆盖该 Skill 下多个 Detail。
-4. 新增 Vocabulary Skills 后端服务：
-   - `services/vocabulary_skills_service.py`
-5. 新增 Vocabulary Skills API：
-   - `GET /api/word-palace/vocabulary-skills/skills`
-   - `GET /api/word-palace/vocabulary-skills/skills/tree`
-   - `POST /api/word-palace/vocabulary-skills/generate`
-   - `POST /api/word-palace/vocabulary-skills/evaluate`
-6. Vocabulary Skills 出题策略：
-   - 根据 `Grade / Topic / Skill` 下的 Details 构建 prompt。
-   - 题目顶部显示可读 Detail。
-   - 如果 AI 返回 detail id，需要映射为真实 Detail。
-7. Vocabulary Skills Report：
-   - 按 Skill / Detail 诊断。
-   - Weak Knowledge Points 显示可读 Detail。
-   - Recommended Next Practice 显示可读 Detail。
-8. Daily Reports：
-   - 模块名建议：`word_vocabulary_skills`。
-   - module label：`Vocabulary Skills`。
-   - 完成评估后写入 `data/report_history.json`。
-   - Daily Reports 前端增加 `Vocabulary Skills` 模块过滤项。
+- Daily Word、Vocabulary Skills、MAP Language Arts 的结果页都提供：
+  - `Practice Same Skill`
+  - `Back to Selection`
+  - 对应 Home 入口
+- Vocabulary Skills 和 MAP Language Arts 的 Weak Knowledge Points 支持按弱项 Detail 单独再练。
+- Vocabulary Skills 和 MAP Language Arts 的 Recommended Next Practice 会提升一个难度等级并可直接生成练习。
 
 ---
 
@@ -205,7 +206,7 @@ data/skills/
 |---|---|---:|---|
 | `map_language_arts.json` | MAP Language Arts | 342 | P1 已接通 |
 | `map_reading.json` | MAP Reading | 154 | P2 Pending |
-| `word_vocabulary_skills.json` | Word Palace Vocabulary Skills | 139 | P3 Pending |
+| `word_vocabulary_skills.json` | Word Palace Vocabulary Skills | 139 | P3 已接通 |
 
 每条 Skill 使用统一结构：
 
@@ -272,6 +273,17 @@ data/skills/*.json             # Skills 数据
 - `POST /api/english/grade`
   - 批改完成后写入 `data/report_history.json`。
 
+### Word Palace / Vocabulary Skills
+
+- `GET /api/word-palace/vocabulary-skills/skills`
+  - 参数：`grade`, `topic`, `skill`, `enabled_only`
+- `GET /api/word-palace/vocabulary-skills/skills/tree`
+  - 返回：`Grade -> Topic -> Skill -> Details`
+- `POST /api/word-palace/vocabulary-skills/generate`
+  - 当前请求重点字段：`grade_level`, `topic`, `skill`, `difficulty`, `question_count`, `option_count`, `include_explanation`, `detail_focus`。
+- `POST /api/word-palace/vocabulary-skills/evaluate`
+  - 评估完成后写入 `data/report_history.json`，模块标识为 `word_vocabulary_skills`。
+
 ### MAP Language Arts
 
 - `GET /api/map/language-arts/skills`
@@ -315,6 +327,8 @@ data/skills/*.json             # Skills 数据
 
 - `/api/map/language-arts/generate`
 - `/learningcenter/api/map/language-arts/generate`
+- `/api/word-palace/vocabulary-skills/generate`
+- `/learningcenter/api/word-palace/vocabulary-skills/generate`
 - `/api/skills`
 - `/learningcenter/api/skills`
 - `/api/reports/history`
@@ -329,7 +343,7 @@ data/skills/*.json             # Skills 数据
 迁移到 Codex 后建议先做以下检查：
 
 ```bash
-python3 -m py_compile main.py api/skills.py api/map_language_arts.py api/report_history.py models/schemas.py services/skills_service.py services/map_language_arts_service.py services/report_history_service.py services/english_service.py
+python3 -m py_compile main.py api/skills.py api/map_language_arts.py api/vocabulary_skills.py api/report_history.py models/schemas.py services/skills_service.py services/map_language_arts_service.py services/vocabulary_skills_service.py services/report_history_service.py services/english_service.py
 node -e "const fs=require('fs'); for (const f of ['static/english.html','static/admin.html','static/admin_skills.html']) { const html=fs.readFileSync(f,'utf8'); const scripts=[...html.matchAll(/<script[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]); scripts.forEach(s=>new Function(s)); console.log(f+': ok'); }"
 ```
 
@@ -349,13 +363,10 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 ## 后续优先级
 
-1. **P3：Word Palace Vocabulary Skills**
-   - 下一步建议优先实现。
-   - 原因：Skills 数据已经准备好，且结构可复用 MAP Language Arts。
-2. **P2：MAP Reading**
+1. **P2：MAP Reading**
    - 保持 Pending。
-   - 等 P3 或 Vocabulary Skills 稳定后再做 Reading 出题和评估。
-3. **OCR / 图片上传 / Vision**
+   - 等 Vocabulary Skills 稳定后再做 Reading 出题和评估。
+2. **OCR / 图片上传 / Vision**
    - 已取消，不再作为后续计划。
 
 ---

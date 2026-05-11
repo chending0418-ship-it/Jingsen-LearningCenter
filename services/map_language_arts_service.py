@@ -206,8 +206,9 @@ class MapLanguageArtsService:
         if request.detail_ids:
             wanted = set(request.detail_ids)
             rows = [row for row in rows if row.get("id") in wanted]
-        if request.subskill_focus:
-            focus = request.subskill_focus.lower()
+        focus_value = request.detail_focus or request.subskill_focus
+        if focus_value:
+            focus = focus_value.lower()
             focused = [row for row in rows if focus in row.get("detail", "").lower() or focus in row.get("skill", "").lower()]
             if focused:
                 rows = focused
@@ -236,12 +237,13 @@ Target settings:
 - topic: {topic}
 - skill: {skill_name}
 - subskill_focus: {request.subskill_focus or 'none'}
+- detail_focus: {request.detail_focus or request.subskill_focus or 'none'}
 - difficulty: {request.difficulty}
 - question_count: {request.question_count}
 - option_count: {request.option_count}
 - include_explanation: {str(request.include_explanation).lower()}
 
-You must create questions across these available Details. Do not ask the student to choose a Detail; instead, cover different Details in the generated set when possible.
+You must create questions across these available Details. Do not ask the student to choose a Detail; instead, cover different Details in the generated set when possible. If detail_focus is not "none", generate all questions for that focused Detail.
 
 Available Details:
 {details_text}

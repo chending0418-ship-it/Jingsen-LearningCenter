@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, map_language_arts, report_history, skills
+from api import english, chinese, math, admin, map_language_arts, report_history, skills, vocabulary_skills
 from config import config
 
 # 配置日志
@@ -42,6 +42,7 @@ app.include_router(chinese.router)
 app.include_router(math.router)
 app.include_router(admin.router)
 app.include_router(map_language_arts.router)
+app.include_router(vocabulary_skills.router)
 app.include_router(report_history.router)
 app.include_router(skills.router)
 
@@ -50,6 +51,7 @@ app.include_router(chinese.router, prefix=BASE_PATH)
 app.include_router(math.router, prefix=BASE_PATH)
 app.include_router(admin.router, prefix=BASE_PATH)
 app.include_router(map_language_arts.router, prefix=BASE_PATH)
+app.include_router(vocabulary_skills.router, prefix=BASE_PATH)
 app.include_router(report_history.router, prefix=BASE_PATH)
 app.include_router(skills.router, prefix=BASE_PATH)
 

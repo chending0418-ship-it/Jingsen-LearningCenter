@@ -16,6 +16,7 @@ class Config:
     OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY", "")
     OPENAI_BASE_URL: str = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
     MODEL_NAME: str = os.environ.get("MODEL_NAME", "gpt-3.5-turbo")
+    AI_REQUEST_TIMEOUT: float = float(os.environ.get("AI_REQUEST_TIMEOUT", 50))
     
     # 服务器配置
     HOST: str = os.environ.get("HOST", "0.0.0.0")

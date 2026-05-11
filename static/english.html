@@ -25,6 +25,8 @@
         .module-card:hover { transform: translateY(-4px); box-shadow: 0 28px 70px rgba(15, 23, 42, 0.12); }
         .module-card.active { border-color: rgba(16, 185, 129, 0.72); box-shadow: 0 26px 80px rgba(16, 185, 129, 0.18); }
         .option-btn { transition: all 0.2s ease; }
+        .option-btn.selected { border-color: #059669 !important; background: #D1FAE5 !important; color: #047857; box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.16); transform: translateY(-1px); }
+        .option-btn.selected .choice-badge { background: #059669; color: #FFFFFF; }
         .option-btn.correct { background-color: #DEF7EC; border-color: #31C48D; color: #03543F; }
         .option-btn.wrong { background-color: #FDE8E8; border-color: #F98080; color: #9B1C1C; }
         .option-btn.correct-hint { border-color: #31C48D; border-width: 2px; }
@@ -101,11 +103,12 @@
                     <div>
                         <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Daily Reports</p>
                         <h2 class="text-3xl font-extrabold mt-2">Learning History</h2>
-                        <p class="text-gray-500 mt-3 max-w-3xl">Word Palace and MAP Test reports are saved locally on the server by day. This view reads the local history file directly.</p>
+                        <p class="text-gray-500 mt-3 max-w-3xl">Daily Word, Vocabulary Skills, and MAP Test reports are saved locally on the server by day. This view reads the local history file directly.</p>
                     </div>
                     <select id="report-module-filter" onchange="loadReportHistory()" class="p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
                         <option value="">All Modules</option>
                         <option value="word_palace">Word Palace</option>
+                        <option value="word_vocabulary_skills">Vocabulary Skills</option>
                         <option value="map_language_arts">MAP Language Arts</option>
                     </select>
                 </div>
@@ -114,10 +117,43 @@
         </section>
 
         <main id="word-palace-section" class="hidden">
-            <div id="setup-section" class="glass-card rounded-[2rem] p-6 md:p-8 mb-8">
+            <section id="word-palace-overview" class="space-y-6">
+                <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                    <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Word Palace</p>
+                    <h2 class="text-3xl font-extrabold mt-2">Choose a Practice Pathway</h2>
+                    <p class="text-gray-500 mt-3 max-w-3xl">Daily Word keeps the existing library-based quiz. Vocabulary Skills adds Grade / Topic / Skill practice with diagnostic Detail reports.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <button onclick="showWordPalaceArea('daily-word')" class="module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
+                        <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Library Practice</span>
+                        <h3 class="text-2xl font-bold mt-4">Daily Word</h3>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Use enabled word libraries for cloze and meaning-match practice, then review explanations and missed words.</p>
+                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Libraries</strong><br><span class="text-gray-500">enabled lists</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Modes</strong><br><span class="text-gray-500">cloze/match</span></div>
+                        </div>
+                    </button>
+                    <button onclick="showWordPalaceArea('vocabulary-skills')" class="module-card text-left glass-card rounded-[2rem] p-6 border-blue-100">
+                        <span class="inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">Skill Tree</span>
+                        <h3 class="text-2xl font-bold mt-4">Vocabulary Skills</h3>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Select Grade, Topic, and Skill. Practice covers multiple Details and reports the exact weak knowledge points.</p>
+                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Grade-based</strong><br><span class="text-gray-500">skills tree</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Diagnosis</strong><br><span class="text-gray-500">weak details</span></div>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <section id="daily-word-area" class="hidden">
+                <button onclick="showWordPalaceArea('overview')" class="mb-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white shadow-sm transition-colors">
+                    ← Back to Word Palace
+                </button>
+
+                <div id="setup-section" class="glass-card rounded-[2rem] p-6 md:p-8 mb-8">
                 <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-7">
                     <div>
-                        <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Word Palace</p>
+                        <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Daily Word</p>
                         <h2 class="text-2xl font-bold mt-2">Quiz Configuration</h2>
                     </div>
                     <p class="text-sm text-gray-500">All English libraries support both practice modes.</p>
@@ -148,8 +184,8 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="startQuiz()" id="start-btn" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg hover:opacity-95 transition-all shadow-lg shadow-emerald-100">
-                    Generate Word Palace Quiz
+                <button onclick="startQuiz()" id="start-btn" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold text-lg hover:opacity-95 hover:-translate-y-0.5 hover:shadow-xl transition-all shadow-lg shadow-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                    Generate Daily Word Quiz
                 </button>
             </div>
 
@@ -172,14 +208,113 @@
                     </div>
                     <h2 class="text-2xl font-bold mb-4">Quiz Completed!</h2>
                     <div id="summary-text" class="text-gray-600 mb-8 p-6 bg-white/70 rounded-2xl text-left leading-relaxed"></div>
-                    <button onclick="location.reload()" class="px-8 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-white">
-                        Try Another One
-                    </button>
+                        <div id="daily-report-actions"></div>
                 </div>
                 <div id="wrong-questions-list" class="space-y-4">
                     <h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>
                 </div>
             </div>
+            </section>
+
+            <section id="vocab-skills-area" class="hidden space-y-6">
+                <button onclick="showWordPalaceArea('overview')" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white shadow-sm transition-colors">
+                    ← Back to Word Palace
+                </button>
+
+                <div id="vocab-skills-setup-section" class="space-y-6">
+                    <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+                            <div>
+                                <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Vocabulary Skills</p>
+                                <h2 class="text-3xl font-extrabold mt-2">Skill Tree Practice</h2>
+                                <p class="text-gray-500 mt-3 max-w-3xl">Select Grade, Topic, and Skill. Details stay behind the scenes, but the report shows the real Detail text for every weak point.</p>
+                            </div>
+                            <span id="vocab-detail-count" class="inline-flex px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-bold border border-blue-100">0 details</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <div class="xl:col-span-2 glass-card rounded-[2rem] p-6">
+                            <div class="flex items-center justify-between gap-4 mb-5">
+                                <div>
+                                    <h3 class="text-xl font-bold">1. Choose Grade / Topic / Skill</h3>
+                                    <p class="text-sm text-gray-500 mt-1">After choosing a Skill, this area shows the enabled Details that generation will cover automatically.</p>
+                                </div>
+                            </div>
+                            <div id="vocab-skill-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="glass-card rounded-[2rem] p-6">
+                                <h3 class="text-xl font-bold mb-5">2. Practice Settings</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
+                                        <select id="vocab-grade-level" onchange="onVocabGradeChange()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Topic</label>
+                                        <select id="vocab-topic-select" onchange="onVocabTopicChange()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Skill</label>
+                                        <select id="vocab-skill-select" onchange="selectVocabSkill(this.value)" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Question Count</label>
+                                        <select id="vocab-question-count" onchange="toggleVocabCustomCount()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="5">5 Questions</option>
+                                            <option value="10" selected>10 Questions</option>
+                                            <option value="15">15 Questions</option>
+                                            <option value="20">20 Questions</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                        <input id="vocab-custom-count" type="number" min="1" max="20" placeholder="输入 1-20" class="hidden mt-3 w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                                        <select id="vocab-difficulty" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="easy">Easy</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="hard">Hard</option>
+                                            <option value="adaptive">Adaptive</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Option Count</label>
+                                        <select id="vocab-option-count" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                                            <option value="4" selected>4 Options</option>
+                                            <option value="5">5 Options</option>
+                                        </select>
+                                    </div>
+                                    <label class="flex items-center gap-3 p-3 rounded-xl bg-white/70 border border-gray-100 text-sm font-medium text-gray-700">
+                                        <input id="vocab-include-explanation" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        Show explanations after evaluation
+                                    </label>
+                                </div>
+                                <button onclick="startVocabSkillsPractice()" id="vocab-generate-btn" class="mt-6 w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-bold text-lg shadow-lg shadow-blue-100 hover:opacity-95 hover:-translate-y-0.5 hover:shadow-xl transition-all focus:outline-none focus:ring-4 focus:ring-blue-100">Generate Vocabulary Skills Practice</button>
+                            </div>
+                            <div id="vocab-selected-skill" class="glass-card rounded-[2rem] p-6 bg-blue-50/60"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="vocab-skills-practice-section" class="hidden space-y-5">
+                    <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Vocabulary Skills Practice</p>
+                                <h2 id="vocab-practice-title" class="text-2xl font-extrabold mt-2">Practice Questions</h2>
+                            </div>
+                            <span id="vocab-answer-progress" class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm font-bold">0 / 0 answered</span>
+                        </div>
+                    </div>
+                    <div id="vocab-question-list" class="space-y-5"></div>
+                    <button id="vocab-submit-btn" onclick="submitVocabSkillsEvaluation()" disabled class="w-full py-4 rounded-2xl bg-gray-900 text-white font-bold text-lg opacity-50 cursor-not-allowed">Submit Evaluation</button>
+                </div>
+
+                <div id="vocab-skills-report-section" class="hidden space-y-5"></div>
+            </section>
         </main>
 
         <main id="map-test-section" class="hidden">
@@ -333,26 +468,67 @@
     <div id="loading-overlay" class="fixed inset-0 bg-black/10 backdrop-blur-sm hidden flex items-center justify-center z-50">
         <div class="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--english-accent)] border-t-transparent mb-4"></div>
-            <p class="font-medium text-gray-700">Creating your quiz...</p>
+            <p id="loading-text" class="font-medium text-gray-700">Creating your quiz...</p>
         </div>
     </div>
 
     <script>
-        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
-        const withBasePath = (path) => `${BASE_PATH}${path}`;
+        const IS_FILE_PREVIEW = window.location.protocol === 'file:';
+        const LOCAL_API_ORIGINS = ['http://127.0.0.1:8000', 'http://127.0.0.1:8010', 'http://127.0.0.1:8088'];
+        const LOCAL_API_ORIGIN = LOCAL_API_ORIGINS[0];
+        const BASE_PATH = !IS_FILE_PREVIEW && window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path, origin = LOCAL_API_ORIGIN) => `${IS_FILE_PREVIEW ? origin : ''}${BASE_PATH}${path}`;
         const rawFetch = window.fetch.bind(window);
-        window.fetch = (input, init) => {
+        window.fetch = async (input, init) => {
+            let target = input;
             if (typeof input === 'string' && input.startsWith('/') && !input.startsWith('//')) {
-                return rawFetch(withBasePath(input), init);
+                if (IS_FILE_PREVIEW) {
+                    let lastResponse = null;
+                    let lastError = null;
+                    for (const origin of LOCAL_API_ORIGINS) {
+                        try {
+                            const response = await rawFetch(withBasePath(input, origin), init);
+                            if (response.status !== 404) return response;
+                            lastResponse = response;
+                        } catch (err) {
+                            lastError = err;
+                        }
+                    }
+                    if (lastResponse) return lastResponse;
+                    throw new Error(`当前页面是 file 本地预览，已尝试连接 ${LOCAL_API_ORIGINS.join('、')}。请确认后端正在运行，或直接打开 ${LOCAL_API_ORIGIN}/english。`);
+                }
+                target = withBasePath(input);
             }
-            return rawFetch(input, init);
+            try {
+                return await rawFetch(target, init);
+            } catch (err) {
+                if (IS_FILE_PREVIEW && typeof target === 'string' && target.startsWith(LOCAL_API_ORIGIN)) {
+                    throw new Error(`当前页面是 file 本地预览，已尝试连接 ${LOCAL_API_ORIGIN}。请确认后端正在运行，或直接打开 ${LOCAL_API_ORIGIN}/english。`);
+                }
+                throw err;
+            }
         };
+
+        async function readJsonResponse(response, fallbackMessage) {
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                return response.json();
+            }
+
+            const text = await response.text();
+            const title = (text.match(/<title>(.*?)<\/title>/i) || [])[1]
+                || (text.match(/<h1>(.*?)<\/h1>/i) || [])[1]
+                || text.replace(/\s+/g, ' ').trim().slice(0, 120);
+            const status = `${response.status} ${response.statusText || ''}`.trim();
+            throw new Error(`${fallbackMessage}：服务返回了非 JSON 响应 ${status}${title ? ` (${title})` : ''}`);
+        }
 
         let questions = [];
         let currentIndex = 0;
         let score = 0;
         let results = [];
         let isAnswered = false;
+        let selectedDailyAnswer = '';
         let quizInProgress = false;
         let librariesLoaded = false;
         let selectedLanguageArtsSkill = '';
@@ -364,6 +540,13 @@
         let laSelectedAnswers = [];
         let laAnswered = false;
         let laSubskillFocus = '';
+        let laLastSettings = null;
+        let vocabSkillTree = { grades: [] };
+        let vocabCurrentDetails = [];
+        let vocabQuestions = [];
+        let vocabAnswers = {};
+        let vocabLastSettings = null;
+        let dailyWordLastSettings = null;
 
         window.addEventListener('popstate', function () {
             if (quizInProgress) history.pushState(null, null, window.location.href);
@@ -380,21 +563,57 @@
             document.getElementById('report-history-section').classList.add('hidden');
             document.getElementById('word-palace-card').classList.toggle('active', isWordPalace);
             document.getElementById('map-test-card').classList.toggle('active', !isWordPalace);
-            document.getElementById('setup-section').classList.toggle('hidden', !isWordPalace);
+            document.getElementById('word-palace-overview').classList.toggle('hidden', !isWordPalace);
+            document.getElementById('daily-word-area').classList.add('hidden');
+            document.getElementById('vocab-skills-area').classList.add('hidden');
+            document.getElementById('setup-section').classList.add('hidden');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.add('hidden');
             document.getElementById('page-title').innerText = isWordPalace ? 'Word Palace' : 'MAP Test';
             document.getElementById('page-subtitle').innerText = isWordPalace
-                ? 'Build vocabulary power with general libraries, cloze practice, and word-meaning matching.'
+                ? 'Choose Daily Word for library practice or Vocabulary Skills for Grade / Topic / Skill diagnostics.'
                 : 'Explore Language Arts and Reading pathways for future MAP Test practice.';
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = isWordPalace ? 'Word Palace' : 'MAP Test Preview';
 
-            if (isWordPalace && !librariesLoaded) {
-                loadEnabledLibraries();
-            }
             if (!isWordPalace) {
                 showMapArea('overview');
+            }
+        }
+
+        function showWordPalaceArea(area) {
+            if (quizInProgress) return;
+
+            const showOverview = area === 'overview';
+            const showDailyWord = area === 'daily-word';
+            const showVocabularySkills = area === 'vocabulary-skills';
+
+            document.getElementById('word-palace-overview').classList.toggle('hidden', !showOverview);
+            document.getElementById('daily-word-area').classList.toggle('hidden', !showDailyWord);
+            document.getElementById('vocab-skills-area').classList.toggle('hidden', !showVocabularySkills);
+
+            if (showDailyWord) {
+                resetDailyWordPractice(true);
+                if (!librariesLoaded) loadEnabledLibraries();
+                document.getElementById('progress-text').innerText = 'Daily Word';
+            } else {
+                resetDailyWordPractice(false);
+            }
+
+            if (showVocabularySkills) {
+                if (!vocabQuestions.length) {
+                    document.getElementById('vocab-skills-setup-section')?.classList.remove('hidden');
+                    document.getElementById('vocab-skills-practice-section')?.classList.add('hidden');
+                    document.getElementById('vocab-skills-report-section')?.classList.add('hidden');
+                }
+                loadVocabSkillTree();
+                document.getElementById('progress-text').innerText = 'Vocabulary Skills';
+            } else {
+                resetVocabSkillsPractice(false);
+            }
+
+            if (showOverview) {
+                document.getElementById('progress-text').innerText = 'Word Palace';
             }
         }
 
@@ -406,6 +625,9 @@
             document.getElementById('word-palace-section').classList.add('hidden');
             document.getElementById('map-test-section').classList.add('hidden');
             document.getElementById('report-history-section').classList.add('hidden');
+            document.getElementById('word-palace-overview')?.classList.remove('hidden');
+            document.getElementById('daily-word-area')?.classList.add('hidden');
+            document.getElementById('vocab-skills-area')?.classList.add('hidden');
             document.getElementById('word-palace-card').classList.remove('active');
             document.getElementById('map-test-card').classList.remove('active');
             document.getElementById('quiz-section').classList.add('hidden');
@@ -414,6 +636,7 @@
             document.getElementById('page-subtitle').innerText = 'Choose Word Palace for vocabulary training, or enter MAP Test for Language Arts and Reading.';
             document.getElementById('progress-text').classList.add('hidden');
             document.getElementById('progress-text').innerText = '';
+            resetVocabSkillsPractice(false);
             showMapArea('overview');
         }
 
@@ -424,8 +647,11 @@
             document.getElementById('word-palace-section').classList.add('hidden');
             document.getElementById('map-test-section').classList.add('hidden');
             document.getElementById('report-history-section').classList.remove('hidden');
+            document.getElementById('word-palace-overview')?.classList.remove('hidden');
+            document.getElementById('daily-word-area')?.classList.add('hidden');
+            document.getElementById('vocab-skills-area')?.classList.add('hidden');
             document.getElementById('page-title').innerText = 'Daily Reports';
-            document.getElementById('page-subtitle').innerText = 'Review daily Word Palace and MAP Test practice history saved in the local server file.';
+            document.getElementById('page-subtitle').innerText = 'Review daily Daily Word, Vocabulary Skills, and MAP Test practice history saved in the local server file.';
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = 'History';
             await loadReportHistory();
@@ -439,7 +665,7 @@
                 const params = new URLSearchParams({ days: '60' });
                 if (module) params.set('module', module);
                 const response = await fetch(`/api/reports/history?${params.toString()}`);
-                const data = await response.json();
+                const data = await readJsonResponse(response, '加载历史报告失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '加载历史报告失败'));
                 renderReportHistory(data);
             } catch (err) {
@@ -477,27 +703,80 @@
                 <div class="glass-card rounded-[2rem] p-6">
                     <h3 class="text-xl font-bold mb-5">Recent Practice Reports</h3>
                     <div class="space-y-4">
-                        ${reports.slice(0, 30).map(report => `
-                            <div class="p-5 rounded-2xl bg-white/75 border border-gray-100">
-                                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                                    <div>
-                                        <div class="font-extrabold text-lg">${escapeHtml(report.title || report.module_label || '')}</div>
-                                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(report.created_at || '')}</p>
-                                    </div>
-                                    <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold">${escapeHtml(Math.round(Number(report.score || 0)))}%</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mt-3">${escapeHtml(report.correct_count || 0)} / ${escapeHtml(report.total_count || 0)} correct</p>
-                                ${report.summary ? `<p class="text-sm text-gray-600 mt-3 p-3 rounded-xl bg-gray-50">${escapeHtml(report.summary)}</p>` : ''}
-                                ${(report.weak_knowledge_points || []).length ? `
-                                    <div class="mt-3 flex flex-wrap gap-2">
-                                        ${(report.weak_knowledge_points || []).slice(0, 4).map(point => `<span class="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold">${escapeHtml(point.knowledge_point || point.subskill || '')}</span>`).join('')}
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `).join('') || '<p class="text-gray-500">No recent practice reports.</p>'}
+                        ${reports.slice(0, 30).map((report, index) => renderHistoryReportCard(report, index)).join('') || '<p class="text-gray-500">No recent practice reports.</p>'}
                     </div>
                 </div>
             `;
+        }
+
+        function renderHistoryReportCard(report, index) {
+            const scoreText = report.accuracy || `${Math.round(Number(report.score || 0))}%`;
+            const grade = report.grade_level || report.details?.grade_level || '';
+            const topic = report.topic || report.details?.topic || '';
+            const skill = report.skill || report.skill_area || report.details?.skill || '';
+            const difficulty = report.difficulty || report.details?.difficulty || '';
+            const questions = report.question_results || report.details?.question_results || report.results || [];
+            const recommendations = report.recommended_next_practice || [];
+            const weakPoints = report.weak_knowledge_points || [];
+            const detailId = `report-detail-${index}`;
+            const contextBits = [grade, topic, skill, difficulty].filter(Boolean);
+
+            return `
+                <div class="p-5 rounded-2xl bg-white/75 border border-gray-100">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                        <div>
+                            <div class="font-extrabold text-lg">${escapeHtml(report.module_label || report.title || '')}</div>
+                            ${report.title ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(report.title)}</p>` : ''}
+                            ${contextBits.length ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(contextBits.join(' · '))}</p>` : ''}
+                            <p class="text-sm text-gray-500 mt-1">${escapeHtml(report.created_at || '')}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold">${escapeHtml(scoreText)}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-3">${escapeHtml(report.correct_count || 0)} / ${escapeHtml(report.total_count || report.question_count || 0)} correct</p>
+                    ${report.summary ? `<p class="text-sm text-gray-600 mt-3 p-3 rounded-xl bg-gray-50">${escapeHtml(report.summary)}</p>` : ''}
+                    ${weakPoints.length ? `
+                        <div class="mt-4">
+                            <p class="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">Weak Knowledge Points</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${weakPoints.slice(0, 4).map(point => `<span class="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold">${escapeHtml(displayKnowledgePoint(point.detail || point.knowledge_point || point.subskill || ''))}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${recommendations.length ? `
+                        <div class="mt-4">
+                            <p class="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-2">Recommended Next Practice</p>
+                            <div class="space-y-2">
+                                ${recommendations.slice(0, 3).map(item => `
+                                    <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-3">
+                                        <div class="text-sm font-bold text-emerald-800">${escapeHtml(displayKnowledgePoint(item.detail || item.subskill_focus || item.skill_area || ''))}</div>
+                                        <p class="text-xs text-emerald-700 mt-1">${escapeHtml(item.advice || item.reason || '')}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${questions.length ? `
+                        <button onclick="toggleReportDetails('${detailId}')" class="mt-4 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black">Show / Hide Details</button>
+                        <div id="${detailId}" class="hidden mt-4 space-y-3">
+                            ${questions.slice(0, 20).map(item => `
+                                <div class="p-4 rounded-2xl bg-white border border-gray-100">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <span class="font-bold text-sm">Question ${escapeHtml(item.question_id ?? '')}</span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${item.is_correct ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${item.is_correct ? 'Correct' : 'Needs Review'}</span>
+                                    </div>
+                                    ${item.detail ? `<p class="text-xs text-purple-700 font-bold mt-2">Detail: ${escapeHtml(displayKnowledgePoint(item.detail))}</p>` : ''}
+                                    <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer))}</p>
+                                    ${item.explanation ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(item.explanation)}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function toggleReportDetails(id) {
+            document.getElementById(id)?.classList.toggle('hidden');
         }
 
         function showMapArea(area) {
@@ -529,7 +808,7 @@
             if (laSkillTree.grades && laSkillTree.grades.length) return;
             try {
                 const res = await fetch('/api/map/language-arts/skills/tree');
-                const data = await res.json();
+                const data = await readJsonResponse(res, '加载 Language Arts Skills 失败');
                 if (!res.ok) throw new Error(getErrorMessage(data, '加载 Language Arts Skills 失败'));
                 laSkillTree = data;
                 renderLanguageArtsSelectors();
@@ -679,15 +958,17 @@
                 include_explanation: true
             };
             if (laSubskillFocus) payload.subskill_focus = laSubskillFocus;
+            if (laSubskillFocus) payload.detail_focus = laSubskillFocus;
+            laLastSettings = { ...payload };
 
-            showLoading(true);
+            showLoading(true, 'Generating Language Arts practice...');
             try {
                 const response = await fetch('/api/map/language-arts/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await response.json();
+                const data = await readJsonResponse(response, 'Language Arts 出题失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, 'Language Arts 出题失败'));
                 if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效 Language Arts 题目');
 
@@ -807,14 +1088,14 @@
         }
 
         async function showLanguageArtsReport() {
-            showLoading(true);
+            showLoading(true, 'Building your Language Arts report...');
             try {
                 const response = await fetch('/api/map/language-arts/evaluate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ questions: laQuestions, answers: laAnswers })
                 });
-                const report = await response.json();
+                const report = await readJsonResponse(response, 'Language Arts 评估失败');
                 if (!response.ok) throw new Error(getErrorMessage(report, 'Language Arts 评估失败'));
                 renderLanguageArtsReport(report);
             } catch (err) {
@@ -843,7 +1124,7 @@
                     </div>
                     <h2 class="text-2xl font-bold">${escapeHtml(overall.correct ?? 0)} / ${escapeHtml(overall.total_questions ?? 0)} Correct</h2>
                     <p class="text-gray-600 mt-4 max-w-3xl mx-auto">${escapeHtml(report.student_summary || 'Great effort. Review the missed questions and continue practicing.')}</p>
-                    <button onclick="resetLanguageArtsPractice(true)" class="mt-6 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">Practice Again</button>
+                    ${getReportActionButtons('la', 'MAP Test Home')}
                 </div>
                 <div class="glass-card rounded-[2rem] p-6 border border-red-100 bg-red-50/50">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -864,7 +1145,7 @@
                                     <span class="px-2 py-1 rounded-full text-[11px] font-bold ${point.severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${escapeHtml(point.severity || 'medium')}</span>
                                 </div>
                                 <p class="text-sm text-gray-600 mt-3">${escapeHtml(point.message || 'This knowledge point needs focused practice.')}</p>
-                                <button onclick="practiceWeakPoint('${escapeAttr(point.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(point.knowledge_point || point.subskill || '')}')" class="mt-4 w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">Practice this knowledge point</button>
+                                <button onclick="practiceWeakPoint('${escapeAttr(point.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(point.detail || point.knowledge_point || point.subskill || '')}', '${escapeAttr(nextDifficultyLevel(laLastSettings?.difficulty || 'medium'))}', 10)" class="mt-4 w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">Practice this Detail</button>
                             </div>
                         `).join('') || '<p class="text-gray-500">No major weak knowledge point found. Try a harder or mixed review set.</p>'}
                     </div>
@@ -889,8 +1170,8 @@
                                     <div class="font-bold text-emerald-800">${escapeHtml(item.detail || item.subskill_focus || item.skill_area || '')}</div>
                                     <p class="text-xs text-emerald-600 mt-1">${escapeHtml(item.skill || item.skill_area || '')}</p>
                                     <p class="text-sm text-emerald-700 mt-2">${escapeHtml(item.reason || '')}</p>
-                                    <p class="text-xs text-emerald-600 mt-2">${escapeHtml(item.question_count || 10)} questions · ${escapeHtml(item.difficulty || 'medium')}</p>
-                                    <button onclick="practiceWeakPoint('${escapeAttr(item.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(item.subskill_focus || '')}', '${escapeAttr(item.difficulty || 'medium')}', ${Number(item.question_count || 10)})" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Start focused practice</button>
+                                    <p class="text-xs text-emerald-600 mt-2">${escapeHtml(item.question_count || 10)} questions · next difficulty: ${escapeHtml(nextDifficultyLevel(laLastSettings?.difficulty || item.difficulty || 'medium'))}</p>
+                                    <button onclick="practiceWeakPoint('${escapeAttr(item.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(item.detail || item.subskill_focus || '')}', '${escapeAttr(nextDifficultyLevel(laLastSettings?.difficulty || item.difficulty || 'medium'))}', ${Number(item.question_count || 10)})" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Generate next difficulty practice</button>
                                 </div>
                             `).join('') || '<p class="text-gray-500">No recommendation available.</p>'}
                         </div>
@@ -928,6 +1209,453 @@
                 difficulty: document.getElementById('la-difficulty').value,
                 questionCount: Number(document.getElementById('la-custom-count').value)
             });
+        }
+
+        function retrySameLanguageArtsSkill() {
+            const settings = laLastSettings || {
+                skill_area: selectedLanguageArtsSkill || document.getElementById('la-skill-select').value,
+                subskill_focus: laSubskillFocus || '',
+                difficulty: document.getElementById('la-difficulty').value,
+                question_count: getLanguageArtsQuestionCount()
+            };
+            startLanguageArtsPractice({
+                skillArea: settings.skill_area || settings.skill,
+                subskillFocus: settings.subskill_focus || '',
+                difficulty: settings.difficulty || 'medium',
+                questionCount: settings.question_count || 10
+            });
+        }
+
+        function returnToLanguageArtsSelection() {
+            resetLanguageArtsPractice(true);
+            document.getElementById('module-home-btn').classList.remove('hidden');
+            document.getElementById('progress-text').innerText = 'MAP Language Arts';
+        }
+
+        async function loadVocabSkillTree() {
+            if (vocabSkillTree.grades && vocabSkillTree.grades.length) {
+                if (!document.getElementById('vocab-grade-level').value) renderVocabSelectors();
+                return;
+            }
+            try {
+                const res = await fetch('/api/word-palace/vocabulary-skills/skills/tree');
+                const data = await readJsonResponse(res, '加载 Vocabulary Skills 失败');
+                if (!res.ok) throw new Error(getErrorMessage(data, '加载 Vocabulary Skills 失败'));
+                vocabSkillTree = data;
+                renderVocabSelectors();
+            } catch (err) {
+                showNotice('error', err.message || '加载 Vocabulary Skills 失败');
+                document.getElementById('vocab-skill-grid').innerHTML = '<div class="text-red-600">Vocabulary Skills 加载失败，请稍后重试。</div>';
+            }
+        }
+
+        function renderVocabSelectors() {
+            fillVocabSelect('vocab-grade-level', (vocabSkillTree.grades || []).map(g => g.grade));
+            onVocabGradeChange();
+        }
+
+        function fillVocabSelect(id, values) {
+            const el = document.getElementById(id);
+            el.innerHTML = (values || []).map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+            el.value = values && values.length ? values[0] : '';
+        }
+
+        function onVocabGradeChange() {
+            const grade = document.getElementById('vocab-grade-level').value;
+            const gradeNode = (vocabSkillTree.grades || []).find(g => g.grade === grade);
+            fillVocabSelect('vocab-topic-select', (gradeNode?.topics || []).map(t => t.topic));
+            onVocabTopicChange();
+        }
+
+        function onVocabTopicChange() {
+            const grade = document.getElementById('vocab-grade-level').value;
+            const topic = document.getElementById('vocab-topic-select').value;
+            const topicNode = findVocabTopicNode(grade, topic);
+            fillVocabSelect('vocab-skill-select', (topicNode?.skills || []).map(s => s.skill));
+            selectVocabSkill(document.getElementById('vocab-skill-select').value);
+        }
+
+        function selectVocabSkill(skillName) {
+            const grade = document.getElementById('vocab-grade-level').value;
+            const topic = document.getElementById('vocab-topic-select').value;
+            const skillNode = findVocabSkillNode(grade, topic, skillName);
+            vocabCurrentDetails = skillNode?.details || [];
+            document.getElementById('vocab-detail-count').innerText = `${vocabCurrentDetails.length} details`;
+            renderVocabSkillOverview();
+        }
+
+        function findVocabTopicNode(grade, topic) {
+            const gradeNode = (vocabSkillTree.grades || []).find(g => g.grade === grade);
+            return (gradeNode?.topics || []).find(t => t.topic === topic);
+        }
+
+        function findVocabSkillNode(grade, topic, skillName) {
+            const topicNode = findVocabTopicNode(grade, topic);
+            return (topicNode?.skills || []).find(s => s.skill === skillName);
+        }
+
+        function renderVocabSkillOverview() {
+            const grid = document.getElementById('vocab-skill-grid');
+            const detail = document.getElementById('vocab-selected-skill');
+            const grade = document.getElementById('vocab-grade-level').value;
+            const topic = document.getElementById('vocab-topic-select').value;
+            const skillName = document.getElementById('vocab-skill-select').value;
+            if (!grid || !detail) return;
+
+            grid.innerHTML = (vocabCurrentDetails || []).map(item => `
+                <div class="skill-card border border-gray-100 rounded-2xl p-5 bg-white/70">
+                    <p class="font-bold text-gray-900 leading-relaxed">${escapeHtml(displayKnowledgePoint(item.detail || ''))}</p>
+                </div>
+            `).join('') || '<div class="text-gray-500">No enabled Details available for this Skill.</div>';
+
+            detail.innerHTML = `
+                <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.16em]">Selected Skill</p>
+                <h3 class="text-xl font-extrabold mt-2">${escapeHtml(skillName || 'No skill selected')}</h3>
+                <p class="text-sm text-gray-500 font-semibold mt-1">${escapeHtml(grade)} · ${escapeHtml(topic)}</p>
+                <div class="mt-4 p-4 rounded-2xl bg-white/75 border border-blue-100">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Automatic Detail Coverage</p>
+                    <p class="text-sm text-gray-700 mt-1">${escapeHtml(vocabCurrentDetails.length)} enabled Detail(s) will be covered automatically where possible.</p>
+                </div>
+                <div class="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+                    The report will show readable Detail names, never internal ids.
+                </div>
+            `;
+        }
+
+        function chooseVocabSkillCard(skillName) {
+            document.getElementById('vocab-skill-select').value = skillName;
+            selectVocabSkill(skillName);
+        }
+
+        function toggleVocabCustomCount() {
+            const isCustom = document.getElementById('vocab-question-count').value === 'custom';
+            document.getElementById('vocab-custom-count').classList.toggle('hidden', !isCustom);
+        }
+
+        function getVocabQuestionCount() {
+            const value = document.getElementById('vocab-question-count').value;
+            const raw = value === 'custom' ? document.getElementById('vocab-custom-count').value : value;
+            const count = Number.parseInt(raw, 10);
+            if (!Number.isInteger(count) || count < 1 || count > 20) {
+                throw new Error('请输入 1-20 之间的 Vocabulary Skills 题量');
+            }
+            return count;
+        }
+
+        function resetVocabSkillsPractice(showSetup = true) {
+            vocabQuestions = [];
+            vocabAnswers = {};
+            document.getElementById('vocab-skills-setup-section')?.classList.toggle('hidden', !showSetup);
+            document.getElementById('vocab-skills-practice-section')?.classList.add('hidden');
+            document.getElementById('vocab-skills-report-section')?.classList.add('hidden');
+            const list = document.getElementById('vocab-question-list');
+            const report = document.getElementById('vocab-skills-report-section');
+            if (list) list.innerHTML = '';
+            if (report) report.innerHTML = '';
+            updateVocabSubmitState();
+        }
+
+        function resetDailyWordPractice(showSetup = true) {
+            questions = [];
+            currentIndex = 0;
+            score = 0;
+            results = [];
+            isAnswered = false;
+            selectedDailyAnswer = '';
+            quizInProgress = false;
+            document.getElementById('back-btn')?.classList.remove('invisible');
+            document.getElementById('setup-section')?.classList.toggle('hidden', !showSetup);
+            document.getElementById('quiz-section')?.classList.add('hidden');
+            document.getElementById('result-section')?.classList.add('hidden');
+            document.getElementById('question-content').innerHTML = '';
+            document.getElementById('wrong-questions-list').innerHTML = '<h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>';
+        }
+
+        async function startVocabSkillsPractice(options = {}) {
+            let questionCount;
+            try {
+                questionCount = Number(options.questionCount || getVocabQuestionCount());
+            } catch (err) {
+                showNotice('error', err.message);
+                return;
+            }
+
+            if (options.difficulty) document.getElementById('vocab-difficulty').value = options.difficulty;
+            const payload = {
+                grade_level: options.gradeLevel || document.getElementById('vocab-grade-level').value,
+                topic: options.topic || document.getElementById('vocab-topic-select').value,
+                skill: options.skill || document.getElementById('vocab-skill-select').value,
+                detail_focus: options.detailFocus || '',
+                difficulty: options.difficulty || document.getElementById('vocab-difficulty').value,
+                question_count: questionCount,
+                option_count: Number(document.getElementById('vocab-option-count').value || 4),
+                include_explanation: document.getElementById('vocab-include-explanation').checked
+            };
+            if (!payload.grade_level || !payload.topic || !payload.skill) {
+                showNotice('error', '请先选择 Grade、Topic 和 Skill');
+                return;
+            }
+
+            vocabLastSettings = payload;
+            showLoading(true, 'Generating Vocabulary Skills practice...');
+            try {
+                const response = await fetch('/api/word-palace/vocabulary-skills/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await readJsonResponse(response, 'Vocabulary Skills 出题失败');
+                if (!response.ok) throw new Error(getErrorMessage(data, 'Vocabulary Skills 出题失败'));
+                if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效 Vocabulary Skills 题目');
+
+                vocabQuestions = data.questions;
+                vocabAnswers = {};
+                document.getElementById('vocab-skills-setup-section').classList.add('hidden');
+                document.getElementById('vocab-skills-report-section').classList.add('hidden');
+                document.getElementById('vocab-skills-practice-section').classList.remove('hidden');
+                document.getElementById('module-home-btn').classList.add('hidden');
+                document.getElementById('vocab-practice-title').innerText = `${data.grade_level || payload.grade_level} · ${data.skill || payload.skill}`;
+                renderVocabQuestions();
+            } catch (err) {
+                showNotice('error', err.message || 'Vocabulary Skills 出题失败，请稍后重试');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderVocabQuestions() {
+            const list = document.getElementById('vocab-question-list');
+            list.innerHTML = vocabQuestions.map((question, index) => {
+                const choices = question.answer_choices || {};
+                const detail = displayKnowledgePoint(question.detail);
+                return `
+                    <div class="glass-card rounded-[2rem] p-6 md:p-8">
+                        <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">${escapeHtml(question.skill || '')}</span>
+                            <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold max-w-full whitespace-normal leading-relaxed">Detail: ${escapeHtml(detail)}</span>
+                            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">${escapeHtml(question.difficulty || '')}</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">${escapeHtml(index + 1)}. ${escapeHtml(question.question_stem || 'Choose the best answer.')}</h3>
+                        ${question.passage_or_sentence ? `<div class="mt-5 p-5 rounded-2xl bg-white/75 border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">${formatQuestionHtml(question.passage_or_sentence)}</div>` : ''}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            ${Object.entries(choices).map(([label, text]) => `
+                                <button type="button" onclick="selectVocabAnswer(${Number(question.question_id)}, '${escapeAttr(label)}')" data-vocab-question="${escapeAttr(question.question_id)}" data-vocab-choice="${escapeAttr(label)}" class="la-choice w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70">
+                                    <span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${escapeHtml(label)}</span><span>${escapeHtml(text)}</span><span class="selected-mark hidden float-right text-blue-600 font-extrabold">Selected</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            updateVocabSubmitState();
+        }
+
+        function selectVocabAnswer(questionId, label) {
+            vocabAnswers[String(questionId)] = label;
+            document.querySelectorAll(`[data-vocab-question="${CSS.escape(String(questionId))}"]`).forEach(btn => {
+                const selected = btn.dataset.vocabChoice === label;
+                btn.classList.toggle('selected', selected);
+                btn.querySelector('.selected-mark')?.classList.toggle('hidden', !selected);
+            });
+            updateVocabSubmitState();
+        }
+
+        function updateVocabSubmitState() {
+            const total = vocabQuestions.length;
+            const answered = vocabQuestions.filter(q => vocabAnswers[String(q.question_id)]).length;
+            const progress = document.getElementById('vocab-answer-progress');
+            const btn = document.getElementById('vocab-submit-btn');
+            if (progress) progress.innerText = `${answered} / ${total} answered`;
+            if (btn) {
+                const ready = total > 0 && answered === total;
+                btn.disabled = !ready;
+                btn.classList.toggle('opacity-50', !ready);
+                btn.classList.toggle('cursor-not-allowed', !ready);
+            }
+        }
+
+        async function submitVocabSkillsEvaluation() {
+            const answered = vocabQuestions.filter(q => vocabAnswers[String(q.question_id)]).length;
+            if (!vocabQuestions.length || answered !== vocabQuestions.length) {
+                showNotice('error', '请完成所有题目后再提交评估');
+                return;
+            }
+
+            const answers = vocabQuestions.map(q => ({
+                question_id: q.question_id,
+                student_answer: vocabAnswers[String(q.question_id)]
+            }));
+
+            showLoading(true, 'Building your Vocabulary Skills report...');
+            try {
+                const response = await fetch('/api/word-palace/vocabulary-skills/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        questions: vocabQuestions,
+                        answers,
+                        grade_level: vocabLastSettings?.grade_level,
+                        topic: vocabLastSettings?.topic,
+                        skill: vocabLastSettings?.skill,
+                        difficulty: vocabLastSettings?.difficulty,
+                        question_count: vocabLastSettings?.question_count
+                    })
+                });
+                const report = await readJsonResponse(response, 'Vocabulary Skills 评估失败');
+                if (!response.ok) throw new Error(getErrorMessage(report, 'Vocabulary Skills 评估失败'));
+                renderVocabSkillsReport(report);
+            } catch (err) {
+                showNotice('error', err.message || 'Vocabulary Skills 评估失败');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderVocabSkillsReport(report) {
+            document.getElementById('vocab-skills-practice-section').classList.add('hidden');
+            document.getElementById('vocab-skills-report-section').classList.remove('hidden');
+            document.getElementById('module-home-btn').classList.remove('hidden');
+            document.getElementById('progress-text').innerText = 'Vocabulary Skills Report';
+
+            const weakPoints = report.weak_knowledge_points || [];
+            const recommendations = report.recommended_next_practice || [];
+            const detailBreakdown = report.detail_breakdown || [];
+            const results = report.question_results || [];
+            document.getElementById('vocab-skills-report-section').innerHTML = `
+                <div class="glass-card rounded-[2rem] p-8 text-center">
+                    <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Vocabulary Skills Report</p>
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-50 rounded-full my-6">
+                        <span class="text-3xl font-extrabold text-blue-600">${escapeHtml(report.accuracy || '0%')}</span>
+                    </div>
+                    <h2 class="text-2xl font-bold">${escapeHtml(report.correct_count ?? 0)} / ${escapeHtml(report.total_count ?? 0)} Correct</h2>
+                    <p class="text-gray-600 mt-4 max-w-3xl mx-auto">${escapeHtml(report.student_summary || 'Great effort. Review the missed questions and continue practicing.')}</p>
+                    ${getReportActionButtons('vocab', 'Word Palace Home')}
+                </div>
+                <div class="glass-card rounded-[2rem] p-6 border border-red-100 bg-red-50/50">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-red-600 uppercase tracking-[0.16em]">Weak Knowledge Points</p>
+                            <h3 class="text-2xl font-extrabold mt-1">Most Important Details to Fix</h3>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-white/80 text-red-600 text-xs font-bold">Readable Detail text only</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${weakPoints.map(point => `
+                            <div class="p-5 rounded-2xl bg-white/85 border border-red-100">
+                                <div class="text-lg font-extrabold text-red-700">${escapeHtml(displayKnowledgePoint(point.detail || point.knowledge_point || ''))}</div>
+                                <p class="text-sm text-gray-500 mt-1">${escapeHtml(point.skill || '')} · missed ${escapeHtml(point.missed_count || 1)} time(s)</p>
+                                <p class="text-sm text-gray-600 mt-3">${escapeHtml(point.message || 'This Detail needs focused practice.')}</p>
+                                <button onclick="practiceVocabWeakDetail('${escapeAttr(point.detail || point.knowledge_point || '')}', '${escapeAttr(nextDifficultyLevel(vocabLastSettings?.difficulty || 'medium'))}')" class="mt-4 w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">Practice this Detail</button>
+                            </div>
+                        `).join('') || '<p class="text-gray-500">No major weak knowledge point found. Try a harder or mixed review set.</p>'}
+                    </div>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6">
+                    <h3 class="text-xl font-bold mb-4">Detail Performance</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${detailBreakdown.map(item => `
+                            <div class="p-4 rounded-2xl bg-white/70 border border-gray-100">
+                                <div class="flex justify-between gap-3 font-bold">
+                                    <span>${escapeHtml(displayKnowledgePoint(item.detail || ''))}</span>
+                                    <span>${escapeHtml(item.accuracy || '0%')}</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">${escapeHtml(item.correct || 0)} / ${escapeHtml(item.total || 0)} correct · ${escapeHtml(item.wrong_count || 0)} missed</p>
+                            </div>
+                        `).join('') || '<p class="text-gray-500">No Detail breakdown available.</p>'}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <h3 class="text-xl font-bold mb-4">Recommended Next Practice</h3>
+                        <div class="space-y-3">
+                            ${recommendations.map(item => `
+                                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                                    <div class="font-bold text-emerald-800">${escapeHtml(displayKnowledgePoint(item.detail || ''))}</div>
+                                    <p class="text-xs text-emerald-600 mt-1">${escapeHtml(item.skill || '')}</p>
+                                    <p class="text-sm text-emerald-700 mt-2">${escapeHtml(item.reason || '')}</p>
+                                    <p class="text-xs text-emerald-600 mt-2">${escapeHtml(item.question_count || 10)} questions · next difficulty: ${escapeHtml(nextDifficultyLevel(vocabLastSettings?.difficulty || item.difficulty || 'medium'))}</p>
+                                    <button onclick="practiceVocabWeakDetail('${escapeAttr(item.detail || '')}', '${escapeAttr(nextDifficultyLevel(vocabLastSettings?.difficulty || item.difficulty || 'medium'))}', ${Number(item.question_count || 10)})" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Generate next difficulty practice</button>
+                                </div>
+                            `).join('') || '<p class="text-gray-500">No recommendation available.</p>'}
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <h3 class="text-xl font-bold mb-4">Question Review</h3>
+                        <div class="space-y-3">
+                            ${results.map(item => `
+                                <div class="p-4 rounded-2xl bg-white/70 border border-gray-100">
+                                    <div class="flex flex-wrap items-center justify-between gap-3">
+                                        <span class="font-bold">Question ${escapeHtml(item.question_id)}</span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${item.is_correct ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${item.is_correct ? 'Correct' : 'Needs Review'}</span>
+                                    </div>
+                                    <p class="text-xs text-purple-700 font-bold mt-2">Detail: ${escapeHtml(displayKnowledgePoint(item.detail || ''))}</p>
+                                    <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer))}</p>
+                                    ${vocabLastSettings?.include_explanation === false ? '' : `<p class="text-sm text-gray-600 mt-2">${escapeHtml(item.explanation || '')}</p>`}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function retrySameVocabSkill() {
+            if (!vocabLastSettings) {
+                returnToVocabSelection();
+                return;
+            }
+            const settings = { ...vocabLastSettings };
+            resetVocabSkillsPractice(false);
+            startVocabSkillsPractice({
+                gradeLevel: settings.grade_level,
+                topic: settings.topic,
+                skill: settings.skill,
+                detailFocus: settings.detail_focus || '',
+                difficulty: settings.difficulty,
+                questionCount: settings.question_count
+            });
+        }
+
+        function returnToVocabSelection() {
+            resetVocabSkillsPractice(true);
+            document.getElementById('progress-text').innerText = 'Vocabulary Skills';
+        }
+
+        function practiceVocabWeakDetail(detail, difficulty = 'medium', questionCount = 10) {
+            const settings = vocabLastSettings || {};
+            startVocabSkillsPractice({
+                gradeLevel: settings.grade_level || document.getElementById('vocab-grade-level').value,
+                topic: settings.topic || document.getElementById('vocab-topic-select').value,
+                skill: settings.skill || document.getElementById('vocab-skill-select').value,
+                detailFocus: detail,
+                difficulty,
+                questionCount
+            });
+        }
+
+        function displayKnowledgePoint(value) {
+            const text = String(value || '').trim();
+            return text.startsWith('word_palace_vocabulary_skills_') ? 'Vocabulary Detail' : text;
+        }
+
+        function nextDifficultyLevel(value) {
+            const current = String(value || 'medium').toLowerCase();
+            if (current === 'easy') return 'medium';
+            if (current === 'medium') return 'hard';
+            return 'hard';
+        }
+
+        function getReportActionButtons(kind, homeLabel) {
+            const same = kind === 'la' ? 'retrySameLanguageArtsSkill()' : kind === 'vocab' ? 'retrySameVocabSkill()' : 'retrySameDailyWord()';
+            const back = kind === 'la' ? 'returnToLanguageArtsSelection()' : kind === 'vocab' ? 'returnToVocabSelection()' : "showWordPalaceArea('daily-word')";
+            const home = kind === 'la' ? "showMapArea('overview')" : "showWordPalaceArea('overview')";
+            return `
+                <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+                    <button onclick="${same}" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">Practice Same Skill</button>
+                    <button onclick="${back}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50">Back to Selection</button>
+                    <button onclick="${home}" class="px-6 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black">${homeLabel}</button>
+                </div>
+            `;
         }
 
         function normalizeAnswerLabels(value) {
@@ -991,13 +1719,14 @@
 
             const mode = document.getElementById('quiz-mode').value;
             const library = document.getElementById('word-library').value;
+            dailyWordLastSettings = { count, mode, library };
 
-            showLoading(true);
+            showLoading(true, 'Generating Daily Word quiz...');
             try {
                 const params = new URLSearchParams({ count: String(count), mode });
                 if (library) params.set('library', library);
                 const response = await fetch(`/api/english/generate?${params.toString()}`);
-                const data = await response.json();
+                const data = await readJsonResponse(response, '出题失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '出题失败'));
                 if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效题目，请稍后重试');
 
@@ -1023,6 +1752,7 @@
 
         function showQuestion() {
             isAnswered = false;
+            selectedDailyAnswer = '';
             const q = questions[currentIndex];
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
@@ -1049,21 +1779,60 @@
 
             const grid = document.createElement('div');
             grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-            (q.options || []).forEach(opt => {
+            const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            (q.options || []).forEach((opt, index) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'option-btn w-full p-5 text-left border border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70';
-                btn.textContent = opt;
-                btn.addEventListener('click', () => checkAnswer(btn, opt));
+                const label = labels[index] || String(index + 1);
+                btn.dataset.dailyOption = opt;
+                btn.className = 'option-btn w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70';
+                btn.innerHTML = `<span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${escapeHtml(label)}</span><span>${escapeHtml(opt)}</span><span class="selected-mark hidden float-right text-emerald-700 font-extrabold">Selected</span>`;
+                btn.addEventListener('click', () => selectDailyAnswer(btn, opt));
                 grid.appendChild(btn);
             });
             container.appendChild(grid);
 
+            const submitBtn = document.createElement('button');
+            submitBtn.id = 'daily-submit-btn';
+            submitBtn.type = 'button';
+            submitBtn.disabled = true;
+            submitBtn.className = 'mt-6 w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-700 transition-all opacity-50 cursor-not-allowed';
+            submitBtn.textContent = 'Submit Answer';
+            submitBtn.addEventListener('click', submitDailyAnswer);
+            container.appendChild(submitBtn);
+
             const explanation = document.createElement('div');
             explanation.id = 'explanation';
             explanation.className = 'hidden mt-8 p-5 bg-blue-50 rounded-2xl text-blue-800 text-sm';
-            explanation.innerHTML = `<strong>Analysis: </strong> ${q.analysis || 'Keep going!'}`;
+            explanation.innerHTML = `<strong>Analysis: </strong> ${escapeHtml(q.analysis || 'Keep going!')}`;
             container.appendChild(explanation);
+        }
+
+        function selectDailyAnswer(btn, selected) {
+            if (isAnswered) return;
+            selectedDailyAnswer = selected;
+            document.querySelectorAll('.option-btn').forEach(optionBtn => {
+                const isSelected = optionBtn.dataset.dailyOption === selected;
+                optionBtn.classList.toggle('selected', isSelected);
+                optionBtn.querySelector('.selected-mark')?.classList.toggle('hidden', !isSelected);
+            });
+
+            const submitBtn = document.getElementById('daily-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function submitDailyAnswer() {
+            if (isAnswered) return;
+            if (!selectedDailyAnswer) {
+                showNotice('error', '请先选择一个答案');
+                return;
+            }
+            const selectedBtn = Array.from(document.querySelectorAll('.option-btn'))
+                .find(btn => btn.dataset.dailyOption === selectedDailyAnswer);
+            if (selectedBtn) checkAnswer(selectedBtn, selectedDailyAnswer);
         }
 
         function checkAnswer(btn, selected) {
@@ -1071,6 +1840,8 @@
             isAnswered = true;
             const q = questions[currentIndex];
             const isCorrect = selected.trim().toLowerCase() === q.answer.trim().toLowerCase();
+            const submitBtn = document.getElementById('daily-submit-btn');
+            if (submitBtn) submitBtn.classList.add('hidden');
 
             if (isCorrect) {
                 score++;
@@ -1078,7 +1849,7 @@
             } else {
                 btn.classList.add('wrong');
                 document.querySelectorAll('.option-btn').forEach(b => {
-                    if (b.innerText.trim().toLowerCase() === q.answer.trim().toLowerCase()) b.classList.add('correct-hint');
+                    if ((b.dataset.dailyOption || '').trim().toLowerCase() === q.answer.trim().toLowerCase()) b.classList.add('correct-hint');
                 });
             }
 
@@ -1098,6 +1869,22 @@
             else showReport();
         }
 
+        function retrySameDailyWord() {
+            const settings = dailyWordLastSettings || {};
+            if (settings.mode) document.getElementById('quiz-mode').value = settings.mode;
+            if (settings.library !== undefined) document.getElementById('word-library').value = settings.library;
+            if (settings.count) {
+                const select = document.getElementById('word-count');
+                const countText = String(settings.count);
+                const hasPreset = Array.from(select.options).some(option => option.value === countText);
+                select.value = hasPreset ? countText : 'custom';
+                toggleCustomCount();
+                if (!hasPreset) document.getElementById('custom-count').value = countText;
+            }
+            showWordPalaceArea('daily-word');
+            startQuiz();
+        }
+
         async function showReport() {
             quizInProgress = false;
             document.getElementById('back-btn').classList.remove('invisible');
@@ -1106,33 +1893,68 @@
             document.getElementById('result-section').classList.remove('hidden');
             const accuracy = Math.round((score / questions.length) * 100);
             document.getElementById('score-display').innerText = `${accuracy}%`;
+            document.getElementById('daily-report-actions').innerHTML = getReportActionButtons('daily', 'Word Palace Home');
 
             const wrongList = document.getElementById('wrong-questions-list');
-            wrongList.innerHTML = '<h3 class="font-bold text-gray-900 px-2">Wrong Questions Review</h3>';
+            wrongList.innerHTML = `
+                <div class="glass-card rounded-[2rem] p-6 border border-red-100 bg-red-50/50">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-red-600 uppercase tracking-[0.16em]">Weak Knowledge Points</p>
+                            <h3 class="text-2xl font-extrabold mt-1">Wrong Words to Review</h3>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-white/80 text-red-600 text-xs font-bold">Practice same settings</span>
+                    </div>
+                    <div id="daily-wrong-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6">
+                    <h3 class="text-xl font-bold mb-4">Recommended Next Practice</h3>
+                    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                        <div class="font-bold text-emerald-800">Repeat this Daily Word set</div>
+                        <p class="text-sm text-emerald-700 mt-2">Use the same library and mode to reinforce the missed words.</p>
+                        <button onclick="retrySameDailyWord()" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Generate practice</button>
+                    </div>
+                </div>
+            `;
+            const dailyWrongGrid = document.getElementById('daily-wrong-grid');
             results.filter(r => !r.isCorrect).forEach(w => {
                 const item = document.createElement('div');
-                item.className = 'glass-card rounded-2xl p-6';
-                item.innerHTML = `<p class="mb-2">${w.sentence}</p><p class="text-sm"><span class="text-red-500">Your: ${w.userAnswer}</span> | <span class="text-green-600">Correct: ${w.answer}</span></p><p class="text-xs text-gray-500 mt-2 italic">${w.analysis || ''}</p>`;
-                wrongList.appendChild(item);
+                item.className = 'p-5 rounded-2xl bg-white/85 border border-red-100';
+                item.innerHTML = `
+                    <div class="text-lg font-extrabold text-red-700">${escapeHtml(w.answer || 'Review word')}</div>
+                    <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(w.userAnswer)} · Correct: ${escapeHtml(w.answer)}</p>
+                    <p class="text-sm text-gray-600 mt-3">${escapeHtml(w.analysis || '')}</p>
+                    <button onclick="retrySameDailyWord()" class="mt-4 w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700">Practice this word set</button>
+                `;
+                dailyWrongGrid.appendChild(item);
             });
+            if (!results.some(r => !r.isCorrect)) {
+                dailyWrongGrid.innerHTML = '<p class="text-gray-500">No weak word found. Try another set or increase the count.</p>';
+            }
 
+            showLoading(true, 'Building your Daily Word report...');
             try {
                 const response = await fetch('/api/english/grade', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ questions, answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), mode: document.getElementById('quiz-mode').value })
                 });
-                const data = await response.json();
+                const data = await readJsonResponse(response, '总结生成失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '总结生成失败'));
                 document.getElementById('summary-text').innerText = data.summary;
             } catch (e) {
                 document.getElementById('summary-text').innerText = 'Good job! Keep practicing.';
                 showNotice('error', e.message || '总结生成失败，已使用默认文案');
+            } finally {
+                showLoading(false);
             }
         }
 
-        function showLoading(show) {
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        function showLoading(show, message = 'Working on it...') {
+            const overlay = document.getElementById('loading-overlay');
+            const text = document.getElementById('loading-text');
+            if (show && text) text.innerText = message;
+            overlay.classList.toggle('hidden', !show);
         }
 
         function getErrorMessage(payload, fallback) {
@@ -1163,7 +1985,7 @@
             select.innerHTML = '<option value="">自动选择已启用词库</option>';
             try {
                 const res = await fetch('/api/english/libraries');
-                const libraries = await res.json();
+                const libraries = await readJsonResponse(res, '加载词库失败');
                 if (!res.ok) throw new Error(getErrorMessage(libraries, '加载词库失败'));
                 if (!Array.isArray(libraries)) throw new Error('词库响应格式错误');
 
@@ -1187,6 +2009,8 @@
         }
 
         document.getElementById('word-palace-section').classList.add('hidden');
+        document.getElementById('daily-word-area').classList.add('hidden');
+        document.getElementById('vocab-skills-area').classList.add('hidden');
         document.getElementById('map-test-section').classList.add('hidden');
         document.getElementById('report-history-section').classList.add('hidden');
     </script>

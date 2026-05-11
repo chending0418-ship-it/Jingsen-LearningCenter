@@ -39,12 +39,26 @@
         const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
         const withBasePath = (path) => `${BASE_PATH}${path}`;
 
+        async function readJsonResponse(response, fallbackMessage) {
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                return response.json();
+            }
+
+            const text = await response.text();
+            const title = (text.match(/<title>(.*?)<\/title>/i) || [])[1]
+                || (text.match(/<h1>(.*?)<\/h1>/i) || [])[1]
+                || text.replace(/\s+/g, ' ').trim().slice(0, 120);
+            const status = `${response.status} ${response.statusText || ''}`.trim();
+            throw new Error(`${fallbackMessage}：服务返回了非 JSON 响应 ${status}${title ? ` (${title})` : ''}`);
+        }
+
         async function testMathApi() {
             const resultEl = document.getElementById('result');
             resultEl.textContent = '请求中...';
             try {
                 const res = await fetch(withBasePath('/api/math/generate?count=3&topic=algebra&difficulty=easy'));
-                const data = await res.json();
+                const data = await readJsonResponse(res, '请求失败');
                 resultEl.textContent = JSON.stringify(data, null, 2);
             } catch (e) {
                 resultEl.textContent = `请求失败: ${e.message || '网络错误'}`;

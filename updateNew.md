@@ -177,9 +177,11 @@ echo "检查后端："
 curl http://127.0.0.1:8088/health
 curl http://127.0.0.1:8088/api/map/language-arts/skills/tree | head -c 200
 curl http://127.0.0.1:8088/api/skills?module=map_test\&section=language_arts\&enabled_only=true | head -c 200
+curl -i --max-time 90 'http://127.0.0.1:8088/api/english/generate?count=1&mode=cloze' | head -c 500
 
 echo "检查公网："
 curl -I https://jingsen.cc/learningcenter/
+curl -i --max-time 90 'https://jingsen.cc/learningcenter/api/english/generate?count=1&mode=cloze' | head -c 500
 ```
 
 如果能看到你的词库文件、`library_registry.json`、`data/skills/*.json`，说明词库和 Skills 数据都还在。

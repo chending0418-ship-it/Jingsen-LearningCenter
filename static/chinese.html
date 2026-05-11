@@ -152,6 +152,20 @@
             return rawFetch(input, init);
         };
 
+        async function readJsonResponse(response, fallbackMessage) {
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                return response.json();
+            }
+
+            const text = await response.text();
+            const title = (text.match(/<title>(.*?)<\/title>/i) || [])[1]
+                || (text.match(/<h1>(.*?)<\/h1>/i) || [])[1]
+                || text.replace(/\s+/g, ' ').trim().slice(0, 120);
+            const status = `${response.status} ${response.statusText || ''}`.trim();
+            throw new Error(`${fallbackMessage}：服务返回了非 JSON 响应 ${status}${title ? ` (${title})` : ''}`);
+        }
+
         let groups = [];
         let currentIndex = 0;
         let score = 0;
@@ -184,7 +198,7 @@
                     const params = new URLSearchParams({ count: '5', mode: 'conj_fill' });
                     if (library) params.set('library', library);
                     const response = await fetch(`/api/chinese/generate?${params.toString()}`);
-                    const data = await response.json();
+                    const data = await readJsonResponse(response, '出题失败');
                     if (!response.ok) throw new Error(getErrorMessage(data, '出题失败'));
                     if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效题目，请稍后重试');
                     if (!Array.isArray(data.questions[0].options) || !data.questions[0].options.length) throw new Error('题目选项缺失，请稍后重试');
@@ -202,7 +216,7 @@
                         const params = new URLSearchParams({ count: '1', mode });
                         if (library) params.set('library', library);
                         const response = await fetch(`/api/chinese/generate?${params.toString()}`);
-                        const data = await response.json();
+                        const data = await readJsonResponse(response, '出题失败');
                         if (!response.ok) throw new Error(getErrorMessage(data, '出题失败'));
                         if (!Array.isArray(data.questions) || !data.questions.length) throw new Error(`第 ${i + 1} 组题目生成失败`);
                         if (!Array.isArray(data.questions[0].options) || !data.questions[0].options.length) throw new Error(`第 ${i + 1} 组题目选项缺失`);
@@ -448,7 +462,7 @@
                         mode: document.getElementById('quiz-mode').value 
                     })
                 });
-                const data = await response.json();
+                const data = await readJsonResponse(response, '总结生成失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '总结生成失败'));
                 document.getElementById('summary-text').innerText = data.summary;
             } catch (e) { 
@@ -500,7 +514,7 @@
 
             try {
                 const res = await fetch(`/api/chinese/libraries?mode=${mode}`);
-                const libraries = await res.json();
+                const libraries = await readJsonResponse(res, '加载词库失败');
                 if (!res.ok) throw new Error(getErrorMessage(libraries, '加载词库失败'));
                 if (!Array.isArray(libraries)) throw new Error('词库响应格式错误');
 

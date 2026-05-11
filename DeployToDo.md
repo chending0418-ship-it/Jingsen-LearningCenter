@@ -106,7 +106,7 @@ DATABASE_URL=postgresql://jingsen:<你设置的密码>@localhost:5432/jingsen_db
 **启动命令填写：**
 
 ```
-gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 127.0.0.1:8000
+gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --timeout 180 --graceful-timeout 30 --bind 127.0.0.1:8000
 ```
 
 3. 点击 **确定**，宝塔会自动：
@@ -154,7 +154,9 @@ location /learningcenter {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_read_timeout 120s;
+    proxy_connect_timeout 30s;
+    proxy_send_timeout 180s;
+    proxy_read_timeout 180s;
 }
 ```
 

@@ -4,6 +4,7 @@ AI 生成器模块
 """
 import json
 import logging
+import asyncio
 from typing import Dict, Any, Optional
 from openai import OpenAI
 from config import config
@@ -18,10 +19,24 @@ class AIGenerator:
         """初始化 OpenAI 客户端"""
         self.client = OpenAI(
             api_key=config.OPENAI_API_KEY,
-            base_url=config.fix_base_url()
+            base_url=config.fix_base_url(),
+            timeout=config.AI_REQUEST_TIMEOUT,
+            max_retries=1
         )
         self.model = config.MODEL_NAME
         logger.info(f"AIGenerator initialized with model: {self.model}")
+
+    async def _create_chat_completion(self, **kwargs):
+        try:
+            return await asyncio.wait_for(
+                asyncio.to_thread(self.client.chat.completions.create, **kwargs),
+                timeout=config.AI_REQUEST_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            raise TimeoutError(
+                f"AI request timed out after {config.AI_REQUEST_TIMEOUT:g}s; "
+                "try a smaller question count or a faster model"
+            )
     
     async def generate_questions(
         self,
@@ -48,7 +63,7 @@ class AIGenerator:
         try:
             logger.info(f"Generating questions with prompt length: {len(prompt)}")
             
-            response = self.client.chat.completions.create(
+            response = await self._create_chat_completion(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_message},
@@ -90,7 +105,7 @@ class AIGenerator:
         """生成并返回完整 JSON 对象，适用于题目以外的结构化结果。"""
         try:
             logger.info(f"Generating JSON with prompt length: {len(prompt)}")
-            response = self.client.chat.completions.create(
+            response = await self._create_chat_completion(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_message},
@@ -145,7 +160,7 @@ class AIGenerator:
             if max_tokens:
                 params["max_tokens"] = max_tokens
             
-            response = self.client.chat.completions.create(**params)
+            response = await self._create_chat_completion(**params)
             content = response.choices[0].message.content
             
             logger.info("Successfully generated text content")
