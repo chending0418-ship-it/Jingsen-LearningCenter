@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "description": "Skills registry index. Each file stores skills for one product section.",
+  "files": [
+    {
+      "module": "map_test",
+      "section": "language_arts",
+      "file": "map_language_arts.json",
+      "title": "MAP Language Arts",
+      "enabled": true
+    },
+    {
+      "module": "map_test",
+      "section": "reading",
+      "file": "map_reading.json",
+      "title": "MAP Reading",
+      "enabled": true
+    },
+    {
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "file": "word_vocabulary_skills.json",
+      "title": "Word Palace Vocabulary Skills",
+      "enabled": true
+    }
+  ]
+}

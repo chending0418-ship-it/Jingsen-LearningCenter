@@ -1,0 +1,4327 @@
+{
+  "version": 1,
+  "module": "map_test",
+  "section": "reading",
+  "title": "MAP Reading",
+  "description": "Skills for MAP Test Reading.",
+  "source": {
+    "name": "IXL ELA Grade 6-9 Reading strategies",
+    "description": "Reading strategies skills extracted from IXL ELA Grade 6-9 skills table.",
+    "created_by": "chatgpt",
+    "notes": "Generated from Excel file IXL_ELA_Grade_6-9_skills_topics.xlsx. Detail fields split by original line breaks."
+  },
+  "skills": [
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_main_idea_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Determine the main idea of a passage",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 1,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Determine the main idea of a passage",
+        "source_row": 2
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_main_idea_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Combine main ideas from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 2,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Combine main ideas from two texts",
+        "source_row": 2
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_theme_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Match the quotations with their themes",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 3,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Match the quotations with their themes",
+        "source_row": 3
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_theme_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine the themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 4,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine the themes of short stories",
+        "source_row": 3
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_theme_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine multiple themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 5,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine multiple themes of short stories",
+        "source_row": 3
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_author_s_purpose_and_tone_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Identify the author’s purpose",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 6,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Identify the author’s purpose",
+        "source_row": 4
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_author_s_purpose_and_tone_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Which sentence is more formal?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 7,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Which sentence is more formal?",
+        "source_row": 4
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_author_s_purpose_and_tone_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Compare passages for tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 8,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Compare passages for tone",
+        "source_row": 4
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_author_s_perspective_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Author's perspective",
+      "detail": "Determine the author’s point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "author_s_perspective",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 9,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's perspective",
+        "original_detail": "Determine the author’s point of view",
+        "source_row": 5
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_text_structure_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Compare and contrast in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 10,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Compare and contrast in informational texts",
+        "source_row": 6
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_text_structure_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match causes and effects in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 11,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match causes and effects in informational texts",
+        "source_row": 6
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_text_structure_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match problems with their solutions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 12,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match problems with their solutions",
+        "source_row": 6
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_text_structure_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Identify text structures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 13,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Identify text structures",
+        "source_row": 6
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_literary_devices_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Identify sensory details",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 14,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Identify sensory details",
+        "source_row": 7
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_literary_devices_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret the meaning of an allusion from its source",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 15,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret the meaning of an allusion from its source",
+        "source_row": 7
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_literary_devices_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 16,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret figures of speech",
+        "source_row": 7
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_literary_devices_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Classify figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 17,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Classify figures of speech",
+        "source_row": 7
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_literary_devices_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Analyze the effects of figures of speech on meaning and tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 18,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Analyze the effects of figures of speech on meaning and tone",
+        "source_row": 7
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_literature_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Identify the narrative point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 19,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Identify the narrative point of view",
+        "source_row": 8
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_literature_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Draw inferences from literary texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 20,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Draw inferences from literary texts",
+        "source_row": 8
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_literature_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Analyze short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 21,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Analyze short stories",
+        "source_row": 8
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_literature_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Label the rhyme scheme",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 22,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Label the rhyme scheme",
+        "source_row": 8
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_informational_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about animals",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 23,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about animals",
+        "source_row": 9
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_informational_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about famous places",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 24,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about famous places",
+        "source_row": 9
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_informational_texts_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about business and technology",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 25,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about business and technology",
+        "source_row": 9
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_informational_texts_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about science and nature",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 26,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about science and nature",
+        "source_row": 9
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_informational_texts_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about history",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 27,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about history",
+        "source_row": 9
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_analyzing_arguments_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Analyzing arguments",
+      "detail": "Trace an argument",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "analyzing_arguments",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 28,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing arguments",
+        "original_detail": "Trace an argument",
+        "source_row": 10
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Lightning Thief: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 29,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Lightning Thief: Part 1",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Lightning Thief: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 30,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Lightning Thief: Part 2",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Roll of Thunder, Hear My Cry: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 31,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Roll of Thunder, Hear My Cry: Part 1",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Roll of Thunder, Hear My Cry: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 32,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Roll of Thunder, Hear My Cry: Part 2",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Esperanza Rising: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 33,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Esperanza Rising: Part 1",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_novel_study_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Esperanza Rising: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 34,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Esperanza Rising: Part 2",
+        "source_row": 11
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Harriet Tubman: Conductor on the Underground Railroad: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 35,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Harriet Tubman: Conductor on the Underground Railroad: Part 1",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Harriet Tubman: Conductor on the Underground Railroad: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 36,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Harriet Tubman: Conductor on the Underground Railroad: Part 2",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from I Am Malala: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 37,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from I Am Malala: Part 1",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from I Am Malala: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 38,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from I Am Malala: Part 2",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from The Great Fire: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 39,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from The Great Fire: Part 1",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_nonfiction_book_study_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from The Great Fire: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 40,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from The Great Fire: Part 2",
+        "source_row": 12
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_comparing_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare information from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 41,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare information from two texts",
+        "source_row": 13
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_comparing_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare two texts with different genres",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 42,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare two texts with different genres",
+        "source_row": 13
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_visual_elements_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Compare illustrations of literary and historical subjects",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 43,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Compare illustrations of literary and historical subjects",
+        "source_row": 14
+      }
+    },
+    {
+      "id": "map_test_reading_grade_6_reading_strategies_visual_elements_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 6",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Read graphic organizers",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 44,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Read graphic organizers",
+        "source_row": 14
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_main_idea_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Determine the main idea of a passage",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 45,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Determine the main idea of a passage",
+        "source_row": 48
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_main_idea_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Combine main ideas from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 46,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Combine main ideas from two texts",
+        "source_row": 48
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_theme_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Match the quotations with their themes",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 47,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Match the quotations with their themes",
+        "source_row": 49
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_theme_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine the themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 48,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine the themes of short stories",
+        "source_row": 49
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_theme_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine multiple themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 49,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine multiple themes of short stories",
+        "source_row": 49
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_author_s_purpose_and_tone_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Identify the author’s purpose",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 50,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Identify the author’s purpose",
+        "source_row": 50
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_author_s_purpose_and_tone_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Which sentence is more formal?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 51,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Which sentence is more formal?",
+        "source_row": 50
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_author_s_purpose_and_tone_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Compare passages for tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 52,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Compare passages for tone",
+        "source_row": 50
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_author_s_perspective_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Author's perspective",
+      "detail": "Determine the author’s point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "author_s_perspective",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 53,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's perspective",
+        "original_detail": "Determine the author’s point of view",
+        "source_row": 51
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_text_structure_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Compare and contrast in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 54,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Compare and contrast in informational texts",
+        "source_row": 52
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_text_structure_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match causes and effects in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 55,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match causes and effects in informational texts",
+        "source_row": 52
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_text_structure_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match problems with their solutions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 56,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match problems with their solutions",
+        "source_row": 52
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_text_structure_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Identify text structures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 57,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Identify text structures",
+        "source_row": 52
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Identify sensory details",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 58,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Identify sensory details",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret the meaning of an allusion from its source",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 59,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret the meaning of an allusion from its source",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Recall the source of an allusion",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 60,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Recall the source of an allusion",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 61,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret figures of speech",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Classify figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 62,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Classify figures of speech",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_literary_devices_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Analyze the effects of figures of speech on meaning and tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 63,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Analyze the effects of figures of speech on meaning and tone",
+        "source_row": 53
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_literature_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Identify the narrative point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 64,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Identify the narrative point of view",
+        "source_row": 54
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_literature_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Analyze short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 65,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Analyze short stories",
+        "source_row": 54
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_literature_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Label the rhyme scheme",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 66,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Label the rhyme scheme",
+        "source_row": 54
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_literature_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Draw inferences from literary texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 67,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Draw inferences from literary texts",
+        "source_row": 54
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_informational_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about animals",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 68,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about animals",
+        "source_row": 55
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_informational_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about famous places",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 69,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about famous places",
+        "source_row": 55
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_informational_texts_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about business and technology",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 70,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about business and technology",
+        "source_row": 55
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_informational_texts_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about science and nature",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 71,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about science and nature",
+        "source_row": 55
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_informational_texts_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read about history",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 72,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read about history",
+        "source_row": 55
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from A Long Walk to Water: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 73,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from A Long Walk to Water: Part 1",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from A Long Walk to Water: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 74,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from A Long Walk to Water: Part 2",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Anne of Green Gables: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 75,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Anne of Green Gables: Part 1",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from Anne of Green Gables: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 76,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from Anne of Green Gables: Part 2",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Hobbit: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 77,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Hobbit: Part 1",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_novel_study_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Hobbit: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 78,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Hobbit: Part 2",
+        "source_row": 56
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_nonfiction_book_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Anne Frank: The Diary of a Young Girl: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 79,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Anne Frank: The Diary of a Young Girl: Part 1",
+        "source_row": 57
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_nonfiction_book_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Anne Frank: The Diary of a Young Girl: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 80,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Anne Frank: The Diary of a Young Girl: Part 2",
+        "source_row": 57
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_nonfiction_book_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from A Night to Remember: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 81,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from A Night to Remember: Part 1",
+        "source_row": 57
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_nonfiction_book_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from A Night to Remember: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 82,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from A Night to Remember: Part 2",
+        "source_row": 57
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_analyzing_arguments_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Analyzing arguments",
+      "detail": "Trace an argument",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "analyzing_arguments",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 83,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing arguments",
+        "original_detail": "Trace an argument",
+        "source_row": 58
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_comparing_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare information from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 84,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare information from two texts",
+        "source_row": 59
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_comparing_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare two texts with different genres",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 85,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare two texts with different genres",
+        "source_row": 59
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_visual_elements_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Compare illustrations of literary and historical subjects",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 86,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Compare illustrations of literary and historical subjects",
+        "source_row": 60
+      }
+    },
+    {
+      "id": "map_test_reading_grade_7_reading_strategies_visual_elements_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 7",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Read graphic organizers",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 87,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Read graphic organizers",
+        "source_row": 60
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_main_idea_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Determine the main idea of a passage",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 88,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Determine the main idea of a passage",
+        "source_row": 97
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_main_idea_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Combine main ideas from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 89,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Combine main ideas from two texts",
+        "source_row": 97
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_theme_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Match the quotations with their themes",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 90,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Match the quotations with their themes",
+        "source_row": 98
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_theme_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine the themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 91,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine the themes of short stories",
+        "source_row": 98
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_theme_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Theme",
+      "detail": "Determine multiple themes of short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "theme",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 92,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Theme",
+        "original_detail": "Determine multiple themes of short stories",
+        "source_row": 98
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_author_s_purpose_and_tone_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Identify the author’s purpose",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 93,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Identify the author’s purpose",
+        "source_row": 99
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_author_s_purpose_and_tone_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Which sentence is more formal?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 94,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Which sentence is more formal?",
+        "source_row": 99
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_author_s_purpose_and_tone_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Author's purpose and tone",
+      "detail": "Compare passages for tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "author_s_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 95,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's purpose and tone",
+        "original_detail": "Compare passages for tone",
+        "source_row": 99
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_author_s_perspective_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Author's perspective",
+      "detail": "Determine the author’s point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "author_s_perspective",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 96,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Author's perspective",
+        "original_detail": "Determine the author’s point of view",
+        "source_row": 100
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_text_structure_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Compare and contrast in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 97,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Compare and contrast in informational texts",
+        "source_row": 101
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_text_structure_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match causes and effects in informational texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 98,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match causes and effects in informational texts",
+        "source_row": 101
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_text_structure_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Match problems with their solutions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 99,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Match problems with their solutions",
+        "source_row": 101
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_text_structure_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Text structure",
+      "detail": "Identify text structures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "text_structure",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 100,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Text structure",
+        "original_detail": "Identify text structures",
+        "source_row": 101
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Identify sensory details",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 101,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Identify sensory details",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret the meaning of an allusion from its source",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 102,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret the meaning of an allusion from its source",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Recall the source of an allusion",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 103,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Recall the source of an allusion",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 104,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret figures of speech",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Classify figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 105,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Classify figures of speech",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_literary_devices_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Analyze the effects of figures of speech on meaning and tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 106,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Analyze the effects of figures of speech on meaning and tone",
+        "source_row": 102
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_literature_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Identify the narrative point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 107,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Identify the narrative point of view",
+        "source_row": 103
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_literature_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Analyze short stories",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 108,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Analyze short stories",
+        "source_row": 103
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_literature_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Label the rhyme scheme",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 109,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Label the rhyme scheme",
+        "source_row": 103
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_literature_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Draw inferences from literary texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 110,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Draw inferences from literary texts",
+        "source_row": 103
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_informational_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Read and understand informational passages",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 111,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Read and understand informational passages",
+        "source_row": 104
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_novel_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Giver: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 112,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Giver: Part 1",
+        "source_row": 105
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_novel_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Giver: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 113,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Giver: Part 2",
+        "source_row": 105
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_novel_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Outsiders: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 114,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Outsiders: Part 1",
+        "source_row": 105
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_novel_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from The Outsiders: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 115,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from The Outsiders: Part 2",
+        "source_row": 105
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_nonfiction_book_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Narrative of the Life of Frederick Douglass: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 116,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Narrative of the Life of Frederick Douglass: Part 1",
+        "source_row": 106
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_nonfiction_book_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Narrative of the Life of Frederick Douglass: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 117,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Narrative of the Life of Frederick Douglass: Part 2",
+        "source_row": 106
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_nonfiction_book_study_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Travels with Charley: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 118,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Travels with Charley: Part 1",
+        "source_row": 106
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_nonfiction_book_study_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Travels with Charley: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 119,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Travels with Charley: Part 2",
+        "source_row": 106
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_analyzing_arguments_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Analyzing arguments",
+      "detail": "Trace an argument",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "analyzing_arguments",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 120,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing arguments",
+        "original_detail": "Trace an argument",
+        "source_row": 107
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_comparing_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare information from two texts",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 121,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare information from two texts",
+        "source_row": 108
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_comparing_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Comparing texts",
+      "detail": "Compare two texts with different genres",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "comparing_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 122,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Comparing texts",
+        "original_detail": "Compare two texts with different genres",
+        "source_row": 108
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_visual_elements_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Compare illustrations of literary and historical subjects",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 123,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Compare illustrations of literary and historical subjects",
+        "source_row": 109
+      }
+    },
+    {
+      "id": "map_test_reading_grade_8_reading_strategies_visual_elements_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 8",
+      "topic": "Reading strategies",
+      "skill": "Visual elements",
+      "detail": "Read graphic organizers",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "reading_strategies",
+        "visual_elements",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 124,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Reading strategies",
+        "original_skill": "Visual elements",
+        "original_detail": "Read graphic organizers",
+        "source_row": 109
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_main_idea_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Main idea",
+      "detail": "Determine the main idea of a passage",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "main_idea",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 125,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Main idea",
+        "original_detail": "Determine the main idea of a passage",
+        "source_row": 147
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_audience_purpose_and_tone_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Audience, purpose, and tone",
+      "detail": "Which text is most formal?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "audience_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 126,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Audience, purpose, and tone",
+        "original_detail": "Which text is most formal?",
+        "source_row": 148
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_audience_purpose_and_tone_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Audience, purpose, and tone",
+      "detail": "Identify audience and purpose",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "audience_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 127,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Audience, purpose, and tone",
+        "original_detail": "Identify audience and purpose",
+        "source_row": 148
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_audience_purpose_and_tone_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Audience, purpose, and tone",
+      "detail": "Compare passages for subjective and objective tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "audience_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 128,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Audience, purpose, and tone",
+        "original_detail": "Compare passages for subjective and objective tone",
+        "source_row": 148
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_audience_purpose_and_tone_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Audience, purpose, and tone",
+      "detail": "Compare passages for tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "audience_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 129,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Audience, purpose, and tone",
+        "original_detail": "Compare passages for tone",
+        "source_row": 148
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_audience_purpose_and_tone_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Audience, purpose, and tone",
+      "detail": "Analyze the impact of word choice on meaning and tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "audience_purpose_and_tone",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 130,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Audience, purpose, and tone",
+        "original_detail": "Analyze the impact of word choice on meaning and tone",
+        "source_row": 148
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Identify the narrative point of view",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 131,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Identify the narrative point of view",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret the meaning of an allusion from its source",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 132,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret the meaning of an allusion from its source",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Recall the source of an allusion",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 133,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Recall the source of an allusion",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Interpret figures of speech",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 134,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Interpret figures of speech",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Classify figures of speech: euphemism, hyperbole, oxymoron, paradox",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 135,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Classify figures of speech: euphemism, hyperbole, oxymoron, paradox",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Classify figures of speech: review",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 136,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Classify figures of speech: review",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_literary_devices_007",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Literary devices",
+      "detail": "Analyze the effects of figures of speech on meaning and tone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "literary_devices",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 137,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Literary devices",
+        "original_detail": "Analyze the effects of figures of speech on meaning and tone",
+        "source_row": 149
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_literature_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Match the quotations with their themes",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 138,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Match the quotations with their themes",
+        "source_row": 150
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_literature_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Analyze short stories: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 139,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Analyze short stories: set 1",
+        "source_row": 150
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_literature_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Analyze short stories: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 140,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Analyze short stories: set 2",
+        "source_row": 150
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_literature_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing literature",
+      "detail": "Identify elements of poetry",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_literature",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 141,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing literature",
+        "original_detail": "Identify elements of poetry",
+        "source_row": 150
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Analyze the development of informational passages: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 142,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Analyze the development of informational passages: set 1",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Analyze the development of informational passages: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 143,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Analyze the development of informational passages: set 2",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_003",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Trace an argument: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 144,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Trace an argument: set 1",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_004",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Trace an argument: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 145,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Trace an argument: set 2",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_005",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Analyze rhetorical strategies in historical texts: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 146,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Analyze rhetorical strategies in historical texts: set 1",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_analyzing_informational_texts_006",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Analyzing informational texts",
+      "detail": "Analyze rhetorical strategies in historical texts: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "analyzing_informational_texts",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 147,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Analyzing informational texts",
+        "original_detail": "Analyze rhetorical strategies in historical texts: set 2",
+        "source_row": 151
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_novel_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from To Kill a Mockingbird: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 148,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from To Kill a Mockingbird: Part 1",
+        "source_row": 152
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_novel_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Novel study",
+      "detail": "Analyze passages from To Kill a Mockingbird: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "novel_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 149,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Novel study",
+        "original_detail": "Analyze passages from To Kill a Mockingbird: Part 2",
+        "source_row": 152
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_nonfiction_book_study_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Night: Part 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 150,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Night: Part 1",
+        "source_row": 153
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_nonfiction_book_study_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Nonfiction book study",
+      "detail": "Analyze passages from Night: Part 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "nonfiction_book_study",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 151,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Nonfiction book study",
+        "original_detail": "Analyze passages from Night: Part 2",
+        "source_row": 153
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_business_documents_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Business documents",
+      "detail": "Read workplace emails and memos",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "business_documents",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 152,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Business documents",
+        "original_detail": "Read workplace emails and memos",
+        "source_row": 154
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_business_documents_002",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Business documents",
+      "detail": "Read business letters and notices",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "business_documents",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 153,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Business documents",
+        "original_detail": "Read business letters and notices",
+        "source_row": 154
+      }
+    },
+    {
+      "id": "map_test_reading_grade_9_reading_strategies_graphic_organizers_001",
+      "module": "map_test",
+      "section": "reading",
+      "grade": "Grade 9",
+      "topic": "Reading strategies",
+      "skill": "Graphic organizers",
+      "detail": "Read graphic organizers",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "reading_strategies",
+        "graphic_organizers",
+        "reading"
+      ],
+      "enabled": true,
+      "sort_order": 154,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Reading strategies",
+        "original_skill": "Graphic organizers",
+        "original_detail": "Read graphic organizers",
+        "source_row": 155
+      }
+    }
+  ]
+}

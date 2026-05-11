@@ -195,7 +195,7 @@
                         <h3 class="text-2xl font-bold mt-4">Language Arts</h3>
                         <p class="text-gray-500 mt-3 leading-relaxed">Skill-driven practice for grammar, usage, pronouns, punctuation, capitalization, sentence revision, paragraph organization, and source integration.</p>
                         <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
-                            <div class="rounded-2xl bg-white/70 p-3"><strong>8 Skills</strong><br><span class="text-gray-500">skill tree</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Grade-based</strong><br><span class="text-gray-500">skill tree</span></div>
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Diagnosis</strong><br><span class="text-gray-500">next practice</span></div>
                         </div>
                     </button>
@@ -222,7 +222,7 @@
                             <div>
                                 <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">MAP Language Arts</p>
                                 <h2 class="text-3xl font-extrabold mt-2">Skill Tree Practice</h2>
-                                <p class="text-gray-500 mt-3 max-w-3xl">Select a skill, question count, and difficulty. The system generates MAP-style questions, grades answers by skill, and recommends the next focused practice.</p>
+                                <p class="text-gray-500 mt-3 max-w-3xl">Select Grade, Topic, and Skill. The system generates questions across different Detail requirements and reports which Detail is weak.</p>
                             </div>
                             <span class="inline-flex px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100">Live Language Arts</span>
                         </div>
@@ -232,10 +232,10 @@
                         <div class="xl:col-span-2 glass-card rounded-[2rem] p-6">
                             <div class="flex items-center justify-between gap-4 mb-5">
                                 <div>
-                                    <h3 class="text-xl font-bold">1. Choose a Skill</h3>
-                                    <p class="text-sm text-gray-500 mt-1">The system diagnoses by skill, not random question generation.</p>
+                                    <h3 class="text-xl font-bold">1. Choose Grade / Topic / Skill</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Do not choose Detail here. Questions will cover multiple Details under the selected Skill.</p>
                                 </div>
-                                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">8 skills</span>
+                                <span id="la-detail-count" class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">0 details</span>
                             </div>
                             <div id="la-skill-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                         </div>
@@ -246,17 +246,14 @@
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Grade Level</label>
-                                        <select id="la-grade-level" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
-                                            <option value="3">Grade 3</option>
-                                            <option value="4">Grade 4</option>
-                                            <option value="5" selected>Grade 5</option>
-                                            <option value="6">Grade 6</option>
-                                            <option value="7">Grade 7</option>
-                                            <option value="8">Grade 8</option>
-                                        </select>
+                                        <select id="la-grade-level" onchange="onLanguageArtsGradeChange()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Skill Area</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Topic</label>
+                                        <select id="la-topic-select" onchange="onLanguageArtsTopicChange()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Skill</label>
                                         <select id="la-skill-select" onchange="selectLanguageArtsSkill(this.value)" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none"></select>
                                     </div>
                                     <div>
@@ -358,72 +355,15 @@
         let isAnswered = false;
         let quizInProgress = false;
         let librariesLoaded = false;
-        let selectedLanguageArtsSkill = 'grammar_usage';
+        let selectedLanguageArtsSkill = '';
+        let laSkillTree = { grades: [] };
+        let laCurrentDetails = [];
         let laQuestions = [];
         let laCurrentIndex = 0;
         let laAnswers = [];
         let laSelectedAnswers = [];
         let laAnswered = false;
         let laSubskillFocus = '';
-
-        const LANGUAGE_ARTS_SKILLS = [
-            {
-                key: 'grammar_usage',
-                title: 'Grammar & Usage',
-                cn: '语法与用法',
-                summary: 'Verb tense, subject-verb agreement, pronoun case, possessives, comparatives, conjunctions, and clauses.',
-                questionTypes: 'Choose the correct word / Which sentence is written correctly?'
-            },
-            {
-                key: 'pronoun_reference',
-                title: 'Pronoun Reference',
-                cn: '代词指代',
-                summary: 'Vague pronouns and clear noun replacement for it, they, this, that, he, she, and them.',
-                questionTypes: 'Which revision corrects the vague pronoun?'
-            },
-            {
-                key: 'punctuation',
-                title: 'Punctuation',
-                cn: '标点',
-                summary: 'Commas, quotation marks, ending punctuation, ellipses, addresses, dialogue, and direct speech.',
-                questionTypes: 'Choose the correctly punctuated sentence.'
-            },
-            {
-                key: 'capitalization',
-                title: 'Capitalization',
-                cn: '大小写',
-                summary: 'Letter greetings, names, titles, places, sentence beginnings, and closings.',
-                questionTypes: 'Which sentence uses capitalization correctly?'
-            },
-            {
-                key: 'sentence_combining',
-                title: 'Sentence Combining',
-                cn: '句子合并',
-                summary: 'Use because, although, if, when, even though, and other connectors while keeping the original meaning.',
-                questionTypes: 'Which revision best combines the sentences?'
-            },
-            {
-                key: 'sentence_revision',
-                title: 'Sentence Revision',
-                cn: '句子修改',
-                summary: 'Complete sentences, sentence errors, repetition, wordiness, clearer wording, and sentence order.',
-                questionTypes: 'Which revision improves the sentence?'
-            },
-            {
-                key: 'paragraph_organization',
-                title: 'Paragraph Organization',
-                cn: '段落组织',
-                summary: 'Topic sentences, beginnings, conclusions, supporting details, and paragraph order.',
-                questionTypes: 'Which sentence best supports the main idea?'
-            },
-            {
-                key: 'research_source_integration',
-                title: 'Research & Source Integration',
-                cn: '信息整合',
-                summary: 'Combine notes from two sources, judge evidence, and identify details that support a claim.',
-                questionTypes: 'Which details are supported by both sources?'
-            }
-        ];
 
         window.addEventListener('popstate', function () {
             if (quizInProgress) history.pushState(null, null, window.location.href);
@@ -576,8 +516,7 @@
                     document.getElementById('la-practice-section')?.classList.add('hidden');
                     document.getElementById('la-report-section')?.classList.add('hidden');
                 }
-                renderLanguageArtsSkills();
-                selectLanguageArtsSkill(selectedLanguageArtsSkill);
+                loadLanguageArtsSkillTree();
                 document.getElementById('progress-text').innerText = 'MAP Language Arts';
             } else if (showReading) {
                 document.getElementById('progress-text').innerText = 'MAP Reading Planned';
@@ -586,54 +525,101 @@
             }
         }
 
-        function renderLanguageArtsSkills() {
-            const grid = document.getElementById('la-skill-grid');
-            const select = document.getElementById('la-skill-select');
-            if (!grid || !select) return;
-
-            grid.innerHTML = LANGUAGE_ARTS_SKILLS.map(skill => `
-                <button type="button" onclick="selectLanguageArtsSkill('${skill.key}')" class="skill-card text-left border border-gray-100 rounded-2xl p-5 bg-white/70 ${skill.key === selectedLanguageArtsSkill ? 'selected' : ''}">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h4 class="font-bold text-gray-900">${skill.title}</h4>
-                            <p class="text-sm text-blue-600 font-semibold mt-1">${skill.cn}</p>
-                        </div>
-                        <span class="text-[11px] uppercase tracking-wide font-bold text-gray-400">Skill</span>
-                    </div>
-                    <p class="text-sm text-gray-500 mt-3 leading-relaxed">${skill.summary}</p>
-                </button>
-            `).join('');
-
-            select.innerHTML = LANGUAGE_ARTS_SKILLS.map(skill => `<option value="${skill.key}">${skill.title}</option>`).join('');
-            select.value = selectedLanguageArtsSkill;
+        async function loadLanguageArtsSkillTree() {
+            if (laSkillTree.grades && laSkillTree.grades.length) return;
+            try {
+                const res = await fetch('/api/map/language-arts/skills/tree');
+                const data = await res.json();
+                if (!res.ok) throw new Error(getErrorMessage(data, '加载 Language Arts Skills 失败'));
+                laSkillTree = data;
+                renderLanguageArtsSelectors();
+            } catch (err) {
+                showNotice('error', err.message || '加载 Language Arts Skills 失败');
+            }
         }
 
-        function selectLanguageArtsSkill(skillKey) {
-            selectedLanguageArtsSkill = skillKey;
-            const skill = LANGUAGE_ARTS_SKILLS.find(item => item.key === skillKey) || LANGUAGE_ARTS_SKILLS[0];
-            const select = document.getElementById('la-skill-select');
-            if (select) select.value = skill.key;
+        function renderLanguageArtsSelectors() {
+            fillSimpleSelect('la-grade-level', (laSkillTree.grades || []).map(g => g.grade));
+            onLanguageArtsGradeChange();
+        }
 
-            document.querySelectorAll('.skill-card').forEach(card => {
-                card.classList.toggle('selected', card.getAttribute('onclick')?.includes(skill.key));
-            });
+        function onLanguageArtsGradeChange() {
+            const grade = document.getElementById('la-grade-level').value;
+            const gradeNode = (laSkillTree.grades || []).find(g => g.grade === grade) || (laSkillTree.grades || [])[0];
+            fillSimpleSelect('la-topic-select', (gradeNode?.topics || []).map(t => t.topic));
+            onLanguageArtsTopicChange();
+        }
 
+        function onLanguageArtsTopicChange() {
+            const grade = document.getElementById('la-grade-level').value;
+            const topic = document.getElementById('la-topic-select').value;
+            const topicNode = findLaTopicNode(grade, topic);
+            fillSimpleSelect('la-skill-select', (topicNode?.skills || []).map(s => s.skill));
+            selectLanguageArtsSkill(document.getElementById('la-skill-select').value);
+        }
+
+        function selectLanguageArtsSkill(skillName) {
+            selectedLanguageArtsSkill = skillName;
+            const grade = document.getElementById('la-grade-level').value;
+            const topic = document.getElementById('la-topic-select').value;
+            const skillNode = findLaSkillNode(grade, topic, skillName);
+            laCurrentDetails = skillNode?.details || [];
+            document.getElementById('la-detail-count').innerText = `${laCurrentDetails.length} details`;
+            renderLanguageArtsSkills();
+        }
+
+        function renderLanguageArtsSkills() {
+            const grid = document.getElementById('la-skill-grid');
             const detail = document.getElementById('la-selected-skill');
-            if (detail) {
-                detail.innerHTML = `
-                    <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.16em]">Selected Skill</p>
-                    <h3 class="text-xl font-extrabold mt-2">${skill.title}</h3>
-                    <p class="text-sm text-gray-500 font-semibold mt-1">${skill.cn}</p>
-                    <p class="text-sm text-gray-600 mt-4 leading-relaxed">${skill.summary}</p>
-                    <div class="mt-4 p-4 rounded-2xl bg-white/75 border border-blue-100">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Typical Template</p>
-                        <p class="text-sm text-gray-700 mt-1">${skill.questionTypes}</p>
-                    </div>
-                    <div class="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
-                        P1 will use this skill to generate questions, evaluate common errors, and recommend the next focused practice set.
-                    </div>
-                `;
-            }
+            const grade = document.getElementById('la-grade-level').value;
+            const topic = document.getElementById('la-topic-select').value;
+            const skillName = document.getElementById('la-skill-select').value;
+            if (!grid || !detail) return;
+
+            const coverageSummary = summarizeLanguageArtsDetails(skillName, laCurrentDetails);
+            grid.innerHTML = laCurrentDetails.slice(0, 12).map(item => `
+                <div class="skill-card border border-gray-100 rounded-2xl p-5 bg-white/70">
+                    <p class="font-bold text-gray-900 leading-relaxed">${escapeHtml(item.detail)}</p>
+                </div>
+            `).join('') || '<div class="text-gray-500">No details available for this selection.</div>';
+
+            detail.innerHTML = `
+                <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.16em]">Selected Skill</p>
+                <h3 class="text-xl font-extrabold mt-2">${escapeHtml(skillName || 'No skill selected')}</h3>
+                <p class="text-sm text-gray-500 font-semibold mt-1">${escapeHtml(grade)} · ${escapeHtml(topic)}</p>
+                <div class="mt-4 p-4 rounded-2xl bg-white/75 border border-blue-100">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Details Covered</p>
+                    <p class="text-sm text-gray-700 mt-1">The generated practice will cover different Details under this Skill when possible.</p>
+                </div>
+                <div class="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+                    Report will identify weak Details, not just the selected Skill.
+                </div>
+            `;
+        }
+
+        function summarizeLanguageArtsDetails(skillName, details) {
+            const list = (details || []).map(item => item.detail).filter(Boolean);
+            if (!list.length) return 'No enabled Detail is available for this Skill yet.';
+            const examples = list.slice(0, 4).join('; ');
+            const suffix = list.length > 4 ? '; and more.' : '.';
+            return `${skillName || 'This Skill'} covers ${list.length} grade-level Detail requirement(s), including ${examples}${suffix}`;
+        }
+
+        function findLaTopicNode(grade, topic) {
+            const gradeNode = (laSkillTree.grades || []).find(g => g.grade === grade);
+            return (gradeNode?.topics || []).find(t => t.topic === topic);
+        }
+
+        function findLaSkillNode(grade, topic, skillName) {
+            const topicNode = findLaTopicNode(grade, topic);
+            return (topicNode?.skills || []).find(s => s.skill === skillName);
+        }
+
+        function fillSimpleSelect(id, values) {
+            const el = document.getElementById(id);
+            const previous = el.value;
+            el.innerHTML = values.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+            el.value = values.includes(previous) ? previous : (values[0] || '');
         }
 
         function toggleLaCustomCount() {
@@ -683,11 +669,13 @@
             laSubskillFocus = options.subskillFocus || laSubskillFocus || '';
 
             const payload = {
-                skill_area: selectedLanguageArtsSkill,
+                skill_area: selectedLanguageArtsSkill || document.getElementById('la-skill-select').value,
                 grade_level: document.getElementById('la-grade-level').value,
+                topic: document.getElementById('la-topic-select').value,
+                skill: document.getElementById('la-skill-select').value,
                 difficulty: document.getElementById('la-difficulty').value,
                 question_count: questionCount,
-                option_count: selectedLanguageArtsSkill === 'research_source_integration' ? 5 : 4,
+                option_count: 4,
                 include_explanation: true
             };
             if (laSubskillFocus) payload.subskill_focus = laSubskillFocus;
@@ -733,12 +721,12 @@
 
             const isMulti = Array.isArray(question.correct_answer);
             const choices = question.answer_choices || {};
-            const knowledgeTag = question.subskill || question.common_error_tested || laSubskillFocus || selectedLanguageArtsSkill;
+            const knowledgeTag = question.detail || question.subskill || question.common_error_tested || laSubskillFocus || selectedLanguageArtsSkill;
             container.innerHTML = `
                 <div class="mb-6">
                     <div class="flex flex-wrap items-center gap-2 mb-4">
-                        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">${escapeHtml(question.skill_area || selectedLanguageArtsSkill)}</span>
-                        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold">Knowledge: ${escapeHtml(knowledgeTag)}</span>
+                        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">${escapeHtml(question.skill || question.skill_area || selectedLanguageArtsSkill)}</span>
+                        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold max-w-full whitespace-normal leading-relaxed">Detail: ${escapeHtml(knowledgeTag)}</span>
                         <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">${escapeHtml(question.difficulty || '')}</span>
                         ${isMulti ? '<span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold">Choose two</span>' : ''}
                     </div>
@@ -870,8 +858,8 @@
                             <div class="p-5 rounded-2xl bg-white/85 border border-red-100">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
-                                        <div class="text-lg font-extrabold text-red-700">${escapeHtml(point.knowledge_point || point.subskill || point.skill_area || '')}</div>
-                                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(point.skill_area || '')} · missed ${escapeHtml(point.missed_count || 1)} time(s)</p>
+                                        <div class="text-lg font-extrabold text-red-700">${escapeHtml(point.detail || point.knowledge_point || point.subskill || point.skill_area || '')}</div>
+                                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(point.skill || point.skill_area || '')} · missed ${escapeHtml(point.missed_count || 1)} time(s)</p>
                                     </div>
                                     <span class="px-2 py-1 rounded-full text-[11px] font-bold ${point.severity === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${escapeHtml(point.severity || 'medium')}</span>
                                 </div>
@@ -898,8 +886,8 @@
                         <div class="space-y-3">
                             ${recommendations.map(item => `
                                 <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                                    <div class="font-bold text-emerald-800">${escapeHtml(item.subskill_focus || item.skill_area || '')}</div>
-                                    <p class="text-xs text-emerald-600 mt-1">${escapeHtml(item.skill_area || '')}</p>
+                                    <div class="font-bold text-emerald-800">${escapeHtml(item.detail || item.subskill_focus || item.skill_area || '')}</div>
+                                    <p class="text-xs text-emerald-600 mt-1">${escapeHtml(item.skill || item.skill_area || '')}</p>
                                     <p class="text-sm text-emerald-700 mt-2">${escapeHtml(item.reason || '')}</p>
                                     <p class="text-xs text-emerald-600 mt-2">${escapeHtml(item.question_count || 10)} questions · ${escapeHtml(item.difficulty || 'medium')}</p>
                                     <button onclick="practiceWeakPoint('${escapeAttr(item.skill_area || selectedLanguageArtsSkill)}', '${escapeAttr(item.subskill_focus || '')}', '${escapeAttr(item.difficulty || 'medium')}', ${Number(item.question_count || 10)})" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700">Start focused practice</button>
@@ -929,7 +917,6 @@
         function practiceWeakPoint(skillArea, subskillFocus = '', difficulty = 'medium', questionCount = 10) {
             showMapArea('language-arts');
             selectedLanguageArtsSkill = skillArea || selectedLanguageArtsSkill;
-            selectLanguageArtsSkill(selectedLanguageArtsSkill);
             document.getElementById('la-difficulty').value = difficulty || 'medium';
             document.getElementById('la-question-count').value = 'custom';
             document.getElementById('la-custom-count').classList.remove('hidden');
@@ -960,6 +947,12 @@
                 "'": '&#39;',
                 '"': '&quot;'
             }[ch]));
+        }
+
+        function formatQuestionHtml(value) {
+            return escapeHtml(value)
+                .replace(/&lt;u&gt;/gi, '<u>')
+                .replace(/&lt;\/u&gt;/gi, '</u>');
         }
 
         function escapeAttr(value) {

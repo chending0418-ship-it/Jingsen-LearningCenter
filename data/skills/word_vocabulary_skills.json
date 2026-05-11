@@ -1,0 +1,3907 @@
+{
+  "version": 1,
+  "module": "word_palace",
+  "section": "vocabulary_skills",
+  "title": "Word Palace Vocabulary Skills",
+  "description": "Skills for Word Palace Vocabulary Skills.",
+  "source": {
+    "name": "IXL ELA Grade 6-9 Vocabulary skills",
+    "description": "Vocabulary skills extracted from IXL ELA Grade 6-9 skills table.",
+    "created_by": "chatgpt",
+    "notes": "Generated from IXL_ELA_Grade_6-9_skills_topics.xlsx. Detail fields split by original line breaks. Filtered to Topic = Vocabulary."
+  },
+  "skills": [
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with pre-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 1,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with pre-",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with re-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 2,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with re-",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with sub-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 3,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with sub-",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with mis-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 4,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with mis-",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with un-, dis-, in-, im-, and non-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 5,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with un-, dis-, in-, im-, and non-",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -ful",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 6,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -ful",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_007",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -less",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 7,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -less",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_prefixes_and_suffixes_008",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -able and -ible",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 8,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -able and -ible",
+        "source_row": 22
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_greek_and_latin_roots_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use Greek and Latin roots as clues to the meanings of words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 9,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use Greek and Latin roots as clues to the meanings of words",
+        "source_row": 23
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_greek_and_latin_roots_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use the meanings of words as clues to the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 10,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use the meanings of words as clues to the meanings of Greek and Latin roots",
+        "source_row": 23
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_greek_and_latin_roots_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use words as clues to the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 11,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use words as clues to the meanings of Greek and Latin roots",
+        "source_row": 23
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_greek_and_latin_roots_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 12,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of Greek and Latin roots",
+        "source_row": 23
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_greek_and_latin_roots_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of words with Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 13,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of words with Greek and Latin roots",
+        "source_row": 23
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_synonyms_and_antonyms_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the synonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 14,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the synonym",
+        "source_row": 24
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_synonyms_and_antonyms_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Find synonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 15,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Find synonyms in context",
+        "source_row": 24
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_synonyms_and_antonyms_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the antonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 16,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the antonym",
+        "source_row": 24
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_synonyms_and_antonyms_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Find antonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 17,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Find antonyms in context",
+        "source_row": 24
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_homophones_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Use the correct homophone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 18,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Use the correct homophone",
+        "source_row": 25
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_homophones_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which definition matches the sentence?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 19,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which definition matches the sentence?",
+        "source_row": 25
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_homophones_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which sentence matches the definition?",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 20,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which sentence matches the definition?",
+        "source_row": 25
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_idioms_and_adages_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Idioms and adages",
+      "detail": "Determine the meaning of idioms from context: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "idioms_and_adages",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 21,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Idioms and adages",
+        "original_detail": "Determine the meaning of idioms from context: set 1",
+        "source_row": 26
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_idioms_and_adages_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Idioms and adages",
+      "detail": "Identify the meaning of idioms and adages: set 1",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "idioms_and_adages",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 22,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Idioms and adages",
+        "original_detail": "Identify the meaning of idioms and adages: set 1",
+        "source_row": 26
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_idioms_and_adages_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Idioms and adages",
+      "detail": "Determine the meaning of idioms from context: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "idioms_and_adages",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 23,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Idioms and adages",
+        "original_detail": "Determine the meaning of idioms from context: set 2",
+        "source_row": 26
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_idioms_and_adages_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Idioms and adages",
+      "detail": "Identify the meaning of idioms and adages: set 2",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "idioms_and_adages",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 24,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Idioms and adages",
+        "original_detail": "Identify the meaning of idioms and adages: set 2",
+        "source_row": 26
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_word_choice_and_usage_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Describe the difference between related words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 25,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Describe the difference between related words",
+        "source_row": 27
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_word_choice_and_usage_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Positive and negative connotation",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 26,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Positive and negative connotation",
+        "source_row": 27
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_analogies_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 27,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies",
+        "source_row": 28
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_analogies_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies: challenge",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 28,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies: challenge",
+        "source_row": 28
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Find words using context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 29,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Find words using context",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using synonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 30,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using synonyms in context",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using antonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 31,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using antonyms in context",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use context to identify the meaning of a word",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 32,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use context to identify the meaning of a word",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: literary",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 33,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: literary",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_context_clues_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: informational",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 34,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: informational",
+        "source_row": 29
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_domain_specific_vocabulary_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Domain-specific vocabulary",
+      "detail": "Determine the meaning of domain-specific words with pictures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "domain_specific_vocabulary",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 35,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Domain-specific vocabulary",
+        "original_detail": "Determine the meaning of domain-specific words with pictures",
+        "source_row": 30
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_reference_skills_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Alphabetical order",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 36,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Alphabetical order",
+        "source_row": 31
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_reference_skills_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use guide words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 37,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use guide words",
+        "source_row": 31
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_reference_skills_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 38,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary entries",
+        "source_row": 31
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_reference_skills_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary definitions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 39,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary definitions",
+        "source_row": 31
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_6_vocabulary_reference_skills_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 6",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use thesaurus entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_6",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 40,
+      "metadata": {
+        "original_grade": "Grade 6",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use thesaurus entries",
+        "source_row": 31
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with pre-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 41,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with pre-",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with re-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 42,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with re-",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with sub-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 43,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with sub-",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with mis-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 44,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with mis-",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with un-, dis-, in-, im-, and non-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 45,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with un-, dis-, in-, im-, and non-",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -ful",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 46,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -ful",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_007",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -less",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 47,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -less",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_prefixes_and_suffixes_008",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -able and -ible",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 48,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -able and -ible",
+        "source_row": 68
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_greek_and_latin_roots_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use Greek and Latin roots as clues to the meanings of words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 49,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use Greek and Latin roots as clues to the meanings of words",
+        "source_row": 69
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_greek_and_latin_roots_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use words as clues to the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 50,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use words as clues to the meanings of Greek and Latin roots",
+        "source_row": 69
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_greek_and_latin_roots_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 51,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of Greek and Latin roots",
+        "source_row": 69
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_greek_and_latin_roots_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of words with Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 52,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of words with Greek and Latin roots",
+        "source_row": 69
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_synonyms_and_antonyms_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the synonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 53,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the synonym",
+        "source_row": 70
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_synonyms_and_antonyms_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the antonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 54,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the antonym",
+        "source_row": 70
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_word_choice_and_usage_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Describe the difference between related words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 55,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Describe the difference between related words",
+        "source_row": 71
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_word_choice_and_usage_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Positive and negative connotation",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 56,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Positive and negative connotation",
+        "source_row": 71
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_homophones_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Use the correct homophone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 57,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Use the correct homophone",
+        "source_row": 72
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_homophones_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which definition matches the sentence",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 58,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which definition matches the sentence",
+        "source_row": 72
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_homophones_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which sentence matches the definition",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 59,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which sentence matches the definition",
+        "source_row": 72
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_analogies_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 60,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies",
+        "source_row": 73
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_analogies_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies: challenge",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 61,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies: challenge",
+        "source_row": 73
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Find words using context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 62,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Find words using context",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using synonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 63,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using synonyms in context",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using antonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 64,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using antonyms in context",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use context to identify the meaning of a word",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 65,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use context to identify the meaning of a word",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: literary",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 66,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: literary",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_context_clues_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: informational",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 67,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: informational",
+        "source_row": 74
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_domain_specific_vocabulary_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Domain-specific vocabulary",
+      "detail": "Determine the meaning of domain-specific words with pictures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "domain_specific_vocabulary",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 68,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Domain-specific vocabulary",
+        "original_detail": "Determine the meaning of domain-specific words with pictures",
+        "source_row": 75
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_reference_skills_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Alphabetical order",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 69,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Alphabetical order",
+        "source_row": 76
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_reference_skills_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use guide words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 70,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use guide words",
+        "source_row": 76
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_reference_skills_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 71,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary entries",
+        "source_row": 76
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_reference_skills_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary definitions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 72,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary definitions",
+        "source_row": 76
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_7_vocabulary_reference_skills_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 7",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use thesaurus entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_7",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 73,
+      "metadata": {
+        "original_grade": "Grade 7",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use thesaurus entries",
+        "source_row": 76
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with pre-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 74,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with pre-",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with re-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 75,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with re-",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with sub-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 76,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with sub-",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with mis-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 77,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with mis-",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with un-, dis-, in-, im-, and non-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 78,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with un-, dis-, in-, im-, and non-",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -ful",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 79,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -ful",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_007",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -less",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 80,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -less",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_prefixes_and_suffixes_008",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -able and -ible",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 81,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -able and -ible",
+        "source_row": 118
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_greek_and_latin_roots_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use Greek and Latin roots as clues to the meanings of words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 82,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use Greek and Latin roots as clues to the meanings of words",
+        "source_row": 119
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_greek_and_latin_roots_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use words as clues to the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 83,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use words as clues to the meanings of Greek and Latin roots",
+        "source_row": 119
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_greek_and_latin_roots_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 84,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of Greek and Latin roots",
+        "source_row": 119
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_greek_and_latin_roots_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of words with Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 85,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of words with Greek and Latin roots",
+        "source_row": 119
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_synonyms_and_antonyms_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the synonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 86,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the synonym",
+        "source_row": 120
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_synonyms_and_antonyms_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Synonyms and antonyms",
+      "detail": "Choose the antonym",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "synonyms_and_antonyms",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 87,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Synonyms and antonyms",
+        "original_detail": "Choose the antonym",
+        "source_row": 120
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_word_choice_and_usage_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Describe the difference between related words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 88,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Describe the difference between related words",
+        "source_row": 121
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_word_choice_and_usage_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Positive and negative connotation",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 89,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Positive and negative connotation",
+        "source_row": 121
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_homophones_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Use the correct homophone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 90,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Use the correct homophone",
+        "source_row": 122
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_homophones_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which definition matches the sentence",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 91,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which definition matches the sentence",
+        "source_row": 122
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_homophones_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Which sentence matches the definition",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 92,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Which sentence matches the definition",
+        "source_row": 122
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_analogies_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 93,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies",
+        "source_row": 123
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_analogies_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies: challenge",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 94,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies: challenge",
+        "source_row": 123
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Find words using context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 95,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Find words using context",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using synonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 96,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using synonyms in context",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using antonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 97,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using antonyms in context",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use context to identify the meaning of a word",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 98,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use context to identify the meaning of a word",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: literary",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 99,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: literary",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_context_clues_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use academic vocabulary in context: informational",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 100,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use academic vocabulary in context: informational",
+        "source_row": 124
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_domain_specific_vocabulary_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Domain-specific vocabulary",
+      "detail": "Determine the meaning of domain-specific words with pictures",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "domain_specific_vocabulary",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 101,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Domain-specific vocabulary",
+        "original_detail": "Determine the meaning of domain-specific words with pictures",
+        "source_row": 125
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_reference_skills_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Alphabetical order",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 102,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Alphabetical order",
+        "source_row": 126
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_reference_skills_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use guide words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 103,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use guide words",
+        "source_row": 126
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_reference_skills_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 104,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary entries",
+        "source_row": 126
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_reference_skills_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary definitions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 105,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary definitions",
+        "source_row": 126
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_8_vocabulary_reference_skills_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 8",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use thesaurus entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_8",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 106,
+      "metadata": {
+        "original_grade": "Grade 8",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use thesaurus entries",
+        "source_row": 126
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Word pattern analogies",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 107,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Word pattern analogies",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Word pattern sentences",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 108,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Word pattern sentences",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with pre-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 109,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with pre-",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with re-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 110,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with re-",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with sub-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 111,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with sub-",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_006",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with mis-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 112,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with mis-",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_007",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with un-, dis-, in-, im-, and non-",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 113,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with un-, dis-, in-, im-, and non-",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_008",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -ful",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 114,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -ful",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_009",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -less",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 115,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -less",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_prefixes_and_suffixes_010",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Prefixes and suffixes",
+      "detail": "Words with -able and -ible",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "prefixes_and_suffixes",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 116,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Prefixes and suffixes",
+        "original_detail": "Words with -able and -ible",
+        "source_row": 165
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_greek_and_latin_roots_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Sort words by shared Greek or Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 117,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Sort words by shared Greek or Latin roots",
+        "source_row": 166
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_greek_and_latin_roots_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use Greek and Latin roots as clues to the meanings of words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 118,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use Greek and Latin roots as clues to the meanings of words",
+        "source_row": 166
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_greek_and_latin_roots_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Use words as clues to the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 119,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Use words as clues to the meanings of Greek and Latin roots",
+        "source_row": 166
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_greek_and_latin_roots_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 120,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of Greek and Latin roots",
+        "source_row": 166
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_greek_and_latin_roots_005",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Greek and Latin roots",
+      "detail": "Determine the meanings of words with Greek and Latin roots",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "greek_and_latin_roots",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 121,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Greek and Latin roots",
+        "original_detail": "Determine the meanings of words with Greek and Latin roots",
+        "source_row": 166
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_homophones_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Use the correct homophone",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 122,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Use the correct homophone",
+        "source_row": 167
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_homophones_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Homophones",
+      "detail": "Identify and correct errors with homophones",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "homophones",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 123,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Homophones",
+        "original_detail": "Identify and correct errors with homophones",
+        "source_row": 167
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_foreign_words_and_expressions_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Foreign words and expressions",
+      "detail": "Use etymologies to determine the meanings of words",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "foreign_words_and_expressions",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 124,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Foreign words and expressions",
+        "original_detail": "Use etymologies to determine the meanings of words",
+        "source_row": 168
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_foreign_words_and_expressions_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Foreign words and expressions",
+      "detail": "Use context as a clue to the meanings of foreign expressions in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "foreign_words_and_expressions",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 125,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Foreign words and expressions",
+        "original_detail": "Use context as a clue to the meanings of foreign expressions in context",
+        "source_row": 168
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_foreign_words_and_expressions_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Foreign words and expressions",
+      "detail": "Use the correct foreign expression",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "foreign_words_and_expressions",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 126,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Foreign words and expressions",
+        "original_detail": "Use the correct foreign expression",
+        "source_row": 168
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_word_choice_and_usage_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Choose the word whose connotation and denotation best match the sentence",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 127,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Choose the word whose connotation and denotation best match the sentence",
+        "source_row": 169
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_word_choice_and_usage_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Use words accurately and precisely",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 128,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Use words accurately and precisely",
+        "source_row": 169
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_word_choice_and_usage_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Replace words using a thesaurus",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 129,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Replace words using a thesaurus",
+        "source_row": 169
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_word_choice_and_usage_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Word choice and usage",
+      "detail": "Explore words with new or contested usages",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "word_choice_and_usage",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 130,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Word choice and usage",
+        "original_detail": "Explore words with new or contested usages",
+        "source_row": 169
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_analogies_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 131,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies",
+        "source_row": 170
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_analogies_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Analogies",
+      "detail": "Analogies: challenge",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "analogies",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 132,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Analogies",
+        "original_detail": "Analogies: challenge",
+        "source_row": 170
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_context_clues_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using synonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 133,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using synonyms in context",
+        "source_row": 171
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_context_clues_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Determine the meaning of words using antonyms in context",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 134,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Determine the meaning of words using antonyms in context",
+        "source_row": 171
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_context_clues_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Context clues",
+      "detail": "Use context to identify the meaning of a word",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "context_clues",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 135,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Context clues",
+        "original_detail": "Use context to identify the meaning of a word",
+        "source_row": 171
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_reference_skills_001",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 136,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary entries",
+        "source_row": 172
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_reference_skills_002",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary definitions",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 137,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary definitions",
+        "source_row": 172
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_reference_skills_003",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use dictionary entries to determine correct usage",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 138,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use dictionary entries to determine correct usage",
+        "source_row": 172
+      }
+    },
+    {
+      "id": "word_palace_vocabulary_skills_grade_9_vocabulary_reference_skills_004",
+      "module": "word_palace",
+      "section": "vocabulary_skills",
+      "grade": "Grade 9",
+      "topic": "Vocabulary",
+      "skill": "Reference skills",
+      "detail": "Use thesaurus entries",
+      "difficulty": "",
+      "question_types": [
+        "multiple_choice"
+      ],
+      "tags": [
+        "grade_9",
+        "vocabulary",
+        "reference_skills",
+        "vocabulary_skills"
+      ],
+      "enabled": true,
+      "sort_order": 139,
+      "metadata": {
+        "original_grade": "Grade 9",
+        "original_topic": "Vocabulary",
+        "original_skill": "Reference skills",
+        "original_detail": "Use thesaurus entries",
+        "source_row": 172
+      }
+    }
+  ]
+}

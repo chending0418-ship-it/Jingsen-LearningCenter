@@ -24,14 +24,27 @@
                     </svg>
                     返回门户
                 </button>
-                <h1 class="text-3xl font-bold text-gray-900">词库管理后台</h1>
-                <p class="text-gray-500 mt-1">列表页：查看词库状态，进入新增页和详情页。</p>
+                <h1 class="text-3xl font-bold text-gray-900">Admin 管理后台</h1>
+                <p class="text-gray-500 mt-1">请选择要维护的内容：词库或 Skills 知识点。</p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
                 <button onclick="location.href=withBasePath('/admin/new')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:opacity-90">新增词库</button>
-                <button onclick="loadLibraries()" class="px-5 py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">刷新列表</button>
+                <button onclick="loadLibraries()" class="px-5 py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">刷新词库</button>
             </div>
         </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button class="card p-5 text-left border-2 border-indigo-500 bg-indigo-50/60">
+                <div class="text-xs font-bold text-indigo-600 uppercase tracking-[0.16em]">当前页面</div>
+                <h2 class="text-2xl font-bold text-gray-900 mt-2">词库管理</h2>
+                <p class="text-gray-500 mt-2">维护 Word Palace / 中文模块使用的词库、词条、启用状态。</p>
+            </button>
+            <button onclick="location.href=withBasePath('/admin/skills')" class="card p-5 text-left hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
+                <div class="text-xs font-bold text-blue-600 uppercase tracking-[0.16em]">Skills</div>
+                <h2 class="text-2xl font-bold text-gray-900 mt-2">Skills 管理</h2>
+                <p class="text-gray-500 mt-2">维护 MAP Language Arts / Reading / Vocabulary Skills 的 Grade ｜ Topic ｜ Skill ｜ Detail。</p>
+            </button>
+        </section>
 
         <div class="card p-4 md:p-5">
             <div class="flex flex-col md:flex-row gap-3 md:items-end">

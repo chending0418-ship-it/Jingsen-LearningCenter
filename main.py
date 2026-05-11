@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, map_language_arts, report_history
+from api import english, chinese, math, admin, map_language_arts, report_history, skills
 from config import config
 
 # 配置日志
@@ -43,6 +43,7 @@ app.include_router(math.router)
 app.include_router(admin.router)
 app.include_router(map_language_arts.router)
 app.include_router(report_history.router)
+app.include_router(skills.router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
@@ -50,6 +51,7 @@ app.include_router(math.router, prefix=BASE_PATH)
 app.include_router(admin.router, prefix=BASE_PATH)
 app.include_router(map_language_arts.router, prefix=BASE_PATH)
 app.include_router(report_history.router, prefix=BASE_PATH)
+app.include_router(skills.router, prefix=BASE_PATH)
 
 
 def serve_static_file(path: str, not_found_message: str):
@@ -130,6 +132,13 @@ async def serve_admin_create_page():
 async def serve_admin_detail_page():
     """提供词库详情页面"""
     return serve_static_file("static/admin_detail.html", "Admin detail page not found")
+
+
+@app.get("/admin/skills")
+@app.get(f"{BASE_PATH}/admin/skills")
+async def serve_admin_skills_page():
+    """提供 Skills 知识点管理页面"""
+    return serve_static_file("static/admin_skills.html", "Admin skills page not found")
 
 
 @app.on_event("startup")

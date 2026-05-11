@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Union
 
 from core.ai_generator import get_ai_generator
 from services.report_history_service import get_report_history_service
+from services.skills_service import get_skills_service
 from models.schemas import (
     MapLanguageArtsAnswerItem,
     MapLanguageArtsEvaluateRequest,
@@ -111,20 +112,28 @@ class MapLanguageArtsService:
     def __init__(self):
         self.ai_generator = get_ai_generator()
         self.report_history_service = get_report_history_service()
+        self.skills_service = get_skills_service()
         logger.info("MapLanguageArtsService initialized")
 
     def get_skills(self) -> List[Dict[str, Any]]:
-        return LANGUAGE_ARTS_SKILLS
+        return self.skills_service.list_skills(module="map_test", section="language_arts", enabled_only=True)
+
+    def get_skill_tree(self) -> Dict[str, Any]:
+        return self.skills_service.get_tree(module="map_test", section="language_arts", enabled_only=True)
 
     async def generate_practice(self, request: MapLanguageArtsGenerateRequest) -> Dict[str, Any]:
         try:
-            prompt = self._build_generation_prompt(request)
+            selected_details = self._select_details_for_request(request)
+            if not selected_details:
+                return {"error": "没有找到匹配的 Language Arts Skills，请检查 Grade/Topic/Skill", "questions": []}
+
+            prompt = self._build_generation_prompt(request, selected_details)
             data = await self.ai_generator.generate_json(
                 prompt,
                 system_message="You are a MAP Language Arts practice question generator. Output valid JSON only.",
                 temperature=0.65
             )
-            questions = self._normalize_questions(data.get("questions", []), request)
+            questions = self._normalize_questions(data.get("questions", []), request, selected_details)
             if not questions:
                 return {"error": "AI 未返回有效 Language Arts 题目", "questions": []}
 
@@ -132,6 +141,8 @@ class MapLanguageArtsService:
                 "test_title": data.get("test_title", "MAP Language Arts Practice"),
                 "grade_level": str(request.grade_level),
                 "skill_area": request.skill_area,
+                "topic": request.topic or (selected_details[0].get("topic") if selected_details else ""),
+                "skill": request.skill or (selected_details[0].get("skill") if selected_details else ""),
                 "difficulty": request.difficulty,
                 "question_count": len(questions),
                 "questions": questions
@@ -182,35 +193,61 @@ class MapLanguageArtsService:
         except (TypeError, ValueError):
             return 0.0
 
-    def _build_generation_prompt(self, request: MapLanguageArtsGenerateRequest) -> str:
-        skill = SKILL_MAP.get(request.skill_area, SKILL_MAP["grammar_usage"])
-        supported = "\n".join(f"- {item['key']}" for item in LANGUAGE_ARTS_SKILLS)
+    def _select_details_for_request(self, request: MapLanguageArtsGenerateRequest) -> List[Dict[str, Any]]:
+        grade = self._normalize_grade(request.grade_level)
+        rows = self.skills_service.list_skills(
+            module="map_test",
+            section="language_arts",
+            grade=grade,
+            topic=request.topic,
+            skill=request.skill,
+            enabled_only=True
+        )
+        if request.detail_ids:
+            wanted = set(request.detail_ids)
+            rows = [row for row in rows if row.get("id") in wanted]
+        if request.subskill_focus:
+            focus = request.subskill_focus.lower()
+            focused = [row for row in rows if focus in row.get("detail", "").lower() or focus in row.get("skill", "").lower()]
+            if focused:
+                rows = focused
+        return rows
+
+    def _normalize_grade(self, grade_level: str) -> str:
+        text = str(grade_level or "").strip()
+        if text.lower().startswith("grade"):
+            return "Grade " + text.split()[-1]
+        return f"Grade {text}"
+
+    def _build_generation_prompt(self, request: MapLanguageArtsGenerateRequest, selected_details: List[Dict[str, Any]]) -> str:
+        topic = request.topic or selected_details[0].get("topic", "Grammar and mechanics")
+        skill_name = request.skill or selected_details[0].get("skill", "Language Arts")
+        details_text = "\n".join(
+            f"- detail_id: {item.get('id')} | detail: {item.get('detail')}"
+            for item in selected_details
+        )
         return f"""
 Generate MAP-style Language Arts practice questions.
 
 Return valid JSON only.
 
 Target settings:
-- skill_area: {request.skill_area}
-- skill_title: {skill['title']}
+- grade_level: {self._normalize_grade(request.grade_level)}
+- topic: {topic}
+- skill: {skill_name}
 - subskill_focus: {request.subskill_focus or 'none'}
-- grade_level: {request.grade_level}
 - difficulty: {request.difficulty}
 - question_count: {request.question_count}
 - option_count: {request.option_count}
 - include_explanation: {str(request.include_explanation).lower()}
 
-Supported skill_area values:
-{supported}
+You must create questions across these available Details. Do not ask the student to choose a Detail; instead, cover different Details in the generated set when possible.
+
+Available Details:
+{details_text}
 
 Skill focus:
-{skill['summary']}
-
-Specific knowledge point focus:
-{request.subskill_focus or 'Use the most important subskills for this skill area.'}
-
-Typical question types:
-{'; '.join(skill['question_types'])}
+Create questions for {skill_name} under {topic}.
 
 Difficulty rule:
 {DIFFICULTY_RULES.get(request.difficulty, DIFFICULTY_RULES['medium'])}
@@ -223,11 +260,13 @@ Question requirements:
 - Use age-appropriate vocabulary for grade {request.grade_level}.
 - Do not require outside knowledge.
 - Provide all needed text in passage_or_sentence.
+- If a word or phrase should be underlined, wrap it with <u> and </u> only.
 - Keep passages short unless the selected skill requires two short sources.
 - The correct answer must be unambiguous.
 - Explanations should be short and student-friendly.
-- Put the exact tested knowledge point in `subskill`, such as `vague pronouns`, `subject-verb agreement`, or `capitalization in letters`.
-- Put the common mistake in `common_error_tested`, such as `unclear it reference` or `lowercase proper noun`.
+- Put the exact tested Detail in `detail` and `subskill`.
+- The `detail` value must come from Available Details.
+- Put the common mistake in `common_error_tested`, such as `unclear pronoun reference` or `lowercase proper noun`.
 
 JSON schema:
 {{
@@ -238,7 +277,10 @@ JSON schema:
   "questions": [
     {{
       "question_id": 1,
-      "skill_area": "{request.skill_area}",
+      "skill_area": "{skill_name}",
+      "topic": "{topic}",
+      "skill": "{skill_name}",
+      "detail": "",
       "subskill": "",
       "difficulty": "{request.difficulty}",
       "question_stem": "",
@@ -263,7 +305,12 @@ Rules:
 4. Generate exactly {request.question_count} questions.
 """
 
-    def _normalize_questions(self, raw_questions: Any, request: MapLanguageArtsGenerateRequest) -> List[Dict[str, Any]]:
+    def _normalize_questions(
+        self,
+        raw_questions: Any,
+        request: MapLanguageArtsGenerateRequest,
+        selected_details: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         if not isinstance(raw_questions, list):
             return []
 
@@ -293,10 +340,18 @@ Rules:
             if not answer:
                 continue
 
+            readable_detail = self._resolve_detail_label(
+                raw.get("detail") or raw.get("subskill") or request.subskill_focus or "",
+                selected_details
+            )
+
             normalized.append({
                 "question_id": int(raw.get("question_id") or idx),
-                "skill_area": raw.get("skill_area") or request.skill_area,
-                "subskill": raw.get("subskill") or request.subskill_focus or SKILL_MAP.get(request.skill_area, {}).get("subskills", [""])[0],
+                "skill_area": raw.get("skill_area") or request.skill or request.topic or request.skill_area,
+                "topic": raw.get("topic") or request.topic or "",
+                "skill": raw.get("skill") or request.skill or "",
+                "detail": readable_detail,
+                "subskill": readable_detail or request.skill or "",
                 "difficulty": raw.get("difficulty") or request.difficulty,
                 "question_stem": str(raw.get("question_stem") or raw.get("sentence") or "Choose the best answer.").strip(),
                 "passage_or_sentence": str(raw.get("passage_or_sentence") or raw.get("passage") or raw.get("sentence") or "").strip(),
@@ -307,6 +362,22 @@ Rules:
             })
 
         return normalized
+
+    def _resolve_detail_label(self, value: Any, selected_details: List[Dict[str, Any]]) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+
+        for item in selected_details:
+            detail_id = str(item.get("id") or "").strip()
+            detail_text = str(item.get("detail") or "").strip()
+            if text == detail_text:
+                return detail_text
+            if detail_id and text == detail_id:
+                return detail_text
+            if detail_id and detail_id in text:
+                return detail_text
+        return text
 
     def _normalize_answer(self, answer: Any, choices: Dict[str, str]) -> Union[str, List[str], None]:
         if isinstance(answer, list):
@@ -338,6 +409,9 @@ Rules:
             results.append({
                 "question_id": q.question_id,
                 "skill_area": q.skill_area,
+                "topic": q.topic or "",
+                "skill": q.skill or "",
+                "detail": q.detail or q.subskill,
                 "subskill": q.subskill,
                 "difficulty": q.difficulty,
                 "question_stem": q.question_stem,
@@ -390,6 +464,9 @@ Rules:
         recommended = [
             {
                 "skill_area": point["skill_area"],
+                "topic": point.get("topic", ""),
+                "skill": point.get("skill", ""),
+                "detail": point.get("detail", point["knowledge_point"]),
                 "subskill_focus": point["knowledge_point"],
                 "question_count": 10,
                 "difficulty": "easy" if accuracy < 60 else "medium",
@@ -439,12 +516,15 @@ Rules:
             if item.get("is_correct"):
                 continue
             skill_area = item.get("skill_area") or "mixed_review"
-            knowledge_point = item.get("common_error_tested") or item.get("subskill") or skill_area
+            knowledge_point = item.get("detail") or item.get("common_error_tested") or item.get("subskill") or skill_area
             key = (skill_area, knowledge_point)
             if key not in grouped:
                 grouped[key] = {
                     "skill_area": skill_area,
                     "knowledge_point": knowledge_point,
+                    "topic": item.get("topic", ""),
+                    "skill": item.get("skill", ""),
+                    "detail": item.get("detail") or knowledge_point,
                     "subskill": item.get("subskill") or knowledge_point,
                     "missed_count": 0,
                     "question_ids": [],
@@ -464,6 +544,9 @@ Rules:
             {
                 "question_id": item["question_id"],
                 "skill_area": item["skill_area"],
+                "topic": item.get("topic", ""),
+                "skill": item.get("skill", ""),
+                "detail": item.get("detail", ""),
                 "subskill": item["subskill"],
                 "is_correct": item["is_correct"],
                 "student_answer": item["student_answer"],
@@ -516,8 +599,6 @@ Rules:
             "strongest_skills",
             "weakest_skills",
             "error_patterns",
-            "weak_knowledge_points",
-            "recommended_next_practice",
             "student_summary",
             "parent_teacher_summary"
         ]:

@@ -8,7 +8,6 @@ from models.schemas import (
     MapLanguageArtsEvaluationResponse,
     MapLanguageArtsGenerateRequest,
     MapLanguageArtsGenerateResponse,
-    MapLanguageArtsSkill,
 )
 from services.map_language_arts_service import get_map_language_arts_service
 
@@ -17,10 +16,16 @@ router = APIRouter(prefix="/api/map/language-arts", tags=["MAP Language Arts"])
 map_language_arts_service = get_map_language_arts_service()
 
 
-@router.get("/skills", response_model=list[MapLanguageArtsSkill])
+@router.get("/skills")
 async def get_language_arts_skills():
-    """获取 MAP Language Arts 支持的 skill 树"""
-    return map_language_arts_service.get_skills()
+    """获取 MAP Language Arts skills 明细"""
+    return {"skills": map_language_arts_service.get_skills()}
+
+
+@router.get("/skills/tree")
+async def get_language_arts_skill_tree():
+    """获取 MAP Language Arts Grade -> Topic -> Skill -> Detail 树"""
+    return map_language_arts_service.get_skill_tree()
 
 
 @router.post("/generate", response_model=MapLanguageArtsGenerateResponse)

@@ -125,18 +125,6 @@ class LibraryItemsUpdateRequest(BaseModel):
     items: List[str] = Field(default_factory=list, description="词条列表")
 
 
-MapLanguageArtsSkillArea = Literal[
-    "grammar_usage",
-    "pronoun_reference",
-    "punctuation",
-    "capitalization",
-    "sentence_combining",
-    "sentence_revision",
-    "paragraph_organization",
-    "research_source_integration",
-    "mixed_review"
-]
-
 MapLanguageArtsDifficulty = Literal["easy", "medium", "hard", "adaptive"]
 
 
@@ -152,19 +140,25 @@ class MapLanguageArtsSkill(BaseModel):
 
 class MapLanguageArtsGenerateRequest(BaseModel):
     """MAP Language Arts 生成请求"""
-    skill_area: MapLanguageArtsSkillArea = Field(..., description="目标技能")
-    grade_level: str = Field("5", description="年级")
+    skill_area: str = Field("grammar_usage", description="兼容旧版目标技能字段")
+    grade_level: str = Field("Grade 6", description="年级，例如 Grade 6")
+    topic: Optional[str] = Field(None, description="Topic，例如 Grammar and mechanics")
+    skill: Optional[str] = Field(None, description="Skill，例如 Spelling")
     difficulty: MapLanguageArtsDifficulty = Field("medium", description="难度")
     question_count: int = Field(10, ge=1, le=20, description="题目数量")
     option_count: int = Field(4, ge=4, le=5, description="选项数量")
     include_explanation: bool = Field(True, description="是否包含解析")
-    subskill_focus: Optional[str] = Field(None, description="具体薄弱知识点，例如 vague pronouns 或 capitalization in letters")
+    subskill_focus: Optional[str] = Field(None, description="具体薄弱 Detail，例如 vague pronouns 或 capitalization in letters")
+    detail_ids: List[str] = Field(default_factory=list, description="可选：指定 detail id；默认按 grade/topic/skill 自动覆盖多个 detail")
 
 
 class MapLanguageArtsQuestion(BaseModel):
     """MAP Language Arts 题目"""
     question_id: int
     skill_area: str
+    topic: Optional[str] = None
+    skill: Optional[str] = None
+    detail: Optional[str] = None
     subskill: str
     difficulty: str
     question_stem: str
