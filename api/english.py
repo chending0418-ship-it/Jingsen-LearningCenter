@@ -16,16 +16,16 @@ english_service = EnglishService()
 async def generate_english_exam(
     count: int = Query(10, ge=1, le=50, description="题目数量"),
     library: Optional[str] = Query(None, description="词库名称，不传则自动选择已启用词库"),
-    mode: str = Query("cloze", description="题型模式: cloze(完形填空) 或 match(匹配题)")
+    mode: str = Query("cloze", description="题型模式: cloze(完形填空)、match(匹配题) 或 passage_cloze(短文填空)")
 ):
-    if mode not in ["cloze", "match"]:
-        raise HTTPException(status_code=400, detail=f"不支持的题型: {mode}，仅支持 cloze/match")
+    if mode not in ["cloze", "match", "passage_cloze"]:
+        raise HTTPException(status_code=400, detail=f"不支持的题型: {mode}，仅支持 cloze/match/passage_cloze")
     """
     生成英语考题
     
     - **count**: 题目数量 (1-50)
     - **library**: 词库名称（可选，不传自动使用已启用词库）
-    - **mode**: 题型模式 (cloze/match)
+    - **mode**: 题型模式 (cloze/match/passage_cloze)
     """
     result = await english_service.generate_exam(count, library, mode)
     
@@ -54,13 +54,13 @@ async def grade_english_exam(request: SubmitRequest):
 
 @router.get("/libraries", response_model=List[str])
 async def get_libraries(
-    mode: Optional[str] = Query(None, description="题型模式: cloze/match")
+    mode: Optional[str] = Query(None, description="题型模式: cloze/match/passage_cloze")
 ):
     """
     获取可用且已启用的词库列表
     """
-    if mode and mode not in ["cloze", "match"]:
-        raise HTTPException(status_code=400, detail=f"不支持的题型: {mode}，仅支持 cloze/match")
+    if mode and mode not in ["cloze", "match", "passage_cloze"]:
+        raise HTTPException(status_code=400, detail=f"不支持的题型: {mode}，仅支持 cloze/match/passage_cloze")
     return await english_service.get_library_list(mode)
 
 

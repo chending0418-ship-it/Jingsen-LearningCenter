@@ -198,10 +198,13 @@ curl http://127.0.0.1:8088/health
 curl http://127.0.0.1:8088/api/map/language-arts/skills/tree | head -c 200
 curl http://127.0.0.1:8088/api/skills?module=map_test\&section=language_arts\&enabled_only=true | head -c 200
 curl -i --max-time 90 'http://127.0.0.1:8088/api/english/generate?count=1&mode=cloze' | head -c 500
+curl -i --max-time 120 'http://127.0.0.1:8088/api/english/generate?count=5&mode=passage_cloze' | head -c 500
+curl -i 'http://127.0.0.1:8088/api/reports/history?module=word_palace&days=7' | head -c 500
 
 echo "检查公网："
 curl -I https://jingsen.cc/learningcenter/
 curl -i --max-time 90 'https://jingsen.cc/learningcenter/api/english/generate?count=1&mode=cloze' | head -c 500
+curl -i --max-time 120 'https://jingsen.cc/learningcenter/api/english/generate?count=5&mode=passage_cloze' | head -c 500
 ```
 
 如果能看到你的词库文件、`library_registry.json`、`data/report_history.json`、`data/skills/*.json`，说明词库、Reports 和 Skills 数据都还在。
@@ -222,6 +225,38 @@ curl -i --max-time 90 'https://jingsen.cc/learningcenter/api/english/generate?co
 curl http://127.0.0.1:8088/health
 curl -I https://jingsen.cc/learningcenter/
 ```
+
+---
+
+## SSL 证书正式更新
+
+如果 SSL 证书已经续签或重新签发，正式更新建议走宝塔面板，避免手动改 Nginx 路径出错：
+
+1. 登录宝塔面板。
+2. 进入 **网站**，找到 `jingsen.cc` 对应站点。
+3. 打开 **SSL** 选项卡。
+4. 如果是宝塔自动申请的 Let's Encrypt 证书：
+   - 点击 **续签** 或确认新证书已签发。
+   - 开启 **强制 HTTPS**。
+5. 如果你拿到的是新证书文件：
+   - 将 `.crt` / `.pem` 内容粘贴到证书框。
+   - 将 `.key` 内容粘贴到私钥框。
+   - 保存并部署。
+6. 保存后重载 Nginx：
+
+```bash
+nginx -t
+/etc/init.d/nginx reload
+```
+
+7. 验证证书到期时间：
+
+```bash
+echo | openssl s_client -connect jingsen.cc:443 -servername jingsen.cc 2>/dev/null | openssl x509 -noout -dates -issuer -subject
+curl -I https://jingsen.cc/learningcenter/
+```
+
+注意：更新 SSL 不需要覆盖 app 目录，也不要动 `/www/wwwroot/learningcenter/app/data`。
 
 ---
 

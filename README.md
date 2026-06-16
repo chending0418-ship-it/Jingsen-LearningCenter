@@ -8,6 +8,7 @@
 
 - `English Learning` 拆分为 `Word Palace` 和 `MAP Test`。
 - `Word Palace` 当前包含 `Daily Word` 既有词库练习能力，以及 `Vocabulary Skills` 按 Grade / Topic / Skill 的诊断练习。
+- `Daily Word` 支持 `Cloze`、`Match`、`Passage Cloze` 三种题型；普通题和短文填空的干扰项优先使用所选词库中的其他词。
 - `MAP Test` 当前包含 `Language Arts` 和 `Reading`。
 - `MAP Language Arts` 已接入用户提供的 Skills 数据，支持按 `Grade -> Topic -> Skill` 出题，并按 `Detail` 做诊断报告。
 - `MAP Reading` 已有 Skills 数据文件，但出题/评估/前端练习流程暂时 Pending。
@@ -152,7 +153,9 @@ P1 说明：
 - Word Palace 前端已拆分二级入口：
   - `Daily Word`
   - `Vocabulary Skills`
-- `Daily Word` 保留词库选择、题量、`cloze / match`、批改和 Daily Reports；答题流程已改为先选择答案，再点击 `Submit Answer` 后显示结果。
+- `Daily Word` 保留词库选择、题量、`cloze / match / passage_cloze`、批改和 Daily Reports；答题流程已改为先选择答案，再点击 `Submit Answer` 后显示结果。
+- `Passage Cloze` 会先从所选词库选择 5 / 10 / 15 / 20 个单词，生成一段上下文通顺的短文，并让学生为每个空选择唯一正确答案。
+- `Daily Reports` 的 Word Palace 历史卡片会直接展示错词，展开详情后可查看每题或每个空的学生答案、正确答案和解析。
 - `Vocabulary Skills` 前端读取 Skills Tree，选择流程为：
   - `Grade`
   - `Topic`
@@ -267,11 +270,13 @@ data/skills/*.json             # Skills 数据
 ### Word Palace / Daily Word
 
 - `GET /api/english/generate`
-  - 参数：`count`, `library`, `mode`（`cloze` / `match`）
+  - 参数：`count`, `library`, `mode`（`cloze` / `match` / `passage_cloze`）
+  - `passage_cloze` 的 `count` 只支持 `5`, `10`, `15`, `20`，表示短文挖空数量。
 - `GET /api/english/libraries`
 - `GET /api/english/library/{library_name}`
 - `POST /api/english/grade`
   - 批改完成后写入 `data/report_history.json`。
+  - `passage_cloze` 会按每个 blank 单独计分，并保存错词到历史报告。
 
 ### Word Palace / Vocabulary Skills
 

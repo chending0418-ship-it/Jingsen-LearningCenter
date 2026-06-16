@@ -166,7 +166,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Word Count</label>
+                        <label id="word-count-label" class="block text-sm font-medium text-gray-700 mb-2">Word Count</label>
                         <select id="word-count" onchange="toggleCustomCount()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
                             <option value="10">10 Words</option>
                             <option value="20">20 Words</option>
@@ -178,9 +178,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Quiz Mode</label>
-                        <select id="quiz-mode" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
+                        <select id="quiz-mode" onchange="updateDailyWordModeOptions()" class="w-full p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--english-accent)] outline-none">
                             <option value="cloze">Cloze (完形填空)</option>
                             <option value="match">Match (词义匹配)</option>
+                            <option value="passage_cloze">Passage Cloze (短文填空)</option>
                         </select>
                     </div>
                 </div>
@@ -529,6 +530,7 @@
         let results = [];
         let isAnswered = false;
         let selectedDailyAnswer = '';
+        let dailyPassageAnswers = {};
         let quizInProgress = false;
         let librariesLoaded = false;
         let selectedLanguageArtsSkill = '';
@@ -718,6 +720,7 @@
             const questions = report.question_results || report.details?.question_results || report.results || [];
             const recommendations = report.recommended_next_practice || [];
             const weakPoints = report.weak_knowledge_points || [];
+            const wrongWords = getHistoryWrongWords(report);
             const detailId = `report-detail-${index}`;
             const contextBits = [grade, topic, skill, difficulty].filter(Boolean);
 
@@ -734,6 +737,19 @@
                     </div>
                     <p class="text-sm text-gray-600 mt-3">${escapeHtml(report.correct_count || 0)} / ${escapeHtml(report.total_count || report.question_count || 0)} correct</p>
                     ${report.summary ? `<p class="text-sm text-gray-600 mt-3 p-3 rounded-xl bg-gray-50">${escapeHtml(report.summary)}</p>` : ''}
+                    ${wrongWords.length ? `
+                        <div class="mt-4">
+                            <p class="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">Wrong Words</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                ${wrongWords.slice(0, 12).map(item => `
+                                    <div class="rounded-xl bg-red-50 border border-red-100 p-3">
+                                        <div class="text-sm font-extrabold text-red-700">${escapeHtml(item.correct_answer || item.word || '')}</div>
+                                        <p class="text-xs text-red-700 mt-1">Your answer: ${escapeHtml(item.user_answer || '')}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                     ${weakPoints.length ? `
                         <div class="mt-4">
                             <p class="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">Weak Knowledge Points</p>
@@ -761,12 +777,13 @@
                             ${questions.slice(0, 20).map(item => `
                                 <div class="p-4 rounded-2xl bg-white border border-gray-100">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
-                                        <span class="font-bold text-sm">Question ${escapeHtml(item.question_id ?? '')}</span>
+                                        <span class="font-bold text-sm">${item.blank_id ? `Blank ${escapeHtml(item.blank_id)}` : `Question ${escapeHtml(item.question_id ?? item.question_index ?? '')}`}</span>
                                         <span class="px-3 py-1 rounded-full text-xs font-bold ${item.is_correct ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${item.is_correct ? 'Correct' : 'Needs Review'}</span>
                                     </div>
                                     ${item.detail ? `<p class="text-xs text-purple-700 font-bold mt-2">Detail: ${escapeHtml(displayKnowledgePoint(item.detail))}</p>` : ''}
-                                    <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer))}</p>
+                                    <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer ?? item.user_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer ?? item.word))}</p>
                                     ${item.explanation ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(item.explanation)}</p>` : ''}
+                                    ${item.analysis ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(item.analysis)}</p>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -777,6 +794,30 @@
 
         function toggleReportDetails(id) {
             document.getElementById(id)?.classList.toggle('hidden');
+        }
+
+        function getHistoryWrongWords(report) {
+            const candidates = []
+                .concat(report.details?.wrong_words || [])
+                .concat(report.details?.results || [])
+                .concat(report.results || [])
+                .concat(report.question_results || [])
+                .concat(report.details?.question_results || []);
+            const seen = new Set();
+            return candidates.filter(item => {
+                if (!item || item.is_correct !== false) return false;
+                const correct = item.correct_answer || item.word || item.answer || '';
+                if (!correct) return false;
+                const key = `${correct}|${item.user_answer || item.student_answer || ''}|${item.blank_id || item.question_index || ''}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            }).map(item => ({
+                correct_answer: item.correct_answer || item.word || item.answer || '',
+                user_answer: item.user_answer || item.student_answer || '',
+                blank_id: item.blank_id,
+                question_index: item.question_index
+            }));
         }
 
         function showMapArea(area) {
@@ -1362,6 +1403,7 @@
             results = [];
             isAnswered = false;
             selectedDailyAnswer = '';
+            dailyPassageAnswers = {};
             quizInProgress = false;
             document.getElementById('back-btn')?.classList.remove('invisible');
             document.getElementById('setup-section')?.classList.toggle('hidden', !showSetup);
@@ -1694,14 +1736,52 @@
         }
 
         function toggleCustomCount() {
+            if (document.getElementById('quiz-mode').value === 'passage_cloze') {
+                document.getElementById('custom-count').classList.add('hidden');
+                return;
+            }
             const isCustom = document.getElementById('word-count').value === 'custom';
             document.getElementById('custom-count').classList.toggle('hidden', !isCustom);
+        }
+
+        function updateDailyWordModeOptions() {
+            const mode = document.getElementById('quiz-mode').value;
+            const countSelect = document.getElementById('word-count');
+            const label = document.getElementById('word-count-label');
+            const current = countSelect.value;
+            if (mode === 'passage_cloze') {
+                label.innerText = 'Blank Count';
+                countSelect.innerHTML = `
+                    <option value="5">5 Blanks</option>
+                    <option value="10">10 Blanks</option>
+                    <option value="15">15 Blanks</option>
+                    <option value="20">20 Blanks</option>
+                `;
+                countSelect.value = ['5', '10', '15', '20'].includes(current) ? current : '5';
+            } else {
+                label.innerText = 'Word Count';
+                countSelect.innerHTML = `
+                    <option value="10">10 Words</option>
+                    <option value="20">20 Words</option>
+                    <option value="30">30 Words</option>
+                    <option value="50">50 Words</option>
+                    <option value="custom">Custom</option>
+                `;
+                countSelect.value = ['10', '20', '30', '50', 'custom'].includes(current) ? current : '10';
+            }
+            toggleCustomCount();
         }
 
         function getSelectedCount() {
             const countValue = document.getElementById('word-count').value;
             const raw = countValue === 'custom' ? document.getElementById('custom-count').value : countValue;
             const count = Number.parseInt(raw, 10);
+            if (document.getElementById('quiz-mode').value === 'passage_cloze') {
+                if (![5, 10, 15, 20].includes(count)) {
+                    throw new Error('Passage Cloze 只能选择 5、10、15、20 个空');
+                }
+                return count;
+            }
             if (!Number.isInteger(count) || count < 1 || count > 50) {
                 throw new Error('请输入 1-50 之间的练习数量');
             }
@@ -1734,6 +1814,7 @@
                 currentIndex = 0;
                 score = 0;
                 results = [];
+                dailyPassageAnswers = {};
                 quizInProgress = true;
                 history.pushState(null, null, window.location.href);
 
@@ -1753,7 +1834,12 @@
         function showQuestion() {
             isAnswered = false;
             selectedDailyAnswer = '';
+            dailyPassageAnswers = {};
             const q = questions[currentIndex];
+            if (Array.isArray(q.cloze_items) && q.cloze_items.length) {
+                showPassageClozeQuestion(q);
+                return;
+            }
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
             const progress = ((currentIndex + 1) / questions.length) * 100;
@@ -1806,6 +1892,145 @@
             explanation.className = 'hidden mt-8 p-5 bg-blue-50 rounded-2xl text-blue-800 text-sm';
             explanation.innerHTML = `<strong>Analysis: </strong> ${escapeHtml(q.analysis || 'Keep going!')}`;
             container.appendChild(explanation);
+        }
+
+        function showPassageClozeQuestion(q) {
+            const container = document.getElementById('question-content');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').innerText = `Passage Cloze · ${q.cloze_items.length} blanks`;
+
+            const passageHtml = formatPassageClozeText(q.sentence || '', q.cloze_items);
+            container.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Passage Cloze</span>
+                        <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">${escapeHtml(q.cloze_items.length)} blanks</span>
+                    </div>
+                    <div class="text-lg md:text-xl font-medium text-gray-900 leading-9 p-5 rounded-2xl bg-white/75 border border-gray-100">${passageHtml}</div>
+                </div>
+                <div class="space-y-5">
+                    ${q.cloze_items.map(item => `
+                        <div class="p-5 rounded-2xl bg-white/75 border border-gray-100" data-passage-row="${escapeAttr(item.blank_id)}">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                                <h3 class="font-extrabold text-gray-900">Blank ${escapeHtml(item.blank_id)}</h3>
+                                <span class="passage-result hidden px-3 py-1 rounded-full text-xs font-bold"></span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${(item.options || []).map((opt, index) => {
+                                    const label = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[index] || String(index + 1);
+                                    return `
+                                        <button type="button" onclick="selectPassageClozeAnswer('${escapeAttr(item.blank_id)}', '${escapeAttr(opt)}')" data-passage-blank="${escapeAttr(item.blank_id)}" data-passage-option="${escapeAttr(opt)}" class="option-btn w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70">
+                                            <span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${escapeHtml(label)}</span><span>${escapeHtml(opt)}</span><span class="selected-mark hidden float-right text-emerald-700 font-extrabold">Selected</span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+                            <div class="passage-explanation hidden mt-4 p-4 bg-blue-50 rounded-xl text-blue-800 text-sm"></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            const submitBtn = document.createElement('button');
+            submitBtn.id = 'daily-submit-btn';
+            submitBtn.type = 'button';
+            submitBtn.disabled = true;
+            submitBtn.className = 'mt-6 w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-700 transition-all opacity-50 cursor-not-allowed';
+            submitBtn.textContent = 'Submit Answers';
+            submitBtn.addEventListener('click', submitPassageClozeAnswers);
+            container.appendChild(submitBtn);
+        }
+
+        function formatPassageClozeText(text, items) {
+            let html = escapeHtml(text || '');
+            (items || []).forEach(item => {
+                const marker = `[[${item.blank_id}]]`;
+                const chip = `<span class="inline-flex items-center justify-center min-w-16 px-3 py-1 mx-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-extrabold">Blank ${escapeHtml(item.blank_id)}</span>`;
+                html = html.split(escapeHtml(marker)).join(chip);
+            });
+            return html;
+        }
+
+        function selectPassageClozeAnswer(blankId, selected) {
+            if (isAnswered) return;
+            dailyPassageAnswers[String(blankId)] = selected;
+            document.querySelectorAll(`[data-passage-blank="${CSS.escape(String(blankId))}"]`).forEach(btn => {
+                const isSelected = btn.dataset.passageOption === selected;
+                btn.classList.toggle('selected', isSelected);
+                btn.querySelector('.selected-mark')?.classList.toggle('hidden', !isSelected);
+            });
+            updatePassageSubmitState();
+        }
+
+        function updatePassageSubmitState() {
+            const q = questions[currentIndex];
+            const total = Array.isArray(q?.cloze_items) ? q.cloze_items.length : 0;
+            const answered = Object.keys(dailyPassageAnswers).length;
+            const submitBtn = document.getElementById('daily-submit-btn');
+            if (submitBtn) {
+                const ready = total > 0 && answered === total;
+                submitBtn.disabled = !ready;
+                submitBtn.classList.toggle('opacity-50', !ready);
+                submitBtn.classList.toggle('cursor-not-allowed', !ready);
+            }
+        }
+
+        function submitPassageClozeAnswers() {
+            if (isAnswered) return;
+            const q = questions[currentIndex];
+            const items = Array.isArray(q?.cloze_items) ? q.cloze_items : [];
+            if (Object.keys(dailyPassageAnswers).length !== items.length) {
+                showNotice('error', '请完成所有空后再提交');
+                return;
+            }
+
+            isAnswered = true;
+            let localCorrect = 0;
+            items.forEach(item => {
+                const blankId = String(item.blank_id);
+                const selected = dailyPassageAnswers[blankId] || '';
+                const correct = item.answer || '';
+                const isCorrect = selected.trim().toLowerCase() === correct.trim().toLowerCase();
+                if (isCorrect) {
+                    localCorrect++;
+                    score++;
+                }
+
+                document.querySelectorAll(`[data-passage-blank="${CSS.escape(blankId)}"]`).forEach(btn => {
+                    const option = btn.dataset.passageOption || '';
+                    if (option.trim().toLowerCase() === correct.trim().toLowerCase()) btn.classList.add('correct-hint');
+                    if (option === selected && isCorrect) btn.classList.add('correct');
+                    if (option === selected && !isCorrect) btn.classList.add('wrong');
+                });
+
+                const row = document.querySelector(`[data-passage-row="${CSS.escape(blankId)}"]`);
+                const result = row?.querySelector('.passage-result');
+                const explanation = row?.querySelector('.passage-explanation');
+                if (result) {
+                    result.textContent = isCorrect ? 'Correct' : 'Needs Review';
+                    result.classList.remove('hidden');
+                    result.classList.add(isCorrect ? 'bg-emerald-50' : 'bg-red-50', isCorrect ? 'text-emerald-700' : 'text-red-700');
+                }
+                if (explanation) {
+                    explanation.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Review this.'}</strong> ${escapeHtml(item.analysis || `Correct answer: ${correct}`)}`;
+                    explanation.classList.remove('hidden');
+                }
+
+                results.push({
+                    ...q,
+                    sentence: `Blank ${blankId}`,
+                    blankId,
+                    answer: correct,
+                    userAnswer: selected,
+                    isCorrect,
+                    analysis: item.analysis || ''
+                });
+            });
+
+            document.getElementById('daily-submit-btn')?.classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+            document.getElementById('next-btn').innerText = currentIndex + 1 < questions.length ? 'Next Question' : 'View Report';
         }
 
         function selectDailyAnswer(btn, selected) {
@@ -1871,7 +2096,10 @@
 
         function retrySameDailyWord() {
             const settings = dailyWordLastSettings || {};
-            if (settings.mode) document.getElementById('quiz-mode').value = settings.mode;
+            if (settings.mode) {
+                document.getElementById('quiz-mode').value = settings.mode;
+                updateDailyWordModeOptions();
+            }
             if (settings.library !== undefined) document.getElementById('word-library').value = settings.library;
             if (settings.count) {
                 const select = document.getElementById('word-count');
@@ -1885,13 +2113,27 @@
             startQuiz();
         }
 
+        function getDailyResultTotal() {
+            const mode = dailyWordLastSettings?.mode || document.getElementById('quiz-mode').value;
+            return mode === 'passage_cloze' ? results.length : questions.length;
+        }
+
+        function buildDailyGradeAnswers() {
+            const mode = dailyWordLastSettings?.mode || document.getElementById('quiz-mode').value;
+            if (mode === 'passage_cloze') {
+                return [{ question_index: 0, user_answer: JSON.stringify(dailyPassageAnswers) }];
+            }
+            return results.map((r, i) => ({ question_index: i, user_answer: r.userAnswer }));
+        }
+
         async function showReport() {
             quizInProgress = false;
             document.getElementById('back-btn').classList.remove('invisible');
             document.getElementById('module-home-btn').classList.remove('hidden');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.remove('hidden');
-            const accuracy = Math.round((score / questions.length) * 100);
+            const totalForScore = getDailyResultTotal();
+            const accuracy = Math.round((score / Math.max(totalForScore, 1)) * 100);
             document.getElementById('score-display').innerText = `${accuracy}%`;
             document.getElementById('daily-report-actions').innerHTML = getReportActionButtons('daily', 'Word Palace Home');
 
@@ -1937,7 +2179,7 @@
                 const response = await fetch('/api/english/grade', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ questions, answers: results.map((r,i)=>({question_index:i, user_answer:r.userAnswer})), mode: document.getElementById('quiz-mode').value })
+                    body: JSON.stringify({ questions, answers: buildDailyGradeAnswers(), mode: dailyWordLastSettings?.mode || document.getElementById('quiz-mode').value })
                 });
                 const data = await readJsonResponse(response, '总结生成失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '总结生成失败'));
@@ -2009,6 +2251,7 @@
         }
 
         document.getElementById('word-palace-section').classList.add('hidden');
+        updateDailyWordModeOptions();
         document.getElementById('daily-word-area').classList.add('hidden');
         document.getElementById('vocab-skills-area').classList.add('hidden');
         document.getElementById('map-test-section').classList.add('hidden');
