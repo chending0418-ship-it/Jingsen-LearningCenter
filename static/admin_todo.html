@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#F6F7F4">
+    <title>Todo 管理 - Jingsen Learning Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F3F4F0;
+            --panel: #FFFFFF;
+            --ink: #18201D;
+            --muted: #68716D;
+            --line: #E3E6E1;
+            --teal: #146B5B;
+            --teal-dark: #0F5246;
+            --teal-soft: #E1F0EA;
+            --amber: #BC731B;
+            --amber-soft: #FBEDD7;
+            --red: #BD4C45;
+            --red-soft: #FBE7E4;
+            --blue: #396FC3;
+            --shadow: 0 18px 50px rgba(32, 43, 38, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+        html { background: var(--bg); }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                linear-gradient(90deg, rgba(255,255,255,.24) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,.24) 1px, transparent 1px),
+                var(--bg);
+            background-size: 28px 28px;
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        [hidden] { display: none !important; }
+
+        .app-shell {
+            width: min(100% - 28px, 1420px);
+            margin: 0 auto;
+            padding: 22px 0 60px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .brand-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+        .back-button {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: rgba(255,255,255,.86);
+            color: var(--ink);
+            text-decoration: none;
+            box-shadow: 0 6px 18px rgba(32,43,38,.04);
+        }
+
+        .back-button:hover { border-color: #C8D0CA; background: #fff; }
+        .back-button svg { width: 20px; height: 20px; }
+
+        .title-wrap { min-width: 0; }
+        .eyebrow { margin: 0 0 3px; color: var(--teal); font-size: 10px; font-weight: 850; letter-spacing: .18em; text-transform: uppercase; }
+        h1 { margin: 0; font-size: clamp(23px, 3vw, 34px); letter-spacing: -.035em; white-space: nowrap; }
+
+        .top-actions { display: flex; align-items: center; gap: 9px; }
+
+        .demo-badge {
+            display: none;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 12px;
+            border: 1px solid #E7CF9E;
+            border-radius: 11px;
+            background: #FFF8E8;
+            color: #8A5C19;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .demo-badge.visible { display: inline-flex; }
+        .demo-dot { width: 7px; height: 7px; border-radius: 50%; background: #D88B1D; }
+
+        .primary-button, .secondary-button, .ghost-button, .danger-button {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 12px;
+            padding: 0 15px;
+            font-weight: 800;
+            font-size: 13px;
+            transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+        }
+
+        .primary-button { border: 1px solid var(--teal); background: var(--teal); color: #fff; box-shadow: 0 9px 20px rgba(20,107,91,.18); }
+        .primary-button:hover { transform: translateY(-1px); background: var(--teal-dark); }
+        .secondary-button { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+        .secondary-button:hover, .ghost-button:hover { background: #F7F9F7; border-color: #CBD2CD; }
+        .ghost-button { border: 1px solid transparent; background: transparent; color: var(--muted); }
+        .danger-button { border: 1px solid #E9C1BD; background: #FFF8F7; color: var(--red); }
+        .button-icon { font-size: 18px; line-height: 1; }
+
+        .nav-wrap {
+            position: sticky;
+            z-index: 10;
+            top: 0;
+            margin: 0 -4px 22px;
+            padding: 8px 4px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            background: linear-gradient(180deg, rgba(243,244,240,.97) 70%, rgba(243,244,240,0));
+            backdrop-filter: blur(14px);
+        }
+
+        .nav-wrap::-webkit-scrollbar { display: none; }
+
+        .nav-tabs {
+            min-width: max-content;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background: rgba(255,255,255,.78);
+            box-shadow: 0 8px 25px rgba(32,43,38,.045);
+        }
+
+        .nav-tab {
+            min-height: 38px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--muted);
+            padding: 0 13px;
+            font-size: 12px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active { background: var(--ink); color: #fff; box-shadow: 0 6px 16px rgba(24,32,29,.16); }
+        .view { display: none; animation: viewIn 180ms ease; }
+        .view.active { display: block; }
+        @keyframes viewIn { from { opacity: .2; transform: translateY(4px); } }
+
+        .section-title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+        .section-label { margin: 0 0 4px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        h2 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+        h3 { margin: 0; font-size: 16px; letter-spacing: -.015em; }
+        .section-copy { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+        .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+
+        .metric-card, .panel {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 8px 28px rgba(32,43,38,.045);
+        }
+
+        .metric-card { min-height: 128px; padding: 18px; }
+        .metric-icon { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: var(--teal-soft); color: var(--teal); font-size: 16px; }
+        .metric-card.amber .metric-icon { background: var(--amber-soft); color: var(--amber); }
+        .metric-card.blue .metric-icon { background: #E7EEF9; color: var(--blue); }
+        .metric-card.red .metric-icon { background: var(--red-soft); color: var(--red); }
+        .metric-number { margin-top: 15px; font-size: 30px; font-weight: 850; letter-spacing: -.04em; line-height: 1; }
+        .metric-name { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+
+        .overview-grid { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(300px,.8fr); gap: 16px; }
+        .panel { padding: 20px; }
+        .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .panel-link { border: 0; background: transparent; color: var(--teal); padding: 0; font-size: 12px; font-weight: 800; }
+
+        .progress-panel {
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            background: linear-gradient(135deg, #183C35 0%, #176B5B 72%, #21816E 100%);
+            border-color: transparent;
+            min-height: 242px;
+        }
+
+        .progress-panel::after {
+            content: "";
+            position: absolute;
+            width: 250px; height: 250px;
+            right: -95px; top: -110px;
+            border: 34px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+        }
+
+        .progress-panel > * { position: relative; z-index: 1; }
+        .progress-panel .section-copy { color: rgba(255,255,255,.66); }
+        .overview-progress-value { margin-top: 30px; font-size: 52px; font-weight: 850; letter-spacing: -.055em; }
+        .overview-progress-value small { font-size: 19px; color: rgba(255,255,255,.65); letter-spacing: -.02em; }
+        .overview-track { height: 10px; overflow: hidden; margin-top: 17px; border-radius: 99px; background: rgba(255,255,255,.15); }
+        .overview-fill { height: 100%; border-radius: inherit; background: #F1C766; transition: width .3s ease; }
+        .overview-progress-meta { display: flex; gap: 18px; margin-top: 13px; color: rgba(255,255,255,.72); font-size: 11px; font-weight: 700; }
+
+        .mini-task-list { display: grid; gap: 9px; }
+        .mini-task {
+            display: grid;
+            grid-template-columns: 11px minmax(0,1fr) auto;
+            gap: 11px;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #FBFCFB;
+        }
+        .mini-task-dot { width: 9px; height: 34px; border-radius: 6px; background: var(--subject); }
+        .mini-task-title { overflow: hidden; font-size: 13px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+        .mini-task-meta { margin-top: 3px; color: var(--muted); font-size: 10px; }
+        .mini-status { padding: 5px 7px; border-radius: 7px; background: var(--amber-soft); color: #8F570F; font-size: 10px; font-weight: 800; }
+        .mini-status.done { background: var(--teal-soft); color: var(--teal); }
+
+        .week-strip { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 8px; margin-top: 16px; }
+        .week-day {
+            min-height: 92px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #fff;
+            padding: 11px;
+            text-align: left;
+        }
+        .week-day:hover { border-color: #C6CEC8; }
+        .week-day.green { background: #E8F4EF; border-color: #C9E3D8; }
+        .week-day.yellow { background: #FFF6E7; border-color: #EED7B2; }
+        .week-day.future { background: #F7F8F6; color: #99A09C; }
+        .week-day.today { box-shadow: inset 0 0 0 2px var(--ink); }
+        .week-name { color: var(--muted); font-size: 10px; font-weight: 800; }
+        .week-date { font-size: 18px; font-weight: 850; }
+        .week-count { color: var(--muted); font-size: 10px; font-weight: 750; }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255,255,255,.84);
+        }
+        .field { display: grid; gap: 5px; }
+        .field.grow { flex: 1 1 220px; }
+        .field label { color: var(--muted); font-size: 10px; font-weight: 800; }
+        .control {
+            min-height: 40px;
+            border: 1px solid #DDE1DD;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            padding: 0 11px;
+            outline: none;
+        }
+        textarea.control { min-height: 88px; resize: vertical; padding-top: 10px; line-height: 1.5; }
+        .control:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(20,107,91,.1); }
+
+        .task-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 17px; background: #fff; }
+        .task-table { width: 100%; min-width: 820px; border-collapse: collapse; }
+        .task-table th { padding: 12px 14px; border-bottom: 1px solid var(--line); background: #F8F9F7; color: var(--muted); text-align: left; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+        .task-table td { padding: 13px 14px; border-bottom: 1px solid #EEF0ED; font-size: 12px; vertical-align: middle; }
+        .task-table tr:last-child td { border-bottom: 0; }
+        .task-name { font-size: 13px; font-weight: 800; }
+        .task-desc { max-width: 320px; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .subject-chip, .status-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 6px 8px; font-size: 10px; font-weight: 800; }
+        .subject-chip { background: color-mix(in srgb, var(--subject) 12%, white); color: color-mix(in srgb, var(--subject) 82%, #18201D); }
+        .subject-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--subject); }
+        .status-chip.pending { background: #F0F1EF; color: #5E6762; }
+        .status-chip.done { background: var(--teal-soft); color: var(--teal); }
+        .status-chip.overdue { background: var(--amber-soft); color: #93590F; }
+        .table-actions { display: flex; gap: 5px; }
+        .icon-button { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--muted); }
+        .icon-button:hover { color: var(--ink); border-color: #C7CEC9; }
+
+        .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .calendar-nav { display: flex; align-items: center; gap: 7px; }
+        .calendar-title { min-width: 150px; text-align: center; font-size: 16px; font-weight: 850; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0,1fr));
+            gap: 7px;
+        }
+        .calendar-weekday { padding: 7px; color: var(--muted); text-align: center; font-size: 10px; font-weight: 850; }
+        .calendar-cell {
+            min-height: 112px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #fff;
+            padding: 10px;
+            text-align: left;
+        }
+        .calendar-cell:hover { border-color: #BFC8C1; transform: translateY(-1px); }
+        .calendar-cell.outside { opacity: .35; background: transparent; }
+        .calendar-cell.green { background: #EBF6F1; border-color: #CEE6DB; }
+        .calendar-cell.yellow { background: #FFF6E8; border-color: #EED8B7; }
+        .calendar-cell.future { background: #F7F8F6; color: #9BA29E; }
+        .calendar-cell.today { box-shadow: inset 0 0 0 2px var(--ink); }
+        .calendar-day { font-size: 14px; font-weight: 850; }
+        .calendar-ratio { margin-top: auto; font-size: 12px; font-weight: 800; }
+        .calendar-note { margin-top: 3px; color: var(--muted); font-size: 9px; }
+
+        .day-layout { display: grid; grid-template-columns: 290px minmax(0,1fr); gap: 16px; }
+        .day-summary { min-height: 240px; background: linear-gradient(155deg, #FFF 0%, #F0F5F2 100%); }
+        .day-big { margin-top: 22px; font-size: 54px; font-weight: 850; letter-spacing: -.055em; }
+        .day-big small { color: var(--muted); font-size: 17px; }
+        .day-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+        .day-meta { padding: 11px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.65); }
+        .day-meta strong { display: block; font-size: 18px; }
+        .day-meta span { color: var(--muted); font-size: 9px; }
+
+        .admin-task-list { display: grid; gap: 8px; }
+        .admin-task-card { display: grid; grid-template-columns: 5px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+        .admin-task-color { width: 5px; height: 44px; border-radius: 6px; background: var(--subject); }
+        .admin-task-title { font-size: 13px; font-weight: 800; }
+        .admin-task-sub { margin-top: 4px; color: var(--muted); font-size: 10px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+        .rate-ring {
+            --rate: 0;
+            width: 146px; height: 146px;
+            display: grid;
+            place-items: center;
+            margin: 22px auto 4px;
+            border-radius: 50%;
+            background: conic-gradient(var(--teal) calc(var(--rate) * 1%), #E9ECE8 0);
+            position: relative;
+        }
+        .rate-ring::after { content: ""; position: absolute; inset: 15px; border-radius: 50%; background: #fff; }
+        .rate-value { position: relative; z-index: 1; font-size: 28px; font-weight: 850; }
+        .rate-label { position: relative; z-index: 1; margin-top: -48px; color: var(--muted); text-align: center; font-size: 10px; }
+        .subject-bars { display: grid; gap: 13px; margin-top: 18px; }
+        .subject-bar-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 11px; font-weight: 750; }
+        .subject-bar-track { height: 8px; overflow: hidden; border-radius: 99px; background: #ECEEEC; }
+        .subject-bar-fill { height: 100%; border-radius: inherit; background: var(--subject); }
+
+        .comment-box { margin-top: 16px; }
+        .comment-actions { display: flex; justify-content: flex-end; margin-top: 9px; }
+
+        .subject-list { display: grid; gap: 9px; }
+        .subject-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; gap: 13px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+        .subject-swatch { width: 36px; height: 36px; border-radius: 11px; background: var(--subject); box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+        .subject-name { font-size: 13px; font-weight: 800; }
+        .subject-count { margin-top: 3px; color: var(--muted); font-size: 10px; }
+        .order-handle { color: #A0A7A3; font-size: 16px; }
+
+        .switch { position: relative; width: 42px; height: 24px; display: inline-block; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-track { position: absolute; inset: 0; border-radius: 999px; background: #D8DDD9; transition: .18s ease; }
+        .switch-track::after { content: ""; position: absolute; width: 18px; height: 18px; top: 3px; left: 3px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); transition: .18s ease; }
+        .switch input:checked + .switch-track { background: var(--teal); }
+        .switch input:checked + .switch-track::after { transform: translateX(18px); }
+
+        .settings-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+        .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid #EEF0ED; }
+        .setting-row:last-child { border-bottom: 0; }
+        .setting-title { font-size: 12px; font-weight: 800; }
+        .setting-copy { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+        .backup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #FAFBFA; }
+        .backup-name { font-size: 11px; font-weight: 800; }
+        .backup-meta { margin-top: 3px; color: var(--muted); font-size: 9px; }
+
+        .api-error {
+            display: none;
+            margin-bottom: 15px;
+            padding: 13px 15px;
+            border: 1px solid #EDC5C1;
+            border-radius: 13px;
+            background: #FFF7F6;
+            color: #9A3F39;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .api-error.visible { display: block; }
+
+        .modal-backdrop {
+            position: fixed;
+            z-index: 50;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(20,27,24,.48);
+            backdrop-filter: blur(6px);
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            width: min(100%, 620px);
+            max-height: min(90vh, 760px);
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,.45);
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 28px 90px rgba(17,24,21,.27);
+        }
+        .modal-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(12px); }
+        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; padding: 20px; }
+        .modal-body .full { grid-column: 1 / -1; }
+        .modal-footer { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 15px 20px; border-top: 1px solid var(--line); background: rgba(255,255,255,.97); }
+        .close-button { width: 36px; height: 36px; border: 0; border-radius: 10px; background: #F1F3F0; color: var(--muted); font-size: 18px; }
+
+        .weekday-options {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .weekday-choice {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #DDE1DD;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+        }
+
+        .weekday-choice input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .weekday-choice:has(input:checked) {
+            border-color: var(--teal);
+            background: var(--teal);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(20,107,91,.14);
+        }
+
+        .weekday-choice:has(input:focus-visible) {
+            outline: 3px solid rgba(20,107,91,.18);
+            outline-offset: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 80;
+            right: 20px;
+            bottom: 20px;
+            max-width: min(360px, calc(100% - 40px));
+            padding: 13px 16px;
+            border-radius: 13px;
+            background: rgba(24,32,29,.96);
+            color: #fff;
+            box-shadow: 0 16px 50px rgba(24,32,29,.25);
+            font-size: 12px;
+            font-weight: 750;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: .2s ease;
+        }
+        .toast.visible { transform: translateY(0); opacity: 1; }
+
+        .empty { padding: 28px; color: var(--muted); text-align: center; font-size: 12px; }
+
+        @media (max-width: 980px) {
+            .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+            .overview-grid, .day-layout { grid-template-columns: 1fr; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .calendar-cell { min-height: 96px; }
+        }
+
+        @media (max-width: 680px) {
+            .app-shell { width: min(100% - 20px, 1420px); padding-top: 12px; }
+            .topbar { align-items: flex-start; }
+            .demo-badge { display: none !important; }
+            .primary-button .button-label { display: none; }
+            .primary-button { width: 44px; padding: 0; }
+            h1 { font-size: 22px; }
+            .nav-wrap { margin-bottom: 15px; }
+            .metric-grid { gap: 8px; }
+            .metric-card { min-height: 112px; padding: 14px; }
+            .metric-number { font-size: 26px; }
+            .panel { padding: 15px; }
+            .overview-progress-value { font-size: 44px; }
+            .week-strip { gap: 4px; }
+            .week-day { min-height: 78px; padding: 7px 5px; }
+            .week-name, .week-count { font-size: 8px; }
+            .week-date { font-size: 15px; }
+            .calendar-grid { gap: 3px; }
+            .calendar-cell { min-height: 70px; padding: 6px; border-radius: 9px; }
+            .calendar-ratio { font-size: 9px; }
+            .calendar-note { display: none; }
+            .calendar-title { min-width: 110px; font-size: 13px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .subject-row { grid-template-columns: auto minmax(0,1fr) auto; }
+            .order-handle { display: none; }
+            .modal-body { grid-template-columns: 1fr; }
+            .modal-body .full { grid-column: auto; }
+            .weekday-options { gap: 4px; }
+            .weekday-choice { min-height: 38px; padding: 0 2px; font-size: 10px; }
+        }
+
+        /* iPad 横屏及同类低高度桌面：主栏目保持在一个视口内，长列表在面板内部滚动。 */
+        @media (min-width: 900px) and (max-height: 900px) {
+            .app-shell { width: min(100% - 24px, 1420px); padding-top: 10px; padding-bottom: 16px; }
+            .topbar { margin-bottom: 7px; }
+            .back-button { width: 39px; height: 39px; border-radius: 11px; }
+            h1 { font-size: 25px; }
+            h2 { font-size: 21px; }
+            h3 { font-size: 14px; }
+            .primary-button, .secondary-button, .ghost-button, .danger-button { min-height: 36px; padding-left: 12px; padding-right: 12px; }
+            .nav-wrap { margin-bottom: 8px; padding-top: 4px; padding-bottom: 4px; }
+            .nav-tabs { padding: 4px; border-radius: 13px; }
+            .nav-tab { min-height: 33px; padding: 0 10px; }
+            .section-title-row { margin-bottom: 8px; }
+            .section-label { margin-bottom: 2px; }
+            .section-copy { margin-top: 3px; line-height: 1.35; }
+            .metric-grid { gap: 8px; margin-bottom: 8px; }
+            .metric-card { min-height: 88px; padding: 11px 13px; border-radius: 14px; }
+            .metric-icon { width: 27px; height: 27px; border-radius: 8px; font-size: 13px; }
+            .metric-number { margin-top: 8px; font-size: 23px; }
+            .metric-name { margin-top: 3px; font-size: 10px; }
+            .overview-grid { gap: 8px; }
+            .panel { padding: 12px 14px; border-radius: 15px; }
+            .panel-head { margin-bottom: 8px; }
+            .progress-panel { min-height: 178px; }
+            .overview-progress-value { margin-top: 13px; font-size: 38px; }
+            .overview-progress-value small { font-size: 14px; }
+            .overview-track { margin-top: 9px; height: 8px; }
+            .overview-progress-meta { margin-top: 8px; }
+            .mini-task-list { gap: 5px; }
+            .mini-task { grid-template-columns: 8px minmax(0,1fr) auto; gap: 8px; padding: 7px 9px; }
+            .mini-task:nth-child(n+4) { display: none; }
+            .mini-task-dot { width: 7px; height: 28px; }
+            #view-overview > .panel { margin-top: 8px !important; }
+            .week-strip { gap: 5px; margin-top: 8px; }
+            .week-day { min-height: 60px; padding: 7px 8px; border-radius: 10px; }
+            .week-date { font-size: 15px; }
+            .toolbar { gap: 7px; padding: 8px; margin-bottom: 8px; }
+            .control { min-height: 34px; }
+            .task-table-wrap { max-height: calc(100vh - 294px); overflow: auto; }
+            .task-table th { position: sticky; z-index: 1; top: 0; padding: 8px 10px; }
+            .task-table td { padding: 8px 10px; }
+            .task-desc { margin-top: 2px; }
+            .calendar-toolbar { margin-bottom: 7px; }
+            .calendar-cell { min-height: 62px; padding: 7px; border-radius: 10px; }
+            .calendar-weekday { padding: 4px; }
+            .calendar-note { margin-top: 1px; }
+            .day-layout { grid-template-columns: 240px minmax(0,1fr); gap: 8px; }
+            .day-summary { min-height: 184px; }
+            .day-big { margin-top: 10px; font-size: 38px; }
+            .day-meta-grid { margin-top: 10px; }
+            .day-meta { padding: 7px 9px; }
+            .admin-task-list { max-height: calc(100vh - 270px); overflow-y: auto; }
+            .admin-task-card { padding: 8px 10px; }
+            .stats-grid { height: 210px; gap: 8px; }
+            .stats-grid > .panel { height: 210px; overflow-y: auto; }
+            .rate-ring { width: 105px; height: 105px; margin-top: 8px; }
+            .rate-ring::after { inset: 11px; }
+            .rate-value { font-size: 22px; }
+            .rate-label { margin-top: -33px; }
+            .subject-bars { gap: 8px; margin-top: 8px; }
+            .comment-box { margin-top: 8px; }
+            .comment-box textarea.control { min-height: 42px; height: 42px; }
+            .subject-list { gap: 6px; }
+            .subject-row { padding: 8px 11px; }
+            .subject-swatch { width: 30px; height: 30px; border-radius: 9px; }
+            .settings-grid { gap: 8px; }
+            .setting-row { padding: 8px 0; }
+            .backup-row { padding: 8px 10px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand-row">
+                <a id="admin-back" class="back-button" href="/admin" aria-label="返回 Admin 首页">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </a>
+                <div class="title-wrap">
+                    <p class="eyebrow">Jingsen Learning Center</p>
+                    <h1>Learning Todo 管理</h1>
+                </div>
+            </div>
+            <div class="top-actions">
+                <div id="demo-badge" class="demo-badge"><span class="demo-dot"></span>本地前端预览</div>
+                <button class="secondary-button" type="button" onclick="logoutAdmin()">退出</button>
+                <button class="primary-button" type="button" onclick="openTaskModal()">
+                    <span class="button-icon">＋</span><span class="button-label">新增任务</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="nav-wrap">
+            <nav class="nav-tabs" aria-label="Todo 管理栏目">
+                <button class="nav-tab active" data-view="overview">今日概览</button>
+                <button class="nav-tab" data-view="tasks">任务管理</button>
+                <button class="nav-tab" data-view="day">日视图</button>
+                <button class="nav-tab" data-view="week">周视图</button>
+                <button class="nav-tab" data-view="month">月视图</button>
+                <button class="nav-tab" data-view="stats">周月统计</button>
+                <button class="nav-tab" data-view="subjects">科目管理</button>
+                <button class="nav-tab" data-view="settings">设置</button>
+            </nav>
+        </div>
+
+        <div id="api-error" class="api-error">Todo 服务暂时不可用，请刷新重试；也可以使用 <code>?demo=1</code> 查看不写入数据的演示。</div>
+
+        <section id="view-overview" class="view active">
+            <div class="section-title-row">
+                <div>
+                    <p class="section-label">Today</p>
+                    <h2>今日概览</h2>
+                    <p id="overview-date" class="section-copy"></p>
+                </div>
+                <button class="secondary-button" type="button" onclick="switchView('day')">查看今日明细</button>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-card blue"><span class="metric-icon">≡</span><div id="metric-total" class="metric-number">—</div><div class="metric-name">今日任务总数</div></div>
+                <div class="metric-card"><span class="metric-icon">✓</span><div id="metric-done" class="metric-number">—</div><div class="metric-name">今日已完成</div></div>
+                <div class="metric-card amber"><span class="metric-icon">○</span><div id="metric-pending" class="metric-number">—</div><div class="metric-name">今日未完成</div></div>
+                <div class="metric-card red"><span class="metric-icon">!</span><div id="metric-overdue" class="metric-number">—</div><div class="metric-name">当前逾期</div></div>
+            </div>
+            <div class="overview-grid">
+                <article class="panel progress-panel">
+                    <p class="section-label" style="color:#9ED1C4">Daily rhythm</p>
+                    <h3>今天的完成节奏</h3>
+                    <p class="section-copy">按时完成今天的任务，同时逐步清理遗留任务。</p>
+                    <div class="overview-progress-value"><span id="overview-rate">0%</span> <small id="overview-fraction">0 / 0</small></div>
+                    <div class="overview-track"><div id="overview-fill" class="overview-fill" style="width:0%"></div></div>
+                    <div class="overview-progress-meta"><span id="overview-on-time">按时完成 0 项</span><span id="overview-left">还剩 0 项</span></div>
+                </article>
+                <article class="panel">
+                    <div class="panel-head"><h3>今日任务</h3><button class="panel-link" type="button" onclick="openTaskModal()">快速新增</button></div>
+                    <div id="overview-task-list" class="mini-task-list"></div>
+                </article>
+            </div>
+            <article class="panel" style="margin-top:16px">
+                <div class="panel-head"><div><h3>本周状态</h3><p class="section-copy">绿色为全部按时完成，黄色为存在未完成或逾期。</p></div><button class="panel-link" type="button" onclick="switchView('week')">完整周视图</button></div>
+                <div id="overview-week" class="week-strip"></div>
+            </article>
+        </section>
+
+        <section id="view-tasks" class="view">
+            <div class="section-title-row"><div><p class="section-label">Manage</p><h2>任务管理</h2><p class="section-copy">创建、筛选、编辑和作废单次或重复任务。</p></div></div>
+            <div class="toolbar">
+                <div class="field grow"><label for="task-search">搜索任务</label><input id="task-search" class="control" type="search" placeholder="输入任务名称" oninput="renderTaskTable()"></div>
+                <div class="field"><label for="task-subject-filter">科目</label><select id="task-subject-filter" class="control" onchange="renderTaskTable()"><option value="">全部科目</option></select></div>
+                <div class="field"><label for="task-status-filter">状态</label><select id="task-status-filter" class="control" onchange="renderTaskTable()"><option value="">全部状态</option><option value="pending">待完成</option><option value="done">已完成</option><option value="overdue">已逾期</option></select></div>
+                <button class="secondary-button" type="button" onclick="copyLastWeek()">复制上周</button>
+            </div>
+            <div class="task-table-wrap">
+                <table class="task-table">
+                    <thead><tr><th>任务</th><th>科目</th><th>计划日期</th><th>类型</th><th>状态</th><th>操作</th></tr></thead>
+                    <tbody id="task-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-day" class="view">
+            <div class="section-title-row">
+                <div><p class="section-label">Day view</p><h2>日视图</h2><p class="section-copy">选择日期，查看当天计划和完成明细。</p></div>
+                <input id="day-picker" class="control" type="date" onchange="renderDayView()">
+            </div>
+            <div class="day-layout">
+                <article class="panel day-summary">
+                    <p class="section-label">Selected date</p>
+                    <h3 id="day-title">—</h3>
+                    <div class="day-big"><span id="day-done">0</span><small> / <span id="day-total">0</span></small></div>
+                    <div class="day-meta-grid">
+                        <div class="day-meta"><strong id="day-pending">0</strong><span>未完成</span></div>
+                        <div class="day-meta"><strong id="day-overdue">0</strong><span>逾期任务</span></div>
+                    </div>
+                    <button class="primary-button" style="width:100%;margin-top:16px" type="button" onclick="openTaskModal(document.getElementById('day-picker').value)">在此日期新增</button>
+                </article>
+                <article class="panel">
+                    <div class="panel-head"><h3>任务明细</h3><button class="panel-link" type="button" onclick="copySelectedDay()">复制当天</button></div>
+                    <div id="day-task-list" class="admin-task-list"></div>
+                </article>
+            </div>
+        </section>
+
+        <section id="view-week" class="view">
+            <div class="section-title-row"><div><p class="section-label">Week view</p><h2>周视图</h2><p class="section-copy">点击日期查看当天任务明细。</p></div></div>
+            <div class="calendar-toolbar">
+                <button class="secondary-button" type="button" onclick="moveWeek(-1)">← 上一周</button>
+                <div id="week-title" class="calendar-title">—</div>
+                <button class="secondary-button" type="button" onclick="moveWeek(1)">下一周 →</button>
+            </div>
+            <article class="panel"><div id="week-grid" class="week-strip"></div></article>
+        </section>
+
+        <section id="view-month" class="view">
+            <div class="section-title-row"><div><p class="section-label">Month view</p><h2>月视图</h2><p class="section-copy">按计划日期查看整月完成状态。</p></div></div>
+            <div class="calendar-toolbar">
+                <button class="secondary-button" type="button" onclick="moveMonth(-1)">← 上个月</button>
+                <div id="month-title" class="calendar-title">—</div>
+                <button class="secondary-button" type="button" onclick="moveMonth(1)">下个月 →</button>
+            </div>
+            <article class="panel">
+                <div class="calendar-grid">
+                    <div class="calendar-weekday">周一</div><div class="calendar-weekday">周二</div><div class="calendar-weekday">周三</div><div class="calendar-weekday">周四</div><div class="calendar-weekday">周五</div><div class="calendar-weekday">周六</div><div class="calendar-weekday">周日</div>
+                </div>
+                <div id="month-grid" class="calendar-grid"></div>
+            </article>
+        </section>
+
+        <section id="view-stats" class="view">
+            <div class="section-title-row">
+                <div><p class="section-label">Reports</p><h2>周月统计</h2><p class="section-copy">统计口径按任务原计划日期归属。</p></div>
+                <select id="stats-range" class="control" onchange="renderStats()"><option value="week">本周统计</option><option value="month">本月统计</option></select>
+            </div>
+            <div class="metric-grid">
+                <div class="metric-card blue"><span class="metric-icon">≡</span><div id="stats-total" class="metric-number">0</div><div class="metric-name">计划任务</div></div>
+                <div class="metric-card"><span class="metric-icon">✓</span><div id="stats-completed" class="metric-number">0</div><div class="metric-name">已完成</div></div>
+                <div class="metric-card amber"><span class="metric-icon">↗</span><div id="stats-late" class="metric-number">0</div><div class="metric-name">逾期完成</div></div>
+                <div class="metric-card red"><span class="metric-icon">○</span><div id="stats-current" class="metric-number">0</div><div class="metric-name">当前未完成</div></div>
+            </div>
+            <div class="stats-grid">
+                <article class="panel">
+                    <div class="panel-head"><div><h3>总体完成率</h3><p class="section-copy">已完成任务 ÷ 计划任务</p></div></div>
+                    <div id="rate-ring" class="rate-ring"><span id="rate-value" class="rate-value">0%</span></div>
+                    <div class="rate-label">总体完成率</div>
+                </article>
+                <article class="panel">
+                    <div class="panel-head"><div><h3>各科目完成情况</h3><p class="section-copy">按选定周期内的计划任务统计。</p></div></div>
+                    <div id="subject-bars" class="subject-bars"></div>
+                </article>
+            </div>
+            <article class="panel comment-box">
+                <div class="panel-head"><div><h3 id="comment-title">本周家长评语</h3><p class="section-copy">记录本周的学习节奏和下一步建议。</p></div></div>
+                <textarea id="report-comment" class="control" style="width:100%" placeholder="写下鼓励、观察或下周建议……"></textarea>
+                <div class="comment-actions"><button class="primary-button" type="button" onclick="saveComment()">保存评语</button></div>
+            </article>
+        </section>
+
+        <section id="view-subjects" class="view">
+            <div class="section-title-row">
+                <div><p class="section-label">Subjects</p><h2>科目管理</h2><p class="section-copy">科目颜色只用于任务分类，Grid 颜色只代表完成状态。</p></div>
+                <button class="secondary-button" type="button" onclick="addSubject()">＋ 新增科目</button>
+            </div>
+            <article class="panel"><div id="subject-list" class="subject-list"></div></article>
+        </section>
+
+        <section id="view-settings" class="view">
+            <div class="section-title-row"><div><p class="section-label">System</p><h2>设置</h2><p class="section-copy">Todo 使用独立数据目录，不会修改词库、Skills 或练习报告。</p></div></div>
+            <div class="settings-grid">
+                <article class="panel">
+                    <div class="panel-head"><h3>基础设置</h3></div>
+                    <div class="setting-row"><div><div class="setting-title">业务时区</div><div class="setting-copy">所有任务日期统一使用服务器时区。</div></div><strong>Asia/Shanghai</strong></div>
+                    <div class="setting-row"><div><div class="setting-title">即时撤销提示</div><div class="setting-copy">完成后底部快捷撤销提示的停留时间；已完成列表始终可以手动取消。</div></div><select class="control"><option>10 秒</option><option>5 秒</option><option>15 秒</option></select></div>
+                    <div class="setting-row"><div><div class="setting-title">每周开始日</div><div class="setting-copy">周视图和周统计的第一天。</div></div><strong>星期一</strong></div>
+                </article>
+                <article class="panel">
+                    <div class="panel-head"><div><h3>数据与备份</h3><p class="section-copy">仅备份 data/learning-todo/。</p></div><button class="panel-link" type="button" onclick="createBackup()">立即备份</button></div>
+                    <div id="backup-list" class="subject-list"></div>
+                    <p class="section-copy" style="margin-top:12px">为避免无鉴权的高风险操作，数据恢复仅通过服务器管理命令执行。</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <div id="task-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+        <form id="task-form" class="modal" onsubmit="saveTask(event)">
+            <div class="modal-head">
+                <div><p class="section-label">Task editor</p><h3 id="task-modal-title">新增任务</h3></div>
+                <button class="close-button" type="button" onclick="closeTaskModal()" aria-label="关闭">×</button>
+            </div>
+            <div class="modal-body">
+                <input id="task-id" type="hidden">
+                <div class="field full"><label for="task-title">任务名称</label><input id="task-title" class="control" required maxlength="100" placeholder="例如：完成英语回家作业"></div>
+                <div class="field"><label for="task-subject">所属科目</label><select id="task-subject" class="control" required></select></div>
+                <div class="field"><label for="task-date">计划日期</label><input id="task-date" class="control" type="date" required></div>
+                <div class="field full"><label for="task-description">任务说明（可选）</label><textarea id="task-description" class="control" placeholder="孩子可以看到的任务说明"></textarea></div>
+                <div class="field full"><label for="task-parent-note">家长备注（仅 Admin 可见）</label><textarea id="task-parent-note" class="control" placeholder="记录提醒或安排原因"></textarea></div>
+                <div class="field"><label for="task-repeat">重复方式</label><select id="task-repeat" class="control" onchange="toggleRepeatFields()"><option value="once">不重复</option><option value="daily">每天</option><option value="weekly">每周指定星期</option><option value="monthly">每月</option></select></div>
+                <div class="field"><label for="task-end-date">结束日期（可选）</label><input id="task-end-date" class="control" type="date"></div>
+                <div id="weekday-field" class="field full" hidden>
+                    <label>重复星期</label>
+                    <div class="weekday-options" role="group" aria-label="选择重复星期">
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="0"><span>周日</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="1"><span>周一</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="2"><span>周二</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="3"><span>周三</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="4"><span>周四</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="5"><span>周五</span></label>
+                        <label class="weekday-choice"><input name="repeat-weekday" type="checkbox" value="6"><span>周六</span></label>
+                    </div>
+                </div>
+                <div id="edit-scope-field" class="field full" hidden>
+                    <label for="task-edit-scope">重复任务修改范围</label>
+                    <select id="task-edit-scope" class="control">
+                        <option value="this">仅修改本次</option>
+                        <option value="future">修改本次及以后</option>
+                        <option value="series">修改整个重复计划</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-button" type="button" onclick="closeTaskModal()">取消</button>
+                <button class="primary-button" type="submit">保存任务</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = path => `${BASE_PATH}${path}`;
+        const query = new URLSearchParams(window.location.search);
+        const DEMO_MODE = query.get('demo') === '1';
+        const WEEKDAY_NAMES = ['周日','周一','周二','周三','周四','周五','周六'];
+
+        const state = {
+            today: '',
+            tasks: [],
+            subjects: [],
+            weekCursor: null,
+            monthCursor: null,
+            comments: { week: '', month: '' },
+            backups: []
+        };
+
+        document.getElementById('admin-back').href = withBasePath('/admin');
+        document.getElementById('demo-badge').classList.toggle('visible', DEMO_MODE);
+        document.querySelectorAll('.nav-tab').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
+        document.getElementById('task-modal-backdrop').addEventListener('click', event => {
+            if (event.target === event.currentTarget) closeTaskModal();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeTaskModal();
+        });
+
+        function isoDate(date = new Date()) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function dateFromIso(value) { return new Date(`${value}T12:00:00`); }
+        function addDays(value, count) { const d = dateFromIso(value); d.setDate(d.getDate() + count); return isoDate(d); }
+        function formatDate(value, options = {}) {
+            return new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', weekday: 'long', ...options }).format(dateFromIso(value));
+        }
+        function monthKey(value) { return String(value).slice(0, 7); }
+        function escapeHtml(value) {
+            return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+        }
+
+        async function apiRequest(path, options = {}) {
+            const response = await fetch(withBasePath(path), {
+                cache: 'no-store',
+                ...options,
+                headers: {
+                    'Accept': 'application/json',
+                    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+                    ...(options.headers || {})
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = withBasePath('/portal?admin=1');
+                throw new Error('Admin session required');
+            }
+            let payload = null;
+            try { payload = await response.json(); } catch (_) {}
+            if (!response.ok) throw new Error(payload?.detail || `HTTP ${response.status}`);
+            return payload;
+        }
+
+        function seedDemoData() {
+            state.today = isoDate();
+            state.weekCursor = startOfWeek(state.today);
+            state.monthCursor = `${state.today.slice(0, 7)}-01`;
+            state.subjects = [
+                { id:'sub_english', name:'英语', color:'#3B82F6', enabled:true, sort_order:10 },
+                { id:'sub_math', name:'数学', color:'#E07A1F', enabled:true, sort_order:20 },
+                { id:'sub_chinese', name:'中文', color:'#D84A45', enabled:true, sort_order:30 },
+                { id:'sub_reading', name:'阅读', color:'#2D8A62', enabled:true, sort_order:40 },
+                { id:'sub_science', name:'科学', color:'#7656B5', enabled:true, sort_order:50 },
+                { id:'sub_other', name:'其他', color:'#6B7280', enabled:false, sort_order:60 }
+            ];
+            const task = (id, title, subjectId, date, description, completedDate = null, repeat = 'once') => ({
+                id, title, subject_id:subjectId, planned_date:date, description, parent_note:'',
+                completed_local_date:completedDate, lifecycle_status:'active', repeat, version:1
+            });
+            state.tasks = [
+                task('task_001','完成英语回家作业','sub_english',addDays(state.today,-2),'完成练习册第 18 页。'),
+                task('task_002','整理阅读摘记','sub_reading',addDays(state.today,-1),'摘录喜欢的句子并写理解。',state.today),
+                task('task_003','完成数学口算','sub_math',state.today,'完成 20 道小数乘法练习。'),
+                task('task_004','复习中文成语','sub_chinese',state.today,'复习今天课堂上的 8 个成语。'),
+                task('task_005','背诵 Daily Word','sub_english',state.today,'朗读并拼写今天的 10 个单词。',null,'daily'),
+                task('task_006','阅读 20 分钟','sub_reading',state.today,'继续阅读《小王子》。',state.today,'daily'),
+                task('task_007','科学观察记录','sub_science',state.today,'记录植物叶片变化。',state.today,'weekly'),
+                task('task_008','数学错题复盘','sub_math',addDays(state.today,-1),'订正昨天的两道错题。'),
+                task('task_009','英语听力练习','sub_english',addDays(state.today,1),'完成 15 分钟听力。',null,'weekly'),
+                task('task_010','中文阅读理解','sub_chinese',addDays(state.today,2),'完成一篇阅读理解。'),
+                task('task_011','阅读 20 分钟','sub_reading',addDays(state.today,-3),'继续阅读《小王子》。',addDays(state.today,-3),'daily'),
+                task('task_012','数学口算','sub_math',addDays(state.today,-3),'完成 20 道练习。',addDays(state.today,-3),'daily'),
+                task('task_013','Daily Word','sub_english',addDays(state.today,-4),'复习 10 个单词。',addDays(state.today,-4),'daily'),
+                task('task_014','中文成语','sub_chinese',addDays(state.today,-4),'复习 8 个成语。',addDays(state.today,-3)),
+                task('task_015','科学阅读','sub_science',addDays(state.today,-5),'阅读科普短文。',addDays(state.today,-5))
+            ];
+            state.comments.week = '这周阅读任务保持得很好。下周重点关注数学错题复盘，完成后记得自己检查一遍。';
+            state.backups = [
+                { name:'auto-2026-07-28-0830', time:'今天 08:30', size:'18 KB' },
+                { name:'auto-2026-07-27-2105', time:'昨天 21:05', size:'16 KB' }
+            ];
+        }
+
+        async function loadAdminData() {
+            if (DEMO_MODE) {
+                seedDemoData();
+                renderAll();
+                return;
+            }
+            try {
+                const [overview, tasks, subjects, backupPayload] = await Promise.all([
+                    apiRequest('/api/admin/todo/overview'),
+                    apiRequest('/api/admin/todo/tasks'),
+                    apiRequest('/api/admin/todo/subjects'),
+                    apiRequest('/api/admin/todo/backups')
+                ]);
+                state.today = overview.server_date || isoDate();
+                state.tasks = tasks.tasks || tasks || [];
+                state.subjects = subjects.subjects || subjects || [];
+                state.backups = backupPayload.backups || [];
+                state.weekCursor = startOfWeek(state.today);
+                state.monthCursor = `${state.today.slice(0,7)}-01`;
+                const [weekReport, monthReport] = await Promise.all([
+                    apiRequest(`/api/admin/todo/reports/week/${state.weekCursor}`),
+                    apiRequest(`/api/admin/todo/reports/month/${state.today.slice(0,7)}`)
+                ]);
+                state.comments.week = weekReport.comment || '';
+                state.comments.month = monthReport.comment || '';
+                document.getElementById('api-error').classList.remove('visible');
+                renderAll();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('api-error').classList.add('visible');
+                state.today = isoDate();
+                state.weekCursor = startOfWeek(state.today);
+                state.monthCursor = `${state.today.slice(0,7)}-01`;
+                renderAll();
+            }
+        }
+
+        function subjectById(id) { return state.subjects.find(subject => subject.id === id) || { name:'其他', color:'#6B7280' }; }
+        function activeTask(task) { return task.lifecycle_status !== 'voided' && task.lifecycle_status !== 'cancelled'; }
+        function taskStatus(task) {
+            if (task.completed_local_date) return 'done';
+            if (task.planned_date < state.today) return 'overdue';
+            return 'pending';
+        }
+        function tasksForDate(value) { return state.tasks.filter(task => activeTask(task) && task.planned_date === value); }
+        function startOfWeek(value) {
+            const date = dateFromIso(value);
+            const delta = (date.getDay() + 6) % 7;
+            date.setDate(date.getDate() - delta);
+            return isoDate(date);
+        }
+
+        function dayInfo(value) {
+            const tasks = tasksForDate(value);
+            const done = tasks.filter(task => task.completed_local_date && task.completed_local_date <= value).length;
+            const carryover = value > state.today ? 0 : state.tasks.filter(task => activeTask(task) && task.planned_date < value && (!task.completed_local_date || task.completed_local_date > value)).length;
+            const unfinishedScheduled = tasks.some(task => task.completed_local_date !== value);
+            let color = 'gray';
+            if (value > state.today) color = 'future';
+            else if (carryover > 0 || unfinishedScheduled) color = 'yellow';
+            else if (tasks.length > 0 && done === tasks.length) color = 'green';
+            return { tasks, done, total:tasks.length, carryover, color };
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `view-${viewName}`));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.view === viewName));
+            if (viewName === 'tasks') renderTaskTable();
+            if (viewName === 'day') renderDayView();
+            if (viewName === 'week') renderWeekView();
+            if (viewName === 'month') renderMonthView();
+            if (viewName === 'stats') renderStats();
+            if (viewName === 'subjects') renderSubjects();
+            if (viewName === 'settings') renderBackups();
+            window.scrollTo({ top:0, behavior:'smooth' });
+        }
+
+        function renderAll() {
+            document.getElementById('day-picker').value = state.today;
+            fillSubjectSelects();
+            renderOverview();
+            renderTaskTable();
+            renderDayView();
+            renderWeekView();
+            renderMonthView();
+            renderStats();
+            renderSubjects();
+            renderBackups();
+        }
+
+        function renderOverview() {
+            const todayTasks = tasksForDate(state.today);
+            const done = todayTasks.filter(task => task.completed_local_date === state.today).length;
+            const pending = todayTasks.length - todayTasks.filter(task => task.completed_local_date).length;
+            const overdue = state.tasks.filter(task => activeTask(task) && !task.completed_local_date && task.planned_date < state.today);
+            const rate = todayTasks.length ? Math.round(done / todayTasks.length * 100) : 0;
+            document.getElementById('overview-date').textContent = formatDate(state.today, { year:'numeric' });
+            document.getElementById('metric-total').textContent = todayTasks.length;
+            document.getElementById('metric-done').textContent = done;
+            document.getElementById('metric-pending').textContent = pending;
+            document.getElementById('metric-overdue').textContent = overdue.length;
+            document.getElementById('overview-rate').textContent = `${rate}%`;
+            document.getElementById('overview-fraction').textContent = `${done} / ${todayTasks.length}`;
+            document.getElementById('overview-fill').style.width = `${rate}%`;
+            document.getElementById('overview-on-time').textContent = `按时完成 ${done} 项`;
+            document.getElementById('overview-left').textContent = `还剩 ${pending} 项`;
+
+            const list = [...overdue.slice(0,2), ...todayTasks.filter(task => !task.completed_local_date).slice(0,3)];
+            document.getElementById('overview-task-list').innerHTML = list.length ? list.map(task => {
+                const subject = subjectById(task.subject_id);
+                const status = taskStatus(task);
+                return `<div class="mini-task" style="--subject:${escapeHtml(subject.color)}"><span class="mini-task-dot"></span><div><div class="mini-task-title">${escapeHtml(task.title)}</div><div class="mini-task-meta">${escapeHtml(subject.name)} · ${task.planned_date === state.today ? '今天' : task.planned_date}</div></div><span class="mini-status ${status === 'done' ? 'done' : ''}">${status === 'overdue' ? '逾期' : status === 'done' ? '完成' : '待办'}</span></div>`;
+            }).join('') : '<div class="empty">今天没有待处理任务</div>';
+
+            const weekStart = startOfWeek(state.today);
+            document.getElementById('overview-week').innerHTML = Array.from({length:7},(_,index) => weekDayButton(addDays(weekStart,index))).join('');
+        }
+
+        function weekDayButton(value) {
+            const info = dayInfo(value);
+            const todayClass = value === state.today ? 'today' : '';
+            return `<button class="week-day ${info.color} ${todayClass}" type="button" onclick="openDate('${value}')"><span class="week-name">${WEEKDAY_NAMES[dateFromIso(value).getDay()]}</span><span class="week-date">${dateFromIso(value).getDate()}</span><span class="week-count">${info.done}/${info.total}${info.carryover ? ' · 有逾期' : ''}</span></button>`;
+        }
+
+        function fillSubjectSelects() {
+            const options = state.subjects.filter(subject => subject.enabled).map(subject => `<option value="${escapeHtml(subject.id)}">${escapeHtml(subject.name)}</option>`).join('');
+            document.getElementById('task-subject').innerHTML = options;
+            document.getElementById('task-subject-filter').innerHTML = `<option value="">全部科目</option>${state.subjects.map(subject => `<option value="${escapeHtml(subject.id)}">${escapeHtml(subject.name)}</option>`).join('')}`;
+        }
+
+        function renderTaskTable() {
+            const search = document.getElementById('task-search')?.value.trim().toLowerCase() || '';
+            const subjectFilter = document.getElementById('task-subject-filter')?.value || '';
+            const statusFilter = document.getElementById('task-status-filter')?.value || '';
+            const tasks = state.tasks.filter(activeTask).filter(task => {
+                const status = taskStatus(task);
+                return (!search || task.title.toLowerCase().includes(search))
+                    && (!subjectFilter || task.subject_id === subjectFilter)
+                    && (!statusFilter || status === statusFilter);
+            }).sort((a,b) => a.planned_date.localeCompare(b.planned_date));
+            document.getElementById('task-table-body').innerHTML = tasks.length ? tasks.map(task => {
+                const subject = subjectById(task.subject_id);
+                const status = taskStatus(task);
+                const statusLabel = status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成';
+                const repeatLabel = { once:'单次', daily:'每天', weekly:'每周', monthly:'每月' }[task.repeat] || '单次';
+                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div></td><td><span class="subject-chip" style="--subject:${escapeHtml(subject.color)}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button><button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
+            }).join('') : '<tr><td colspan="6"><div class="empty">没有符合条件的任务</div></td></tr>';
+        }
+
+        function adminTaskCard(task) {
+            const subject = subjectById(task.subject_id);
+            const status = taskStatus(task);
+            return `<div class="admin-task-card" style="--subject:${escapeHtml(subject.color)}"><span class="admin-task-color"></span><div><div class="admin-task-title">${escapeHtml(task.title)}</div><div class="admin-task-sub">${escapeHtml(subject.name)} · ${escapeHtml(task.description || '无说明')}</div></div><span class="status-chip ${status}">${status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成'}</span></div>`;
+        }
+
+        function renderDayView() {
+            const selected = document.getElementById('day-picker').value || state.today;
+            const info = dayInfo(selected);
+            const overdue = state.tasks.filter(task => activeTask(task) && task.planned_date < selected && (!task.completed_local_date || task.completed_local_date > selected));
+            document.getElementById('day-title').textContent = formatDate(selected, { year:'numeric' });
+            document.getElementById('day-done').textContent = info.done;
+            document.getElementById('day-total').textContent = info.total;
+            document.getElementById('day-pending').textContent = Math.max(0, info.total - info.done);
+            document.getElementById('day-overdue').textContent = overdue.length;
+            const all = [...overdue, ...info.tasks];
+            document.getElementById('day-task-list').innerHTML = all.length ? all.map(adminTaskCard).join('') : '<div class="empty">这一天没有任务</div>';
+        }
+
+        function openDate(value) {
+            document.getElementById('day-picker').value = value;
+            switchView('day');
+        }
+
+        function renderWeekView() {
+            const start = state.weekCursor || startOfWeek(state.today);
+            const end = addDays(start,6);
+            document.getElementById('week-title').textContent = `${start.slice(5).replace('-','/')} — ${end.slice(5).replace('-','/')}`;
+            document.getElementById('week-grid').innerHTML = Array.from({length:7},(_,index) => weekDayButton(addDays(start,index))).join('');
+        }
+        function moveWeek(direction) { state.weekCursor = addDays(state.weekCursor, direction * 7); renderWeekView(); }
+
+        function renderMonthView() {
+            const cursor = dateFromIso(state.monthCursor);
+            const year = cursor.getFullYear();
+            const month = cursor.getMonth();
+            document.getElementById('month-title').textContent = `${year} 年 ${month + 1} 月`;
+            const first = new Date(year,month,1,12);
+            const offset = (first.getDay() + 6) % 7;
+            const start = new Date(year,month,1 - offset,12);
+            const cells = [];
+            for (let index=0; index<42; index++) {
+                const date = new Date(start); date.setDate(start.getDate()+index);
+                const value = isoDate(date);
+                const info = dayInfo(value);
+                const outside = date.getMonth() !== month ? 'outside' : '';
+                const today = value === state.today ? 'today' : '';
+                cells.push(`<button class="calendar-cell ${info.color} ${outside} ${today}" type="button" onclick="openDate('${value}')"><span class="calendar-day">${date.getDate()}</span><span class="calendar-ratio">${info.total ? `${info.done}/${info.total}` : '—'}</span><span class="calendar-note">${info.carryover ? '有逾期任务' : info.total ? '当日计划' : '无任务'}</span></button>`);
+            }
+            document.getElementById('month-grid').innerHTML = cells.join('');
+        }
+        function moveMonth(direction) {
+            const date = dateFromIso(state.monthCursor);
+            date.setMonth(date.getMonth()+direction,1);
+            state.monthCursor = isoDate(date);
+            renderMonthView();
+        }
+
+        function renderStats() {
+            const range = document.getElementById('stats-range').value;
+            let start, end;
+            if (range === 'week') { start = startOfWeek(state.today); end = addDays(start,6); }
+            else {
+                start = `${state.today.slice(0,7)}-01`;
+                const date = dateFromIso(start); date.setMonth(date.getMonth()+1,0); end = isoDate(date);
+            }
+            const tasks = state.tasks.filter(task => activeTask(task) && task.planned_date >= start && task.planned_date <= end);
+            const completed = tasks.filter(task => task.completed_local_date);
+            const late = completed.filter(task => task.completed_local_date > task.planned_date);
+            const current = tasks.filter(task => !task.completed_local_date);
+            const rate = tasks.length ? Math.round(completed.length / tasks.length * 100) : 0;
+            document.getElementById('stats-total').textContent = tasks.length;
+            document.getElementById('stats-completed').textContent = completed.length;
+            document.getElementById('stats-late').textContent = late.length;
+            document.getElementById('stats-current').textContent = current.length;
+            document.getElementById('rate-value').textContent = `${rate}%`;
+            document.getElementById('rate-ring').style.setProperty('--rate',rate);
+            document.getElementById('comment-title').textContent = range === 'week' ? '本周家长评语' : '本月家长评语';
+            document.getElementById('report-comment').value = state.comments[range] || '';
+
+            document.getElementById('subject-bars').innerHTML = state.subjects.filter(subject => subject.enabled).map(subject => {
+                const subjectTasks = tasks.filter(task => task.subject_id === subject.id);
+                const subjectDone = subjectTasks.filter(task => task.completed_local_date).length;
+                const subjectRate = subjectTasks.length ? Math.round(subjectDone / subjectTasks.length * 100) : 0;
+                return `<div><div class="subject-bar-head"><span>${escapeHtml(subject.name)}</span><span>${subjectDone}/${subjectTasks.length} · ${subjectRate}%</span></div><div class="subject-bar-track"><div class="subject-bar-fill" style="--subject:${escapeHtml(subject.color)};width:${subjectRate}%"></div></div></div>`;
+            }).join('');
+        }
+
+        async function saveComment() {
+            const range = document.getElementById('stats-range').value;
+            const comment = document.getElementById('report-comment').value;
+            state.comments[range] = comment;
+            if (!DEMO_MODE) {
+                const periodKey = range === 'week' ? startOfWeek(state.today) : state.today.slice(0,7);
+                try {
+                    await apiRequest(`/api/admin/todo/reports/${range}/${periodKey}`, {
+                        method:'PUT',
+                        body:JSON.stringify({ comment })
+                    });
+                } catch (error) {
+                    showToast(error.message || '评语保存失败');
+                    return;
+                }
+            }
+            showToast(DEMO_MODE ? '评语已保存到本次预览' : '评语已保存');
+        }
+
+        function renderSubjects() {
+            document.getElementById('subject-list').innerHTML = state.subjects.sort((a,b) => a.sort_order-b.sort_order).map(subject => {
+                const count = state.tasks.filter(task => task.subject_id === subject.id).length;
+                return `<div class="subject-row" style="--subject:${escapeHtml(subject.color)}"><span class="subject-swatch"></span><div><div class="subject-name">${escapeHtml(subject.name)}</div><div class="subject-count">${count} 个历史任务 · ${subject.enabled ? '使用中' : '已停用'}</div></div><label class="switch" title="启用或停用"><input type="checkbox" ${subject.enabled ? 'checked' : ''} onchange="toggleSubject('${subject.id}',this.checked)"><span class="switch-track"></span></label><span class="order-handle">☷</span></div>`;
+            }).join('');
+        }
+        async function toggleSubject(id, enabled) {
+            const subject = state.subjects.find(item => item.id === id);
+            if (!subject) return;
+            if (!DEMO_MODE) {
+                try {
+                    await apiRequest(`/api/admin/todo/subjects/${encodeURIComponent(id)}`, {
+                        method:'PUT',
+                        body:JSON.stringify({ enabled })
+                    });
+                } catch (error) {
+                    showToast(error.message || '科目状态更新失败');
+                    renderSubjects();
+                    return;
+                }
+            }
+            subject.enabled = enabled;
+            renderSubjects();
+            fillSubjectSelects();
+            showToast(enabled ? '科目已启用' : '科目已停用，历史任务仍保留');
+        }
+
+        async function addSubject() {
+            const name = window.prompt('请输入科目名称');
+            if (!name?.trim()) return;
+            const color = window.prompt('请输入科目颜色（例如 #3B82F6）', '#6B7280');
+            if (!color) return;
+            if (DEMO_MODE) {
+                state.subjects.push({id:`sub_demo_${Date.now()}`,name:name.trim(),color,enabled:true,sort_order:(state.subjects.length+1)*10});
+                renderSubjects();
+                fillSubjectSelects();
+                showToast('科目已新增');
+                return;
+            }
+            try {
+                await apiRequest('/api/admin/todo/subjects', {
+                    method:'POST',
+                    body:JSON.stringify({ name:name.trim(), color })
+                });
+                await loadAdminData();
+                showToast('科目已新增');
+            } catch (error) {
+                showToast(error.message || '新增科目失败');
+            }
+        }
+
+        function renderBackups() {
+            document.getElementById('backup-list').innerHTML = state.backups.length ? state.backups.map(backup => {
+                const time = backup.time || (backup.created_at ? new Intl.DateTimeFormat('zh-CN',{dateStyle:'short',timeStyle:'short'}).format(new Date(backup.created_at)) : '');
+                const size = backup.size || (backup.size_bytes != null ? `${Math.max(1,Math.round(backup.size_bytes/1024))} KB` : '');
+                return `<div class="backup-row"><div><div class="backup-name">${escapeHtml(backup.name)}</div><div class="backup-meta">${escapeHtml(time)} · ${escapeHtml(size)}</div></div><span class="status-chip done">校验通过</span></div>`;
+            }).join('') : '<div class="empty">暂无备份记录</div>';
+        }
+        async function createBackup() {
+            if (DEMO_MODE) {
+                state.backups.unshift({name:`manual-${state.today}-${String(Date.now()).slice(-4)}`,time:'刚刚',size:'19 KB'});
+                renderBackups();
+                showToast('已创建预览备份记录');
+                return;
+            }
+            try {
+                const backup = await apiRequest('/api/admin/todo/backups', { method:'POST' });
+                state.backups.unshift(backup);
+                renderBackups();
+                showToast('备份已创建');
+            } catch (error) {
+                showToast(error.message || '备份创建失败');
+            }
+        }
+
+        async function copyLastWeek() {
+            const targetWeekStart = startOfWeek(state.today);
+            if (!window.confirm(`确认把上周任务复制到 ${targetWeekStart} 开始的本周吗？`)) return;
+            if (DEMO_MODE) {
+                const sourceStart = addDays(targetWeekStart,-7);
+                const copies = state.tasks.filter(task => activeTask(task) && task.planned_date >= sourceStart && task.planned_date <= addDays(sourceStart,6)).map(task => ({
+                    ...task,
+                    id:`task_demo_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+                    planned_date:addDays(task.planned_date,7),
+                    completed_local_date:null,
+                    lifecycle_status:'active',
+                    repeat:'once'
+                }));
+                state.tasks.push(...copies);
+                renderAll();
+                showToast(`已复制 ${copies.length} 项上周任务`);
+                return;
+            }
+            try {
+                const result = await apiRequest('/api/admin/todo/copy-last-week', {
+                    method:'POST',
+                    body:JSON.stringify({ target_week_start:targetWeekStart })
+                });
+                await loadAdminData();
+                showToast(`已复制 ${result.copied || 0} 项上周任务`);
+            } catch (error) {
+                showToast(error.message || '复制上周任务失败');
+            }
+        }
+
+        async function copySelectedDay() {
+            const sourceDate = document.getElementById('day-picker').value || state.today;
+            const targetDate = window.prompt('复制到哪一天？请输入 YYYY-MM-DD', addDays(sourceDate,1));
+            if (!targetDate) return;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+                showToast('目标日期格式应为 YYYY-MM-DD');
+                return;
+            }
+            if (DEMO_MODE) {
+                const copies = tasksForDate(sourceDate).map(task => ({
+                    ...task,
+                    id:`task_demo_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+                    planned_date:targetDate,
+                    completed_local_date:null,
+                    lifecycle_status:'active',
+                    repeat:'once'
+                }));
+                state.tasks.push(...copies);
+                renderAll();
+                showToast(`已复制 ${copies.length} 项任务到 ${targetDate}`);
+                return;
+            }
+            try {
+                const result = await apiRequest('/api/admin/todo/copy-day', {
+                    method:'POST',
+                    body:JSON.stringify({ source_date:sourceDate, target_date:targetDate })
+                });
+                await loadAdminData();
+                showToast(`已复制 ${result.copied || 0} 项任务到 ${targetDate}`);
+            } catch (error) {
+                showToast(error.message || '复制当天任务失败');
+            }
+        }
+
+        function openTaskModal(date = state.today) {
+            document.getElementById('task-form').reset();
+            document.getElementById('task-id').value = '';
+            document.getElementById('task-date').value = date || state.today;
+            document.getElementById('task-end-date').value = '';
+            document.getElementById('edit-scope-field').hidden = true;
+            document.getElementById('task-modal-title').textContent = '新增任务';
+            toggleRepeatFields();
+            document.getElementById('task-modal-backdrop').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('task-title').focus(), 0);
+        }
+
+        function editTask(id) {
+            const task = state.tasks.find(item => item.id === id);
+            if (!task) return;
+            document.getElementById('task-id').value = task.id;
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-subject').value = task.subject_id;
+            document.getElementById('task-date').value = task.planned_date;
+            document.getElementById('task-description').value = task.description || '';
+            document.getElementById('task-parent-note').value = task.parent_note || '';
+            document.getElementById('task-repeat').value = task.repeat || 'once';
+            document.getElementById('task-end-date').value = task.end_date || '';
+            document.querySelectorAll('input[name="repeat-weekday"]').forEach(input => {
+                input.checked = Array.isArray(task.repeat_weekdays) && task.repeat_weekdays.includes(Number(input.value));
+            });
+            document.getElementById('task-modal-title').textContent = '编辑任务';
+            document.getElementById('edit-scope-field').hidden = !task.template_id;
+            toggleRepeatFields();
+            document.getElementById('task-modal-backdrop').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTaskModal() { document.getElementById('task-modal-backdrop').classList.remove('open'); document.body.style.overflow=''; }
+        function toggleRepeatFields() { document.getElementById('weekday-field').hidden = document.getElementById('task-repeat').value !== 'weekly'; }
+
+        async function saveTask(event) {
+            event.preventDefault();
+            const id = document.getElementById('task-id').value;
+            const payload = {
+                title:document.getElementById('task-title').value.trim(),
+                subject_id:document.getElementById('task-subject').value,
+                planned_date:document.getElementById('task-date').value,
+                description:document.getElementById('task-description').value.trim(),
+                parent_note:document.getElementById('task-parent-note').value.trim(),
+                repeat:document.getElementById('task-repeat').value,
+                repeat_weekdays:[...document.querySelectorAll('input[name="repeat-weekday"]:checked')].map(input => Number(input.value)),
+                end_date:document.getElementById('task-end-date').value || null
+            };
+            if (payload.repeat === 'weekly' && payload.repeat_weekdays.length === 0) {
+                showToast('请至少选择一个重复星期');
+                return;
+            }
+            if (DEMO_MODE) {
+                if (id) Object.assign(state.tasks.find(task => task.id === id),payload);
+                else state.tasks.push({id:`task_demo_${Date.now()}`,...payload,completed_local_date:null,lifecycle_status:'active',version:1});
+                closeTaskModal();
+                renderAll();
+                showToast(id ? '任务已更新' : '任务已新增');
+                return;
+            }
+            try {
+                const scope = document.getElementById('task-edit-scope').value;
+                const path = id
+                    ? `/api/admin/todo/tasks/${encodeURIComponent(id)}?scope=${encodeURIComponent(scope)}`
+                    : '/api/admin/todo/tasks';
+                await apiRequest(path, { method:id ? 'PUT' : 'POST', body:JSON.stringify(payload) });
+                closeTaskModal();
+                await loadAdminData();
+                showToast(id ? '任务已更新' : '任务已新增');
+            } catch (error) {
+                showToast(error.message || '任务保存失败');
+            }
+        }
+
+        async function toggleTaskCompletion(id) {
+            const task = state.tasks.find(item => item.id === id);
+            if (!task) return;
+            if (!DEMO_MODE) {
+                try {
+                    const wasCompleted = Boolean(task.completed_local_date);
+                    const action = wasCompleted ? 'undo-completion' : 'complete';
+                    await apiRequest(`/api/admin/todo/tasks/${encodeURIComponent(id)}/${action}`, { method:'POST', body:'{}' });
+                    await loadAdminData();
+                    showToast(wasCompleted ? '已取消完成状态' : '任务已标为完成');
+                } catch (error) {
+                    showToast(error.message || '完成状态更新失败');
+                }
+                return;
+            }
+            task.completed_local_date = task.completed_local_date ? null : state.today;
+            renderAll();
+            showToast(task.completed_local_date ? '任务已标为完成' : '已取消完成状态');
+        }
+        async function voidTask(id) {
+            const task = state.tasks.find(item => item.id === id);
+            if (!task || !window.confirm(`确认作废“${task.title}”吗？历史记录仍会保留。`)) return;
+            if (!DEMO_MODE) {
+                try {
+                    const scope = task.template_id && window.confirm('是否同时作废本次及以后的重复任务？') ? 'future' : 'this';
+                    await apiRequest(`/api/admin/todo/tasks/${encodeURIComponent(id)}/void?scope=${scope}`, { method:'POST', body:'{}' });
+                    await loadAdminData();
+                    showToast('任务已作废');
+                } catch (error) {
+                    showToast(error.message || '任务作废失败');
+                }
+                return;
+            }
+            task.lifecycle_status = 'voided';
+            renderAll();
+            showToast('任务已作废');
+        }
+
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('visible'),2600);
+        }
+
+        async function logoutAdmin() {
+            if (!DEMO_MODE) {
+                try { await apiRequest('/api/admin/session', { method:'DELETE' }); } catch (_) {}
+            }
+            window.location.href = withBasePath('/portal');
+        }
+
+        loadAdminData();
+    </script>
+</body>
+</html>

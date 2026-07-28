@@ -1,0 +1,330 @@
+from datetime import date
+from pathlib import Path
+
+import pytest
+
+from services.learning_todo_service import LearningTodoService
+
+
+@pytest.fixture
+def fixed_today():
+    return lambda: date(2026, 7, 28)
+
+
+@pytest.fixture
+def service(tmp_path, fixed_today):
+    return LearningTodoService(
+        data_dir=str(tmp_path / "data" / "learning-todo"),
+        today_provider=fixed_today,
+    )
+
+
+def test_storage_is_isolated_from_existing_learning_data(tmp_path, fixed_today):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    library = data_dir / "library_registry.json"
+    reports = data_dir / "report_history.json"
+    skill = data_dir / "skills" / "index.json"
+    skill.parent.mkdir()
+    library.write_text('{"libraries":["keep"]}', encoding="utf-8")
+    reports.write_text('{"reports":["keep"]}', encoding="utf-8")
+    skill.write_text('{"skills":["keep"]}', encoding="utf-8")
+    before = {path: path.read_bytes() for path in (library, reports, skill)}
+
+    todo = LearningTodoService(
+        data_dir=str(data_dir / "learning-todo"),
+        today_provider=fixed_today,
+    )
+    todo.create_task(
+        {
+            "title": "隔离测试",
+            "subject_id": "sub_english",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+
+    assert todo.data_dir == (data_dir / "learning-todo").resolve()
+    assert all(path.read_bytes() == content for path, content in before.items())
+    assert (data_dir / "learning-todo" / "tasks" / "2026-07.json").is_file()
+
+
+def test_weekly_recurrence_generates_independent_instances_across_month(service):
+    service.create_task(
+        {
+            "title": "每周学习",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-26",
+            "description": "每天一项",
+            "repeat": "weekly",
+            "repeat_weekdays": [0, 1, 2, 3, 4, 5, 6],
+            "end_date": "2026-08-02",
+        }
+    )
+
+    tasks = service.list_tasks(from_date="2026-07-26", to_date="2026-08-02")
+    assert len(tasks) == 8
+    assert len({task["id"] for task in tasks}) == 8
+    assert {task["planned_date"] for task in tasks} == {
+        "2026-07-26",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-07-31",
+        "2026-08-01",
+        "2026-08-02",
+    }
+    assert (service.tasks_dir / "2026-07.json").is_file()
+    assert (service.tasks_dir / "2026-08.json").is_file()
+
+
+def test_overdue_complete_and_manual_uncomplete(service):
+    task = service.create_task(
+        {
+            "title": "昨天的英语作业",
+            "subject_id": "sub_english",
+            "planned_date": "2026-07-27",
+            "repeat": "once",
+        }
+    )
+    payload = service.today_payload()
+    assert [item["id"] for item in payload["overdue_tasks"]] == [task["id"]]
+    assert payload["overdue_tasks"][0]["overdue_days"] == 1
+
+    completed = service.complete_task(task["id"])
+    assert completed["completed_local_date"] == "2026-07-28"
+    payload = service.today_payload()
+    assert not payload["overdue_tasks"]
+    assert [item["id"] for item in payload["today_completed_tasks"]] == [task["id"]]
+
+    undone = service.undo_completion(task["id"])
+    assert undone["completed_at"] is None
+    assert [item["id"] for item in service.today_payload()["overdue_tasks"]] == [task["id"]]
+
+
+def test_historical_day_stays_yellow_after_late_completion(service):
+    task = service.create_task(
+        {
+            "title": "补做任务",
+            "subject_id": "sub_math",
+            "planned_date": "2026-07-27",
+            "repeat": "once",
+        }
+    )
+    service.complete_task(task["id"])
+
+    historical = service.day_view("2026-07-27")
+    assert historical["completed"] == 1
+    assert historical["on_time"] == 0
+    assert historical["color"] == "yellow"
+
+
+def test_today_pending_is_yellow_but_not_marked_as_overdue(service):
+    service.create_task(
+        {
+            "title": "今天待完成",
+            "subject_id": "sub_math",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+    today = service.day_view("2026-07-28")
+    assert today["color"] == "yellow"
+    assert today["carryover"] == 0
+    assert today["has_overdue"] is False
+
+
+def test_void_future_scope_persists_for_single_recurring_instance(service):
+    task = service.create_task(
+        {
+            "title": "单实例重复任务",
+            "subject_id": "sub_english",
+            "planned_date": "2026-07-28",
+            "repeat": "weekly",
+            "repeat_weekdays": [2],
+            "end_date": "2026-07-28",
+        }
+    )
+    service.void_task(task["id"], scope="future")
+    assert service.list_tasks(from_date="2026-07-28", to_date="2026-07-28") == []
+    stored = service.get_task(task["id"])
+    assert stored["lifecycle_status"] == "voided"
+
+
+def test_series_edit_does_not_collapse_all_instances_to_one_date(service):
+    first = service.create_task(
+        {
+            "title": "原计划",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "repeat": "weekly",
+            "repeat_weekdays": [0, 1, 2, 3, 4, 5, 6],
+            "end_date": "2026-08-02",
+        }
+    )
+    service.update_task(
+        first["id"],
+        {
+            "title": "仅周二",
+            "planned_date": "2026-07-28",
+            "repeat": "weekly",
+            "repeat_weekdays": [2],
+            "end_date": "2026-08-02",
+        },
+        scope="series",
+    )
+
+    active = service.list_tasks(from_date="2026-07-28", to_date="2026-08-02")
+    assert [(task["planned_date"], task["title"]) for task in active] == [("2026-07-28", "仅周二")]
+
+
+def test_monthly_last_day_handles_short_months_and_leap_year(tmp_path):
+    service = LearningTodoService(
+        data_dir=str(tmp_path / "data" / "learning-todo"),
+        today_provider=lambda: date(2028, 1, 31),
+    )
+    service.create_task(
+        {
+            "title": "月末总结",
+            "subject_id": "sub_other",
+            "planned_date": "2028-01-31",
+            "repeat": "monthly",
+            "repeat_month_day": "last",
+            "end_date": "2028-03-31",
+        }
+    )
+    tasks = service.list_tasks(from_date="2028-01-01", to_date="2028-03-31")
+    assert [task["planned_date"] for task in tasks] == ["2028-01-31", "2028-02-29", "2028-03-31"]
+
+
+def test_copy_day_creates_fresh_uncompleted_instances(service):
+    original = service.create_task(
+        {
+            "title": "复制来源",
+            "subject_id": "sub_chinese",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+    service.complete_task(original["id"])
+    copies = service.copy_day("2026-07-28", "2026-07-29")
+
+    assert len(copies) == 1
+    assert copies[0]["id"] != original["id"]
+    assert copies[0]["planned_date"] == "2026-07-29"
+    assert copies[0]["completed_at"] is None
+    assert copies[0]["repeat"] == "once"
+
+
+def test_backup_restore_recovers_previous_task_state(service):
+    first = service.create_task(
+        {
+            "title": "保留任务",
+            "subject_id": "sub_chinese",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+    backup = service.create_backup("test-restore")
+    service.create_task(
+        {
+            "title": "恢复后消失",
+            "subject_id": "sub_science",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+
+    service.restore_backup(backup["name"])
+    tasks = service.list_tasks(from_date="2026-07-28", to_date="2026-07-28")
+    assert [task["id"] for task in tasks] == [first["id"]]
+    assert service.validate_storage()["ok"] is True
+
+
+def test_reward_points_grow_with_streak_and_restart_after_missed_task_day(tmp_path):
+    current_day = [date(2026, 7, 25)]
+    todo = LearningTodoService(
+        data_dir=str(tmp_path / "data" / "learning-todo"),
+        today_provider=lambda: current_day[0],
+    )
+
+    def create_today(title):
+        return todo.create_task(
+            {
+                "title": title,
+                "subject_id": "sub_english",
+                "planned_date": current_day[0].isoformat(),
+                "repeat": "once",
+            }
+        )
+
+    first = create_today("第一天")
+    todo.complete_task(first["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"], reward["next_points"]) == (
+        1,
+        1,
+        1,
+        2,
+    )
+
+    current_day[0] = date(2026, 7, 26)
+    second = create_today("第二天")
+    todo.complete_task(second["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"], reward["next_points"]) == (
+        3,
+        2,
+        2,
+        3,
+    )
+
+    current_day[0] = date(2026, 7, 27)
+    create_today("中断日")
+    reward = todo.reward_summary()
+    assert reward["today_points"] == 0
+    assert reward["current_streak"] == 2
+    assert reward["next_points"] == 3
+
+    current_day[0] = date(2026, 7, 28)
+    restarted = create_today("重新开始")
+    todo.complete_task(restarted["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"], reward["next_points"]) == (
+        4,
+        1,
+        1,
+        2,
+    )
+
+    # 7 月 29 日没有安排任务：不加分，也不打断连续记录。
+    current_day[0] = date(2026, 7, 30)
+    after_rest = create_today("无任务日之后")
+    todo.complete_task(after_rest["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"]) == (6, 2, 2)
+
+    # 当天尚未结束时先展示可争取的分数；完成后再正式计分。
+    current_day[0] = date(2026, 7, 31)
+    pending = create_today("今天尚未完成")
+    reward = todo.reward_summary()
+    assert (reward["today_points"], reward["current_streak"], reward["next_points"]) == (0, 2, 3)
+
+    todo.complete_task(pending["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"], reward["next_points"]) == (
+        9,
+        3,
+        3,
+        4,
+    )
+
+    todo.undo_completion(pending["id"])
+    reward = todo.reward_summary()
+    assert (reward["total_points"], reward["today_points"], reward["current_streak"], reward["next_points"]) == (
+        6,
+        0,
+        2,
+        3,
+    )

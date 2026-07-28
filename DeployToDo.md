@@ -1,155 +1,102 @@
-# 腾讯云宝塔面板部署手册 — jingsen.cc/learningcenter
+# 腾讯云宝塔部署手册 — Jingsen Learning Center
 
-> 目标：在已安装宝塔面板的腾讯云 2c2g 轻量服务器上，将 Jingsen 学习中心部署到 `https://jingsen.cc/learningcenter`。
->
-> 宝塔面板让 Nginx、数据库、Python 环境、进程守护全部可以在网页操作，无需大量手敲命令。
+目标地址：`https://jingsen.cc/learningcenter/`
 
----
+本项目不使用 MySQL 或 PostgreSQL。词库、Skills、Daily Reports 和 Learning
+Todo 均通过服务器本地文件持久化，因此部署的重点是让代码目录可以更新，同时
+保证 `data/` 和 `.env` 永远先备份、后恢复、再校验。
 
-## 前置确认
+## 目录与权限
 
-| 条件 | 状态 |
-|------|------|
-| 域名 `jingsen.cc` 已购买 | ✅ |
-| SSL 证书已购买 | ✅ |
-| 2c2g 轻量服务器已购买 | ✅ |
-| 宝塔面板已安装，Nginx 已在宝塔中安装 | ✅ |
-
----
-
-## 步骤一：登录宝塔面板，安装必要软件
-
-1. 浏览器打开宝塔面板地址（通常是 `http://服务器IP:8888`）
-2. 进入 **软件商店**，确认以下软件已安装：
-   - **Nginx**（已安装 ✅）
-   - **PostgreSQL**（搜索安装，推荐 14 或 15 版本）
-   - **Python 项目管理器**（搜索 "Python" 安装宝塔的 Python 管理器）
-
-> 以上都是直接点「安装」，等待完成即可。
-
----
-
-## 步骤二：在宝塔中创建 PostgreSQL 数据库
-
-1. 宝塔左侧菜单 → **数据库** → 选择 **PostgreSQL**
-2. 点击 **添加数据库**：
-   - 数据库名：`jingsen_db`
-   - 用户名：`jingsen`
-   - 密码：设置一个强密码，**记下来**
-3. 点击确定，创建完成。
-
-记下连接串（后面配置环境变量用）：
-
-```
-postgresql://jingsen:你设置的密码@localhost:5432/jingsen_db
+```text
+/www/wwwroot/learningcenter/
+├── app/                         # Git 代码目录
+│   ├── data/                    # 服务器真实持久数据
+│   │   ├── library_registry.json
+│   │   ├── *.txt
+│   │   ├── skills/
+│   │   ├── report_history.json
+│   │   └── learning-todo/
+│   └── .env
+└── backups/
+    ├── releases/<时间>/         # 每次发布前的完整快照
+    └── latest -> releases/<时间>
 ```
 
----
-
-## 步骤三：上传代码到服务器
-
-**方式 A（推荐）：SSH 终端 git clone**
-
-在宝塔面板右上角点 **终端**，或用本地 SSH 连接服务器：
+初始化：
 
 ```bash
-mkdir -p /www/wwwroot/jingsen
-cd /www/wwwroot/jingsen
-git clone https://github.com/你的GitHub用户名/Jingsen-LearningCenter-V1.git learningcenter
+mkdir -p /www/wwwroot/learningcenter/backups/releases
+chown -R www:www /www/wwwroot/learningcenter
 ```
 
-**方式 B：宝塔文件管理器上传**
-
-1. 宝塔左侧 → **文件** → 进入 `/www/wwwroot/`
-2. 新建文件夹 `jingsen/learningcenter`
-3. 将本地项目打包成 `.zip`，通过宝塔文件管理器上传并解压
-
----
-
-## 步骤四：配置环境变量文件
-
-在宝塔终端中执行：
+## 首次取得代码
 
 ```bash
-nano /www/wwwroot/jingsen/learningcenter/.env
+cd /www/wwwroot/learningcenter
+sudo -u www -H git clone <仓库地址> app
+cd app
+sudo -u www -H git checkout deploy/tencent-learningcenter-path
 ```
 
-填入以下内容（替换 `<>` 内的值）：
+不要上传本地运行产生的 `data/report_history.json` 或 `data/learning-todo/`
+覆盖服务器。服务启动后会在缺失时自动创建 Todo 的独立默认文件。
+
+## `.env`
+
+在 `/www/wwwroot/learningcenter/app/.env` 配置：
 
 ```env
-OPENAI_API_KEY=<你的API Key>
-OPENAI_BASE_URL=<接口地址，如 https://api.openai.com/v1>
+OPENAI_API_KEY=<API Key>
+OPENAI_BASE_URL=<API 地址>
 MODEL_NAME=gpt-3.5-turbo
-PORT=8000
-DATABASE_URL=postgresql://jingsen:<你设置的密码>@localhost:5432/jingsen_db
+HOST=127.0.0.1
+PORT=8088
+
+ADMIN_PASSWORD=0418
+ADMIN_SESSION_SECRET=<至少 32 字节的随机字符串>
+ADMIN_SESSION_HOURS=12
+ADMIN_COOKIE_SECURE=1
+
+TODO_TIMEZONE=Asia/Shanghai
 ```
 
-保存：`Ctrl+O` → `Enter` → `Ctrl+X`
+可以在服务器生成 Session Secret：
 
----
-
-## 步骤五：用宝塔 Python 项目管理器部署应用
-
-1. 宝塔左侧 → **软件商店** → 已安装 → 打开 **Python 项目管理器**
-2. 点击 **添加项目**：
-
-| 字段 | 填写内容 |
-|------|----------|
-| 项目名称 | `jingsen-lc` |
-| 项目路径 | `/www/wwwroot/jingsen/learningcenter` |
-| Python 版本 | 3.11（或可用的最新版） |
-| 启动文件 | `main.py` |
-| 启动方式 | `gunicorn` |
-| 启动命令（自定义） | 见下方 |
-| 端口 | `8000` |
-
-**启动命令填写：**
-
-```
-gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --timeout 180 --graceful-timeout 30 --bind 127.0.0.1:8000
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-3. 点击 **确定**，宝塔会自动：
-   - 创建虚拟环境
-   - 安装 `requirements.txt` 中的依赖
-   - 启动应用并配置开机自启
+`.env` 权限建议：
 
-4. 看到项目状态变为 **运行中** 即成功。
+```bash
+chown www:www /www/wwwroot/learningcenter/app/.env
+chmod 600 /www/wwwroot/learningcenter/app/.env
+```
 
-> 如果宝塔 Python 管理器未自动加载 `.env`，在「环境变量」选项卡里手动添加上面 `.env` 中的 5 个变量。
+## Python 项目
 
----
+宝塔 Python 项目管理器：
 
-## 步骤六：在宝塔中配置 SSL 证书
+- 项目目录：`/www/wwwroot/learningcenter/app`
+- Python：3.11
+- 绑定：`127.0.0.1:8088`
+- 启动命令：
 
-1. 宝塔左侧 → **SSL** 或通过**网站**管理进入
-2. 如果已有腾讯云下载的证书文件，选择 **其他证书**：
-   - 将 `.crt` 文件内容粘贴到「证书（PEM格式）」框
-   - 将 `.key` 文件内容粘贴到「私钥」框
-3. 点击保存，宝塔自动将证书配置到 Nginx。
+```text
+gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --timeout 180 --graceful-timeout 30 --bind 127.0.0.1:8088
+```
 
----
+Todo 写入同时使用进程内锁、服务器文件锁和原子替换，支持多个 Gunicorn worker。
 
-## 步骤七：在宝塔中配置 Nginx 反代
+## Nginx 反向代理
 
-1. 宝塔左侧 → **网站** → **添加站点**：
-   - 域名：`jingsen.cc`
-   - 不需要创建数据库，不需要 FTP
-   - PHP 版本选「纯静态」
-2. 站点创建后，点击站点域名进入**站点设置**
-3. 点击 **SSL** 选项卡 → 关联刚才配置的证书，开启 HTTPS
-4. 点击 **配置文件** 选项卡，找到 `server { listen 443 ...}` 块，在其中添加反代配置：
-
-在 `server_name` 行下方、最后一个 `}` 前，加入：
+应用已经同时注册根路径和 `/learningcenter` 前缀路由，建议保留前缀转发，不做
+额外 rewrite：
 
 ```nginx
-# HTTP → HTTPS
-# （宝塔开启 HTTPS 后会自动处理，无需手动添加）
-
-# /learningcenter 反代到 FastAPI
-location /learningcenter {
-    rewrite ^/learningcenter(/.*)?$ $1 break;
-    proxy_pass http://127.0.0.1:8000;
+location /learningcenter/ {
+    proxy_pass http://127.0.0.1:8088;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -160,82 +107,64 @@ location /learningcenter {
 }
 ```
 
-5. 点击 **保存**，宝塔自动重载 Nginx。
-
----
-
-## 步骤八：配置域名 DNS 解析
-
-登录**腾讯云 DNS（DNSPod）**控制台，添加以下 A 记录：
-
-| 主机记录 | 记录类型 | 记录值 |
-|----------|----------|--------|
-| `@` | A | 服务器公网 IP |
-| `www` | A | 服务器公网 IP |
-
-DNS 生效约需 1～10 分钟。
-
----
-
-## 步骤九：在腾讯云控制台开放防火墙端口
-
-进入**腾讯云轻量服务器控制台 → 防火墙**，确认以下规则存在：
-
-| 端口 | 协议 | 用途 |
-|------|------|------|
-| 80 | TCP | HTTP（自动跳转 HTTPS） |
-| 443 | TCP | HTTPS 访问 |
-| 22 | TCP | SSH / 宝塔终端 |
-| 8888 | TCP | 宝塔面板（可选，不用后可关闭） |
-
-> **8000 端口不需要开放**，FastAPI 只在服务器内部监听，由 Nginx 转发。
-
----
-
-## 步骤十：验收测试
-
-| 验收项 | 操作 |
-|--------|------|
-| Python 项目在运行 | 宝塔 Python 管理器 → 状态显示「运行中」 |
-| 本地接口可达 | 宝塔终端：`curl http://127.0.0.1:8000/health` |
-| HTTPS 正常 | 浏览器打开 `https://jingsen.cc/learningcenter` |
-| 词库已导入 | 浏览器打开 `https://jingsen.cc/learningcenter/api/admin/libraries` |
-| 数据库有数据 | 宝塔数据库 → PostgreSQL → 进入 `jingsen_db` 查看 `libraries` 表 |
-
----
-
-## 后续更新代码
-
-每次推送新版本后，在宝塔终端执行：
+保存后：
 
 ```bash
-cd /www/wwwroot/jingsen/learningcenter
-git pull origin main
+nginx -t
+/etc/init.d/nginx reload
 ```
 
-然后在宝塔 Python 项目管理器中点击 **重启** 即可。
+## 首次启动校验
 
-> 若 `requirements.txt` 有变化，点「安装模块」或在终端激活虚拟环境后运行 `pip install -r requirements.txt`。
-
----
-
-## 常见问题
-
-**Q：访问 `/learningcenter` 后页面空白或资源 404**  
-A：检查 Nginx 配置中 `rewrite` 是否正确去掉了 `/learningcenter` 前缀。可在宝塔终端执行 `curl http://127.0.0.1:8000/portal` 验证 FastAPI 内部路由是否正常。
-
-**Q：Python 项目管理器找不到 gunicorn**  
-A：宝塔创建虚拟环境后，在终端手动激活并安装：  
 ```bash
-source /www/wwwroot/jingsen/learningcenter/venv/bin/activate
-pip install -r requirements.txt
+cd /www/wwwroot/learningcenter/app
+/www/server/pyporject_evn/versions/3.11.15/bin/python3 -m pip install -r requirements.txt
+/www/server/pyporject_evn/versions/3.11.15/bin/python3 -c \
+  "from main import app; from services.learning_todo_service import get_learning_todo_service; print(get_learning_todo_service().validate_storage())"
 ```
 
-**Q：数据库连接失败**  
-A：宝塔终端运行 `psql -U jingsen -d jingsen_db -h localhost`，确认用户名密码正确；检查 `.env` 文件内容。
+然后在宝塔启动项目并检查：
 
-**Q：词库没有自动导入**  
-A：查看宝塔 Python 项目日志，确认有 `bootstrap` 相关日志；确保 `data/` 目录下有 `.txt` 词库文件。
+```bash
+curl -fsS http://127.0.0.1:8088/health
+curl -I https://jingsen.cc/learningcenter/
+```
 
-**Q：宝塔面板访问不了**  
-A：确认腾讯云防火墙已开放 8888 端口；也可直接用宝塔的 SSH 终端操作。
+## 后续发布
+
+每次只使用：
+
+```bash
+cd /www/wwwroot/learningcenter/app
+bash update_safe.sh
+```
+
+脚本会：
+
+1. 在应用目录外创建版本化 `data/` 和 `.env` 快照。
+2. 生成发布前 SHA-256 清单并校验全部 JSON。
+3. 同步部署分支代码。
+4. 原样恢复发布前的服务器 `data/`。
+5. 仅补充新代码中缺失的数据种子，不覆盖线上数据。
+6. 逐文件验证发布前清单。
+7. 导入应用并校验 Todo 存储。
+
+脚本完成后在宝塔重启 Python 项目。详细恢复步骤见
+[`updateNew.md`](updateNew.md)。
+
+## 发布验收
+
+```bash
+cd /www/wwwroot/learningcenter/app
+/www/server/pyporject_evn/versions/3.11.15/bin/python3 \
+  scripts/validate_persistent_data.py data
+```
+
+随后检查：
+
+- `/learningcenter/admin`：词库和 Skills 数据未变化。
+- `/learningcenter/english`：Daily Reports 历史存在。
+- `/learningcenter/admin/todo`：任务、科目、统计和评语存在。
+- `/learningcenter/todo`：孩子端完成与取消完成正常。
+
+不要把“页面能打开”当作数据验收；必须同时执行数据校验并人工抽查三类历史内容。

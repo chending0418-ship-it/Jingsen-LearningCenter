@@ -1,103 +1,162 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
-APP_DIR="/www/wwwroot/learningcenter/app"
-BACKUP_ROOT="/www/wwwroot/learningcenter/backups"
-BRANCH="deploy/tencent-learningcenter-path"
-PYTHON_BIN="/www/server/pyporject_evn/versions/3.11.15/bin/python3"
-DATA_BACKUP="$BACKUP_ROOT/data-newest"
-ENV_BACKUP="$BACKUP_ROOT/env-newest"
-REPORT_BACKUP="$BACKUP_ROOT/report-history-newest.json"
-SKILLS_GIT_BACKUP="$BACKUP_ROOT/skills-from-git-newest"
+# 可通过环境变量覆盖，便于测试或迁移服务器目录。
+APP_DIR="${APP_DIR:-/www/wwwroot/learningcenter/app}"
+BACKUP_ROOT="${BACKUP_ROOT:-/www/wwwroot/learningcenter/backups}"
+BRANCH="${BRANCH:-deploy/tencent-learningcenter-path}"
+PYTHON_BIN="${PYTHON_BIN:-/www/server/pyporject_evn/versions/3.11.15/bin/python3}"
+RUN_AS_USER="${RUN_AS_USER:-www}"
+RUN_AS_GROUP="${RUN_AS_GROUP:-$RUN_AS_USER}"
+HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8088/health}"
+SKIP_DEPENDENCY_INSTALL="${SKIP_DEPENDENCY_INSTALL:-0}"
+SKIP_HEALTH_CHECK="${SKIP_HEALTH_CHECK:-0}"
+
+DEPLOY_STAMP="$(date +%Y%m%d-%H%M%S)-$$"
+SNAPSHOT_DIR="$BACKUP_ROOT/releases/$DEPLOY_STAMP"
+DATA_SNAPSHOT="$SNAPSHOT_DIR/data"
+ENV_SNAPSHOT="$SNAPSHOT_DIR/app.env"
+DATA_MANIFEST="$SNAPSHOT_DIR/data-manifest.json"
+LATEST_LINK="$BACKUP_ROOT/latest"
+CODE_DATA_TEMP=""
 
 log() {
   echo "[update_safe] $*"
 }
 
+fail() {
+  echo "[update_safe] 错误：$*" >&2
+  exit 1
+}
+
+cleanup() {
+  if [ -n "$CODE_DATA_TEMP" ] && [ -d "$CODE_DATA_TEMP" ]; then
+    rm -rf "$CODE_DATA_TEMP"
+  fi
+}
+trap cleanup EXIT
+
 run_git() {
-  if command -v sudo >/dev/null 2>&1; then
-    sudo -u www -H git -C "$APP_DIR" "$@"
+  if [ "$(id -un)" = "$RUN_AS_USER" ]; then
+    git -C "$APP_DIR" "$@"
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo -u "$RUN_AS_USER" -H git -C "$APP_DIR" "$@"
   else
-    su -s /bin/bash www -c "git -C '$APP_DIR' $*"
+    su -s /bin/bash "$RUN_AS_USER" -c "git -C '$APP_DIR' $*"
   fi
 }
 
-log "开始执行安全更新脚本"
+log "开始安全更新：代码与服务器数据分离"
+[ -d "$APP_DIR" ] || fail "项目目录不存在: $APP_DIR"
+[ -d "$APP_DIR/.git" ] || fail "$APP_DIR 不是 Git 项目"
+[ -x "$PYTHON_BIN" ] || fail "Python 不可执行: $PYTHON_BIN"
+
 cd "$APP_DIR"
-mkdir -p "$BACKUP_ROOT"
+mkdir -p "$BACKUP_ROOT/releases"
+mkdir -p "$SNAPSHOT_DIR"
 
-if [ ! -d ".git" ]; then
-  echo "错误：$APP_DIR 不是 Git 项目，未找到 .git。"
-  echo "请先确认 APP_DIR 是否正确。"
-  exit 1
-fi
-
+# 1. 发布前对整个 data 做不可覆盖的版本化快照。
 if [ -d "data" ]; then
-  rm -rf "$DATA_BACKUP"
-  cp -a data "$DATA_BACKUP"
-  log "已备份线上 data 到: $DATA_BACKUP"
+  cp -a "data" "$DATA_SNAPSHOT"
+  log "已快照全部服务器数据: $DATA_SNAPSHOT"
 else
-  log "警告：当前项目目录没有 data 文件夹，将继续更新。"
-fi
-
-if [ -f "data/report_history.json" ]; then
-  cp -a "data/report_history.json" "$REPORT_BACKUP"
-  log "已单独备份 report_history.json 到: $REPORT_BACKUP"
-else
-  log "提示：当前没有 data/report_history.json，跳过单独备份。"
+  mkdir -p "$DATA_SNAPSHOT"
+  log "当前没有 data，已记录空数据快照"
 fi
 
 if [ -f ".env" ]; then
-  cp -a .env "$ENV_BACKUP"
-  log "已备份线上 .env 到: $ENV_BACKUP"
-else
-  log "警告：当前项目目录没有 .env 文件，将继续更新。"
+  cp -a ".env" "$ENV_SNAPSHOT"
+  chmod 600 "$ENV_SNAPSHOT"
+  log "已快照 .env"
 fi
 
-log "拉取远端最新代码"
+if [ -f "scripts/validate_persistent_data.py" ]; then
+  "$PYTHON_BIN" scripts/validate_persistent_data.py "$DATA_SNAPSHOT" --manifest-out "$DATA_MANIFEST"
+else
+  # 首次升级到新部署方案时，至少先验证所有 JSON 可解析。
+  "$PYTHON_BIN" - "$DATA_SNAPSHOT" "$DATA_MANIFEST" <<'PY'
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+manifest_path = Path(sys.argv[2])
+files = []
+for path in sorted(item for item in root.rglob("*") if item.is_file()):
+    relative = path.relative_to(root).as_posix()
+    if path.suffix == ".json":
+        with path.open("r", encoding="utf-8") as handle:
+            json.load(handle)
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    files.append({"path": relative, "size": path.stat().st_size, "sha256": digest})
+manifest_path.write_text(
+    json.dumps({"version": 1, "root": "data", "files": files}, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+)
+PY
+fi
+
+ln -sfn "$SNAPSHOT_DIR" "$LATEST_LINK"
+log "最新快照链接: $LATEST_LINK"
+
+# 2. 同步代码。真实数据已在 APP_DIR 外部完成快照。
+log "同步远端分支: $BRANCH"
 run_git fetch origin
 run_git checkout "$BRANCH"
 run_git reset --hard "origin/$BRANCH"
 
-if [ -d "data/skills" ]; then
-  rm -rf "$SKILLS_GIT_BACKUP"
-  mkdir -p "$SKILLS_GIT_BACKUP"
-  cp -a data/skills/. "$SKILLS_GIT_BACKUP/"
-  log "已暂存 Git 版本 Skills 到: $SKILLS_GIT_BACKUP"
+# 暂存新代码版本自带的数据种子，恢复真实数据后只补缺，不覆盖。
+CODE_DATA_TEMP="$(mktemp -d "$BACKUP_ROOT/.code-data.XXXXXX")"
+if [ -d "data" ]; then
+  cp -a "data/." "$CODE_DATA_TEMP/"
 fi
 
-run_git clean -fd -e data -e .env
+run_git clean -fd -e .env
 
-if [ -d "$DATA_BACKUP" ]; then
-  rm -rf data
-  cp -a "$DATA_BACKUP" data
-  log "已恢复线上真实 data 到项目目录。"
+# 3. 原样恢复发布前的整个 data；词库、Skills、Reports、Todo 一起恢复。
+rm -rf "$APP_DIR/data"
+cp -a "$DATA_SNAPSHOT" "$APP_DIR/data"
+log "已恢复发布前服务器 data"
+
+# 新版本新增的种子文件只在服务器数据中不存在时补入。
+if [ -d "$CODE_DATA_TEMP" ]; then
+  "$PYTHON_BIN" scripts/merge_missing_data.py "$CODE_DATA_TEMP" "$APP_DIR/data"
+fi
+
+if [ -f "$ENV_SNAPSHOT" ]; then
+  cp -a "$ENV_SNAPSHOT" "$APP_DIR/.env"
+  log "已恢复 .env"
+fi
+
+# 4. 清单校验保证发布前已有的每个数据文件都还在且内容未变化。
+"$PYTHON_BIN" scripts/validate_persistent_data.py \
+  "$APP_DIR/data" \
+  --verify-manifest "$DATA_MANIFEST"
+log "持久数据清单验证通过"
+
+chown -R "$RUN_AS_USER:$RUN_AS_GROUP" "$APP_DIR"
+
+if [ "$SKIP_DEPENDENCY_INSTALL" != "1" ]; then
+  log "安装/更新依赖"
+  "$PYTHON_BIN" -m pip install -r requirements.txt
 else
-  mkdir -p data
-  log "没有找到更新前 data 备份，已创建空 data 目录。"
+  log "已按配置跳过依赖安装"
 fi
 
-if [ -d "$SKILLS_GIT_BACKUP" ]; then
-  mkdir -p data/skills
-  for f in index.json map_language_arts.json map_reading.json word_vocabulary_skills.json; do
-    if [ ! -f "data/skills/$f" ] && [ -f "$SKILLS_GIT_BACKUP/$f" ]; then
-      cp -a "$SKILLS_GIT_BACKUP/$f" "data/skills/$f"
-      log "已补齐缺失 Skills 文件: data/skills/$f"
-    fi
-  done
+# 导入应用会执行 Todo JSON 启动校验，并在首次上线时创建独立目录默认文件。
+log "执行应用导入和 Todo 存储校验"
+"$PYTHON_BIN" -c "from main import app; from services.learning_todo_service import get_learning_todo_service; get_learning_todo_service().validate_storage(); print(app.title)"
+"$PYTHON_BIN" scripts/validate_persistent_data.py "$APP_DIR/data"
+
+# 这里检查当前进程是否仍可用；代码更新后仍需在宝塔重启 Python 项目。
+if [ "$SKIP_HEALTH_CHECK" != "1" ]; then
+  log "检查当前服务健康状态"
+  curl -fsS "$HEALTH_URL"
+  echo
+else
+  log "已按配置跳过当前进程健康检查"
 fi
 
-if [ -f "$ENV_BACKUP" ]; then
-  cp -a "$ENV_BACKUP" .env
-  log "已恢复线上 .env。"
-fi
-
-chown -R www:www "$APP_DIR"
-
-log "安装/更新依赖"
-"$PYTHON_BIN" -m pip install -r requirements.txt
-
-log "执行健康检查"
-curl http://127.0.0.1:8088/health
-
-log "更新完成。请到宝塔面板重启 Python 项目，然后再检查公网页面。"
+log "安全更新完成，快照保留在: $SNAPSHOT_DIR"
+log "请在宝塔重启 Python 项目，然后再次运行健康检查和页面验收。"

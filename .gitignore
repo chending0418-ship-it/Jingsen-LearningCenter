@@ -37,6 +37,10 @@ wheels/
 # Logs
 *.log
 
+# Server-local mutable learning data (backed up separately during deployment)
+data/report_history.json
+data/learning-todo/
+
 # OS
 .DS_Store
 Thumbs.db

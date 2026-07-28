@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --bg-main: #F8F9FB; --accent: #4F46E5; }
-        body { font-family: 'Inter', 'PingFang SC', sans-serif; background: var(--bg-main); }
+        body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; background: var(--bg-main); }
         .card { border: 1px solid #E5E7EB; border-radius: 16px; background: #fff; }
     </style>
 </head>
@@ -33,7 +33,7 @@
             </div>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button class="card p-5 text-left border-2 border-indigo-500 bg-indigo-50/60">
                 <div class="text-xs font-bold text-indigo-600 uppercase tracking-[0.16em]">当前页面</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">词库管理</h2>
@@ -43,6 +43,11 @@
                 <div class="text-xs font-bold text-blue-600 uppercase tracking-[0.16em]">Skills</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">Skills 管理</h2>
                 <p class="text-gray-500 mt-2">维护 MAP Language Arts / Reading / Vocabulary Skills 的 Grade ｜ Topic ｜ Skill ｜ Detail。</p>
+            </button>
+            <button onclick="location.href=withBasePath('/admin/todo')" class="card p-5 text-left hover:border-amber-400 hover:bg-amber-50/60 transition-colors">
+                <div class="text-xs font-bold text-amber-600 uppercase tracking-[0.16em]">Learning Todo</div>
+                <h2 class="text-2xl font-bold text-gray-900 mt-2">Todo 管理</h2>
+                <p class="text-gray-500 mt-2">安排学习任务，查看日、周、月进度与完成统计。</p>
             </button>
         </section>
 

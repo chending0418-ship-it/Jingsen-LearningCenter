@@ -24,6 +24,19 @@ class Config:
     
     # 数据目录配置（本地词库主存储）
     DATA_DIR: str = os.path.join(os.path.dirname(__file__), "data")
+
+    # Admin 会话配置。沿用现有后台密码，不为 Learning Todo 增加第二套密码。
+    ADMIN_PASSWORD: str = os.environ.get("ADMIN_PASSWORD", "0418")
+    ADMIN_SESSION_SECRET: str = os.environ.get("ADMIN_SESSION_SECRET", "")
+    ADMIN_SESSION_HOURS: int = int(os.environ.get("ADMIN_SESSION_HOURS", "12"))
+    ADMIN_COOKIE_SECURE: bool = os.environ.get("ADMIN_COOKIE_SECURE", "0").lower() in {"1", "true", "yes", "on"}
+
+    # Learning Todo 使用独立子目录，避免与词库、Skills、Daily Reports 数据冲突。
+    TODO_DATA_DIR: str = os.environ.get(
+        "TODO_DATA_DIR",
+        os.path.join(DATA_DIR, "learning-todo")
+    )
+    TODO_TIMEZONE: str = os.environ.get("TODO_TIMEZONE", "Asia/Shanghai")
     
     # CORS 配置
     CORS_ORIGINS: list = ["*"]

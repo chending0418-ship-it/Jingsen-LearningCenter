@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#F4F1E8">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Learning Todo - Jingsen Learning Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F4F1E8;
+            --paper-deep: #EAE5D8;
+            --ink: #17211D;
+            --muted: #69736E;
+            --line: rgba(23, 33, 29, 0.11);
+            --card: rgba(255, 255, 255, 0.82);
+            --teal: #176B5B;
+            --teal-soft: #DDEDE7;
+            --amber: #B66B14;
+            --amber-soft: #F8E9CF;
+            --danger: #B9473D;
+            --shadow: 0 18px 48px rgba(60, 54, 39, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { background: var(--paper); }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 8% 0%, rgba(255, 255, 255, 0.95), transparent 34rem),
+                linear-gradient(180deg, #F8F6EF 0%, var(--paper) 42%, #EEE9DE 100%);
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
+
+        .shell {
+            width: min(100%, 760px);
+            margin: 0 auto;
+            padding: max(18px, env(safe-area-inset-top)) 18px calc(112px + env(safe-area-inset-bottom));
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 34px;
+        }
+
+        .back-link, .date-pill {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.66);
+            color: var(--ink);
+            text-decoration: none;
+            padding: 0 14px;
+            font-size: 14px;
+            font-weight: 700;
+            backdrop-filter: blur(14px);
+        }
+
+        .back-link:hover { background: #fff; }
+        .back-link svg { width: 17px; height: 17px; }
+        .date-pill { color: var(--muted); font-weight: 650; }
+
+        .hero { margin-bottom: 26px; }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 850;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            max-width: 620px;
+            font-size: clamp(34px, 9vw, 58px);
+            line-height: 1.04;
+            letter-spacing: -0.045em;
+            font-weight: 750;
+        }
+
+        .hero-copy {
+            margin: 13px 0 0;
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 15px;
+        }
+
+        .preview-note {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            margin-top: 15px;
+            padding: 8px 11px;
+            border: 1px solid #E5C992;
+            border-radius: 10px;
+            background: rgba(255, 248, 229, 0.84);
+            color: #8B5714;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .preview-note.visible { display: inline-flex; }
+        .preview-dot { width: 7px; height: 7px; border-radius: 50%; background: #D68A1B; }
+
+        .progress-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(23, 107, 91, 0.16);
+            border-radius: 26px;
+            background: linear-gradient(145deg, rgba(238, 249, 244, 0.96), rgba(217, 236, 228, 0.88));
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 34px;
+        }
+
+        .progress-card::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -60px;
+            top: -86px;
+            border: 22px solid rgba(255, 255, 255, 0.37);
+            border-radius: 50%;
+        }
+
+        .progress-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .progress-label { color: #3D5F56; font-size: 13px; font-weight: 800; }
+        .progress-value { margin-top: 5px; font-size: 32px; font-weight: 850; letter-spacing: -0.04em; }
+        .progress-value span { color: var(--teal); }
+
+        .progress-percent {
+            color: var(--teal);
+            font-size: 14px;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .progress-track {
+            position: relative;
+            z-index: 1;
+            height: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(23, 107, 91, 0.13);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #176B5B, #2A907C);
+            transition: width 420ms cubic-bezier(.2,.8,.2,1);
+        }
+
+        .progress-meta {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 16px;
+            margin-top: 17px;
+            color: #547068;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .meta-item { display: flex; align-items: center; gap: 6px; }
+        .meta-mark { width: 8px; height: 8px; border-radius: 3px; background: var(--teal); }
+        .meta-mark.amber { background: var(--amber); }
+
+        .reward-card {
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 22px;
+            align-items: center;
+            margin: -14px 0 34px;
+            padding: 22px 24px;
+            border: 1px solid rgba(166, 103, 17, 0.2);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.64), transparent 9rem),
+                linear-gradient(135deg, #FFF5D6 0%, #F5D78F 100%);
+            box-shadow: 0 16px 42px rgba(117, 78, 19, 0.12);
+        }
+
+        .reward-card::after {
+            content: "★";
+            position: absolute;
+            right: 18px;
+            top: -34px;
+            color: rgba(170, 105, 9, 0.1);
+            font-size: 112px;
+            line-height: 1;
+            transform: rotate(10deg);
+        }
+
+        .reward-copy, .reward-score { position: relative; z-index: 1; }
+        .reward-kicker {
+            margin: 0 0 5px;
+            color: #8B5714;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .reward-title {
+            margin: 0;
+            font-size: 21px;
+            letter-spacing: -.025em;
+        }
+
+        .reward-message {
+            margin: 8px 0 0;
+            color: #76552A;
+            font-size: 13px;
+            font-weight: 650;
+            line-height: 1.5;
+        }
+
+        .reward-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 13px;
+        }
+
+        .reward-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border: 1px solid rgba(126, 82, 17, .16);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .46);
+            color: #684718;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .reward-score {
+            min-width: 106px;
+            text-align: right;
+        }
+
+        .reward-number {
+            color: #8E5710;
+            font-size: 48px;
+            font-weight: 850;
+            line-height: 1;
+            letter-spacing: -.055em;
+        }
+
+        .reward-unit {
+            margin-top: 5px;
+            color: #795725;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .task-section { margin-top: 34px; }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 3px;
+            margin-bottom: 14px;
+        }
+
+        .section-kicker {
+            margin: 0 0 4px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        h2 { margin: 0; font-size: 22px; letter-spacing: -0.025em; }
+
+        .section-count {
+            min-width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,.62);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .task-list { display: grid; gap: 11px; }
+
+        .task-card {
+            --subject: #6B7280;
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            gap: 14px;
+            align-items: flex-start;
+            padding: 17px;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--subject);
+            border-radius: 18px;
+            background: var(--card);
+            box-shadow: 0 9px 26px rgba(60, 54, 39, 0.055);
+            backdrop-filter: blur(14px);
+            transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+        }
+
+        .task-card:hover { transform: translateY(-1px); box-shadow: 0 13px 30px rgba(60, 54, 39, 0.08); }
+        .task-card.is-completed { opacity: 0.72; }
+        .task-card.is-completed .task-title { text-decoration: line-through; text-decoration-color: rgba(23,33,29,.35); }
+
+        .check-button {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid rgba(23,33,29,.17);
+            border-radius: 15px;
+            background: rgba(255,255,255,.78);
+            color: transparent;
+            cursor: pointer;
+            transition: all 160ms ease;
+        }
+
+        .check-button:hover { border-color: var(--teal); transform: scale(1.03); }
+        .check-button:focus-visible { outline: 3px solid rgba(23,107,91,.24); outline-offset: 2px; }
+        .check-button svg { width: 22px; height: 22px; stroke-width: 2.6; }
+        .check-button.checked { border-color: var(--teal); background: var(--teal); color: #fff; }
+        .check-button.checked:hover { border-color: var(--danger); background: var(--danger); }
+        .check-button:disabled { cursor: wait; opacity: .55; }
+
+        .task-main { min-width: 0; }
+        .task-topline { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-bottom: 8px; }
+
+        .subject-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: color-mix(in srgb, var(--subject) 12%, white);
+            color: color-mix(in srgb, var(--subject) 82%, #17211D);
+            font-size: 11px;
+            font-weight: 850;
+        }
+
+        .subject-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--subject); }
+
+        .overdue-badge {
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: var(--amber-soft);
+            color: #955A10;
+            font-size: 11px;
+            font-weight: 850;
+        }
+
+        .task-title { margin: 0; font-size: 17px; line-height: 1.35; letter-spacing: -0.012em; }
+        .task-description { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.58; }
+        .task-date { margin-top: 11px; color: #7A827E; font-size: 11px; font-weight: 700; }
+        .manual-undo-hint { margin-left: 7px; color: var(--teal); }
+
+        .empty-card, .error-card {
+            padding: 24px 18px;
+            border: 1px dashed rgba(23,33,29,.18);
+            border-radius: 18px;
+            color: var(--muted);
+            text-align: center;
+            background: rgba(255,255,255,.38);
+        }
+
+        .empty-icon { display: block; margin-bottom: 7px; font-size: 24px; }
+        .error-card { border-style: solid; border-color: rgba(185,71,61,.22); color: var(--danger); }
+
+        .retry-button {
+            margin-top: 12px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--ink);
+            color: #fff;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .loading-card {
+            height: 104px;
+            border-radius: 18px;
+            background: linear-gradient(90deg, rgba(255,255,255,.36), rgba(255,255,255,.82), rgba(255,255,255,.36));
+            background-size: 220% 100%;
+            animation: shimmer 1.25s infinite linear;
+        }
+
+        @keyframes shimmer { to { background-position: -220% 0; } }
+
+        .undo-toast {
+            position: fixed;
+            z-index: 20;
+            left: 50%;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            width: min(calc(100% - 28px), 620px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 14px 14px 17px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 17px;
+            background: rgba(23,33,29,.96);
+            color: #fff;
+            box-shadow: 0 18px 50px rgba(23,33,29,.28);
+            transform: translate(-50%, 140%);
+            opacity: 0;
+            transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease;
+            backdrop-filter: blur(16px);
+        }
+
+        .undo-toast.visible { transform: translate(-50%, 0); opacity: 1; }
+        .undo-copy { min-width: 0; }
+        .undo-title { font-size: 13px; font-weight: 800; }
+        .undo-subtitle { margin-top: 3px; color: rgba(255,255,255,.65); font-size: 11px; }
+        .undo-button { border: 0; border-radius: 11px; background: #F3C969; color: #342510; padding: 10px 13px; cursor: pointer; font-weight: 850; }
+
+        .page-footer {
+            margin-top: 48px;
+            color: #8B928E;
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: .04em;
+        }
+
+        @media (min-width: 720px) {
+            .shell { padding-left: 28px; padding-right: 28px; }
+            .task-card { grid-template-columns: 52px minmax(0,1fr); padding: 20px; }
+            .progress-card { padding: 28px; }
+            .reward-card { padding: 24px 28px; }
+        }
+
+        @media (max-width: 470px) {
+            .reward-card {
+                grid-template-columns: minmax(0, 1fr) 82px;
+                gap: 14px;
+                padding: 20px;
+            }
+            .reward-number { font-size: 42px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <nav class="topbar" aria-label="页面导航">
+            <a id="back-link" class="back-link" href="/portal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                学习中心
+            </a>
+            <div id="date-pill" class="date-pill">今天</div>
+        </nav>
+
+        <header class="hero">
+            <p class="eyebrow">Learning Todo</p>
+            <h1>今天，一件件完成。</h1>
+            <p class="hero-copy">先处理逾期任务，再完成今天的安排。每一次勾选，都是向前的一小步。</p>
+            <div id="preview-note" class="preview-note"><span class="preview-dot"></span>本地前端预览数据</div>
+        </header>
+
+        <section class="progress-card" aria-labelledby="progress-heading">
+            <div class="progress-head">
+                <div>
+                    <div id="progress-heading" class="progress-label">今日进度</div>
+                    <div class="progress-value">已完成 <span id="completed-count">—</span>/<span id="total-count">—</span></div>
+                </div>
+                <div id="progress-percent" class="progress-percent">加载中</div>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="今日任务完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="progress-meta">
+                <div class="meta-item"><span class="meta-mark"></span><span id="remaining-meta">正在读取任务</span></div>
+                <div class="meta-item"><span class="meta-mark amber"></span><span id="overdue-meta">— 项逾期</span></div>
+            </div>
+        </section>
+
+        <section class="reward-card" aria-labelledby="reward-heading">
+            <div class="reward-copy">
+                <p class="reward-kicker">Learning points</p>
+                <h2 id="reward-heading" class="reward-title">学习积分</h2>
+                <p id="reward-message" class="reward-message">正在计算今天的积分</p>
+                <div class="reward-meta">
+                    <span id="reward-streak" class="reward-chip">连续完成 — 个任务日</span>
+                    <span id="reward-next" class="reward-chip">下一次 +— 分</span>
+                </div>
+            </div>
+            <div class="reward-score" aria-label="累计学习积分">
+                <div id="reward-total" class="reward-number">—</div>
+                <div class="reward-unit">累计积分</div>
+            </div>
+        </section>
+
+        <div id="page-error" class="error-card" hidden>
+            <div>暂时无法读取任务，请检查网络后重试。</div>
+            <button class="retry-button" type="button" onclick="loadTasks()">重新加载</button>
+        </div>
+
+        <div id="task-content">
+            <section class="task-section" aria-labelledby="overdue-heading">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Carry over</p>
+                        <h2 id="overdue-heading">逾期任务</h2>
+                    </div>
+                    <span id="overdue-count" class="section-count">—</span>
+                </div>
+                <div id="overdue-list" class="task-list"><div class="loading-card"></div><div class="loading-card"></div></div>
+            </section>
+
+            <section class="task-section" aria-labelledby="pending-heading">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Today</p>
+                        <h2 id="pending-heading">今日待完成</h2>
+                    </div>
+                    <span id="pending-count" class="section-count">—</span>
+                </div>
+                <div id="pending-list" class="task-list"><div class="loading-card"></div></div>
+            </section>
+
+            <section class="task-section" aria-labelledby="completed-heading">
+                <div class="section-head">
+                    <div>
+                        <p class="section-kicker">Done</p>
+                        <h2 id="completed-heading">今天已完成</h2>
+                    </div>
+                    <span id="done-count" class="section-count">—</span>
+                </div>
+                <div id="completed-list" class="task-list"><div class="loading-card"></div></div>
+            </section>
+        </div>
+
+        <footer class="page-footer">JINGSEN LEARNING CENTER · KEEP GOING</footer>
+    </main>
+
+    <div id="undo-toast" class="undo-toast" role="status" aria-live="polite">
+        <div class="undo-copy">
+            <div id="toast-title" class="undo-title">任务已完成</div>
+            <div id="toast-subtitle" class="undo-subtitle">如果刚刚误勾，可以立即撤销</div>
+        </div>
+        <button id="undo-button" class="undo-button" type="button">撤销</button>
+    </div>
+
+    <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path) => `${BASE_PATH}${path}`;
+        const params = new URLSearchParams(window.location.search);
+        const DEMO_MODE = params.get('demo') === '1';
+        const SUBJECTS = {
+            english: { name: '英语', color: '#3B82F6' },
+            math: { name: '数学', color: '#E07A1F' },
+            chinese: { name: '中文', color: '#D84A45' },
+            reading: { name: '阅读', color: '#2D8A62' },
+            science: { name: '科学', color: '#7656B5' },
+            other: { name: '其他', color: '#6B7280' }
+        };
+
+        let state = { serverDate: '', overdue: [], pending: [], completed: [], reward: null };
+        const demoRewardBase = { totalPoints: 6, currentStreak: 3 };
+        let undoContext = null;
+        let undoTimer = null;
+
+        document.getElementById('back-link').href = withBasePath('/portal');
+        document.getElementById('preview-note').classList.toggle('visible', DEMO_MODE);
+        document.getElementById('undo-button').addEventListener('click', undoLastCompletion);
+
+        function localIsoDate(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function shiftedDate(base, days) {
+            const date = new Date(`${base}T12:00:00`);
+            date.setDate(date.getDate() + days);
+            return localIsoDate(date);
+        }
+
+        function formatDate(dateValue, includeYear = false) {
+            const date = new Date(`${dateValue}T12:00:00`);
+            return new Intl.DateTimeFormat('zh-CN', {
+                ...(includeYear ? { year: 'numeric' } : {}),
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            }).format(date);
+        }
+
+        function makeTask(id, title, subjectKey, plannedDate, description, completed = false) {
+            const subject = SUBJECTS[subjectKey] || SUBJECTS.other;
+            return {
+                id,
+                title,
+                subject_id: `sub_${subjectKey}`,
+                subject_name: subject.name,
+                subject_color: subject.color,
+                planned_date: plannedDate,
+                description,
+                completed_at: completed ? new Date().toISOString() : null,
+                completed_local_date: completed ? state.serverDate : null,
+                demo_origin: null
+            };
+        }
+
+        function buildDemoState() {
+            state.serverDate = localIsoDate();
+            state.overdue = [
+                makeTask('task_demo_overdue_1', '完成英语回家作业', 'english', shiftedDate(state.serverDate, -1), '完成练习册第 18 页，并检查拼写。'),
+                makeTask('task_demo_overdue_2', '整理昨天的阅读摘记', 'reading', shiftedDate(state.serverDate, -2), '选出一个喜欢的句子，写下自己的理解。')
+            ];
+            state.pending = [
+                makeTask('task_demo_today_1', '完成数学口算', 'math', state.serverDate, '完成 20 道小数乘法练习。'),
+                makeTask('task_demo_today_2', '复习中文成语', 'chinese', state.serverDate, '复习今天课堂上的 8 个成语。'),
+                makeTask('task_demo_today_3', '背诵 Daily Word', 'english', state.serverDate, '朗读并拼写今天的 10 个单词。')
+            ];
+            state.completed = [
+                makeTask('task_demo_done_1', '阅读 20 分钟', 'reading', state.serverDate, '继续阅读《小王子》。', true),
+                makeTask('task_demo_done_2', '科学观察记录', 'science', state.serverDate, '记录今天植物叶片的变化。', true)
+            ];
+            syncDemoReward();
+        }
+
+        function normalizePayload(payload) {
+            const today = payload.server_date || payload.date || localIsoDate();
+            state.serverDate = today;
+            state.overdue = payload.overdue_tasks || payload.overdue || [];
+            state.pending = payload.today_pending_tasks || payload.pending || [];
+            state.completed = payload.today_completed_tasks || payload.completed || [];
+            state.reward = payload.reward || {
+                total_points: 0,
+                today_points: 0,
+                current_streak: 0,
+                next_points: 1,
+                today_has_tasks: state.pending.length > 0 || state.completed.some(task => task.planned_date === today),
+                today_completed: false
+            };
+        }
+
+        function syncDemoReward() {
+            if (!DEMO_MODE || !state.serverDate) return;
+            const todayCompletedCount = state.completed.filter(task => task.planned_date === state.serverDate).length;
+            const todayTotal = state.pending.length + todayCompletedCount;
+            const todayCompleted = todayTotal > 0 && state.pending.length === 0;
+            const earned = todayCompleted ? demoRewardBase.currentStreak + 1 : 0;
+            const streak = todayCompleted ? demoRewardBase.currentStreak + 1 : demoRewardBase.currentStreak;
+            state.reward = {
+                total_points: demoRewardBase.totalPoints + earned,
+                today_points: earned,
+                current_streak: streak,
+                next_points: streak + 1,
+                today_has_tasks: todayTotal > 0,
+                today_completed: todayCompleted
+            };
+        }
+
+        async function loadTasks() {
+            setLoading(true);
+            try {
+                if (DEMO_MODE) {
+                    await new Promise(resolve => setTimeout(resolve, 260));
+                    buildDemoState();
+                } else {
+                    const response = await fetch(withBasePath('/api/todo/today'), {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-store'
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    normalizePayload(await response.json());
+                }
+                render();
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to load todo tasks:', error);
+                setLoading(false, true);
+            }
+        }
+
+        function setLoading(isLoading, hasError = false) {
+            document.getElementById('page-error').hidden = !hasError;
+            document.getElementById('task-content').hidden = hasError;
+            if (!isLoading || hasError) return;
+            document.getElementById('overdue-list').innerHTML = '<div class="loading-card"></div><div class="loading-card"></div>';
+            document.getElementById('pending-list').innerHTML = '<div class="loading-card"></div>';
+            document.getElementById('completed-list').innerHTML = '<div class="loading-card"></div>';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function overdueDays(task) {
+            const start = new Date(`${task.planned_date}T12:00:00`);
+            const end = new Date(`${state.serverDate}T12:00:00`);
+            return Math.max(0, Math.round((end - start) / 86400000));
+        }
+
+        function taskCard(task, section) {
+            const isCompleted = section === 'completed' || Boolean(task.completed_at);
+            const lateDays = task.planned_date < state.serverDate ? overdueDays(task) : 0;
+            const subject = SUBJECTS[String(task.subject_id || '').replace(/^sub_/, '')] || {};
+            const subjectName = task.subject_name || task.subject?.name || subject.name || '其他';
+            const subjectColor = task.subject_color || task.subject?.color || subject.color || '#6B7280';
+            const dateLabel = task.planned_date === state.serverDate
+                ? '计划日期：今天'
+                : `原计划：${formatDate(task.planned_date, true)}`;
+            const overdueBadge = lateDays > 0
+                ? `<span class="overdue-badge">${isCompleted ? `逾期 ${lateDays} 天完成` : `逾期 ${lateDays} 天`}</span>`
+                : '';
+            const actionName = isCompleted ? `取消完成：${escapeHtml(task.title)}` : `完成任务：${escapeHtml(task.title)}`;
+            const actionHandler = isCompleted
+                ? `uncompleteTask('${escapeHtml(task.id)}', this)`
+                : `completeTask('${escapeHtml(task.id)}', '${section}', this)`;
+            return `
+                <article class="task-card ${isCompleted ? 'is-completed' : ''}" style="--subject:${escapeHtml(subjectColor)}" data-task-id="${escapeHtml(task.id)}">
+                    <button
+                        class="check-button ${isCompleted ? 'checked' : ''}"
+                        type="button"
+                        aria-label="${actionName}"
+                        aria-pressed="${isCompleted ? 'true' : 'false'}"
+                        title="${isCompleted ? '取消完成状态' : '标记为完成'}"
+                        onclick="${actionHandler}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                            <path d="M5 12.5l4.1 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <div class="task-main">
+                        <div class="task-topline">
+                            <span class="subject-badge"><span class="subject-dot"></span>${escapeHtml(subjectName)}</span>
+                            ${overdueBadge}
+                        </div>
+                        <h3 class="task-title">${escapeHtml(task.title || task.name)}</h3>
+                        ${task.description ? `<p class="task-description">${escapeHtml(task.description)}</p>` : ''}
+                        <div class="task-date">${escapeHtml(dateLabel)}${isCompleted ? '<span class="manual-undo-hint">再次点击勾选框可取消完成</span>' : ''}</div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderList(elementId, items, section, emptyText, emptyIcon) {
+            const element = document.getElementById(elementId);
+            if (!items.length) {
+                element.innerHTML = `<div class="empty-card"><span class="empty-icon">${emptyIcon}</span>${escapeHtml(emptyText)}</div>`;
+                return;
+            }
+            element.innerHTML = items.map(task => taskCard(task, section)).join('');
+        }
+
+        function render() {
+            if (DEMO_MODE) syncDemoReward();
+            const total = state.pending.length + state.completed.filter(task => task.planned_date === state.serverDate).length;
+            const completed = state.completed.filter(task => task.planned_date === state.serverDate).length;
+            const percent = total ? Math.round(completed / total * 100) : 0;
+
+            document.getElementById('date-pill').textContent = formatDate(state.serverDate, true);
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('progress-percent').textContent = total ? `${percent}%` : '今天无任务';
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.querySelector('.progress-track').setAttribute('aria-valuenow', percent);
+            document.getElementById('remaining-meta').textContent = state.pending.length ? `还剩 ${state.pending.length} 项` : '今日任务已完成';
+            document.getElementById('overdue-meta').textContent = `${state.overdue.length} 项逾期`;
+            document.getElementById('overdue-count').textContent = state.overdue.length;
+            document.getElementById('pending-count').textContent = state.pending.length;
+            document.getElementById('done-count').textContent = state.completed.length;
+
+            renderReward();
+            renderList('overdue-list', state.overdue, 'overdue', '没有遗留任务，继续保持。', '🌤️');
+            renderList('pending-list', state.pending, 'pending', '今天的任务已经全部完成。', '✨');
+            renderList('completed-list', state.completed, 'completed', '完成一项任务后，会出现在这里。', '○');
+        }
+
+        function renderReward() {
+            const reward = state.reward || {};
+            const totalPoints = Number(reward.total_points || 0);
+            const todayPoints = Number(reward.today_points || 0);
+            const currentStreak = Number(reward.current_streak || 0);
+            const nextPoints = Number(reward.next_points || currentStreak + 1);
+
+            document.getElementById('reward-total').textContent = totalPoints;
+            document.getElementById('reward-streak').textContent = `连续完成 ${currentStreak} 个任务日`;
+            document.getElementById('reward-next').textContent = `下一次全部完成 +${nextPoints} 分`;
+
+            let message = `完成今天全部任务，可获得 +${nextPoints} 分。`;
+            if (!reward.today_has_tasks) {
+                message = '今天没有安排任务，不影响连续完成记录。';
+            } else if (reward.today_completed) {
+                message = `太棒了！今天全部完成，获得 +${todayPoints} 分。`;
+            }
+            document.getElementById('reward-message').textContent = message;
+        }
+
+        function findAndRemoveTask(taskId, section) {
+            const list = section === 'overdue' ? state.overdue : state.pending;
+            const index = list.findIndex(task => task.id === taskId);
+            if (index < 0) return null;
+            return list.splice(index, 1)[0];
+        }
+
+        async function completeTask(taskId, section, button) {
+            if (button.disabled) return;
+            button.disabled = true;
+            try {
+                if (DEMO_MODE) {
+                    await new Promise(resolve => setTimeout(resolve, 220));
+                    const task = findAndRemoveTask(taskId, section);
+                    if (!task) return;
+                    task.completed_at = new Date().toISOString();
+                    task.completed_local_date = state.serverDate;
+                    task.demo_origin = section;
+                    state.completed.unshift(task);
+                    undoContext = { taskId, section };
+                } else {
+                    const response = await fetch(withBasePath(`/api/todo/tasks/${encodeURIComponent(taskId)}/complete`), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    undoContext = { taskId, section };
+                    await loadTasks();
+                }
+                render();
+                showUndoToast();
+            } catch (error) {
+                console.error('Failed to complete task:', error);
+                button.disabled = false;
+                window.alert('暂时无法完成任务，请稍后重试。');
+            }
+        }
+
+        function showUndoToast() {
+            const toast = document.getElementById('undo-toast');
+            document.getElementById('toast-title').textContent = '任务已完成';
+            document.getElementById('toast-subtitle').textContent = '如果刚刚误勾，可以立即撤销';
+            document.getElementById('undo-button').hidden = false;
+            toast.classList.add('visible');
+            clearTimeout(undoTimer);
+            undoTimer = setTimeout(() => {
+                toast.classList.remove('visible');
+                undoContext = null;
+            }, 10000);
+        }
+
+        function showInfoToast(title, subtitle) {
+            const toast = document.getElementById('undo-toast');
+            clearTimeout(undoTimer);
+            undoContext = null;
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-subtitle').textContent = subtitle;
+            document.getElementById('undo-button').hidden = true;
+            toast.classList.add('visible');
+            undoTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+        }
+
+        async function uncompleteTask(taskId, button) {
+            if (button.disabled) return;
+            button.disabled = true;
+            try {
+                if (DEMO_MODE) {
+                    await new Promise(resolve => setTimeout(resolve, 180));
+                    const index = state.completed.findIndex(task => task.id === taskId);
+                    if (index < 0) return;
+                    const task = state.completed.splice(index, 1)[0];
+                    task.completed_at = null;
+                    task.completed_local_date = null;
+                    if (task.planned_date < state.serverDate) state.overdue.unshift(task);
+                    else state.pending.unshift(task);
+                } else {
+                    const response = await fetch(withBasePath(`/api/todo/tasks/${encodeURIComponent(taskId)}/undo-completion`), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    await loadTasks();
+                }
+                render();
+                showInfoToast('已取消完成', '任务已重新放回待完成列表');
+            } catch (error) {
+                console.error('Failed to uncomplete task:', error);
+                button.disabled = false;
+                window.alert('暂时无法取消完成，请稍后重试。');
+            }
+        }
+
+        async function undoLastCompletion() {
+            if (!undoContext) return;
+            const context = { ...undoContext };
+            const button = document.getElementById('undo-button');
+            button.disabled = true;
+            try {
+                if (DEMO_MODE) {
+                    await new Promise(resolve => setTimeout(resolve, 180));
+                    const index = state.completed.findIndex(task => task.id === context.taskId);
+                    if (index >= 0) {
+                        const task = state.completed.splice(index, 1)[0];
+                        task.completed_at = null;
+                        task.completed_local_date = null;
+                        if (context.section === 'overdue') state.overdue.unshift(task);
+                        else state.pending.unshift(task);
+                    }
+                } else {
+                    const response = await fetch(withBasePath(`/api/todo/tasks/${encodeURIComponent(context.taskId)}/undo-completion`), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    await loadTasks();
+                }
+                document.getElementById('undo-toast').classList.remove('visible');
+                undoContext = null;
+                render();
+            } catch (error) {
+                console.error('Failed to undo task:', error);
+                window.alert('撤销失败，请稍后重试。');
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>

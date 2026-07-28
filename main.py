@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, map_language_arts, report_history, skills, vocabulary_skills
+from api import english, chinese, math, admin, map_language_arts, report_history, skills, vocabulary_skills, todo
 from config import config
 
 # 配置日志
@@ -45,6 +45,9 @@ app.include_router(map_language_arts.router)
 app.include_router(vocabulary_skills.router)
 app.include_router(report_history.router)
 app.include_router(skills.router)
+app.include_router(todo.admin_session_router)
+app.include_router(todo.public_router)
+app.include_router(todo.admin_router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
@@ -54,6 +57,9 @@ app.include_router(map_language_arts.router, prefix=BASE_PATH)
 app.include_router(vocabulary_skills.router, prefix=BASE_PATH)
 app.include_router(report_history.router, prefix=BASE_PATH)
 app.include_router(skills.router, prefix=BASE_PATH)
+app.include_router(todo.admin_session_router, prefix=BASE_PATH)
+app.include_router(todo.public_router, prefix=BASE_PATH)
+app.include_router(todo.admin_router, prefix=BASE_PATH)
 
 
 def serve_static_file(path: str, not_found_message: str):
@@ -115,6 +121,13 @@ async def serve_math_portal():
     return serve_static_file("static/math.html", "Math page not found")
 
 
+@app.get("/todo")
+@app.get(f"{BASE_PATH}/todo")
+async def serve_todo_page():
+    """提供孩子使用的 Learning Todo 页面"""
+    return serve_static_file("static/todo.html", "Todo page not found")
+
+
 @app.get("/admin")
 @app.get(f"{BASE_PATH}/admin")
 async def serve_admin_portal():
@@ -141,6 +154,13 @@ async def serve_admin_detail_page():
 async def serve_admin_skills_page():
     """提供 Skills 知识点管理页面"""
     return serve_static_file("static/admin_skills.html", "Admin skills page not found")
+
+
+@app.get("/admin/todo")
+@app.get(f"{BASE_PATH}/admin/todo")
+async def serve_admin_todo_page():
+    """提供 Learning Todo 管理页面"""
+    return serve_static_file("static/admin_todo.html", "Admin Todo page not found")
 
 
 @app.on_event("startup")

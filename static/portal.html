@@ -19,12 +19,14 @@
             --math-accent: #3B82F6;
             --english-theme: #ECFDF5;
             --english-accent: #10B981;
+            --todo-theme: #FFF7E7;
+            --todo-accent: #D97706;
             --admin-theme: #EEF2FF;
             --admin-accent: #4F46E5;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
             background-color: var(--bg-main);
             color: var(--text-primary);
             -webkit-tap-highlight-color: transparent;
@@ -86,7 +88,7 @@
             }
             .course-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
                 gap: 1.5rem;
             }
         }
@@ -94,11 +96,13 @@
         .card-chinese { background: linear-gradient(145deg, #fff4f4, #ffe2e2); }
         .card-math { background: linear-gradient(145deg, #f2f8ff, #dbeafe); }
         .card-english { background: linear-gradient(145deg, #effef6, #d1fae5); }
+        .card-todo { background: linear-gradient(145deg, #fffaf0, #fdecc8); }
         .card-admin { background: linear-gradient(145deg, #f3f4ff, #e0e7ff); }
 
         .img-chinese { background: linear-gradient(135deg, #FFE4E1, #FFB6C1); }
         .img-math { background: linear-gradient(135deg, #B0C4DE, #87CEEB); }
         .img-english { background: linear-gradient(135deg, #E0FFF0, #98FB98); }
+        .img-todo { background: linear-gradient(135deg, #FEF3C7, #FCD34D); }
         .img-admin { background: linear-gradient(135deg, #E0E7FF, #C7D2FE); }
 
     </style>
@@ -140,6 +144,16 @@
                 </div>
                 <div class="subject-img img-english ml-4 md:ml-0 md:mt-6">
                     <span class="text-3xl md:text-4xl">🌍</span>
+                </div>
+            </div>
+
+            <div class="course-card card-todo rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('todo')">
+                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
+                    <span class="text-xl md:text-2xl">✓</span>
+                    <h3 class="text-lg md:text-xl font-bold">Todo</h3>
+                </div>
+                <div class="subject-img img-todo ml-4 md:ml-0 md:mt-6">
+                    <span class="text-3xl md:text-4xl">🗒️</span>
                 </div>
             </div>
 
@@ -193,10 +207,18 @@
             document.body.style.overflow = '';
         }
 
-        function confirmAdminAuth() {
+        async function confirmAdminAuth() {
             const input = document.getElementById('admin-password-input');
             const error = document.getElementById('admin-auth-error');
-            if (input.value.trim() !== '0418') {
+            error.classList.add('hidden');
+            try {
+                const response = await fetch(withBasePath('/api/admin/session'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: input.value })
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            } catch (requestError) {
                 error.classList.remove('hidden');
                 return;
             }
@@ -212,6 +234,8 @@
                 window.location.href = withBasePath('/chinese');
             } else if (subject === 'math') {
                 window.location.href = withBasePath('/math');
+            } else if (subject === 'todo') {
+                window.location.href = withBasePath('/todo');
             } else if (subject === 'admin') {
                 openAdminAuth();
             } else {
@@ -221,7 +245,12 @@
 
         document.getElementById('admin-password-input').addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeAdminAuth();
+            if (e.key === 'Enter') confirmAdminAuth();
         });
+
+        if (new URLSearchParams(window.location.search).get('admin') === '1') {
+            openAdminAuth();
+        }
     </script>
 </body>
 </html>
