@@ -11,14 +11,17 @@ RUN_AS_GROUP="${RUN_AS_GROUP:-$RUN_AS_USER}"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8088/health}"
 SKIP_DEPENDENCY_INSTALL="${SKIP_DEPENDENCY_INSTALL:-0}"
 SKIP_HEALTH_CHECK="${SKIP_HEALTH_CHECK:-0}"
+INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING="${INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING:-0}"
 
 DEPLOY_STAMP="$(date +%Y%m%d-%H%M%S)-$$"
 SNAPSHOT_DIR="$BACKUP_ROOT/releases/$DEPLOY_STAMP"
 DATA_SNAPSHOT="$SNAPSHOT_DIR/data"
 ENV_SNAPSHOT="$SNAPSHOT_DIR/app.env"
 DATA_MANIFEST="$SNAPSHOT_DIR/data-manifest.json"
+LIBRARY_DATA_RECEIPT="$SNAPSHOT_DIR/library-data-backup.json"
 LATEST_LINK="$BACKUP_ROOT/latest"
 CODE_DATA_TEMP=""
+CRITICAL_LIBRARY_FILES=("library_registry.json" "library_archive.json")
 
 log() {
   echo "[update_safe] $*"
@@ -46,6 +49,68 @@ run_git() {
   fi
 }
 
+require_critical_library_files() {
+  local root="$1"
+  local label="$2"
+  local relative
+  for relative in "${CRITICAL_LIBRARY_FILES[@]}"; do
+    [ -f "$root/$relative" ] || fail "$label 缺少关键词库数据: $root/$relative"
+  done
+}
+
+initialize_library_archive_if_requested() {
+  local archive_path="$APP_DIR/data/library_archive.json"
+  if [ -f "$archive_path" ]; then
+    return
+  fi
+  if [ "$INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING" != "1" ]; then
+    fail "缺少 ${archive_path}。若确认这是词库归档功能首次上线且从未产生归档数据，请仅本次使用 INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING=1；否则应先从备份恢复。"
+  fi
+  "$PYTHON_BIN" - "$archive_path" <<'PY'
+import json
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+target = Path(sys.argv[1])
+target.parent.mkdir(parents=True, exist_ok=True)
+descriptor, temporary_name = tempfile.mkstemp(prefix=".library-archive-init-", suffix=".json", dir=target.parent)
+try:
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        json.dump({"version": 1, "libraries": []}, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary_name, target)
+finally:
+    if os.path.exists(temporary_name):
+        os.unlink(temporary_name)
+PY
+  log "已按首次上线选项初始化空归档文件: $archive_path"
+}
+
+write_library_backup_receipt() {
+  "$PYTHON_BIN" - "$DATA_SNAPSHOT" "$LIBRARY_DATA_RECEIPT" <<'PY'
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+receipt_path = Path(sys.argv[2])
+files = []
+for relative in ("library_registry.json", "library_archive.json"):
+    path = root / relative
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    files.append({"path": relative, "size": path.stat().st_size, "sha256": digest})
+receipt_path.write_text(
+    json.dumps({"version": 1, "root": "data", "files": files}, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+)
+PY
+}
+
 log "开始安全更新：代码与服务器数据分离"
 [ -d "$APP_DIR" ] || fail "项目目录不存在: $APP_DIR"
 [ -d "$APP_DIR/.git" ] || fail "$APP_DIR 不是 Git 项目"
@@ -55,6 +120,11 @@ cd "$APP_DIR"
 mkdir -p "$BACKUP_ROOT/releases"
 mkdir -p "$SNAPSHOT_DIR"
 
+# 归档功能首次上线时允许显式创建空文件；之后缺失必须视为数据事故并停止部署。
+[ -f "data/library_registry.json" ] || fail "缺少活动词库注册文件: $APP_DIR/data/library_registry.json"
+initialize_library_archive_if_requested
+require_critical_library_files "$APP_DIR/data" "发布前检查"
+
 # 1. 发布前对整个 data 做不可覆盖的版本化快照。
 if [ -d "data" ]; then
   cp -a "data" "$DATA_SNAPSHOT"
@@ -63,6 +133,15 @@ else
   mkdir -p "$DATA_SNAPSHOT"
   log "当前没有 data，已记录空数据快照"
 fi
+
+require_critical_library_files "$DATA_SNAPSHOT" "发布前快照"
+for relative in "${CRITICAL_LIBRARY_FILES[@]}"; do
+  cmp -s "$APP_DIR/data/$relative" "$DATA_SNAPSHOT/$relative" \
+    || fail "关键词库数据快照与源文件不一致: $relative"
+  log "已确认关键词库数据进入快照: $DATA_SNAPSHOT/$relative"
+done
+write_library_backup_receipt
+log "词库专项 SHA-256 备份凭据: $LIBRARY_DATA_RECEIPT"
 
 if [ -f ".env" ]; then
   cp -a ".env" "$ENV_SNAPSHOT"
@@ -132,7 +211,10 @@ fi
 # 4. 清单校验保证发布前已有的每个数据文件都还在且内容未变化。
 "$PYTHON_BIN" scripts/validate_persistent_data.py \
   "$APP_DIR/data" \
-  --verify-manifest "$DATA_MANIFEST"
+  --verify-manifest "$DATA_MANIFEST" \
+  --verify-manifest "$LIBRARY_DATA_RECEIPT" \
+  --require-file "library_registry.json" \
+  --require-file "library_archive.json"
 log "持久数据清单验证通过"
 
 chown -R "$RUN_AS_USER:$RUN_AS_GROUP" "$APP_DIR"
@@ -147,7 +229,10 @@ fi
 # 导入应用会执行 Todo JSON 启动校验，并在首次上线时创建独立目录默认文件。
 log "执行应用导入和 Todo 存储校验"
 "$PYTHON_BIN" -c "from main import app; from services.learning_todo_service import get_learning_todo_service; get_learning_todo_service().validate_storage(); print(app.title)"
-"$PYTHON_BIN" scripts/validate_persistent_data.py "$APP_DIR/data"
+"$PYTHON_BIN" scripts/validate_persistent_data.py \
+  "$APP_DIR/data" \
+  --require-file "library_registry.json" \
+  --require-file "library_archive.json"
 
 # 这里检查当前进程是否仍可用；代码更新后仍需在宝塔重启 Python 项目。
 if [ "$SKIP_HEALTH_CHECK" != "1" ]; then

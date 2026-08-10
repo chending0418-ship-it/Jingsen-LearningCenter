@@ -73,7 +73,25 @@ def verify_manifest(data_dir: Path, manifest_path: Path) -> None:
         raise ValueError("持久数据清单验证失败:\n- " + "\n- ".join(failures))
 
 
-def summary(data_dir: Path, json_files: list[str]) -> dict[str, Any]:
+def validate_required_files(data_dir: Path, required_files: list[str]) -> list[str]:
+    checked = []
+    failures = []
+    for value in required_files:
+        relative = Path(value)
+        if relative.is_absolute() or not relative.parts or ".." in relative.parts:
+            failures.append(f"不安全的必需文件路径: {value}")
+            continue
+        target = data_dir / relative
+        if not target.is_file():
+            failures.append(f"必需文件缺失: {relative.as_posix()}")
+            continue
+        checked.append(relative.as_posix())
+    if failures:
+        raise ValueError("持久数据必需文件校验失败:\n- " + "\n- ".join(failures))
+    return checked
+
+
+def summary(data_dir: Path, json_files: list[str], required_files: list[str]) -> dict[str, Any]:
     return {
         "data_dir": str(data_dir),
         "json_files": len(json_files),
@@ -86,6 +104,7 @@ def summary(data_dir: Path, json_files: list[str]) -> dict[str, Any]:
         "todo_directory": (data_dir / "learning-todo").is_dir(),
         "todo_task_months": len(list((data_dir / "learning-todo" / "tasks").glob("*.json"))),
         "todo_backups": len(list((data_dir / "learning-todo" / "backups").glob("*.zip"))),
+        "required_files_verified": required_files,
     }
 
 
@@ -93,7 +112,8 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("data_dir", type=Path)
     parser.add_argument("--manifest-out", type=Path)
-    parser.add_argument("--verify-manifest", type=Path)
+    parser.add_argument("--verify-manifest", type=Path, action="append", default=[])
+    parser.add_argument("--require-file", action="append", default=[])
     args = parser.parse_args()
 
     data_dir = args.data_dir.resolve()
@@ -103,15 +123,16 @@ def main() -> int:
 
     try:
         json_files = validate_json_files(data_dir)
-        if args.verify_manifest:
-            verify_manifest(data_dir, args.verify_manifest.resolve())
+        required_files = validate_required_files(data_dir, args.require_file)
+        for manifest_path in args.verify_manifest:
+            verify_manifest(data_dir, manifest_path.resolve())
         if args.manifest_out:
             manifest_path = args.manifest_out.resolve()
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
             with manifest_path.open("w", encoding="utf-8") as handle:
                 json.dump(build_manifest(data_dir), handle, ensure_ascii=False, indent=2)
                 handle.write("\n")
-        print(json.dumps(summary(data_dir, json_files), ensure_ascii=False, indent=2))
+        print(json.dumps(summary(data_dir, json_files, required_files), ensure_ascii=False, indent=2))
     except ValueError as exc:
         print(f"错误：{exc}", file=sys.stderr)
         return 1

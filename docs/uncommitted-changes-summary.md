@@ -72,6 +72,8 @@ Todo Reward 数据继续只保存在 `data/learning-todo/tasks/*.json` 的任务
 
 - 持久化校验摘要新增 `library_archive` 和 `model_settings`。
 - 部署备份范围明确包括：活动词库、归档词库、Skills、Daily Reports、模型设置、Learning Todo 和 `.env`。
+- 自动部署将 `library_registry.json` 和 `library_archive.json` 设为发布前必需文件，快照后逐字节比较并生成独立 SHA-256 凭据。
+- 恢复阶段同时校验完整数据清单和词库专项凭据；归档文件缺失时默认停止，只有首次上线且明确授权才初始化空文件。
 - 永久手工基线 `/www/wwwroot/learningcenter/backups/manual-pre-todo-20260728-220002` 继续标记为永不清理。
 
 涉及文件：
@@ -82,7 +84,8 @@ Todo Reward 数据继续只保存在 `data/learning-todo/tasks/*.json` 的任务
 
 ## 5. 验证结果
 
-- `/Users/JasonChan/anaconda3/bin/python -m pytest -q`：`19 passed`。
+- `/Users/JasonChan/anaconda3/bin/python -m pytest -q`：`23 passed`。
+- 隔离临时 Git 仓库完成真实部署演练：缺失归档默认阻断、首次显式初始化、双文件快照、代码同步、完整恢复及双清单验证全部通过。
 - `git diff --check`：通过。
 - Todo、Admin Todo、Admin、词库详情和模型选择页面的内联 JavaScript 语法检查：通过。
 - 真实浏览器：

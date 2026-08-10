@@ -21,6 +21,9 @@ Todo 均通过服务器本地文件持久化，因此部署的重点是让代码
 │   └── .env
 └── backups/
     ├── releases/<时间>/         # 每次发布前的完整快照
+    │   ├── data/                # 完整 data 快照
+    │   ├── data-manifest.json   # 完整数据 SHA-256 清单
+    │   └── library-data-backup.json # 两个词库 JSON 的专项 SHA-256 凭据
     └── latest -> releases/<时间>
 ```
 
@@ -150,15 +153,47 @@ cd /www/wwwroot/learningcenter/app
 bash update_safe.sh
 ```
 
+脚本默认要求以下两个文件在同步代码之前都已存在：
+
+- `data/library_registry.json`
+- `data/library_archive.json`
+
+如果缺少任意一个，部署会在 `git fetch/reset` 之前停止。只有第一次上线词库归档
+功能、且已经确认从未产生过归档数据时，才允许使用一次：
+
+```bash
+cd /www/wwwroot/learningcenter/app
+INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING=1 bash update_safe.sh
+```
+
+该选项会先原子创建空的 `library_archive.json`，然后再把两个词库 JSON 一起纳入
+本次发布前快照。归档功能投入使用后，如果此文件缺失，禁止再使用初始化选项，
+必须从历史备份恢复。
+
+如果服务器上还是旧版 `update_safe.sh`，第一次切换到新版流程时不要先覆盖整个
+项目，可从远端只读取脚本到临时路径，再由该脚本完成备份和同步：
+
+```bash
+cd /www/wwwroot/learningcenter/app
+git fetch origin deploy/tencent-learningcenter-path
+git show origin/deploy/tencent-learningcenter-path:update_safe.sh > /tmp/learningcenter-update-safe.sh
+INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING=1 bash /tmp/learningcenter-update-safe.sh
+```
+
+只有确认线上从未产生归档数据时才保留第三行的初始化变量；如果线上已经存在
+`data/library_archive.json`，直接执行 `bash /tmp/learningcenter-update-safe.sh`。
+
 脚本会：
 
 1. 在应用目录外创建版本化 `data/` 和 `.env` 快照。
-2. 生成发布前 SHA-256 清单并校验全部 JSON。
-3. 同步部署分支代码。
-4. 原样恢复发布前的服务器 `data/`。
-5. 仅补充新代码中缺失的数据种子，不覆盖线上数据。
-6. 逐文件验证发布前清单。
-7. 导入应用并校验 Todo 存储。
+2. 强制确认两个词库 JSON 已复制且与源文件逐字节一致。
+3. 生成完整数据清单及 `library-data-backup.json` 词库专项 SHA-256 凭据。
+4. 校验快照中的全部 JSON。
+5. 同步部署分支代码。
+6. 原样恢复发布前的服务器 `data/`。
+7. 仅补充新代码中缺失的数据种子，不覆盖线上数据。
+8. 同时验证完整数据清单和词库专项凭据。
+9. 导入应用并再次强制确认两个词库 JSON 存在。
 
 脚本完成后在宝塔重启 Python 项目。详细恢复步骤见
 [`updateNew.md`](updateNew.md)。
@@ -168,7 +203,10 @@ bash update_safe.sh
 ```bash
 cd /www/wwwroot/learningcenter/app
 /www/server/pyporject_evn/versions/3.11.15/bin/python3 \
-  scripts/validate_persistent_data.py data
+  scripts/validate_persistent_data.py data \
+  --verify-manifest /www/wwwroot/learningcenter/backups/latest/library-data-backup.json \
+  --require-file library_registry.json \
+  --require-file library_archive.json
 ```
 
 随后检查：

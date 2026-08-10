@@ -47,6 +47,38 @@ bash update_safe.sh
 服务器上不存在的种子文件。发布前清单中的每个数据文件都必须保持相同 SHA-256，
 否则部署会直接失败。
 
+其中 `library_registry.json` 和 `library_archive.json` 被列为关键词库数据。脚本会
+在同步代码前要求两者都存在，复制后逐字节比较，并额外生成：
+
+```text
+/www/wwwroot/learningcenter/backups/releases/<时间>/library-data-backup.json
+```
+
+该文件只记录这两个 JSON 的路径、大小和 SHA-256。恢复后会与完整数据清单一起
+再次验证，任何一个文件缺失或内容变化都会停止部署。
+
+### 归档功能第一次上线
+
+如果服务器此前从未有过 `library_archive.json`，普通部署会主动停止。确认线上从未
+产生归档数据后，只在第一次使用：
+
+```bash
+cd /www/wwwroot/learningcenter/app
+INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING=1 bash update_safe.sh
+```
+
+这会先原子创建空归档文件，再同时备份两个词库 JSON。以后如果归档文件缺失，不要
+再次初始化，应从 `backups/releases/` 或永久手工基线恢复。
+
+服务器仍是旧版部署脚本时，先从远端读取新版脚本到临时路径，不需要提前覆盖项目：
+
+```bash
+cd /www/wwwroot/learningcenter/app
+git fetch origin deploy/tencent-learningcenter-path
+git show origin/deploy/tencent-learningcenter-path:update_safe.sh > /tmp/learningcenter-update-safe.sh
+INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING=1 bash /tmp/learningcenter-update-safe.sh
+```
+
 ## 正式更新步骤
 
 ```bash
@@ -69,13 +101,16 @@ curl -I https://jingsen.cc/learningcenter/
 ```bash
 cd /www/wwwroot/learningcenter/app
 /www/server/pyporject_evn/versions/3.11.15/bin/python3 \
-  scripts/validate_persistent_data.py data
+  scripts/validate_persistent_data.py data \
+  --verify-manifest /www/wwwroot/learningcenter/backups/latest/library-data-backup.json \
+  --require-file library_registry.json \
+  --require-file library_archive.json
 ```
 
 输出中应看到：
 
 - `library_registry: true`
-- `library_archive: true`（新版本首次启动后）
+- `library_archive: true`（同步代码前即必须存在并已备份）
 - `daily_reports: true`（已有报告数据时）
 - `model_settings: true`（Admin 已保存过模型选择时）
 - `todo_directory: true`（Todo 服务首次启动后）
@@ -114,7 +149,10 @@ chown -R www:www "$APP_DIR"
 
 /www/server/pyporject_evn/versions/3.11.15/bin/python3 \
   scripts/validate_persistent_data.py data \
-  --verify-manifest "$LATEST/data-manifest.json"
+  --verify-manifest "$LATEST/data-manifest.json" \
+  --verify-manifest "$LATEST/library-data-backup.json" \
+  --require-file library_registry.json \
+  --require-file library_archive.json
 ```
 
 恢复完成后在宝塔重启 Python 项目。`data-before-restore` 被移到独立恢复目录，
