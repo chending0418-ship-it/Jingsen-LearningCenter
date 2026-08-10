@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#F5F4F8">
+    <title>模型选择 - Jingsen Learning Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F5F4F8;
+            --panel: rgba(255, 255, 255, .94);
+            --ink: #1D1B25;
+            --muted: #706C7B;
+            --line: #E6E3EB;
+            --violet: #6653B8;
+            --violet-dark: #4E3D99;
+            --violet-soft: #EEEAFB;
+            --green: #25765B;
+            --green-soft: #E5F3ED;
+            --amber: #9A651B;
+            --amber-soft: #FFF3D9;
+            --red: #B54747;
+            --red-soft: #FBE9E9;
+            --shadow: 0 18px 54px rgba(54, 46, 76, .09);
+        }
+
+        * { box-sizing: border-box; }
+        html { background: var(--bg); }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% -10%, rgba(255,255,255,.96), transparent 30rem),
+                radial-gradient(circle at 96% 8%, rgba(220,211,249,.58), transparent 25rem),
+                var(--bg);
+            font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input { font: inherit; }
+        button { cursor: pointer; }
+        [hidden] { display: none !important; }
+
+        .shell {
+            width: min(calc(100% - 28px), 1220px);
+            margin: 0 auto;
+            padding: 24px 0 58px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+        .back-link {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: rgba(255,255,255,.82);
+            color: var(--ink);
+            text-decoration: none;
+            box-shadow: 0 7px 20px rgba(49,41,72,.05);
+        }
+
+        .back-link:hover { background: #fff; border-color: #CBC5D8; }
+        .back-link svg { width: 20px; height: 20px; }
+
+        .eyebrow {
+            margin: 0 0 4px;
+            color: var(--violet);
+            font-size: 10px;
+            font-weight: 850;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(25px, 3.3vw, 38px); line-height: 1.08; letter-spacing: -.04em; }
+        h2 { margin: 0; font-size: 21px; letter-spacing: -.025em; }
+
+        .top-actions { display: flex; gap: 9px; }
+
+        .button {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 12px;
+            padding: 0 15px;
+            font-size: 13px;
+            font-weight: 800;
+            transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+        }
+
+        .button:disabled { cursor: not-allowed; opacity: .5; }
+        .button.primary { border: 1px solid var(--violet); background: var(--violet); color: #fff; }
+        .button.primary:hover:not(:disabled) { background: var(--violet-dark); transform: translateY(-1px); }
+        .button.secondary { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+        .button.secondary:hover:not(:disabled) { background: #FAF9FC; }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(180px, .65fr));
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .hero-main, .hero-stat { padding: 23px 25px; }
+        .hero-main { background: linear-gradient(135deg, #292438 0%, #514487 100%); color: #fff; }
+        .hero-stat { border-left: 1px solid var(--line); }
+
+        .stat-label { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .hero-main .stat-label { color: rgba(255,255,255,.62); }
+        .current-model { margin-top: 9px; font-size: clamp(20px, 2.7vw, 31px); font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+        .stat-value { margin-top: 8px; font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+        .stat-note { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .hero-main .stat-note { color: rgba(255,255,255,.7); }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: end;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .input-label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 11px; font-weight: 800; }
+        .search-input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+            padding: 0 14px;
+        }
+
+        .search-input:focus { border-color: #A99BDE; box-shadow: 0 0 0 3px rgba(102,83,184,.11); }
+        .toolbar-actions { display: flex; gap: 9px; }
+
+        .catalog-panel { padding: 20px; }
+        .catalog-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-end; margin-bottom: 15px; }
+        .catalog-copy { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .count-pill { padding: 7px 10px; border-radius: 999px; background: var(--violet-soft); color: var(--violet-dark); font-size: 11px; font-weight: 800; white-space: nowrap; }
+
+        .message {
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        .message.info { background: var(--violet-soft); color: var(--violet-dark); }
+        .message.warning { background: var(--amber-soft); color: var(--amber); }
+        .message.error { background: var(--red-soft); color: var(--red); }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .model-card {
+            min-width: 0;
+            display: grid;
+            grid-template-columns: 22px minmax(0,1fr);
+            gap: 11px;
+            align-items: start;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            color: var(--ink);
+            padding: 14px;
+            text-align: left;
+        }
+
+        .model-card:hover { border-color: #B8ADDE; background: #FCFBFF; }
+        .model-card.selected { border-color: var(--violet); background: var(--violet-soft); box-shadow: inset 0 0 0 1px var(--violet); }
+        .radio {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #C8C3D1;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .model-card.selected .radio { border-color: var(--violet); }
+        .model-card.selected .radio::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--violet); }
+        .model-id { font-size: 13px; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
+        .model-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { padding: 4px 7px; border-radius: 999px; background: #F2F0F5; color: var(--muted); font-size: 9px; font-weight: 800; }
+        .tag.active { background: var(--green-soft); color: var(--green); }
+
+        .empty-state {
+            padding: 46px 20px;
+            border: 1px dashed #D5D0DE;
+            border-radius: 14px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .loading-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+        .loading-card {
+            height: 82px;
+            border-radius: 14px;
+            background: linear-gradient(90deg, #F1EFF4 25%, #FAF9FB 50%, #F1EFF4 75%);
+            background-size: 220% 100%;
+            animation: shimmer 1.25s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: -220% 0; } }
+
+        .toast {
+            position: fixed;
+            z-index: 30;
+            left: 50%;
+            bottom: 24px;
+            max-width: calc(100% - 28px);
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #262230;
+            color: #fff;
+            box-shadow: 0 14px 40px rgba(38,34,48,.25);
+            font-size: 12px;
+            font-weight: 750;
+            opacity: 0;
+            transform: translate(-50%, 24px);
+            pointer-events: none;
+            transition: opacity 180ms ease, transform 180ms ease;
+        }
+        .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 900px) {
+            .hero-panel { grid-template-columns: 1fr 1fr; }
+            .hero-main { grid-column: 1 / -1; }
+            .hero-stat:first-of-type { border-left: 0; }
+            .model-grid, .loading-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+
+        @media (max-width: 620px) {
+            .shell { width: min(calc(100% - 20px), 1220px); padding-top: 14px; }
+            .topbar { align-items: flex-start; }
+            .top-actions .button.secondary { display: none; }
+            .hero-panel { grid-template-columns: 1fr; }
+            .hero-main { grid-column: auto; }
+            .hero-stat { border-top: 1px solid var(--line); border-left: 0; }
+            .toolbar { grid-template-columns: 1fr; }
+            .toolbar-actions { display: grid; grid-template-columns: 1fr 1fr; }
+            .model-grid, .loading-grid { grid-template-columns: 1fr; }
+            .catalog-panel { padding: 15px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <header class="topbar">
+            <div class="brand">
+                <a id="back-link" class="back-link" href="/admin" aria-label="返回 Admin">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </a>
+                <div>
+                    <p class="eyebrow">AI Model Control</p>
+                    <h1>模型选择</h1>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="button secondary" type="button" onclick="logoutAdmin()">退出 Admin</button>
+                <button id="header-save-button" class="button primary" type="button" onclick="saveSelection()" disabled>保存选择</button>
+            </div>
+        </header>
+
+        <section class="panel hero-panel" aria-label="当前模型设置">
+            <div class="hero-main">
+                <div class="stat-label">当前全站模型</div>
+                <div id="current-model" class="current-model">读取中…</div>
+                <div class="stat-note">保存后立即影响之后发起的英语、中文、数学、MAP 与 Vocabulary Skills AI 请求，无需重启服务。</div>
+            </div>
+            <div class="hero-stat">
+                <div class="stat-label">设置来源</div>
+                <div id="setting-source" class="stat-value">—</div>
+                <div id="updated-at" class="stat-note">尚未读取</div>
+            </div>
+            <div class="hero-stat">
+                <div class="stat-label">环境变量回退</div>
+                <div id="fallback-model" class="stat-value">—</div>
+                <div class="stat-note">没有保存 Admin 选择时使用 MODEL_NAME。</div>
+            </div>
+        </section>
+
+        <section class="panel toolbar" aria-label="模型筛选与操作">
+            <label>
+                <span class="input-label">搜索模型 ID 或提供方</span>
+                <input id="model-search" class="search-input" type="search" placeholder="例如 gpt、claude、gemini…" autocomplete="off">
+            </label>
+            <div class="toolbar-actions">
+                <button id="refresh-button" class="button secondary" type="button" onclick="loadCatalog()">刷新列表</button>
+                <button id="save-button" class="button primary" type="button" onclick="saveSelection()" disabled>保存选择</button>
+            </div>
+        </section>
+
+        <section class="panel catalog-panel">
+            <div class="catalog-head">
+                <div>
+                    <h2>当前 Key 可用模型</h2>
+                    <p class="catalog-copy">列表由服务端请求 <span id="models-endpoint">/v1/models</span>。API Key 不会发送到浏览器；请选择支持 Chat Completions 与 JSON 输出的模型。</p>
+                </div>
+                <span id="model-count" class="count-pill">读取中</span>
+            </div>
+            <div id="catalog-message" class="message info">正在读取模型设置和可用列表…</div>
+            <div id="model-list" class="loading-grid" aria-live="polite">
+                <div class="loading-card"></div>
+                <div class="loading-card"></div>
+                <div class="loading-card"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
+        const withBasePath = (path) => `${BASE_PATH}${path}`;
+        const state = {
+            settings: null,
+            models: [],
+            pendingModel: '',
+            loading: false,
+            saving: false
+        };
+
+        document.getElementById('back-link').href = withBasePath('/admin');
+        document.getElementById('model-search').addEventListener('input', renderModels);
+
+        async function apiRequest(path, options = {}) {
+            const response = await fetch(withBasePath(path), {
+                cache: 'no-store',
+                ...options,
+                headers: {
+                    'Accept': 'application/json',
+                    ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+                    ...(options.headers || {})
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = withBasePath('/portal?admin=1');
+                throw new Error('Admin session required');
+            }
+            let payload = null;
+            try { payload = await response.json(); } catch (_) {}
+            if (!response.ok) throw new Error(payload?.detail || `HTTP ${response.status}`);
+            return payload;
+        }
+
+        function formatDateTime(value) {
+            if (!value) return '尚未通过 Admin 保存';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value;
+            return new Intl.DateTimeFormat('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        function setLoading(loading) {
+            state.loading = loading;
+            document.getElementById('refresh-button').disabled = loading;
+            if (loading) {
+                document.getElementById('model-count').textContent = '读取中';
+                document.getElementById('model-list').className = 'loading-grid';
+                document.getElementById('model-list').replaceChildren(
+                    ...Array.from({ length: 3 }, () => {
+                        const item = document.createElement('div');
+                        item.className = 'loading-card';
+                        return item;
+                    })
+                );
+            }
+            updateSaveButtons();
+        }
+
+        function renderSettings() {
+            const settings = state.settings;
+            if (!settings) return;
+            document.getElementById('current-model').textContent = settings.selected_model;
+            document.getElementById('fallback-model').textContent = settings.fallback_model;
+            document.getElementById('setting-source').textContent =
+                settings.source === 'admin' ? 'Admin 已保存' : '环境变量 MODEL_NAME';
+            document.getElementById('updated-at').textContent = formatDateTime(settings.updated_at);
+            document.getElementById('models-endpoint').textContent = settings.models_endpoint;
+        }
+
+        function filteredModels() {
+            const query = document.getElementById('model-search').value.trim().toLocaleLowerCase();
+            if (!query) return state.models;
+            return state.models.filter(model =>
+                model.id.toLocaleLowerCase().includes(query) ||
+                String(model.owned_by || '').toLocaleLowerCase().includes(query)
+            );
+        }
+
+        function renderModels() {
+            if (state.loading) return;
+            const models = filteredModels();
+            const list = document.getElementById('model-list');
+            list.className = models.length ? 'model-grid' : '';
+            list.replaceChildren();
+            document.getElementById('model-count').textContent =
+                `${models.length}/${state.models.length} 个模型`;
+
+            if (!models.length) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.textContent = state.models.length ? '没有符合搜索条件的模型。' : '当前 Key 没有返回可用模型。';
+                list.appendChild(empty);
+                return;
+            }
+
+            for (const model of models) {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = `model-card${model.id === state.pendingModel ? ' selected' : ''}`;
+                card.setAttribute('aria-pressed', model.id === state.pendingModel ? 'true' : 'false');
+                card.addEventListener('click', () => selectModel(model.id));
+
+                const radio = document.createElement('span');
+                radio.className = 'radio';
+                radio.setAttribute('aria-hidden', 'true');
+
+                const content = document.createElement('span');
+                const title = document.createElement('span');
+                title.className = 'model-id';
+                title.textContent = model.id;
+                content.appendChild(title);
+
+                const meta = document.createElement('span');
+                meta.className = 'model-meta';
+                if (model.owned_by) {
+                    const owner = document.createElement('span');
+                    owner.className = 'tag';
+                    owner.textContent = model.owned_by;
+                    meta.appendChild(owner);
+                }
+                if (state.settings && model.id === state.settings.selected_model) {
+                    const active = document.createElement('span');
+                    active.className = 'tag active';
+                    active.textContent = '当前使用';
+                    meta.appendChild(active);
+                }
+                content.appendChild(meta);
+                card.append(radio, content);
+                list.appendChild(card);
+            }
+        }
+
+        function selectModel(modelId) {
+            state.pendingModel = modelId;
+            renderModels();
+            updateSaveButtons();
+        }
+
+        function updateSaveButtons() {
+            const changed = Boolean(
+                state.settings &&
+                state.pendingModel &&
+                state.pendingModel !== state.settings.selected_model
+            );
+            const disabled = !changed || state.loading || state.saving;
+            document.getElementById('save-button').disabled = disabled;
+            document.getElementById('header-save-button').disabled = disabled;
+        }
+
+        function setMessage(type, text, hidden = false) {
+            const element = document.getElementById('catalog-message');
+            element.hidden = hidden;
+            element.className = `message ${type}`;
+            element.textContent = text;
+        }
+
+        async function loadCatalog() {
+            if (state.loading) return;
+            setLoading(true);
+            setMessage('info', '正在通过服务端读取当前 Key 的可用模型…');
+            try {
+                state.settings = await apiRequest('/api/admin/model-settings');
+                state.pendingModel = state.settings.selected_model;
+                renderSettings();
+
+                const catalog = await apiRequest('/api/admin/models');
+                state.models = catalog.models || [];
+                state.settings = {
+                    selected_model: catalog.selected_model,
+                    fallback_model: catalog.fallback_model,
+                    source: catalog.source,
+                    updated_at: catalog.updated_at,
+                    models_endpoint: catalog.models_endpoint
+                };
+                state.pendingModel = state.settings.selected_model;
+                renderSettings();
+                if (catalog.selected_available) {
+                    setMessage('info', '选择一个模型并保存。保存后无需重启服务。', true);
+                } else {
+                    setMessage('warning', '当前使用的模型不在最新可用列表中，请选择一个可用模型保存。');
+                }
+            } catch (error) {
+                state.models = [];
+                setMessage('error', `读取模型列表失败：${error.message || '未知错误'}`);
+            } finally {
+                setLoading(false);
+                renderModels();
+            }
+        }
+
+        async function saveSelection() {
+            if (!state.pendingModel || state.saving || !state.settings) return;
+            state.saving = true;
+            updateSaveButtons();
+            try {
+                const settings = await apiRequest('/api/admin/model-settings', {
+                    method: 'PUT',
+                    body: JSON.stringify({ model_id: state.pendingModel })
+                });
+                state.settings = settings;
+                renderSettings();
+                renderModels();
+                showToast(`已切换为 ${settings.selected_model}`);
+                setMessage('info', '模型设置已保存，之后发起的 AI 请求将立即使用新模型。');
+            } catch (error) {
+                setMessage('error', `保存失败：${error.message || '未知错误'}`);
+            } finally {
+                state.saving = false;
+                updateSaveButtons();
+            }
+        }
+
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('visible'), 2800);
+        }
+
+        async function logoutAdmin() {
+            try { await apiRequest('/api/admin/session', { method: 'DELETE' }); } catch (_) {}
+            window.location.href = withBasePath('/portal');
+        }
+
+        loadCatalog();
+    </script>
+</body>
+</html>

@@ -290,6 +290,7 @@
         .task-table tr:last-child td { border-bottom: 0; }
         .task-name { font-size: 13px; font-weight: 800; }
         .task-desc { max-width: 320px; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .task-reward-line { max-width: 360px; margin-top: 5px; overflow: hidden; color: #8B5B16; font-size: 10px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
         .subject-chip, .status-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 6px 8px; font-size: 10px; font-weight: 800; }
         .subject-chip { background: color-mix(in srgb, var(--subject) 12%, white); color: color-mix(in srgb, var(--subject) 82%, #18201D); }
         .subject-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--subject); }
@@ -299,6 +300,9 @@
         .table-actions { display: flex; gap: 5px; }
         .icon-button { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--muted); }
         .icon-button:hover { color: var(--ink); border-color: #C7CEC9; }
+        .icon-button.reward-ready { border-color: #E8C778; background: #FFF7DF; color: #8B5B16; }
+        .icon-button.reward-granted { border-color: #C8E2D7; background: #EAF5F0; color: var(--teal); }
+        .icon-button:disabled { cursor: not-allowed; opacity: .42; }
 
         .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
         .calendar-nav { display: flex; align-items: center; gap: 7px; }
@@ -344,6 +348,11 @@
         .admin-task-color { width: 5px; height: 44px; border-radius: 6px; background: var(--subject); }
         .admin-task-title { font-size: 13px; font-weight: 800; }
         .admin-task-sub { margin-top: 4px; color: var(--muted); font-size: 10px; }
+        .admin-task-reward { margin-top: 6px; color: #8B5B16; font-size: 10px; font-weight: 750; line-height: 1.45; }
+        .admin-task-actions { display: flex; align-items: center; gap: 7px; }
+        .reward-confirm-button { min-height: 32px; border: 1px solid #E6C77E; border-radius: 9px; background: #FFF7DE; color: #805115; padding: 0 10px; font-size: 10px; font-weight: 850; white-space: nowrap; }
+        .reward-confirm-button:hover { background: #FCEABB; }
+        .reward-confirm-button:disabled { cursor: not-allowed; opacity: .45; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
         .rate-ring {
@@ -685,6 +694,8 @@
                 <div class="field grow"><label for="task-search">搜索任务</label><input id="task-search" class="control" type="search" placeholder="输入任务名称" oninput="renderTaskTable()"></div>
                 <div class="field"><label for="task-subject-filter">科目</label><select id="task-subject-filter" class="control" onchange="renderTaskTable()"><option value="">全部科目</option></select></div>
                 <div class="field"><label for="task-status-filter">状态</label><select id="task-status-filter" class="control" onchange="renderTaskTable()"><option value="">全部状态</option><option value="pending">待完成</option><option value="done">已完成</option><option value="overdue">已逾期</option></select></div>
+                <div class="field"><label for="task-date-filter">计划日期</label><input id="task-date-filter" class="control" type="date" onchange="renderTaskTable()"></div>
+                <button class="ghost-button" type="button" onclick="clearTaskDateFilter()">清除日期</button>
                 <button class="secondary-button" type="button" onclick="copyLastWeek()">复制上周</button>
             </div>
             <div class="task-table-wrap">
@@ -811,6 +822,9 @@
                 <div class="field"><label for="task-date">计划日期</label><input id="task-date" class="control" type="date" required></div>
                 <div class="field full"><label for="task-description">任务说明（可选）</label><textarea id="task-description" class="control" placeholder="孩子可以看到的任务说明"></textarea></div>
                 <div class="field full"><label for="task-parent-note">家长备注（仅 Admin 可见）</label><textarea id="task-parent-note" class="control" placeholder="记录提醒或安排原因"></textarea></div>
+                <div class="field full"><label for="task-reward-goal">Reward 目标（孩子可见，可选）</label><input id="task-reward-goal" class="control" maxlength="500" placeholder="例如：独立完成并检查，正确率达到 90%"></div>
+                <div class="field"><label for="task-reward-points">Reward 点数</label><input id="task-reward-points" class="control" type="number" min="0" max="100000" step="1" value="0"></div>
+                <div class="field"><label>发放规则</label><div class="control" style="display:flex;align-items:center;color:var(--muted);font-size:11px">任务完成后，由家长确认发放</div></div>
                 <div class="field"><label for="task-repeat">重复方式</label><select id="task-repeat" class="control" onchange="toggleRepeatFields()"><option value="once">不重复</option><option value="daily">每天</option><option value="weekly">每周指定星期</option><option value="monthly">每月</option></select></div>
                 <div class="field"><label for="task-end-date">结束日期（可选）</label><input id="task-end-date" class="control" type="date"></div>
                 <div id="weekday-field" class="field full" hidden>
@@ -919,18 +933,22 @@
                 { id:'sub_science', name:'科学', color:'#7656B5', enabled:true, sort_order:50 },
                 { id:'sub_other', name:'其他', color:'#6B7280', enabled:false, sort_order:60 }
             ];
-            const task = (id, title, subjectId, date, description, completedDate = null, repeat = 'once') => ({
+            const task = (id, title, subjectId, date, description, completedDate = null, repeat = 'once', rewardGoal = '', rewardPoints = 0, rewardGranted = false) => ({
                 id, title, subject_id:subjectId, planned_date:date, description, parent_note:'',
-                completed_local_date:completedDate, lifecycle_status:'active', repeat, version:1
+                completed_local_date:completedDate, lifecycle_status:'active', repeat, version:1,
+                reward_goal:rewardGoal, reward_points:rewardPoints,
+                reward_granted_at:rewardGranted ? new Date().toISOString() : null,
+                reward_granted_local_date:rewardGranted ? state.today : null,
+                reward_awarded_points:rewardGranted ? rewardPoints : 0
             });
             state.tasks = [
                 task('task_001','完成英语回家作业','sub_english',addDays(state.today,-2),'完成练习册第 18 页。'),
                 task('task_002','整理阅读摘记','sub_reading',addDays(state.today,-1),'摘录喜欢的句子并写理解。',state.today),
-                task('task_003','完成数学口算','sub_math',state.today,'完成 20 道小数乘法练习。'),
+                task('task_003','完成数学口算','sub_math',state.today,'完成 20 道小数乘法练习。',null,'once','独立完成并检查，正确率达到 90%',5),
                 task('task_004','复习中文成语','sub_chinese',state.today,'复习今天课堂上的 8 个成语。'),
                 task('task_005','背诵 Daily Word','sub_english',state.today,'朗读并拼写今天的 10 个单词。',null,'daily'),
-                task('task_006','阅读 20 分钟','sub_reading',state.today,'继续阅读《小王子》。',state.today,'daily'),
-                task('task_007','科学观察记录','sub_science',state.today,'记录植物叶片变化。',state.today,'weekly'),
+                task('task_006','阅读 20 分钟','sub_reading',state.today,'继续阅读《小王子》。',state.today,'daily','讲出今天最喜欢的一段内容',3),
+                task('task_007','科学观察记录','sub_science',state.today,'记录植物叶片变化。',state.today,'weekly','记录完整并主动分享发现',4,true),
                 task('task_008','数学错题复盘','sub_math',addDays(state.today,-1),'订正昨天的两道错题。'),
                 task('task_009','英语听力练习','sub_english',addDays(state.today,1),'完成 15 分钟听力。',null,'weekly'),
                 task('task_010','中文阅读理解','sub_chinese',addDays(state.today,2),'完成一篇阅读理解。'),
@@ -1081,25 +1099,46 @@
             const search = document.getElementById('task-search')?.value.trim().toLowerCase() || '';
             const subjectFilter = document.getElementById('task-subject-filter')?.value || '';
             const statusFilter = document.getElementById('task-status-filter')?.value || '';
+            const dateFilter = document.getElementById('task-date-filter')?.value || '';
             const tasks = state.tasks.filter(activeTask).filter(task => {
                 const status = taskStatus(task);
                 return (!search || task.title.toLowerCase().includes(search))
                     && (!subjectFilter || task.subject_id === subjectFilter)
-                    && (!statusFilter || status === statusFilter);
+                    && (!statusFilter || status === statusFilter)
+                    && (!dateFilter || task.planned_date === dateFilter);
             }).sort((a,b) => a.planned_date.localeCompare(b.planned_date));
             document.getElementById('task-table-body').innerHTML = tasks.length ? tasks.map(task => {
                 const subject = subjectById(task.subject_id);
                 const status = taskStatus(task);
                 const statusLabel = status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成';
                 const repeatLabel = { once:'单次', daily:'每天', weekly:'每周', monthly:'每月' }[task.repeat] || '单次';
-                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div></td><td><span class="subject-chip" style="--subject:${escapeHtml(subject.color)}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button><button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
+                const rewardLine = hasTaskReward(task) ? `<div class="task-reward-line">🎁 +${Number(task.reward_points)} 分 · ${escapeHtml(task.reward_goal)} · ${task.reward_granted_at ? '已发放' : '待确认'}</div>` : '';
+                const rewardAction = hasTaskReward(task)
+                    ? `<button class="icon-button ${task.reward_granted_at ? 'reward-granted' : 'reward-ready'}" type="button" title="${task.reward_granted_at ? '奖励已发放' : status === 'done' ? '确认发放奖励' : '完成任务后才能发放'}" ${task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">★</button>`
+                    : '';
+                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div>${rewardLine}</td><td><span class="subject-chip" style="--subject:${escapeHtml(subject.color)}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button>${rewardAction}<button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
             }).join('') : '<tr><td colspan="6"><div class="empty">没有符合条件的任务</div></td></tr>';
+        }
+
+        function clearTaskDateFilter() {
+            document.getElementById('task-date-filter').value = '';
+            renderTaskTable();
+        }
+
+        function hasTaskReward(task) {
+            return Boolean(String(task.reward_goal || '').trim()) && Number(task.reward_points || 0) > 0;
         }
 
         function adminTaskCard(task) {
             const subject = subjectById(task.subject_id);
             const status = taskStatus(task);
-            return `<div class="admin-task-card" style="--subject:${escapeHtml(subject.color)}"><span class="admin-task-color"></span><div><div class="admin-task-title">${escapeHtml(task.title)}</div><div class="admin-task-sub">${escapeHtml(subject.name)} · ${escapeHtml(task.description || '无说明')}</div></div><span class="status-chip ${status}">${status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成'}</span></div>`;
+            const reward = hasTaskReward(task)
+                ? `<div class="admin-task-reward">🎁 ${escapeHtml(task.reward_goal)} · +${Number(task.reward_points)} 分 · ${task.reward_granted_at ? '已发放' : status === 'done' ? '等待家长确认' : '完成后可确认'}</div>`
+                : '';
+            const rewardButton = hasTaskReward(task)
+                ? `<button class="reward-confirm-button" type="button" ${task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">${task.reward_granted_at ? `已发 +${Number(task.reward_awarded_points || task.reward_points)} 分` : '确认 Reward'}</button>`
+                : '';
+            return `<div class="admin-task-card" style="--subject:${escapeHtml(subject.color)}"><span class="admin-task-color"></span><div><div class="admin-task-title">${escapeHtml(task.title)}</div><div class="admin-task-sub">${escapeHtml(subject.name)} · ${escapeHtml(task.description || '无说明')}</div>${reward}</div><div class="admin-task-actions"><span class="status-chip ${status}">${status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成'}</span>${rewardButton}</div></div>`;
         }
 
         function renderDayView() {
@@ -1347,6 +1386,9 @@
             document.getElementById('task-id').value = '';
             document.getElementById('task-date').value = date || state.today;
             document.getElementById('task-end-date').value = '';
+            document.getElementById('task-reward-points').value = '0';
+            document.getElementById('task-reward-goal').disabled = false;
+            document.getElementById('task-reward-points').disabled = false;
             document.getElementById('edit-scope-field').hidden = true;
             document.getElementById('task-modal-title').textContent = '新增任务';
             toggleRepeatFields();
@@ -1364,6 +1406,10 @@
             document.getElementById('task-date').value = task.planned_date;
             document.getElementById('task-description').value = task.description || '';
             document.getElementById('task-parent-note').value = task.parent_note || '';
+            document.getElementById('task-reward-goal').value = task.reward_goal || '';
+            document.getElementById('task-reward-points').value = Number(task.reward_points || 0);
+            document.getElementById('task-reward-goal').disabled = Boolean(task.reward_granted_at);
+            document.getElementById('task-reward-points').disabled = Boolean(task.reward_granted_at);
             document.getElementById('task-repeat').value = task.repeat || 'once';
             document.getElementById('task-end-date').value = task.end_date || '';
             document.querySelectorAll('input[name="repeat-weekday"]').forEach(input => {
@@ -1388,12 +1434,18 @@
                 planned_date:document.getElementById('task-date').value,
                 description:document.getElementById('task-description').value.trim(),
                 parent_note:document.getElementById('task-parent-note').value.trim(),
+                reward_goal:document.getElementById('task-reward-goal').value.trim(),
+                reward_points:Number(document.getElementById('task-reward-points').value || 0),
                 repeat:document.getElementById('task-repeat').value,
                 repeat_weekdays:[...document.querySelectorAll('input[name="repeat-weekday"]:checked')].map(input => Number(input.value)),
                 end_date:document.getElementById('task-end-date').value || null
             };
             if (payload.repeat === 'weekly' && payload.repeat_weekdays.length === 0) {
                 showToast('请至少选择一个重复星期');
+                return;
+            }
+            if (Boolean(payload.reward_goal) !== (payload.reward_points > 0)) {
+                showToast('Reward 目标和大于 0 的点数需要同时填写；不设置时请同时留空');
                 return;
             }
             if (DEMO_MODE) {
@@ -1437,6 +1489,32 @@
             renderAll();
             showToast(task.completed_local_date ? '任务已标为完成' : '已取消完成状态');
         }
+
+        async function confirmTaskReward(id) {
+            const task = state.tasks.find(item => item.id === id);
+            if (!task || !hasTaskReward(task) || task.reward_granted_at) return;
+            if (!task.completed_local_date) {
+                showToast('任务完成后才能确认 Reward');
+                return;
+            }
+            if (!window.confirm(`确认“${task.reward_goal}”已经达成，并发放 ${Number(task.reward_points)} 分吗？`)) return;
+            if (DEMO_MODE) {
+                task.reward_granted_at = new Date().toISOString();
+                task.reward_granted_local_date = state.today;
+                task.reward_awarded_points = Number(task.reward_points);
+                renderAll();
+                showToast(`Reward 已确认，发放 +${Number(task.reward_points)} 分`);
+                return;
+            }
+            try {
+                await apiRequest(`/api/admin/todo/tasks/${encodeURIComponent(id)}/reward/confirm`, { method:'POST', body:'{}' });
+                await loadAdminData();
+                showToast(`Reward 已确认，发放 +${Number(task.reward_points)} 分`);
+            } catch (error) {
+                showToast(error.message || 'Reward 发放失败');
+            }
+        }
+
         async function voidTask(id) {
             const task = state.tasks.find(item => item.id === id);
             if (!task || !window.confirm(`确认作废“${task.title}”吗？历史记录仍会保留。`)) return;

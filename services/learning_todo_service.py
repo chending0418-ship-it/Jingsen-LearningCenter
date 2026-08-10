@@ -308,6 +308,17 @@ class LearningTodoService:
 
     def _enrich_task_unlocked(self, task: Dict[str, Any]) -> Dict[str, Any]:
         result = json.loads(json.dumps(task))
+        result.setdefault("reward_goal", "")
+        result.setdefault("reward_points", 0)
+        result.setdefault("reward_granted_at", None)
+        result.setdefault("reward_granted_local_date", None)
+        result.setdefault("reward_awarded_points", 0)
+        if result.get("reward_granted_at"):
+            result["reward_status"] = "granted"
+        elif result.get("reward_goal") and int(result.get("reward_points") or 0) > 0:
+            result["reward_status"] = "pending"
+        else:
+            result["reward_status"] = "none"
         subject = self._subject_map_unlocked().get(task.get("subject_id"), {})
         result["subject_name"] = subject.get("name", "其他")
         result["subject_color"] = subject.get("color", "#6B7280")
@@ -357,6 +368,8 @@ class LearningTodoService:
         planned_date: str,
         description: str = "",
         parent_note: str = "",
+        reward_goal: str = "",
+        reward_points: int = 0,
         repeat: str = "once",
         repeat_weekdays: Optional[List[int]] = None,
         template_id: Optional[str] = None,
@@ -371,6 +384,11 @@ class LearningTodoService:
             "planned_date": planned_date,
             "description": description.strip(),
             "parent_note": parent_note.strip(),
+            "reward_goal": reward_goal.strip(),
+            "reward_points": int(reward_points),
+            "reward_granted_at": None,
+            "reward_granted_local_date": None,
+            "reward_awarded_points": 0,
             "template_id": template_id,
             "occurrence_key": occurrence_key,
             "repeat": repeat,
@@ -384,6 +402,19 @@ class LearningTodoService:
             "history": [{"type": "created", "at": now}],
         }
         return task
+
+    @staticmethod
+    def _normalize_reward_configuration(goal: Any, points: Any) -> tuple[str, int]:
+        reward_goal = str(goal or "").strip()
+        try:
+            reward_points = int(points or 0)
+        except (TypeError, ValueError) as exc:
+            raise TodoDataError("奖励点数必须是整数") from exc
+        if reward_points < 0 or reward_points > 100000:
+            raise TodoDataError("奖励点数必须在 0 到 100000 之间")
+        if bool(reward_goal) != (reward_points > 0):
+            raise TodoDataError("奖励目标和大于 0 的奖励点数必须同时填写；不设置奖励时请同时留空")
+        return reward_goal, reward_points
 
     @staticmethod
     def _is_last_day(value: date) -> bool:
@@ -445,6 +476,8 @@ class LearningTodoService:
                     planned_date=occurrence_date,
                     description=template.get("description", ""),
                     parent_note=template.get("parent_note", ""),
+                    reward_goal=template.get("reward_goal", ""),
+                    reward_points=template.get("reward_points", 0),
                     repeat=template["repeat"],
                     repeat_weekdays=template.get("repeat_weekdays", []),
                     template_id=template["id"],
@@ -651,6 +684,10 @@ class LearningTodoService:
                 end_date = self._parse_date(end_date).isoformat()
                 if end_date < planned_date:
                     raise TodoDataError("结束日期不能早于开始日期")
+            reward_goal, reward_points = self._normalize_reward_configuration(
+                data.get("reward_goal", ""),
+                data.get("reward_points", 0),
+            )
             self._backup_locked("before-task-create")
             if repeat == "once":
                 task = self._new_task(
@@ -659,6 +696,8 @@ class LearningTodoService:
                     planned_date=planned_date,
                     description=data.get("description", ""),
                     parent_note=data.get("parent_note", ""),
+                    reward_goal=reward_goal,
+                    reward_points=reward_points,
                 )
                 self._write_task_unlocked(task)
                 return self._enrich_task_unlocked(task)
@@ -670,6 +709,8 @@ class LearningTodoService:
                 "subject_id": data["subject_id"],
                 "description": data.get("description", "").strip(),
                 "parent_note": data.get("parent_note", "").strip(),
+                "reward_goal": reward_goal,
+                "reward_points": reward_points,
                 "repeat": repeat,
                 "repeat_weekdays": weekdays,
                 "repeat_month_day": month_day,
@@ -778,8 +819,10 @@ class LearningTodoService:
     def _apply_task_changes_unlocked(self, task: Dict[str, Any], changes: Dict[str, Any]) -> None:
         now = self._now()
         before = {key: task.get(key) for key in changes}
-        for key in ("title", "subject_id", "planned_date", "description", "parent_note"):
+        for key in ("title", "subject_id", "planned_date", "description", "parent_note", "reward_goal", "reward_points"):
             if key in changes and changes[key] is not None:
+                if key in {"reward_goal", "reward_points"} and task.get("reward_granted_at"):
+                    continue
                 task[key] = changes[key].strip() if isinstance(changes[key], str) and key != "planned_date" else changes[key]
         if "repeat" in changes and changes["repeat"] is not None:
             task["repeat"] = changes["repeat"]
@@ -798,6 +841,19 @@ class LearningTodoService:
                 self._require_subject_unlocked(changes["subject_id"], enabled_only=True)
             if changes.get("planned_date"):
                 changes["planned_date"] = self._parse_date(changes["planned_date"]).isoformat()
+            reward_change = "reward_goal" in changes or "reward_points" in changes
+            if reward_change and (scope == "this" or not task.get("template_id")):
+                reward_goal, reward_points = self._normalize_reward_configuration(
+                    changes.get("reward_goal", task.get("reward_goal", "")),
+                    changes.get("reward_points", task.get("reward_points", 0)),
+                )
+                if task.get("reward_granted_at") and (
+                    reward_goal != task.get("reward_goal", "")
+                    or reward_points != int(task.get("reward_points") or 0)
+                ):
+                    raise TodoDataError("已发放的任务奖励不能修改")
+                changes["reward_goal"] = reward_goal
+                changes["reward_points"] = reward_points
             self._backup_locked("before-task-update")
 
             template_id = task.get("template_id")
@@ -812,6 +868,13 @@ class LearningTodoService:
             template = next((row for row in templates["templates"] if row.get("id") == template_id), None)
             if not template:
                 raise TodoDataError("重复任务模板不存在")
+            if reward_change:
+                reward_goal, reward_points = self._normalize_reward_configuration(
+                    changes.get("reward_goal", template.get("reward_goal", "")),
+                    changes.get("reward_points", template.get("reward_points", 0)),
+                )
+                changes["reward_goal"] = reward_goal
+                changes["reward_points"] = reward_points
             boundary = task["planned_date"] if scope == "future" else template["start_date"]
             now = self._now()
 
@@ -830,7 +893,7 @@ class LearningTodoService:
                 }
                 templates["templates"].append(target_template)
 
-            for key in ("title", "subject_id", "description", "parent_note", "repeat", "repeat_weekdays", "repeat_month_day"):
+            for key in ("title", "subject_id", "description", "parent_note", "reward_goal", "reward_points", "repeat", "repeat_weekdays", "repeat_month_day"):
                 if key in changes and changes[key] is not None:
                     target_template[key] = changes[key]
             if "end_date" in changes:
@@ -924,6 +987,40 @@ class LearningTodoService:
     def undo_completion(self, task_id: str) -> Dict[str, Any]:
         return self._change_completion(task_id, False)
 
+    def grant_task_reward(self, task_id: str) -> Dict[str, Any]:
+        """家长确认任务奖励；奖励点数在发放时固化，重复请求不会重复加分。"""
+        with self._guard():
+            task, month = self._find_task_unlocked(task_id)
+            if not self._is_active(task):
+                raise TodoDataError("已取消或作废的任务不能发放奖励")
+            if not task.get("completed_at"):
+                raise TodoDataError("任务完成后才能确认奖励")
+            reward_goal, reward_points = self._normalize_reward_configuration(
+                task.get("reward_goal", ""),
+                task.get("reward_points", 0),
+            )
+            if not reward_goal or reward_points <= 0:
+                raise TodoDataError("该任务没有设置奖励")
+            if task.get("reward_granted_at"):
+                return self._enrich_task_unlocked(task)
+
+            self._backup_locked("before-task-reward-grant")
+            now = self._now()
+            task["reward_granted_at"] = now
+            task["reward_granted_local_date"] = self.today()
+            task["reward_awarded_points"] = reward_points
+            task["updated_at"] = now
+            task["version"] = int(task.get("version", 1)) + 1
+            self._event(
+                task,
+                "reward-granted",
+                now,
+                reward_goal=reward_goal,
+                reward_awarded_points=reward_points,
+            )
+            self._write_task_unlocked(task, month)
+            return self._enrich_task_unlocked(task)
+
     def void_task(self, task_id: str, scope: str = "this", lifecycle: str = "voided") -> Dict[str, Any]:
         if scope not in {"this", "future", "series"}:
             raise TodoDataError("作废范围无效")
@@ -988,6 +1085,8 @@ class LearningTodoService:
                     planned_date=target_date,
                     description=row.get("description", ""),
                     parent_note=row.get("parent_note", ""),
+                    reward_goal=row.get("reward_goal", ""),
+                    reward_points=row.get("reward_points", 0),
                 )
                 for row in source
             ]
@@ -1015,6 +1114,8 @@ class LearningTodoService:
                             planned_date=target_day,
                             description=row.get("description", ""),
                             parent_note=row.get("parent_note", ""),
+                            reward_goal=row.get("reward_goal", ""),
+                            reward_points=row.get("reward_points", 0),
                         )
                     )
             if copies:
@@ -1054,7 +1155,7 @@ class LearningTodoService:
                 continue
             scheduled_by_date.setdefault(planned_date, []).append(task)
 
-        total_points = 0
+        completion_points = 0
         streak = 0
         today_points = 0
         today_has_tasks = today in scheduled_by_date
@@ -1069,7 +1170,7 @@ class LearningTodoService:
             if completed_on_time:
                 streak += 1
                 points = streak
-                total_points += points
+                completion_points += points
                 last_scored_date = planned_date
                 if planned_date == today:
                     today_points = points
@@ -1086,8 +1187,17 @@ class LearningTodoService:
                 }
             )
 
+        task_reward_points = sum(max(0, int(task.get("reward_awarded_points") or 0)) for task in all_tasks)
+        today_task_reward_points = sum(
+            max(0, int(task.get("reward_awarded_points") or 0))
+            for task in all_tasks
+            if task.get("reward_granted_local_date") == today
+        )
         return {
-            "total_points": total_points,
+            "total_points": completion_points + task_reward_points,
+            "completion_points": completion_points,
+            "task_reward_points": task_reward_points,
+            "today_task_reward_points": today_task_reward_points,
             "today_points": today_points,
             "current_streak": streak,
             "next_points": streak + 1,
@@ -1095,7 +1205,7 @@ class LearningTodoService:
             "today_completed": today_completed,
             "last_scored_date": last_scored_date,
             "recent_scores": recent_scores[-31:],
-            "rule": "完成一个计划日的全部任务可获得连续天数对应的积分",
+            "rule": "全部按时完成任务日可获得连续积分；家长确认的任务奖励另行加入累计积分",
         }
 
     def reward_summary(self) -> Dict[str, Any]:

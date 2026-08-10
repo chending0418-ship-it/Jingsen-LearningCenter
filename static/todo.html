@@ -394,6 +394,23 @@
 
         .task-title { margin: 0; font-size: 17px; line-height: 1.35; letter-spacing: -0.012em; }
         .task-description { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.58; }
+        .task-reward-offer {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 12px;
+            padding: 11px 12px;
+            border: 1px solid rgba(182,107,20,.2);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,248,224,.92), rgba(248,232,191,.76));
+            color: #6E4B1B;
+        }
+        .task-reward-label { display: block; margin-bottom: 3px; color: #9A641B; font-size: 9px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+        .task-reward-goal { font-size: 12px; font-weight: 750; line-height: 1.45; }
+        .task-reward-points { color: #915810; font-size: 16px; font-weight: 850; white-space: nowrap; }
+        .task-reward-state { grid-column: 1 / -1; color: #8A6A3B; font-size: 10px; font-weight: 700; }
+        .task-reward-state.granted { color: var(--teal); }
         .task-date { margin-top: 11px; color: #7A827E; font-size: 11px; font-weight: 700; }
         .manual-undo-hint { margin-left: 7px; color: var(--teal); }
 
@@ -475,12 +492,27 @@
         }
 
         @media (max-width: 470px) {
+            .shell { padding-left: 14px; padding-right: 14px; }
+            .topbar { align-items: flex-start; }
+            .date-pill { max-width: 58%; justify-content: center; text-align: center; line-height: 1.25; }
             .reward-card {
-                grid-template-columns: minmax(0, 1fr) 82px;
-                gap: 14px;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 16px;
                 padding: 20px;
             }
-            .reward-number { font-size: 42px; }
+            .reward-score {
+                min-width: 0;
+                display: flex;
+                align-items: baseline;
+                gap: 9px;
+                padding-top: 14px;
+                border-top: 1px solid rgba(126,82,17,.14);
+                text-align: left;
+            }
+            .reward-number { max-width: 100%; overflow-wrap: anywhere; font-size: 42px; }
+            .reward-unit { margin-top: 0; }
+            .task-reward-offer { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+            .task-reward-points { font-size: 15px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -532,6 +564,8 @@
                 <div class="reward-meta">
                     <span id="reward-streak" class="reward-chip">连续完成 — 个任务日</span>
                     <span id="reward-next" class="reward-chip">下一次 +— 分</span>
+                    <span id="reward-completion" class="reward-chip">连续完成积分 — 分</span>
+                    <span id="reward-task" class="reward-chip">任务 Reward 积分 — 分</span>
                 </div>
             </div>
             <div class="reward-score" aria-label="累计学习积分">
@@ -606,7 +640,7 @@
         };
 
         let state = { serverDate: '', overdue: [], pending: [], completed: [], reward: null };
-        const demoRewardBase = { totalPoints: 6, currentStreak: 3 };
+        const demoRewardBase = { completionPoints: 6, bonusPoints: 12, currentStreak: 3 };
         let undoContext = null;
         let undoTimer = null;
 
@@ -637,7 +671,7 @@
             }).format(date);
         }
 
-        function makeTask(id, title, subjectKey, plannedDate, description, completed = false) {
+        function makeTask(id, title, subjectKey, plannedDate, description, completed = false, rewardGoal = '', rewardPoints = 0, rewardGranted = false) {
             const subject = SUBJECTS[subjectKey] || SUBJECTS.other;
             return {
                 id,
@@ -649,6 +683,10 @@
                 description,
                 completed_at: completed ? new Date().toISOString() : null,
                 completed_local_date: completed ? state.serverDate : null,
+                reward_goal: rewardGoal,
+                reward_points: rewardPoints,
+                reward_granted_at: rewardGranted ? new Date().toISOString() : null,
+                reward_awarded_points: rewardGranted ? rewardPoints : 0,
                 demo_origin: null
             };
         }
@@ -660,13 +698,13 @@
                 makeTask('task_demo_overdue_2', '整理昨天的阅读摘记', 'reading', shiftedDate(state.serverDate, -2), '选出一个喜欢的句子，写下自己的理解。')
             ];
             state.pending = [
-                makeTask('task_demo_today_1', '完成数学口算', 'math', state.serverDate, '完成 20 道小数乘法练习。'),
+                makeTask('task_demo_today_1', '完成数学口算', 'math', state.serverDate, '完成 20 道小数乘法练习。', false, '独立完成并检查，正确率达到 90%', 5),
                 makeTask('task_demo_today_2', '复习中文成语', 'chinese', state.serverDate, '复习今天课堂上的 8 个成语。'),
                 makeTask('task_demo_today_3', '背诵 Daily Word', 'english', state.serverDate, '朗读并拼写今天的 10 个单词。')
             ];
             state.completed = [
-                makeTask('task_demo_done_1', '阅读 20 分钟', 'reading', state.serverDate, '继续阅读《小王子》。', true),
-                makeTask('task_demo_done_2', '科学观察记录', 'science', state.serverDate, '记录今天植物叶片的变化。', true)
+                makeTask('task_demo_done_1', '阅读 20 分钟', 'reading', state.serverDate, '继续阅读《小王子》。', true, '讲出今天最喜欢的一段内容', 3),
+                makeTask('task_demo_done_2', '科学观察记录', 'science', state.serverDate, '记录今天植物叶片的变化。', true, '记录完整并主动分享发现', 4, true)
             ];
             syncDemoReward();
         }
@@ -679,6 +717,8 @@
             state.completed = payload.today_completed_tasks || payload.completed || [];
             state.reward = payload.reward || {
                 total_points: 0,
+                completion_points: 0,
+                task_reward_points: 0,
                 today_points: 0,
                 current_streak: 0,
                 next_points: 1,
@@ -695,7 +735,9 @@
             const earned = todayCompleted ? demoRewardBase.currentStreak + 1 : 0;
             const streak = todayCompleted ? demoRewardBase.currentStreak + 1 : demoRewardBase.currentStreak;
             state.reward = {
-                total_points: demoRewardBase.totalPoints + earned,
+                total_points: demoRewardBase.completionPoints + demoRewardBase.bonusPoints + earned,
+                completion_points: demoRewardBase.completionPoints + earned,
+                task_reward_points: demoRewardBase.bonusPoints,
                 today_points: earned,
                 current_streak: streak,
                 next_points: streak + 1,
@@ -766,6 +808,17 @@
             const actionHandler = isCompleted
                 ? `uncompleteTask('${escapeHtml(task.id)}', this)`
                 : `completeTask('${escapeHtml(task.id)}', '${section}', this)`;
+            const rewardPoints = Number(task.reward_points || 0);
+            const hasReward = Boolean(String(task.reward_goal || '').trim()) && rewardPoints > 0;
+            const rewardState = task.reward_granted_at
+                ? `<div class="task-reward-state granted">✓ 家长已确认，+${Number(task.reward_awarded_points || rewardPoints)} 分已加入累计积分</div>`
+                : `<div class="task-reward-state">${isCompleted ? '等待家长确认 Reward' : '完成任务并达到目标后，由家长确认发放'}</div>`;
+            const rewardOffer = hasReward ? `
+                <div class="task-reward-offer">
+                    <div><span class="task-reward-label">Reward 目标</span><div class="task-reward-goal">${escapeHtml(task.reward_goal)}</div></div>
+                    <strong class="task-reward-points">+${rewardPoints} 分</strong>
+                    ${rewardState}
+                </div>` : '';
             return `
                 <article class="task-card ${isCompleted ? 'is-completed' : ''}" style="--subject:${escapeHtml(subjectColor)}" data-task-id="${escapeHtml(task.id)}">
                     <button
@@ -786,6 +839,7 @@
                         </div>
                         <h3 class="task-title">${escapeHtml(task.title || task.name)}</h3>
                         ${task.description ? `<p class="task-description">${escapeHtml(task.description)}</p>` : ''}
+                        ${rewardOffer}
                         <div class="task-date">${escapeHtml(dateLabel)}${isCompleted ? '<span class="manual-undo-hint">再次点击勾选框可取消完成</span>' : ''}</div>
                     </div>
                 </article>
@@ -831,10 +885,14 @@
             const todayPoints = Number(reward.today_points || 0);
             const currentStreak = Number(reward.current_streak || 0);
             const nextPoints = Number(reward.next_points || currentStreak + 1);
+            const completionPoints = Number(reward.completion_points || 0);
+            const taskRewardPoints = Number(reward.task_reward_points || 0);
 
             document.getElementById('reward-total').textContent = totalPoints;
             document.getElementById('reward-streak').textContent = `连续完成 ${currentStreak} 个任务日`;
             document.getElementById('reward-next').textContent = `下一次全部完成 +${nextPoints} 分`;
+            document.getElementById('reward-completion').textContent = `连续完成积分 ${completionPoints} 分`;
+            document.getElementById('reward-task').textContent = `任务 Reward 积分 ${taskRewardPoints} 分`;
 
             let message = `完成今天全部任务，可获得 +${nextPoints} 分。`;
             if (!reward.today_has_tasks) {

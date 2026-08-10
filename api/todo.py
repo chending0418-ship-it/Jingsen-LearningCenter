@@ -223,6 +223,14 @@ async def undo_admin_task_completion(task_id: str):
         _raise_todo_error(error)
 
 
+@admin_router.post("/tasks/{task_id}/reward/confirm")
+async def confirm_admin_task_reward(task_id: str):
+    try:
+        return _service().grant_task_reward(task_id)
+    except TodoDataError as error:
+        _raise_todo_error(error)
+
+
 @admin_router.get("/tasks/{task_id}/history")
 async def get_task_history(task_id: str):
     try:

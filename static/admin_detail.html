@@ -40,7 +40,9 @@
                     <div class="flex gap-2">
                         <input id="detail-enabled-text" type="text" disabled class="flex-1 p-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-500">
                         <button onclick="toggleStatus()" id="toggle-btn" class="px-4 py-2.5 rounded-xl bg-amber-500 text-white hover:opacity-90">停用</button>
+                        <button onclick="toggleArchive()" id="archive-btn" class="px-4 py-2.5 rounded-xl border border-amber-300 text-amber-700 hover:bg-amber-50">归档</button>
                     </div>
+                    <p class="mt-2 text-xs text-gray-500">归档会保留全部词条，但不再出现在孩子的出题词库选项中。</p>
                 </div>
             </div>
 
@@ -53,13 +55,13 @@
                 <select id="detail-type" class="w-full p-2.5 border border-gray-200 rounded-xl"></select>
                 <p id="english-type-note" class="hidden mt-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">英语词库为通用词库，可用于 Word Palace 的所有练习类型。</p>
             </div>
-            <button onclick="saveMeta()" class="w-full py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">保存元信息</button>
+            <button id="save-meta-btn" onclick="saveMeta()" class="w-full py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50">保存元信息</button>
 
             <div>
                 <label class="block text-sm text-gray-600 mb-1">词条（每行一个）</label>
                 <textarea id="detail-items" rows="12" class="w-full p-2.5 border border-gray-200 rounded-xl"></textarea>
             </div>
-            <button onclick="saveItems()" class="w-full py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">保存词条</button>
+            <button id="save-items-btn" onclick="saveItems()" class="w-full py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">保存词条</button>
         </div>
     </div>
 
@@ -107,10 +109,23 @@
 
         function updateStatusUI() {
             const enabled = !!current.enabled;
-            document.getElementById('detail-enabled-text').value = enabled ? '启用中' : '已停用';
+            const archived = !!current.archived;
+            document.getElementById('detail-enabled-text').value = archived ? '已归档' : enabled ? '启用中' : '已停用';
             const btn = document.getElementById('toggle-btn');
             btn.textContent = enabled ? '停用' : '启用';
             btn.className = `px-4 py-2.5 rounded-xl text-white hover:opacity-90 ${enabled ? 'bg-amber-500' : 'bg-emerald-600'}`;
+            btn.disabled = archived;
+            btn.classList.toggle('opacity-40', archived);
+            btn.classList.toggle('cursor-not-allowed', archived);
+            const archiveBtn = document.getElementById('archive-btn');
+            archiveBtn.textContent = archived ? '取消归档' : '归档';
+            archiveBtn.className = `px-4 py-2.5 rounded-xl hover:opacity-90 ${archived ? 'bg-indigo-600 text-white' : 'border border-amber-300 text-amber-700 hover:bg-amber-50'}`;
+            ['detail-name', 'detail-type', 'detail-items', 'save-meta-btn', 'save-items-btn'].forEach(id => {
+                const element = document.getElementById(id);
+                element.disabled = archived;
+                element.classList.toggle('opacity-50', archived);
+                element.classList.toggle('cursor-not-allowed', archived);
+            });
         }
 
         async function loadDetail() {
@@ -139,6 +154,7 @@
         }
 
         async function toggleStatus() {
+            if (current.archived) return showNotice('error', '请先取消归档，再重新启用词库');
             try {
                 const res = await fetch(`/api/admin/libraries/${current.id}/status`, {
                     method: 'PATCH',
@@ -152,6 +168,25 @@
                 showNotice('success', '状态更新成功');
             } catch (e) {
                 showNotice('error', `状态更新失败：${e.message || '网络错误'}`);
+            }
+        }
+
+        async function toggleArchive() {
+            const nextArchived = !current.archived;
+            if (nextArchived && !window.confirm(`确认归档“${current.name}”吗？完整内容会移入独立归档文件，并停止用于生成题目。`)) return;
+            try {
+                const res = await fetch(`/api/admin/libraries/${current.id}/archive`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ archived: nextArchived })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `归档状态更新失败：${data.detail || '未知错误'}`);
+                current = data;
+                updateStatusUI();
+                showNotice('success', nextArchived ? '词库已归档，不再参与出题' : '已取消归档；需要时请重新启用');
+            } catch (e) {
+                showNotice('error', `归档状态更新失败：${e.message || '网络错误'}`);
             }
         }
 

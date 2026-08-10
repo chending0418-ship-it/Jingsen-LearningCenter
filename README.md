@@ -241,7 +241,8 @@ Grade 6 | Grammar and mechanics | Spelling | Learn to spell words with prefixes:
 
 ```text
 data/library_registry.json     # 词库元数据
-data/*.txt                     # 词条内容
+data/library_archive.json      # 归档词库元数据与完整词条（服务器运行数据）
+data/*.txt                     # 当前活动词库内容；归档后移入上面的独立 JSON
 data/report_history.json       # 每日练习报告
 data/skills/*.json             # Skills 数据
 ```

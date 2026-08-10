@@ -39,7 +39,10 @@ wheels/
 
 # Server-local mutable learning data (backed up separately during deployment)
 data/report_history.json
+data/library_archive.json
 data/learning-todo/
+data/model-settings.json
+data/.model-settings.lock
 
 # OS
 .DS_Store

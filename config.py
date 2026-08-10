@@ -3,6 +3,7 @@
 统一管理应用配置和环境变量
 """
 import os
+from urllib.parse import urlsplit, urlunsplit
 from dotenv import load_dotenv
 
 # 加载环境变量
@@ -17,6 +18,7 @@ class Config:
     OPENAI_BASE_URL: str = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
     MODEL_NAME: str = os.environ.get("MODEL_NAME", "gpt-3.5-turbo")
     AI_REQUEST_TIMEOUT: float = float(os.environ.get("AI_REQUEST_TIMEOUT", 50))
+    MODEL_LIST_TIMEOUT: float = float(os.environ.get("MODEL_LIST_TIMEOUT", 15))
     
     # 服务器配置
     HOST: str = os.environ.get("HOST", "0.0.0.0")
@@ -24,6 +26,10 @@ class Config:
     
     # 数据目录配置（本地词库主存储）
     DATA_DIR: str = os.path.join(os.path.dirname(__file__), "data")
+    MODEL_SETTINGS_FILE: str = os.environ.get(
+        "MODEL_SETTINGS_FILE",
+        os.path.join(DATA_DIR, "model-settings.json")
+    )
 
     # Admin 会话配置。沿用现有后台密码，不为 Learning Todo 增加第二套密码。
     ADMIN_PASSWORD: str = os.environ.get("ADMIN_PASSWORD", "0418")
@@ -50,11 +56,15 @@ class Config:
     
     @classmethod
     def fix_base_url(cls) -> str:
-        """修正 Base URL 格式"""
-        api_base = cls.OPENAI_BASE_URL
-        if api_base and "vveai" in api_base and not api_base.endswith("/v1"):
-            api_base = api_base.rstrip("/") + "/v1"
-        return api_base
+        """修正 OpenAI 兼容 Base URL，根域名配置自动补 `/v1`。"""
+        api_base = cls.OPENAI_BASE_URL.strip().rstrip("/")
+        if not api_base:
+            return api_base
+        parsed = urlsplit(api_base)
+        path = parsed.path.rstrip("/")
+        if path in {"", "/"} or ("vveai" in parsed.netloc and not path.endswith("/v1")):
+            path = f"{path}/v1"
+        return urlunsplit((parsed.scheme, parsed.netloc, path, parsed.query, parsed.fragment))
 
 
 

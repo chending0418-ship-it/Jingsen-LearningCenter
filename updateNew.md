@@ -19,13 +19,27 @@ bash update_safe.sh
 - 内部服务：`http://127.0.0.1:8088`
 - 公网入口：`https://jingsen.cc/learningcenter/`
 
+## 永久保留的手工基线
+
+以下备份是 Learning Todo 首次上线前的永久恢复基线，不允许自动部署脚本覆盖、
+移动或清理：
+
+```text
+/www/wwwroot/learningcenter/backups/manual-pre-todo-20260728-220002
+```
+
+对应上线提交为 `7ec62a6`。未来的自动清理只能作用于明确标记的自动快照，
+所有 `manual-*` 目录必须永久排除。
+
 ## 一次发布会保护哪些数据
 
 `update_safe.sh` 在同步代码前快照整个 `data/`，因此统一保护：
 
-- `data/library_registry.json` 与 `data/*.txt`：词库元数据和内容。
+- `data/library_registry.json` 与 `data/*.txt`：当前活动词库的元数据和内容。
+- `data/library_archive.json`：归档词库的元数据与完整词条；归档项不参与出题。
 - `data/skills/`：Admin 维护的 Skills。
 - `data/report_history.json`：Daily Word、Vocabulary Skills、MAP Test 等 Daily Reports。
+- `data/model-settings.json`：Admin 保存的全站默认 AI 模型。
 - `data/learning-todo/`：Todo 科目、设置、重复模板、月任务、评语和 Todo 内部备份。
 - `.env`：API Key、Admin 密码、Session Secret、端口等服务器配置。
 
@@ -61,16 +75,18 @@ cd /www/wwwroot/learningcenter/app
 输出中应看到：
 
 - `library_registry: true`
+- `library_archive: true`（新版本首次启动后）
 - `daily_reports: true`（已有报告数据时）
+- `model_settings: true`（Admin 已保存过模型选择时）
 - `todo_directory: true`（Todo 服务首次启动后）
 - 合理的 `library_text_files`、`todo_task_months` 数量
 
 4. 页面验收：
 
-- Admin 词库列表和 Skills 数据仍在。
+- Admin 当前词库、独立归档列表和 Skills 数据仍在。
 - English → Daily Reports 历史仍在。
-- Admin → Todo 管理中的任务、科目和评语仍在。
-- 孩子端 Todo 能完成和取消完成任务。
+- Admin → Todo 管理中的任务、Reward 发放、科目和评语仍在。
+- 孩子端 Todo 能完成和取消完成任务，并正确显示总积分及两种积分来源。
 
 ## 快照恢复
 
@@ -112,6 +128,7 @@ chown -R www:www "$APP_DIR"
 OPENAI_API_KEY=...
 OPENAI_BASE_URL=...
 MODEL_NAME=...
+MODEL_LIST_TIMEOUT=15
 PORT=8088
 
 ADMIN_PASSWORD=0418
@@ -121,6 +138,10 @@ ADMIN_COOKIE_SECURE=1
 
 TODO_TIMEZONE=Asia/Shanghai
 ```
+
+`OPENAI_BASE_URL` 可以配置为 `https://api.gpt.ge` 或
+`https://api.gpt.ge/v1`，后端会规范化模型列表地址。`MODEL_NAME` 只作为
+Admin 尚未保存模型时的回退值；保存后的选择位于 `data/model-settings.json`。
 
 不设置 `TODO_DATA_DIR` 时默认使用 `data/learning-todo/`。不要将它指向词库、
 Skills 或 `report_history.json` 所在文件。

@@ -51,6 +51,8 @@ class TaskCreateRequest(BaseModel):
     planned_date: date
     description: str = Field(default="", max_length=2000)
     parent_note: str = Field(default="", max_length=2000)
+    reward_goal: str = Field(default="", max_length=500)
+    reward_points: int = Field(default=0, ge=0, le=100000)
     repeat: RepeatKind = "once"
     repeat_weekdays: list[int] = Field(default_factory=list)
     end_date: Optional[date] = None
@@ -78,6 +80,8 @@ class TaskUpdateRequest(BaseModel):
     planned_date: Optional[date] = None
     description: Optional[str] = Field(default=None, max_length=2000)
     parent_note: Optional[str] = Field(default=None, max_length=2000)
+    reward_goal: Optional[str] = Field(default=None, max_length=500)
+    reward_points: Optional[int] = Field(default=None, ge=0, le=100000)
     repeat: Optional[RepeatKind] = None
     repeat_weekdays: Optional[list[int]] = None
     end_date: Optional[date] = None

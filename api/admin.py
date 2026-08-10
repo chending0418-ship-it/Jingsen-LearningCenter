@@ -11,6 +11,7 @@ from models.schemas import (
     LibraryCreateRequest,
     LibraryUpdateRequest,
     LibraryStatusRequest,
+    LibraryArchiveRequest,
     LibraryItemsUpdateRequest,
     LibraryDetailResponse
 )
@@ -27,9 +28,14 @@ def _error_status_by_message(message: str) -> int:
 @router.get("/libraries", response_model=LibraryListResponse)
 async def list_libraries(
     subject: Optional[str] = Query(None, description="学科过滤: english/chinese"),
-    include_disabled: bool = Query(True, description="是否包含未启用词库")
+    include_disabled: bool = Query(True, description="是否包含未启用词库"),
+    include_archived: bool = Query(False, description="是否包含已归档词库"),
 ):
-    libraries = library_admin_service.list_libraries(subject=subject, include_disabled=include_disabled)
+    libraries = library_admin_service.list_libraries(
+        subject=subject,
+        include_disabled=include_disabled,
+        include_archived=include_archived,
+    )
     return {"libraries": libraries, "total": len(libraries)}
 
 
@@ -73,6 +79,14 @@ async def update_library_status(library_id: str, request: LibraryStatusRequest):
         return library_admin_service.set_library_enabled(library_id, request.enabled)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.patch("/libraries/{library_id}/archive", response_model=LibraryAdminItem)
+async def update_library_archive(library_id: str, request: LibraryArchiveRequest):
+    try:
+        return library_admin_service.set_library_archived(library_id, request.archived)
+    except ValueError as e:
+        raise HTTPException(status_code=_error_status_by_message(str(e)), detail=str(e))
 
 
 @router.put("/libraries/{library_id}/items", response_model=LibraryDetailResponse)

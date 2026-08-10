@@ -328,3 +328,71 @@ def test_reward_points_grow_with_streak_and_restart_after_missed_task_day(tmp_pa
         2,
         3,
     )
+
+
+def test_parent_confirmed_task_reward_is_added_once_and_saved_as_snapshot(service):
+    task = service.create_task(
+        {
+            "title": "高质量完成阅读摘记",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "reward_goal": "字迹整洁，并写出自己的理解",
+            "reward_points": 8,
+            "repeat": "once",
+        }
+    )
+    assert task["reward_status"] == "pending"
+
+    with pytest.raises(ValueError, match="完成后才能确认奖励"):
+        service.grant_task_reward(task["id"])
+
+    service.complete_task(task["id"])
+    granted = service.grant_task_reward(task["id"])
+    assert granted["reward_status"] == "granted"
+    assert granted["reward_awarded_points"] == 8
+
+    reward = service.reward_summary()
+    assert reward["completion_points"] == 1
+    assert reward["task_reward_points"] == 8
+    assert reward["today_task_reward_points"] == 8
+    assert reward["total_points"] == 9
+
+    # 重复确认是幂等操作，不会重复加分。
+    service.grant_task_reward(task["id"])
+    assert service.reward_summary()["total_points"] == 9
+
+    with pytest.raises(ValueError, match="已发放的任务奖励不能修改"):
+        service.update_task(task["id"], {"reward_goal": "改成另一个目标", "reward_points": 20})
+
+    history = service.task_history(task["id"])["history"]
+    assert [event["type"] for event in history].count("reward-granted") == 1
+
+
+def test_recurring_task_rewards_are_confirmed_per_instance(service):
+    first = service.create_task(
+        {
+            "title": "每日阅读",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "reward_goal": "阅读后讲出一个新发现",
+            "reward_points": 4,
+            "repeat": "daily",
+            "end_date": "2026-07-29",
+        }
+    )
+    tasks = service.list_tasks(from_date="2026-07-28", to_date="2026-07-29")
+    assert [task["reward_points"] for task in tasks] == [4, 4]
+
+    service.complete_task(first["id"])
+    service.grant_task_reward(first["id"])
+    service.update_task(
+        tasks[1]["id"],
+        {"reward_goal": "阅读后写出两点收获", "reward_points": 6},
+        scope="series",
+    )
+
+    updated = service.list_tasks(from_date="2026-07-28", to_date="2026-07-29")
+    assert updated[0]["reward_awarded_points"] == 4
+    assert updated[0]["reward_points"] == 4
+    assert updated[1]["reward_points"] == 6
+    assert updated[1]["reward_granted_at"] is None

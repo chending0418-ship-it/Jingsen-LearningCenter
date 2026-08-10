@@ -13,6 +13,7 @@ Todo 均通过服务器本地文件持久化，因此部署的重点是让代码
 ├── app/                         # Git 代码目录
 │   ├── data/                    # 服务器真实持久数据
 │   │   ├── library_registry.json
+│   │   ├── library_archive.json # 归档词库元数据与完整词条
 │   │   ├── *.txt
 │   │   ├── skills/
 │   │   ├── report_history.json
@@ -39,8 +40,13 @@ cd app
 sudo -u www -H git checkout deploy/tencent-learningcenter-path
 ```
 
-不要上传本地运行产生的 `data/report_history.json` 或 `data/learning-todo/`
-覆盖服务器。服务启动后会在缺失时自动创建 Todo 的独立默认文件。
+不要上传本地运行产生的 `data/report_history.json`、`data/library_archive.json` 或
+`data/learning-todo/` 覆盖服务器。服务启动后会在缺失时自动创建 Todo 默认文件
+和独立词库归档文件。
+
+词库执行“归档”时，完整词条会先写入 `data/library_archive.json`，随后从活动
+`library_registry.json` 和对应的活动 `.txt` 中移出；恢复时会重建 `.txt`，且默认
+保持停用，避免未经确认重新参与出题。
 
 ## `.env`
 
@@ -48,8 +54,9 @@ sudo -u www -H git checkout deploy/tencent-learningcenter-path
 
 ```env
 OPENAI_API_KEY=<API Key>
-OPENAI_BASE_URL=<API 地址>
+OPENAI_BASE_URL=https://api.gpt.ge
 MODEL_NAME=gpt-3.5-turbo
+MODEL_LIST_TIMEOUT=15
 HOST=127.0.0.1
 PORT=8088
 
@@ -60,6 +67,10 @@ ADMIN_COOKIE_SECURE=1
 
 TODO_TIMEZONE=Asia/Shanghai
 ```
+
+`MODEL_NAME` 是尚未在 Admin 保存模型选择时的回退值。Admin → 模型选择会由
+服务端使用 `OPENAI_API_KEY` 请求兼容 OpenAI 格式的 `/v1/models`，选择结果
+保存到 `data/model-settings.json`。API Key 不会下发浏览器。
 
 可以在服务器生成 Session Secret：
 
@@ -163,8 +174,10 @@ cd /www/wwwroot/learningcenter/app
 随后检查：
 
 - `/learningcenter/admin`：词库和 Skills 数据未变化。
+- `/learningcenter/admin`：归档词库只在勾选“显示已归档词库”时出现，且不参与出题。
+- `/learningcenter/admin/models`：可读取当前 Key 的模型列表并保存默认模型。
 - `/learningcenter/english`：Daily Reports 历史存在。
-- `/learningcenter/admin/todo`：任务、科目、统计和评语存在。
-- `/learningcenter/todo`：孩子端完成与取消完成正常。
+- `/learningcenter/admin/todo`：任务、Reward 配置/发放、科目、统计和评语存在。
+- `/learningcenter/todo`：孩子端完成、取消完成、Reward 目标和积分构成正常。
 
 不要把“页面能打开”当作数据验收；必须同时执行数据校验并人工抽查三类历史内容。

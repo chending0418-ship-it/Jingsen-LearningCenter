@@ -8,6 +8,7 @@ import asyncio
 from typing import Dict, Any, Optional
 from openai import OpenAI
 from config import config
+from services.model_settings_service import get_model_settings_service
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,14 @@ class AIGenerator:
             timeout=config.AI_REQUEST_TIMEOUT,
             max_retries=1
         )
-        self.model = config.MODEL_NAME
-        logger.info(f"AIGenerator initialized with model: {self.model}")
+        logger.info(
+            "AIGenerator initialized; active model is resolved from persistent settings per request"
+        )
+
+    @property
+    def model(self) -> str:
+        """实时读取 Admin 选择；未选择时回退到环境变量 MODEL_NAME。"""
+        return get_model_settings_service().get_selected_model()
 
     async def _create_chat_completion(self, **kwargs):
         try:

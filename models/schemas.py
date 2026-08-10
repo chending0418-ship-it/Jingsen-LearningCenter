@@ -84,6 +84,8 @@ class LibraryAdminItem(BaseModel):
     name: str = Field(..., description="词库名称")
     file_name: str = Field(..., description="文件名(不含扩展名)")
     enabled: bool = Field(..., description="是否启用")
+    archived: bool = Field(False, description="是否归档")
+    archived_at: Optional[str] = Field(None, description="归档时间")
     library_type: Optional[str] = Field(None, description="词库用途类型")
     total_items: int = Field(0, description="词条数量")
     created_at: str = Field(..., description="创建时间")
@@ -119,6 +121,11 @@ class LibraryUpdateRequest(BaseModel):
 class LibraryStatusRequest(BaseModel):
     """更新词库启用状态请求"""
     enabled: bool = Field(..., description="是否启用")
+
+
+class LibraryArchiveRequest(BaseModel):
+    """更新词库归档状态请求"""
+    archived: bool = Field(..., description="是否归档")
 
 
 class LibraryItemsUpdateRequest(BaseModel):

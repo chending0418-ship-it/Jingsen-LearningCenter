@@ -6,8 +6,9 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, map_language_arts, report_history, skills, vocabulary_skills, todo
+from api import english, chinese, math, admin, map_language_arts, model_settings, report_history, skills, vocabulary_skills, todo
 from config import config
+from services.model_settings_service import get_model_settings_service
 
 # 配置日志
 logging.basicConfig(
@@ -48,6 +49,7 @@ app.include_router(skills.router)
 app.include_router(todo.admin_session_router)
 app.include_router(todo.public_router)
 app.include_router(todo.admin_router)
+app.include_router(model_settings.router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
@@ -60,6 +62,7 @@ app.include_router(skills.router, prefix=BASE_PATH)
 app.include_router(todo.admin_session_router, prefix=BASE_PATH)
 app.include_router(todo.public_router, prefix=BASE_PATH)
 app.include_router(todo.admin_router, prefix=BASE_PATH)
+app.include_router(model_settings.router, prefix=BASE_PATH)
 
 
 def serve_static_file(path: str, not_found_message: str):
@@ -89,7 +92,7 @@ async def health_check():
     """健康检查"""
     return {
         "status": "healthy",
-        "model": config.MODEL_NAME
+        "model": get_model_settings_service().get_selected_model()
     }
 
 
@@ -163,12 +166,19 @@ async def serve_admin_todo_page():
     return serve_static_file("static/admin_todo.html", "Admin Todo page not found")
 
 
+@app.get("/admin/models")
+@app.get(f"{BASE_PATH}/admin/models")
+async def serve_admin_models_page():
+    """提供全站默认 AI 模型选择页面"""
+    return serve_static_file("static/admin_models.html", "Admin models page not found")
+
+
 @app.on_event("startup")
 async def startup_event():
     """应用启动事件"""
     logger.info("="*50)
     logger.info("Jingsen 学习中心 1.0 启动中...")
-    logger.info(f"模型: {config.MODEL_NAME}")
+    logger.info(f"模型: {get_model_settings_service().get_selected_model()}")
     logger.info(f"端口: {config.PORT}")
     logger.info("="*50)
 

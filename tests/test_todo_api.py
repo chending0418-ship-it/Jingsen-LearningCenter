@@ -31,6 +31,8 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
                 "title": "API 测试任务",
                 "subject_id": "sub_english",
                 "planned_date": "2026-07-28",
+                "reward_goal": "独立检查答案并订正",
+                "reward_points": 5,
                 "repeat": "once",
             },
         )
@@ -43,14 +45,22 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
         assert public_today.json()["reward"]["next_points"] == 1
         assert "parent_note" not in public_today.json()["today_pending_tasks"][0]
         assert "history" not in public_today.json()["today_pending_tasks"][0]
+        assert public_today.json()["today_pending_tasks"][0]["reward_goal"] == "独立检查答案并订正"
+        assert public_today.json()["today_pending_tasks"][0]["reward_points"] == 5
 
         completed = client.post(f"/api/todo/tasks/{task_id}/complete", json={})
         assert completed.status_code == 200
         assert completed.json()["completed_local_date"] == "2026-07-28"
 
+        confirmed = client.post(f"/api/admin/todo/tasks/{task_id}/reward/confirm", json={})
+        assert confirmed.status_code == 200
+        assert confirmed.json()["reward_awarded_points"] == 5
+
         reward = client.get("/api/todo/reward")
         assert reward.status_code == 200
-        assert reward.json()["total_points"] == 1
+        assert reward.json()["total_points"] == 6
+        assert reward.json()["completion_points"] == 1
+        assert reward.json()["task_reward_points"] == 5
         assert reward.json()["today_points"] == 1
         assert reward.json()["current_streak"] == 1
 

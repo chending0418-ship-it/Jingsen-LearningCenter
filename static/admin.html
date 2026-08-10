@@ -25,7 +25,7 @@
                     返回门户
                 </button>
                 <h1 class="text-3xl font-bold text-gray-900">Admin 管理后台</h1>
-                <p class="text-gray-500 mt-1">请选择要维护的内容：词库或 Skills 知识点。</p>
+                <p class="text-gray-500 mt-1">管理词库、Skills、Todo 与全站 AI 模型。</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="location.href=withBasePath('/admin/new')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:opacity-90">新增词库</button>
@@ -33,7 +33,7 @@
             </div>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <button class="card p-5 text-left border-2 border-indigo-500 bg-indigo-50/60">
                 <div class="text-xs font-bold text-indigo-600 uppercase tracking-[0.16em]">当前页面</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">词库管理</h2>
@@ -48,6 +48,11 @@
                 <div class="text-xs font-bold text-amber-600 uppercase tracking-[0.16em]">Learning Todo</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">Todo 管理</h2>
                 <p class="text-gray-500 mt-2">安排学习任务，查看日、周、月进度与完成统计。</p>
+            </button>
+            <button onclick="location.href=withBasePath('/admin/models')" class="card p-5 text-left hover:border-violet-400 hover:bg-violet-50/60 transition-colors">
+                <div class="text-xs font-bold text-violet-600 uppercase tracking-[0.16em]">AI Models</div>
+                <h2 class="text-2xl font-bold text-gray-900 mt-2">模型选择</h2>
+                <p class="text-gray-500 mt-2">读取当前 Key 可用模型，并设置所有出题模块的默认模型。</p>
             </button>
         </section>
 
@@ -64,6 +69,10 @@
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                     <input id="filter-include-disabled" type="checkbox" checked class="w-4 h-4">
                     包含未启用词库
+                </label>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input id="filter-include-archived" type="checkbox" class="w-4 h-4">
+                    显示已归档词库
                 </label>
                 <button onclick="loadLibraries()" class="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50">查询</button>
             </div>
@@ -112,6 +121,15 @@
             return value === 'chinese' ? '语文' : '英语';
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
         function typeLabel(type, subject) {
             if (subject === 'english') return '通用';
             const map = {
@@ -138,12 +156,32 @@
             }
         }
 
+        async function toggleArchive(libraryId, archived) {
+            const action = archived ? '归档' : '取消归档';
+            if (archived && !window.confirm('确认归档该词库吗？完整内容会移入独立归档文件，并停止用于生成题目。')) return;
+            try {
+                const res = await fetch(`/api/admin/libraries/${libraryId}/archive`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ archived })
+                });
+                const data = await res.json();
+                if (!res.ok) return showNotice('error', `${action}失败：${data.detail || '未知错误'}`);
+                showNotice('success', archived ? '词库已归档，不再参与出题' : '已取消归档；需要时请重新启用');
+                await loadLibraries();
+            } catch (e) {
+                showNotice('error', `${action}失败：${e.message || '网络错误'}`);
+            }
+        }
+
         async function loadLibraries() {
             const subject = document.getElementById('filter-subject').value;
             const includeDisabled = document.getElementById('filter-include-disabled').checked;
+            const includeArchived = document.getElementById('filter-include-archived').checked;
             const query = new URLSearchParams();
             if (subject) query.set('subject', subject);
             query.set('include_disabled', includeDisabled ? 'true' : 'false');
+            query.set('include_archived', includeArchived ? 'true' : 'false');
 
             try {
                 const res = await fetch(`/api/admin/libraries?${query.toString()}`);
@@ -162,11 +200,11 @@
                 }
 
                 tbody.innerHTML = libraries.map(lib => {
-                    const statusClass = lib.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
-                    const statusText = lib.enabled ? '启用中' : '已停用';
+                    const statusClass = lib.archived ? 'bg-amber-100 text-amber-800' : lib.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+                    const statusText = lib.archived ? '已归档' : lib.enabled ? '启用中' : '已停用';
                     return `
                         <tr>
-                            <td class="p-3 font-medium text-gray-800">${lib.name}</td>
+                            <td class="p-3 font-medium text-gray-800">${escapeHtml(lib.name)}</td>
                             <td class="p-3 text-gray-600">${subjectLabel(lib.subject)}</td>
                             <td class="p-3 text-gray-600">${typeLabel(lib.library_type, lib.subject)}</td>
                             <td class="p-3 text-gray-600">${lib.total_items}</td>
@@ -174,7 +212,8 @@
                             <td class="p-3">
                                 <div class="flex flex-wrap gap-2">
                                     <button onclick="location.href=withBasePath('/admin/library?id=${lib.id}')" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
-                                    <button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>
+                                    ${lib.archived ? '' : `<button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>`}
+                                    <button onclick="toggleArchive('${lib.id}', ${!lib.archived})" class="px-2.5 py-1.5 rounded-lg ${lib.archived ? 'bg-indigo-600 text-white' : 'border border-amber-300 text-amber-700 hover:bg-amber-50'}">${lib.archived ? '取消归档' : '归档'}</button>
                                 </div>
                             </td>
                         </tr>
