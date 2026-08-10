@@ -399,6 +399,17 @@
         .backup-name { font-size: 11px; font-weight: 800; }
         .backup-meta { margin-top: 3px; color: var(--muted); font-size: 9px; }
 
+        .points-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
+        .points-layout { display: grid; grid-template-columns: minmax(320px,.72fr) minmax(0,1.28fr); gap: 16px; }
+        .points-form { display: grid; gap: 13px; }
+        .points-form .control { width: 100%; }
+        .points-balance-note { padding: 12px 14px; border-radius: 12px; background: var(--teal-soft); color: var(--teal-dark); font-size: 11px; font-weight: 750; line-height: 1.55; }
+        .points-history { display: grid; gap: 8px; max-height: 390px; overflow-y: auto; padding-right: 2px; }
+        .points-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; background: #FAFBFA; }
+        .points-purpose { overflow-wrap: anywhere; font-size: 12px; font-weight: 800; }
+        .points-time { margin-top: 4px; color: var(--muted); font-size: 9px; }
+        .points-spent { color: var(--red); font-size: 17px; font-weight: 850; white-space: nowrap; }
+
         .api-error {
             display: none;
             margin-bottom: 15px;
@@ -506,6 +517,7 @@
             .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
             .overview-grid, .day-layout { grid-template-columns: 1fr; }
             .settings-grid { grid-template-columns: 1fr; }
+            .points-layout { grid-template-columns: 1fr; }
             .calendar-cell { min-height: 96px; }
         }
 
@@ -532,6 +544,7 @@
             .calendar-note { display: none; }
             .calendar-title { min-width: 110px; font-size: 13px; }
             .stats-grid { grid-template-columns: 1fr; }
+            .points-metrics { grid-template-columns: 1fr; }
             .subject-row { grid-template-columns: auto minmax(0,1fr) auto; }
             .order-handle { display: none; }
             .modal-body { grid-template-columns: 1fr; }
@@ -608,6 +621,10 @@
             .settings-grid { gap: 8px; }
             .setting-row { padding: 8px 0; }
             .backup-row { padding: 8px 10px; }
+            .points-layout { grid-template-columns: minmax(280px,.7fr) minmax(0,1.3fr); gap: 8px; }
+            .points-form { gap: 8px; }
+            .points-history { max-height: calc(100vh - 350px); gap: 6px; }
+            .points-row { padding: 8px 10px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -646,6 +663,7 @@
                 <button class="nav-tab" data-view="week">周视图</button>
                 <button class="nav-tab" data-view="month">月视图</button>
                 <button class="nav-tab" data-view="stats">周月统计</button>
+                <button class="nav-tab" data-view="points">积分支出</button>
                 <button class="nav-tab" data-view="subjects">科目管理</button>
                 <button class="nav-tab" data-view="settings">设置</button>
             </nav>
@@ -783,6 +801,32 @@
             </article>
         </section>
 
+        <section id="view-points" class="view">
+            <div class="section-title-row">
+                <div><p class="section-label">Points account</p><h2>积分支出</h2><p class="section-copy">记录孩子兑换的奖励，支出后孩子端的可用积分会同步扣减。</p></div>
+            </div>
+            <div class="metric-grid points-metrics">
+                <div class="metric-card"><span class="metric-icon">★</span><div id="points-available" class="metric-number">0</div><div class="metric-name">当前可用积分</div></div>
+                <div class="metric-card blue"><span class="metric-icon">＋</span><div id="points-earned" class="metric-number">0</div><div class="metric-name">累计获得积分</div></div>
+                <div class="metric-card red"><span class="metric-icon">−</span><div id="points-spent" class="metric-number">0</div><div class="metric-name">累计支出积分</div></div>
+            </div>
+            <div class="points-layout">
+                <article class="panel">
+                    <div class="panel-head"><div><h3>登记积分支出</h3><p class="section-copy">填写兑换所需积分和具体用途。</p></div></div>
+                    <form id="points-spend-form" class="points-form" onsubmit="spendPoints(event)">
+                        <div class="field"><label for="points-spend-value">支出分数</label><input id="points-spend-value" class="control" type="number" min="1" max="1000000" step="1" required placeholder="例如：10"></div>
+                        <div class="field"><label for="points-spend-purpose">用途</label><input id="points-spend-purpose" class="control" type="text" maxlength="300" required placeholder="例如：兑换周末看一部电影"></div>
+                        <div id="points-balance-note" class="points-balance-note">当前最多可以支出 0 分。</div>
+                        <button id="points-spend-submit" class="primary-button" type="submit">确认扣除积分</button>
+                    </form>
+                </article>
+                <article class="panel">
+                    <div class="panel-head"><div><h3>支出记录</h3><p class="section-copy">流水按登记时间倒序保存，记录会进入 Todo 数据备份。</p></div></div>
+                    <div id="points-history" class="points-history"></div>
+                </article>
+            </div>
+        </section>
+
         <section id="view-subjects" class="view">
             <div class="section-title-row">
                 <div><p class="section-label">Subjects</p><h2>科目管理</h2><p class="section-copy">科目颜色只用于任务分类，Grid 颜色只代表完成状态。</p></div>
@@ -871,7 +915,8 @@
             weekCursor: null,
             monthCursor: null,
             comments: { week: '', month: '' },
-            backups: []
+            backups: [],
+            points: { available_points: 0, earned_points: 0, spent_points: 0, transactions: [] }
         };
 
         document.getElementById('admin-back').href = withBasePath('/admin');
@@ -959,6 +1004,18 @@
                 task('task_015','科学阅读','sub_science',addDays(state.today,-5),'阅读科普短文。',addDays(state.today,-5))
             ];
             state.comments.week = '这周阅读任务保持得很好。下周重点关注数学错题复盘，完成后记得自己检查一遍。';
+            state.points = {
+                available_points: 15,
+                total_points: 15,
+                earned_points: 22,
+                spent_points: 7,
+                completion_points: 18,
+                task_reward_points: 4,
+                transactions: [
+                    { id:'spend_demo_2', type:'spend', points:5, purpose:'兑换周末看一部电影', local_date:state.today, created_at:new Date().toISOString() },
+                    { id:'spend_demo_1', type:'spend', points:2, purpose:'晚饭后玩 20 分钟游戏', local_date:addDays(state.today,-2), created_at:new Date(Date.now()-172800000).toISOString() }
+                ]
+            };
             state.backups = [
                 { name:'auto-2026-07-28-0830', time:'今天 08:30', size:'18 KB' },
                 { name:'auto-2026-07-27-2105', time:'昨天 21:05', size:'16 KB' }
@@ -972,16 +1029,18 @@
                 return;
             }
             try {
-                const [overview, tasks, subjects, backupPayload] = await Promise.all([
+                const [overview, tasks, subjects, backupPayload, points] = await Promise.all([
                     apiRequest('/api/admin/todo/overview'),
                     apiRequest('/api/admin/todo/tasks'),
                     apiRequest('/api/admin/todo/subjects'),
-                    apiRequest('/api/admin/todo/backups')
+                    apiRequest('/api/admin/todo/backups'),
+                    apiRequest('/api/admin/todo/points')
                 ]);
                 state.today = overview.server_date || isoDate();
                 state.tasks = tasks.tasks || tasks || [];
                 state.subjects = subjects.subjects || subjects || [];
                 state.backups = backupPayload.backups || [];
+                state.points = points;
                 state.weekCursor = startOfWeek(state.today);
                 state.monthCursor = `${state.today.slice(0,7)}-01`;
                 const [weekReport, monthReport] = await Promise.all([
@@ -1037,6 +1096,7 @@
             if (viewName === 'week') renderWeekView();
             if (viewName === 'month') renderMonthView();
             if (viewName === 'stats') renderStats();
+            if (viewName === 'points') renderPoints();
             if (viewName === 'subjects') renderSubjects();
             if (viewName === 'settings') renderBackups();
             window.scrollTo({ top:0, behavior:'smooth' });
@@ -1051,6 +1111,7 @@
             renderWeekView();
             renderMonthView();
             renderStats();
+            renderPoints();
             renderSubjects();
             renderBackups();
         }
@@ -1240,6 +1301,83 @@
                 }
             }
             showToast(DEMO_MODE ? '评语已保存到本次预览' : '评语已保存');
+        }
+
+        function renderPoints() {
+            const account = state.points || {};
+            const available = Number(account.available_points ?? account.total_points ?? 0);
+            const earned = Number(account.earned_points ?? ((account.completion_points || 0) + (account.task_reward_points || 0)));
+            const spent = Number(account.spent_points || 0);
+            const transactions = Array.isArray(account.transactions) ? account.transactions : [];
+            document.getElementById('points-available').textContent = available;
+            document.getElementById('points-earned').textContent = earned;
+            document.getElementById('points-spent').textContent = spent;
+            document.getElementById('points-balance-note').textContent = `当前最多可以支出 ${available} 分。确认后，可用积分将变为 ${available} 分减去本次支出。`;
+            const pointsInput = document.getElementById('points-spend-value');
+            pointsInput.max = String(Math.max(0, available));
+            document.getElementById('points-spend-submit').disabled = available <= 0;
+            document.getElementById('points-history').innerHTML = transactions.length ? transactions.map(transaction => {
+                let time = transaction.local_date || '';
+                if (transaction.created_at) {
+                    try {
+                        time = new Intl.DateTimeFormat('zh-CN', { dateStyle:'medium', timeStyle:'short' }).format(new Date(transaction.created_at));
+                    } catch (_) {}
+                }
+                return `<div class="points-row"><div><div class="points-purpose">${escapeHtml(transaction.purpose)}</div><div class="points-time">${escapeHtml(time)}</div></div><div class="points-spent">−${Number(transaction.points)} 分</div></div>`;
+            }).join('') : '<div class="empty">还没有积分支出记录</div>';
+        }
+
+        async function spendPoints(event) {
+            event.preventDefault();
+            const points = Number(document.getElementById('points-spend-value').value);
+            const purpose = document.getElementById('points-spend-purpose').value.trim();
+            const available = Number(state.points?.available_points ?? state.points?.total_points ?? 0);
+            if (!Number.isInteger(points) || points <= 0) {
+                showToast('请输入大于 0 的整数积分');
+                return;
+            }
+            if (!purpose) {
+                showToast('请填写积分用途');
+                return;
+            }
+            if (points > available) {
+                showToast(`可用积分不足，当前可用 ${available} 分`);
+                return;
+            }
+            if (!window.confirm(`确认支出 ${points} 分用于“${purpose}”吗？`)) return;
+
+            const submit = document.getElementById('points-spend-submit');
+            submit.disabled = true;
+            try {
+                if (DEMO_MODE) {
+                    const transaction = {
+                        id:`spend_demo_${Date.now()}`,
+                        type:'spend',
+                        points,
+                        purpose,
+                        local_date:state.today,
+                        created_at:new Date().toISOString()
+                    };
+                    state.points.transactions.unshift(transaction);
+                    state.points.spent_points = Number(state.points.spent_points || 0) + points;
+                    state.points.available_points = available - points;
+                    state.points.total_points = available - points;
+                } else {
+                    const result = await apiRequest('/api/admin/todo/points/spend', {
+                        method:'POST',
+                        body:JSON.stringify({ points, purpose })
+                    });
+                    state.points = result.account;
+                }
+                document.getElementById('points-spend-form').reset();
+                renderPoints();
+                showToast(`已扣除 ${points} 分，当前可用 ${state.points.available_points} 分`);
+            } catch (error) {
+                showToast(error.message || '积分支出登记失败');
+                renderPoints();
+            } finally {
+                submit.disabled = Number(state.points?.available_points ?? 0) <= 0;
+            }
         }
 
         function renderSubjects() {

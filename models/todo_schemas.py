@@ -120,6 +120,19 @@ class ReportCommentRequest(BaseModel):
     comment: str = Field(default="", max_length=5000)
 
 
+class PointsSpendRequest(BaseModel):
+    points: int = Field(gt=0, le=1000000)
+    purpose: str = Field(min_length=1, max_length=300)
+
+    @field_validator("purpose")
+    @classmethod
+    def clean_purpose(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("积分用途不能为空")
+        return value
+
+
 class SettingsUpdateRequest(BaseModel):
     recurrence_horizon_days: Optional[int] = Field(default=None, ge=30, le=1095)
     backup_retention: Optional[int] = Field(default=None, ge=5, le=200)

@@ -59,6 +59,7 @@ class LearningTodoService:
         self.subjects_path = self.data_dir / "subjects.json"
         self.templates_path = self.data_dir / "templates.json"
         self.reports_path = self.data_dir / "reports.json"
+        self.points_ledger_path = self.data_dir / "points-ledger.json"
         self.lock_path = self.data_dir / ".storage.lock"
         self.timezone_name = timezone_name or config.TODO_TIMEZONE
         self.timezone = ZoneInfo(self.timezone_name)
@@ -162,6 +163,23 @@ class LearningTodoService:
     def _reports_unlocked(self) -> Dict[str, Any]:
         return self._read_json(self.reports_path, {"version": 1, "reports": []})
 
+    def _points_ledger_unlocked(self) -> Dict[str, Any]:
+        payload = self._read_json(self.points_ledger_path, {"version": 1, "transactions": []})
+        payload.setdefault("version", 1)
+        payload.setdefault("transactions", [])
+        if not isinstance(payload["transactions"], list):
+            raise TodoDataError("points-ledger.json 的 transactions 必须是数组")
+        for transaction in payload["transactions"]:
+            if not isinstance(transaction, dict):
+                raise TodoDataError("points-ledger.json 包含无效流水")
+            if transaction.get("type") != "spend":
+                raise TodoDataError("points-ledger.json 包含未知流水类型")
+            if not isinstance(transaction.get("points"), int) or transaction["points"] <= 0:
+                raise TodoDataError("points-ledger.json 包含无效积分")
+            if not str(transaction.get("purpose") or "").strip():
+                raise TodoDataError("points-ledger.json 包含空用途")
+        return payload
+
     def _month_path(self, month: str) -> Path:
         if not re.fullmatch(r"\d{4}-\d{2}", month):
             raise TodoDataError(f"月份格式无效: {month}")
@@ -207,6 +225,8 @@ class LearningTodoService:
                 self._atomic_write_json(self.templates_path, {"version": 1, "templates": []})
             if not self.reports_path.exists():
                 self._atomic_write_json(self.reports_path, {"version": 1, "reports": []})
+            if not self.points_ledger_path.exists():
+                self._atomic_write_json(self.points_ledger_path, {"version": 1, "transactions": []})
 
             # 验证必要字段，防止错误数据延迟到请求时才暴露。
             if not isinstance(self._subjects_unlocked().get("subjects"), list):
@@ -215,6 +235,7 @@ class LearningTodoService:
                 raise TodoDataError("templates.json 的 templates 必须是数组")
             if not isinstance(self._reports_unlocked().get("reports"), list):
                 raise TodoDataError("reports.json 的 reports 必须是数组")
+            self._points_ledger_unlocked()
             for task_file in sorted(self.tasks_dir.glob("*.json")):
                 self._month_payload_unlocked(task_file.stem)
 
@@ -569,10 +590,19 @@ class LearningTodoService:
                 for path in extract_dir.rglob("*.json"):
                     self._read_json(path, {})
 
-                for managed in [self.settings_path, self.subjects_path, self.templates_path, self.reports_path]:
+                for managed in [
+                    self.settings_path,
+                    self.subjects_path,
+                    self.templates_path,
+                    self.reports_path,
+                    self.points_ledger_path,
+                ]:
                     source = extract_dir / managed.name
                     if source.exists():
                         shutil.copy2(source, managed)
+                    elif managed == self.points_ledger_path:
+                        # 兼容积分支出功能上线前创建的旧备份。
+                        self._atomic_write_json(managed, {"version": 1, "transactions": []})
                 restored_tasks = extract_dir / "tasks"
                 if self.tasks_dir.exists():
                     shutil.rmtree(self.tasks_dir)
@@ -592,6 +622,7 @@ class LearningTodoService:
         self._subjects_unlocked()
         self._templates_unlocked()
         self._reports_unlocked()
+        self._points_ledger_unlocked()
         for path in sorted(self.tasks_dir.glob("*.json")):
             self._month_payload_unlocked(path.stem)
 
@@ -1193,8 +1224,15 @@ class LearningTodoService:
             for task in all_tasks
             if task.get("reward_granted_local_date") == today
         )
+        earned_points = completion_points + task_reward_points
+        spent_points = sum(transaction["points"] for transaction in self._points_ledger_unlocked()["transactions"])
+        available_points = earned_points - spent_points
         return {
-            "total_points": completion_points + task_reward_points,
+            # total_points 继续保留，兼容已经上线的孩子端；其含义调整为当前可用积分。
+            "total_points": available_points,
+            "available_points": available_points,
+            "earned_points": earned_points,
+            "spent_points": spent_points,
             "completion_points": completion_points,
             "task_reward_points": task_reward_points,
             "today_task_reward_points": today_task_reward_points,
@@ -1205,13 +1243,60 @@ class LearningTodoService:
             "today_completed": today_completed,
             "last_scored_date": last_scored_date,
             "recent_scores": recent_scores[-31:],
-            "rule": "全部按时完成任务日可获得连续积分；家长确认的任务奖励另行加入累计积分",
+            "rule": "可用积分 = 连续完成积分 + 家长确认的任务奖励积分 - 已支出积分",
         }
 
     def reward_summary(self) -> Dict[str, Any]:
         with self._guard():
             self._materialize_default_horizon_unlocked(self.today())
             return self._reward_summary_unlocked()
+
+    def points_account(self) -> Dict[str, Any]:
+        """返回积分余额和仅供家长查看的支出流水。"""
+        with self._guard():
+            self._materialize_default_horizon_unlocked(self.today())
+            summary = self._reward_summary_unlocked()
+            transactions = sorted(
+                self._points_ledger_unlocked()["transactions"],
+                key=lambda row: (row.get("created_at", ""), row.get("id", "")),
+                reverse=True,
+            )
+            return {**summary, "transactions": transactions}
+
+    def spend_points(self, points: int, purpose: str) -> Dict[str, Any]:
+        """登记一次积分兑换；支出不得超过提交时的可用余额。"""
+        purpose = str(purpose or "").strip()
+        if not isinstance(points, int) or isinstance(points, bool) or points <= 0:
+            raise TodoDataError("支出积分必须是大于 0 的整数")
+        if not purpose:
+            raise TodoDataError("请填写积分用途")
+
+        with self._guard():
+            self._materialize_default_horizon_unlocked(self.today())
+            summary = self._reward_summary_unlocked()
+            if points > summary["available_points"]:
+                raise TodoDataError(f"可用积分不足，当前可用 {summary['available_points']} 分")
+
+            ledger = self._points_ledger_unlocked()
+            self._backup_locked("before-points-spend")
+            transaction = {
+                "id": f"spend_{uuid.uuid4().hex}",
+                "type": "spend",
+                "points": points,
+                "purpose": purpose,
+                "created_at": self._now(),
+                "local_date": self.today(),
+            }
+            ledger["transactions"].append(transaction)
+            self._atomic_write_json(self.points_ledger_path, ledger)
+
+            account = self._reward_summary_unlocked()
+            transactions = sorted(
+                ledger["transactions"],
+                key=lambda row: (row.get("created_at", ""), row.get("id", "")),
+                reverse=True,
+            )
+            return {"transaction": transaction, "account": {**account, "transactions": transactions}}
 
     def overview(self) -> Dict[str, Any]:
         today = self.today()

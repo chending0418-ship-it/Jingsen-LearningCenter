@@ -19,6 +19,7 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
 
     with TestClient(app) as client:
         assert client.get("/api/admin/todo/overview").status_code == 401
+        assert client.post("/api/admin/todo/points/spend", json={"points": 1, "purpose": "未登录"}).status_code == 401
         assert client.post("/api/admin/session", json={"password": "wrong"}).status_code == 401
 
         login = client.post("/api/admin/session", json={"password": "0418"})
@@ -63,6 +64,31 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
         assert reward.json()["task_reward_points"] == 5
         assert reward.json()["today_points"] == 1
         assert reward.json()["current_streak"] == 1
+        assert reward.json()["earned_points"] == 6
+        assert reward.json()["spent_points"] == 0
+        assert reward.json()["available_points"] == 6
+
+        spent = client.post(
+            "/api/admin/todo/points/spend",
+            json={"points": 2, "purpose": "兑换额外阅读时间"},
+        )
+        assert spent.status_code == 201
+        assert spent.json()["account"]["available_points"] == 4
+        assert spent.json()["account"]["spent_points"] == 2
+
+        account = client.get("/api/admin/todo/points")
+        assert account.status_code == 200
+        assert account.json()["transactions"][0]["purpose"] == "兑换额外阅读时间"
+
+        public_after_spend = client.get("/api/todo/reward")
+        assert public_after_spend.json()["total_points"] == 4
+        assert public_after_spend.json()["earned_points"] == 6
+        assert public_after_spend.json()["spent_points"] == 2
+        assert "transactions" not in public_after_spend.json()
+        assert client.post(
+            "/api/admin/todo/points/spend",
+            json={"points": 5, "purpose": "超额支出"},
+        ).status_code == 400
 
         prefixed = client.get("/learningcenter/api/admin/todo/overview")
         assert prefixed.status_code == 200

@@ -40,7 +40,7 @@ bash update_safe.sh
 - `data/skills/`：Admin 维护的 Skills。
 - `data/report_history.json`：Daily Word、Vocabulary Skills、MAP Test 等 Daily Reports。
 - `data/model-settings.json`：Admin 保存的全站默认 AI 模型。
-- `data/learning-todo/`：Todo 科目、设置、重复模板、月任务、评语和 Todo 内部备份。
+- `data/learning-todo/`：Todo 科目、设置、重复模板、月任务、评语、`points-ledger.json` 积分支出流水和 Todo 内部备份。
 - `.env`：API Key、Admin 密码、Session Secret、端口等服务器配置。
 
 同步代码后，脚本先原样恢复发布前的整个 `data/`，再仅补充新版代码中新增但
@@ -120,8 +120,8 @@ cd /www/wwwroot/learningcenter/app
 
 - Admin 当前词库、独立归档列表和 Skills 数据仍在。
 - English → Daily Reports 历史仍在。
-- Admin → Todo 管理中的任务、Reward 发放、科目和评语仍在。
-- 孩子端 Todo 能完成和取消完成任务，并正确显示总积分及两种积分来源。
+- Admin → Todo 管理中的任务、Reward 发放、积分支出流水、科目和评语仍在。
+- 孩子端 Todo 能完成和取消完成任务，并正确显示累计获得、累计支出、可用积分及两种获得来源。
 
 ## 快照恢复
 

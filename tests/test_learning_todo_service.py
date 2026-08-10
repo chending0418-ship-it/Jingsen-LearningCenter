@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from services.learning_todo_service import LearningTodoService
+from services.learning_todo_service import LearningTodoService, TodoDataError
 
 
 @pytest.fixture
@@ -366,6 +366,48 @@ def test_parent_confirmed_task_reward_is_added_once_and_saved_as_snapshot(servic
 
     history = service.task_history(task["id"])["history"]
     assert [event["type"] for event in history].count("reward-granted") == 1
+
+
+def test_points_spending_is_persisted_bounded_and_restored(service):
+    task = service.create_task(
+        {
+            "title": "获得可兑换积分",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "reward_goal": "完整复述故事",
+            "reward_points": 8,
+            "repeat": "once",
+        }
+    )
+    service.complete_task(task["id"])
+    service.grant_task_reward(task["id"])
+
+    spent = service.spend_points(4, "兑换周末电影")
+    assert spent["transaction"]["points"] == 4
+    assert spent["transaction"]["purpose"] == "兑换周末电影"
+    assert spent["account"]["earned_points"] == 9
+    assert spent["account"]["spent_points"] == 4
+    assert spent["account"]["available_points"] == 5
+    assert spent["account"]["total_points"] == 5
+    assert service.points_ledger_path.is_file()
+
+    reloaded = LearningTodoService(
+        data_dir=str(service.data_dir),
+        today_provider=lambda: date(2026, 7, 28),
+    )
+    assert reloaded.points_account()["transactions"][0]["purpose"] == "兑换周末电影"
+
+    with pytest.raises(TodoDataError, match="可用积分不足"):
+        service.spend_points(6, "超额兑换")
+    assert service.points_account()["spent_points"] == 4
+
+    backup = service.create_backup("points-restore")
+    service.spend_points(1, "临时兑换")
+    assert service.reward_summary()["available_points"] == 4
+    service.restore_backup(backup["name"])
+    restored = service.points_account()
+    assert restored["available_points"] == 5
+    assert [row["purpose"] for row in restored["transactions"]] == ["兑换周末电影"]
 
 
 def test_recurring_task_rewards_are_confirmed_per_instance(service):

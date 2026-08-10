@@ -566,11 +566,13 @@
                     <span id="reward-next" class="reward-chip">下一次 +— 分</span>
                     <span id="reward-completion" class="reward-chip">连续完成积分 — 分</span>
                     <span id="reward-task" class="reward-chip">任务 Reward 积分 — 分</span>
+                    <span id="reward-earned" class="reward-chip">累计获得 — 分</span>
+                    <span id="reward-spent" class="reward-chip">已支出 — 分</span>
                 </div>
             </div>
-            <div class="reward-score" aria-label="累计学习积分">
+            <div class="reward-score" aria-label="当前可用学习积分">
                 <div id="reward-total" class="reward-number">—</div>
-                <div class="reward-unit">累计积分</div>
+                <div class="reward-unit">可用积分</div>
             </div>
         </section>
 
@@ -640,7 +642,7 @@
         };
 
         let state = { serverDate: '', overdue: [], pending: [], completed: [], reward: null };
-        const demoRewardBase = { completionPoints: 6, bonusPoints: 12, currentStreak: 3 };
+        const demoRewardBase = { completionPoints: 6, bonusPoints: 12, spentPoints: 5, currentStreak: 3 };
         let undoContext = null;
         let undoTimer = null;
 
@@ -717,6 +719,9 @@
             state.completed = payload.today_completed_tasks || payload.completed || [];
             state.reward = payload.reward || {
                 total_points: 0,
+                available_points: 0,
+                earned_points: 0,
+                spent_points: 0,
                 completion_points: 0,
                 task_reward_points: 0,
                 today_points: 0,
@@ -734,8 +739,13 @@
             const todayCompleted = todayTotal > 0 && state.pending.length === 0;
             const earned = todayCompleted ? demoRewardBase.currentStreak + 1 : 0;
             const streak = todayCompleted ? demoRewardBase.currentStreak + 1 : demoRewardBase.currentStreak;
+            const earnedPoints = demoRewardBase.completionPoints + demoRewardBase.bonusPoints + earned;
+            const availablePoints = earnedPoints - demoRewardBase.spentPoints;
             state.reward = {
-                total_points: demoRewardBase.completionPoints + demoRewardBase.bonusPoints + earned,
+                total_points: availablePoints,
+                available_points: availablePoints,
+                earned_points: earnedPoints,
+                spent_points: demoRewardBase.spentPoints,
                 completion_points: demoRewardBase.completionPoints + earned,
                 task_reward_points: demoRewardBase.bonusPoints,
                 today_points: earned,
@@ -811,7 +821,7 @@
             const rewardPoints = Number(task.reward_points || 0);
             const hasReward = Boolean(String(task.reward_goal || '').trim()) && rewardPoints > 0;
             const rewardState = task.reward_granted_at
-                ? `<div class="task-reward-state granted">✓ 家长已确认，+${Number(task.reward_awarded_points || rewardPoints)} 分已加入累计积分</div>`
+                ? `<div class="task-reward-state granted">✓ 家长已确认，+${Number(task.reward_awarded_points || rewardPoints)} 分已计入积分</div>`
                 : `<div class="task-reward-state">${isCompleted ? '等待家长确认 Reward' : '完成任务并达到目标后，由家长确认发放'}</div>`;
             const rewardOffer = hasReward ? `
                 <div class="task-reward-offer">
@@ -881,18 +891,22 @@
 
         function renderReward() {
             const reward = state.reward || {};
-            const totalPoints = Number(reward.total_points || 0);
+            const availablePoints = Number(reward.available_points ?? reward.total_points ?? 0);
             const todayPoints = Number(reward.today_points || 0);
             const currentStreak = Number(reward.current_streak || 0);
             const nextPoints = Number(reward.next_points || currentStreak + 1);
             const completionPoints = Number(reward.completion_points || 0);
             const taskRewardPoints = Number(reward.task_reward_points || 0);
+            const earnedPoints = Number(reward.earned_points ?? (completionPoints + taskRewardPoints));
+            const spentPoints = Number(reward.spent_points || 0);
 
-            document.getElementById('reward-total').textContent = totalPoints;
+            document.getElementById('reward-total').textContent = availablePoints;
             document.getElementById('reward-streak').textContent = `连续完成 ${currentStreak} 个任务日`;
             document.getElementById('reward-next').textContent = `下一次全部完成 +${nextPoints} 分`;
             document.getElementById('reward-completion').textContent = `连续完成积分 ${completionPoints} 分`;
             document.getElementById('reward-task').textContent = `任务 Reward 积分 ${taskRewardPoints} 分`;
+            document.getElementById('reward-earned').textContent = `累计获得 ${earnedPoints} 分`;
+            document.getElementById('reward-spent').textContent = `已支出 ${spentPoints} 分`;
 
             let message = `完成今天全部任务，可获得 +${nextPoints} 分。`;
             if (!reward.today_has_tasks) {
@@ -1033,7 +1047,26 @@
             }
         }
 
+        async function refreshReward() {
+            if (DEMO_MODE || document.hidden) return;
+            try {
+                const response = await fetch(withBasePath('/api/todo/reward'), {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-store'
+                });
+                if (!response.ok) return;
+                state.reward = await response.json();
+                renderReward();
+            } catch (error) {
+                console.debug('Reward refresh skipped:', error);
+            }
+        }
+
         loadTasks();
+        window.setInterval(refreshReward, 30000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshReward();
+        });
     </script>
 </body>
 </html>

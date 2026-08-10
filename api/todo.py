@@ -11,6 +11,7 @@ from models.todo_schemas import (
     CopyDayRequest,
     CopyWeekRequest,
     EditScope,
+    PointsSpendRequest,
     ReportCommentRequest,
     SettingsUpdateRequest,
     SubjectCreateRequest,
@@ -115,6 +116,19 @@ async def undo_public_task_completion(task_id: str):
 @admin_router.get("/overview")
 async def get_overview():
     return _service().overview()
+
+
+@admin_router.get("/points")
+async def get_points_account():
+    return _service().points_account()
+
+
+@admin_router.post("/points/spend", status_code=status.HTTP_201_CREATED)
+async def spend_points(request: PointsSpendRequest):
+    try:
+        return _service().spend_points(request.points, request.purpose)
+    except TodoDataError as error:
+        _raise_todo_error(error)
 
 
 @admin_router.get("/subjects")

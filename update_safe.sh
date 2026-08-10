@@ -232,7 +232,8 @@ log "执行应用导入和 Todo 存储校验"
 "$PYTHON_BIN" scripts/validate_persistent_data.py \
   "$APP_DIR/data" \
   --require-file "library_registry.json" \
-  --require-file "library_archive.json"
+  --require-file "library_archive.json" \
+  --require-file "learning-todo/points-ledger.json"
 
 # 这里检查当前进程是否仍可用；代码更新后仍需在宝塔重启 Python 项目。
 if [ "$SKIP_HEALTH_CHECK" != "1" ]; then
