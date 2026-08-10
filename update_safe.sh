@@ -229,6 +229,10 @@ fi
 # 导入应用会执行 Todo JSON 启动校验，并在首次上线时创建独立目录默认文件。
 log "执行应用导入和 Todo 存储校验"
 "$PYTHON_BIN" -c "from main import app; from services.learning_todo_service import get_learning_todo_service; get_learning_todo_service().validate_storage(); print(app.title)"
+# 上面的导入可能创建新版新增的数据文件；再次统一归属，确保 Gunicorn 的 www
+# worker 可以立即读取和后续原子写入。
+chown -R "$RUN_AS_USER:$RUN_AS_GROUP" "$APP_DIR"
+log "已校正应用导入后新增文件的归属"
 "$PYTHON_BIN" scripts/validate_persistent_data.py \
   "$APP_DIR/data" \
   --require-file "library_registry.json" \
