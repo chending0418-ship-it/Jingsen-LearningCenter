@@ -1,4 +1,4 @@
-# 当前未提交内容说明
+# 2026-08-10 发布内容说明
 
 生成时间：2026-08-10
 
@@ -6,7 +6,9 @@
 
 基线提交：`7ec62a6`
 
-状态：待暂存、待提交、待推送
+功能提交：`7fceee4`
+
+状态：已提交并推送到 `deploy/tencent-learningcenter-path`
 
 ## 1. Admin 模型选择
 
@@ -98,4 +100,4 @@ Todo Reward 数据继续只保存在 `data/learning-todo/tasks/*.json` 的任务
 - `data/library_archive.json`、`data/model-settings.json`、`data/learning-todo/` 等本地运行数据
 - `.env` 与任何 API Key
 
-上述内容之外，本说明列出的代码、测试和文档应一并提交和推送。
+上述内容之外，本说明列出的代码、测试和文档已一并提交和推送。
