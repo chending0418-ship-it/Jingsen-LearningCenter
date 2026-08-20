@@ -1,4 +1,4 @@
-import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -26,11 +26,10 @@ def test_archive_moves_library_out_of_active_registry_and_restores_without_data_
     assert archived["enabled"] is False
     assert archived["total_items"] == 3
 
-    active_payload = json.loads((data_dir / "library_registry.json").read_text(encoding="utf-8"))
-    archive_payload = json.loads((data_dir / "library_archive.json").read_text(encoding="utf-8"))
-    assert active_payload["libraries"] == []
-    assert archive_payload["libraries"][0]["id"] == library_id
-    assert archive_payload["libraries"][0]["items"] == ["alpha", "beta", "gamma"]
+    with sqlite3.connect(service._database.path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM libraries WHERE archived=0").fetchone()[0] == 0
+        assert connection.execute("SELECT archived FROM libraries WHERE id=?", (library_id,)).fetchone()[0] == 1
+        assert [row[0] for row in connection.execute("SELECT content FROM library_items WHERE library_id=? ORDER BY sort_order", (library_id,))] == ["alpha", "beta", "gamma"]
     assert not (data_dir / "archive-me.txt").exists()
 
     assert service.list_libraries() == []
@@ -44,9 +43,9 @@ def test_archive_moves_library_out_of_active_registry_and_restores_without_data_
     assert restored["archived"] is False
     assert restored["enabled"] is False
     assert service.get_library(library_id)["items"] == ["alpha", "beta", "gamma"]
-    assert (data_dir / "archive-me.txt").read_text(encoding="utf-8") == "alpha, beta, gamma"
+    assert not (data_dir / "archive-me.txt").exists()
 
-    archive_payload = json.loads((data_dir / "library_archive.json").read_text(encoding="utf-8"))
-    assert archive_payload["libraries"] == []
+    with sqlite3.connect(service._database.path) as connection:
+        assert connection.execute("SELECT archived FROM libraries WHERE id=?", (library_id,)).fetchone()[0] == 0
     service.set_library_enabled(library_id, True)
     assert service.get_enabled_library_names("english") == ["archive-me"]

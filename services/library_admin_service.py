@@ -1,6 +1,6 @@
 """
-词库管理服务模块（本地文件持久化版）
-提供词库元数据、词条存储、启用状态管理
+词库管理服务模块（SQLite 持久化版）
+词库元数据与每一条词条都存为数据库记录。
 """
 
 import json
@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 
 from config import config
+from database import LibraryRepository, database_for_data_root, migrate_legacy_data
 
 
 ALLOWED_LIBRARY_TYPES = {
@@ -21,12 +22,15 @@ ALLOWED_LIBRARY_TYPES = {
 
 
 class LibraryAdminService:
-    """词库管理服务（本地文件持久化）"""
+    """词库管理服务（SQLite 持久化）"""
 
     def __init__(self):
         self.data_dir = config.DATA_DIR
         self.registry_path = os.path.join(self.data_dir, "library_registry.json")
         self.archive_path = os.path.join(self.data_dir, "library_archive.json")
+        self._database = database_for_data_root(self.data_dir)
+        migrate_legacy_data(self.data_dir, self._database)
+        self._repository = LibraryRepository(self._database)
         self._lock = threading.RLock()
 
         os.makedirs(self.data_dir, exist_ok=True)
@@ -50,10 +54,7 @@ class LibraryAdminService:
         self._atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=2))
 
     def _read_registry_unlocked(self) -> Dict[str, Any]:
-        if not os.path.exists(self.registry_path):
-            return {"version": 1, "libraries": []}
-        with open(self.registry_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self._repository.read_registry()
         if not isinstance(data, dict):
             return {"version": 1, "libraries": []}
         data.setdefault("version", 1)
@@ -65,13 +66,10 @@ class LibraryAdminService:
     def _write_registry_unlocked(self, registry: Dict[str, Any]) -> None:
         registry.setdefault("version", 1)
         registry.setdefault("libraries", [])
-        self._atomic_write_json(self.registry_path, registry)
+        self._repository.replace_registry(registry)
 
     def _read_archive_unlocked(self) -> Dict[str, Any]:
-        if not os.path.exists(self.archive_path):
-            return {"version": 1, "libraries": []}
-        with open(self.archive_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self._repository.read_archive()
         if not isinstance(data, dict):
             return {"version": 1, "libraries": []}
         data.setdefault("version", 1)
@@ -83,7 +81,7 @@ class LibraryAdminService:
     def _write_archive_unlocked(self, archive: Dict[str, Any]) -> None:
         archive.setdefault("version", 1)
         archive.setdefault("libraries", [])
-        self._atomic_write_json(self.archive_path, archive)
+        self._repository.replace_archive(archive)
 
     def _infer_subject(self, library_name: str) -> str:
         return "chinese" if library_name.startswith("chinese_") else "english"
@@ -110,6 +108,7 @@ class LibraryAdminService:
             raise ValueError(f"{subject} 学科不支持词库类型 {library_type}，仅支持: {allowed_text}")
 
     def _parse_items_from_file(self, file_name: str, subject: str) -> List[str]:
+        return self._repository.get_items(file_name)
         file_path = os.path.join(self.data_dir, f"{file_name}.txt")
         if not os.path.exists(file_path):
             return []
@@ -127,6 +126,8 @@ class LibraryAdminService:
         return [x.strip() for x in content.splitlines() if x.strip() and not x.strip().startswith("#")]
 
     def _write_items_file(self, file_name: str, subject: str, items: List[str]) -> None:
+        self._repository.replace_items(file_name, items)
+        return
         file_path = os.path.join(self.data_dir, f"{file_name}.txt")
         if subject == "english":
             content = ", ".join(items)
@@ -141,6 +142,7 @@ class LibraryAdminService:
         return cleaned
 
     def _list_txt_names(self) -> List[str]:
+        return self._repository.list_file_names()
         names: List[str] = []
         for filename in sorted(os.listdir(self.data_dir)):
             if filename.endswith(".txt"):
@@ -494,9 +496,6 @@ class LibraryAdminService:
                 ]
                 archive["libraries"].append(archived_entry)
                 self._write_archive_unlocked(archive)
-                source_path = os.path.join(self.data_dir, f"{target['file_name']}.txt")
-                if os.path.exists(source_path):
-                    os.unlink(source_path)
                 registry["libraries"] = [row for row in registry.get("libraries", []) if row.get("id") != library_id]
                 self._write_registry_unlocked(registry)
                 return self._library_with_count(archived_entry, archived=True)
@@ -630,7 +629,7 @@ class LibraryAdminService:
                 raise ValueError("词库不存在")
 
             total_words = len(self._parse_items_from_file(file_name, lib.get("subject", "english")))
-            file_path = os.path.join(self.data_dir, f"{file_name}.txt")
+            file_path = str(self._database.path)
 
         return {
             "name": file_name,

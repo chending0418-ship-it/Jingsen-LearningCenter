@@ -1,6 +1,6 @@
 """
-Skills 知识点文件服务
-按 data/skills/index.json 管理多个 skills JSON 文件。
+Skills 知识点 SQLite 服务
+保留原有按模块和 section 管理知识点的 API。
 """
 import json
 import os
@@ -8,6 +8,7 @@ import threading
 from typing import Any, Dict, List, Optional
 
 from config import config
+from database import SkillsRepository, database_for_data_root, migrate_legacy_data
 
 
 class SkillsService:
@@ -16,6 +17,9 @@ class SkillsService:
     def __init__(self):
         self.skills_dir = os.path.join(config.DATA_DIR, "skills")
         self.index_path = os.path.join(self.skills_dir, "index.json")
+        self._database = database_for_data_root(config.DATA_DIR)
+        migrate_legacy_data(config.DATA_DIR, self._database)
+        self._repository = SkillsRepository(self._database)
         self._lock = threading.RLock()
 
     def list_sections(self) -> List[Dict[str, Any]]:
@@ -145,18 +149,10 @@ class SkillsService:
         return self._read_json_unlocked(os.path.join(self.skills_dir, file_name), {"version": 1, "skills": []})
 
     def _write_skill_file_unlocked(self, file_name: str, data: Dict[str, Any]) -> None:
-        path = os.path.join(self.skills_dir, file_name)
-        tmp_path = f"{path}.tmp"
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-            f.write("\n")
-        os.replace(tmp_path, path)
+        self._repository.replace_source(file_name, data)
 
     def _read_json_unlocked(self, path: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
-        if not os.path.exists(path):
-            return fallback.copy()
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self._repository.read_index() if os.path.abspath(path) == os.path.abspath(self.index_path) else self._repository.read_source(os.path.basename(path))
         return data if isinstance(data, dict) else fallback.copy()
 
 

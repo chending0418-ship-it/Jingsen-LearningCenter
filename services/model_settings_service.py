@@ -1,7 +1,7 @@
-"""模型目录查询与默认模型持久化。
+"""模型目录查询与默认模型 SQLite 持久化。
 
 API Key 只在服务端使用；浏览器只能获取经过筛选的模型元数据。
-Admin 选择保存在 data/model-settings.json，与词库、报告和 Todo 数据隔离。
+Admin 选择保存在 SQLite，与词库、报告和 Todo 使用同一数据库的独立表。
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ import fcntl
 import httpx
 
 from config import config
+from database import ModelSettingsRepository, database_for_data_root, migrate_legacy_data
 
 
 class ModelSettingsError(RuntimeError):
@@ -40,6 +41,15 @@ class ModelSettingsService:
     ):
         self.settings_path = Path(settings_path or config.MODEL_SETTINGS_FILE).resolve()
         self.lock_path = self.settings_path.parent / ".model-settings.lock"
+        if self.settings_path.parent == Path(config.DATA_DIR).resolve():
+            self._database = database_for_data_root(config.DATA_DIR)
+            migrate_legacy_data(config.DATA_DIR, self._database)
+        else:
+            self._database = database_for_data_root(self.settings_path.parent)
+            if self.settings_path.is_file() and not ModelSettingsRepository(self._database).read().get("selected_model"):
+                with self.settings_path.open("r", encoding="utf-8") as handle:
+                    ModelSettingsRepository(self._database).write(json.load(handle))
+        self._repository = ModelSettingsRepository(self._database)
         self.api_key = config.OPENAI_API_KEY if api_key is None else api_key
         self.base_url = config.fix_base_url() if base_url is None else base_url
         self.fallback_model = (fallback_model or config.MODEL_NAME).strip()
@@ -59,12 +69,9 @@ class ModelSettingsService:
                     fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     def _read_unlocked(self) -> Dict[str, Any]:
-        if not self.settings_path.exists():
-            return {"version": 1, "selected_model": None, "updated_at": None}
         try:
-            with self.settings_path.open("r", encoding="utf-8") as handle:
-                payload = json.load(handle)
-        except (OSError, json.JSONDecodeError) as exc:
+            payload = self._repository.read()
+        except Exception as exc:
             raise ModelSettingsError(
                 f"模型设置文件无法读取: {self.settings_path.name}",
                 kind="storage",
@@ -81,21 +88,10 @@ class ModelSettingsService:
         }
 
     def _atomic_write_unlocked(self, payload: Dict[str, Any]) -> None:
-        file_descriptor, temporary_name = tempfile.mkstemp(
-            prefix=".model-settings-",
-            suffix=".json",
-            dir=str(self.settings_path.parent),
-        )
         try:
-            with os.fdopen(file_descriptor, "w", encoding="utf-8") as handle:
-                json.dump(payload, handle, ensure_ascii=False, indent=2)
-                handle.write("\n")
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temporary_name, self.settings_path)
-        finally:
-            if os.path.exists(temporary_name):
-                os.unlink(temporary_name)
+            self._repository.write(payload)
+        except Exception as exc:
+            raise ModelSettingsError("模型设置数据库无法写入", kind="storage") from exc
 
     def get_settings(self) -> Dict[str, Any]:
         with self._guard():

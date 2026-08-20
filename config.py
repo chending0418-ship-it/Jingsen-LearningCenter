@@ -26,6 +26,10 @@ class Config:
     
     # 数据目录配置（本地词库主存储）
     DATA_DIR: str = os.path.join(os.path.dirname(__file__), "data")
+    SQLITE_DATABASE_PATH: str = os.environ.get(
+        "SQLITE_DATABASE_PATH",
+        os.path.join(DATA_DIR, "learning-center.sqlite3")
+    )
     MODEL_SETTINGS_FILE: str = os.environ.get(
         "MODEL_SETTINGS_FILE",
         os.path.join(DATA_DIR, "model-settings.json")

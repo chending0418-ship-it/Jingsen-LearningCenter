@@ -1,7 +1,6 @@
-"""Learning Todo 的本地 JSON 持久化服务。
+"""Learning Todo 的 SQLite 持久化服务。
 
-所有文件都位于 data/learning-todo/，不会读取或改写词库、Skills 和
-Daily Reports 使用的现有数据文件。
+旧 JSON 只作为首次迁移源；内部 ZIP 备份继续使用 JSON 作为可移植导出格式。
 """
 
 from __future__ import annotations
@@ -25,6 +24,7 @@ from zoneinfo import ZoneInfo
 import fcntl
 
 from config import config
+from database import TodoRepository, database_for_todo_root, migrate_todo_legacy_data
 
 
 DEFAULT_SUBJECTS = [
@@ -61,6 +61,9 @@ class LearningTodoService:
         self.reports_path = self.data_dir / "reports.json"
         self.points_ledger_path = self.data_dir / "points-ledger.json"
         self.lock_path = self.data_dir / ".storage.lock"
+        self._database = database_for_todo_root(self.data_dir)
+        migrate_todo_legacy_data(self.data_dir, self._database)
+        self._repository = TodoRepository(self._database)
         self.timezone_name = timezone_name or config.TODO_TIMEZONE
         self.timezone = ZoneInfo(self.timezone_name)
         self.today_provider = today_provider
@@ -113,6 +116,21 @@ class LearningTodoService:
             cursor = date(cursor.year + (cursor.month == 12), 1 if cursor.month == 12 else cursor.month + 1, 1)
 
     def _atomic_write_json(self, path: Path, payload: Dict[str, Any]) -> None:
+        if path == self.settings_path:
+            self._repository.write_settings(payload)
+        elif path == self.subjects_path:
+            self._repository.replace_subjects(payload)
+        elif path == self.templates_path:
+            self._repository.replace_templates(payload)
+        elif path == self.reports_path:
+            self._repository.replace_reports(payload)
+        elif path == self.points_ledger_path:
+            self._repository.replace_ledger(payload)
+        elif path.parent == self.tasks_dir:
+            self._repository.replace_tasks(path.stem, payload)
+        else:
+            raise TodoDataError(f"不支持的 Todo 数据路径: {path}")
+        return
         path.parent.mkdir(parents=True, exist_ok=True)
         fd, temporary = tempfile.mkstemp(prefix=".tmp-", suffix=".json", dir=str(path.parent))
         try:
@@ -127,6 +145,21 @@ class LearningTodoService:
                 os.unlink(temporary)
 
     def _read_json(self, path: Path, fallback: Dict[str, Any]) -> Dict[str, Any]:
+        if path == self.settings_path:
+            payload = self._repository.read_settings() or fallback
+        elif path == self.subjects_path:
+            payload = self._repository.read_subjects()
+        elif path == self.templates_path:
+            payload = self._repository.read_templates()
+        elif path == self.reports_path:
+            payload = self._repository.read_reports()
+        elif path == self.points_ledger_path:
+            payload = self._repository.read_ledger()
+        elif path.parent == self.tasks_dir:
+            payload = self._repository.read_tasks(path.stem)
+        else:
+            raise TodoDataError(f"不支持的 Todo 数据路径: {path}")
+        return payload
         if not path.exists():
             return json.loads(json.dumps(fallback))
         try:
@@ -197,6 +230,14 @@ class LearningTodoService:
             raise TodoDataError(f"Todo 月任务文件结构无效: {self._month_path(month)}")
         return payload
 
+    def _month_names_unlocked(self) -> List[str]:
+        return self._repository.list_months()
+
+    def _managed_json_paths_unlocked(self) -> List[Path]:
+        paths = [self.settings_path, self.subjects_path, self.templates_path, self.reports_path, self.points_ledger_path]
+        paths.extend(self._month_path(month) for month in self._month_names_unlocked())
+        return paths
+
     def _bootstrap(self) -> None:
         with self._guard():
             self.tasks_dir.mkdir(parents=True, exist_ok=True)
@@ -206,7 +247,7 @@ class LearningTodoService:
             for path in sorted(self.data_dir.rglob("*.json")):
                 self._read_json(path, {})
 
-            if not self.settings_path.exists():
+            if not self._repository.read_settings():
                 self._atomic_write_json(
                     self.settings_path,
                     {
@@ -217,15 +258,15 @@ class LearningTodoService:
                         "updated_at": self._now(),
                     },
                 )
-            if not self.subjects_path.exists():
+            if not self._repository.read_subjects().get("subjects"):
                 now = self._now()
                 subjects = [{**subject, "created_at": now, "updated_at": now} for subject in DEFAULT_SUBJECTS]
                 self._atomic_write_json(self.subjects_path, {"version": 1, "subjects": subjects})
-            if not self.templates_path.exists():
+            if not self._repository.read_templates().get("templates"):
                 self._atomic_write_json(self.templates_path, {"version": 1, "templates": []})
-            if not self.reports_path.exists():
+            if not self._repository.read_reports().get("reports"):
                 self._atomic_write_json(self.reports_path, {"version": 1, "reports": []})
-            if not self.points_ledger_path.exists():
+            if not self._repository.read_ledger().get("transactions"):
                 self._atomic_write_json(self.points_ledger_path, {"version": 1, "transactions": []})
 
             # 验证必要字段，防止错误数据延迟到请求时才暴露。
@@ -236,34 +277,35 @@ class LearningTodoService:
             if not isinstance(self._reports_unlocked().get("reports"), list):
                 raise TodoDataError("reports.json 的 reports 必须是数组")
             self._points_ledger_unlocked()
-            for task_file in sorted(self.tasks_dir.glob("*.json")):
-                self._month_payload_unlocked(task_file.stem)
+            for month in self._month_names_unlocked():
+                self._month_payload_unlocked(month)
 
     def validate_storage(self) -> Dict[str, Any]:
         with self._guard():
             checked = []
-            for path in sorted(self.data_dir.rglob("*.json")):
+            for path in self._managed_json_paths_unlocked():
                 self._read_json(path, {})
                 checked.append(str(path.relative_to(self.data_dir)))
             return {
                 "ok": True,
                 "data_dir": str(self.data_dir),
-                "checked_files": checked,
+                "database_path": str(self._database.path),
+                "checked_records": checked,
                 "checked_count": len(checked),
             }
 
     def _all_tasks_unlocked(self) -> List[Dict[str, Any]]:
         tasks: List[Dict[str, Any]] = []
-        for path in sorted(self.tasks_dir.glob("*.json")):
-            tasks.extend(self._month_payload_unlocked(path.stem)["tasks"])
+        for month in self._month_names_unlocked():
+            tasks.extend(self._month_payload_unlocked(month)["tasks"])
         return tasks
 
     def _find_task_unlocked(self, task_id: str) -> tuple[Dict[str, Any], str]:
-        for path in sorted(self.tasks_dir.glob("*.json")):
-            payload = self._month_payload_unlocked(path.stem)
+        for month in self._month_names_unlocked():
+            payload = self._month_payload_unlocked(month)
             for task in payload["tasks"]:
                 if task.get("id") == task_id:
-                    return task, path.stem
+                    return task, month
         raise TodoDataError("任务不存在")
 
     def _write_task_unlocked(self, task: Dict[str, Any], previous_month: Optional[str] = None) -> None:
@@ -520,10 +562,8 @@ class LearningTodoService:
         os.close(fd)
         try:
             with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-                for path in sorted(self.data_dir.rglob("*")):
-                    if not path.is_file() or path == self.lock_path or self.backups_dir in path.parents:
-                        continue
-                    archive.write(path, path.relative_to(self.data_dir).as_posix())
+                for path in self._managed_json_paths_unlocked():
+                    archive.writestr(path.relative_to(self.data_dir).as_posix(), json.dumps(self._read_json(path, {}), ensure_ascii=False, indent=2) + "\n")
                 archive.writestr(
                     "backup-metadata.json",
                     json.dumps(
@@ -587,8 +627,15 @@ class LearningTodoService:
                         if member_path.is_absolute() or ".." in member_path.parts:
                             raise TodoDataError("备份中包含不安全路径")
                     archive.extractall(extract_dir)
+                restored_payloads = {}
                 for path in extract_dir.rglob("*.json"):
-                    self._read_json(path, {})
+                    if path.name == "backup-metadata.json":
+                        continue
+                    with path.open("r", encoding="utf-8") as handle:
+                        restored_payloads[path.relative_to(extract_dir).as_posix()] = json.load(handle)
+
+                # 先解除旧任务对模板和科目的引用，再恢复静态 Todo 数据。
+                self._repository.delete_all_tasks()
 
                 for managed in [
                     self.settings_path,
@@ -597,19 +644,21 @@ class LearningTodoService:
                     self.reports_path,
                     self.points_ledger_path,
                 ]:
-                    source = extract_dir / managed.name
-                    if source.exists():
-                        shutil.copy2(source, managed)
+                    relative = managed.relative_to(self.data_dir).as_posix()
+                    if relative in restored_payloads:
+                        self._atomic_write_json(managed, restored_payloads[relative])
                     elif managed == self.points_ledger_path:
                         # 兼容积分支出功能上线前创建的旧备份。
                         self._atomic_write_json(managed, {"version": 1, "transactions": []})
-                restored_tasks = extract_dir / "tasks"
-                if self.tasks_dir.exists():
-                    shutil.rmtree(self.tasks_dir)
-                if restored_tasks.exists():
-                    shutil.copytree(restored_tasks, self.tasks_dir)
-                else:
-                    self.tasks_dir.mkdir(parents=True, exist_ok=True)
+                # subjects 第一次写入负责补齐备份中的科目；模板替换后再写一次，
+                # 才能清理仅被旧模板引用、但不属于备份的科目。
+                subjects_relative = self.subjects_path.relative_to(self.data_dir).as_posix()
+                if subjects_relative in restored_payloads:
+                    self._repository.replace_subjects(restored_payloads[subjects_relative])
+                for relative, payload in restored_payloads.items():
+                    match = re.fullmatch(r"tasks/(\d{4}-\d{2})\.json", relative)
+                    if match:
+                        self._repository.replace_tasks(match.group(1), payload)
                 self._bootstrap_unlocked_validate()
             finally:
                 shutil.rmtree(extract_dir, ignore_errors=True)
@@ -617,14 +666,12 @@ class LearningTodoService:
             return {"restored": True, "backup": backup_name}
 
     def _bootstrap_unlocked_validate(self) -> None:
-        for path in sorted(self.data_dir.rglob("*.json")):
-            self._read_json(path, {})
         self._subjects_unlocked()
         self._templates_unlocked()
         self._reports_unlocked()
         self._points_ledger_unlocked()
-        for path in sorted(self.tasks_dir.glob("*.json")):
-            self._month_payload_unlocked(path.stem)
+        for month in self._month_names_unlocked():
+            self._month_payload_unlocked(month)
 
     def list_subjects(self, include_disabled: bool = True) -> List[Dict[str, Any]]:
         with self._guard():

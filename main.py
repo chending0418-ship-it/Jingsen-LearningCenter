@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math, admin, map_language_arts, model_settings, report_history, skills, vocabulary_skills, todo
 from config import config
 from services.model_settings_service import get_model_settings_service
+from database import migrate_legacy_data
 
 # 配置日志
 logging.basicConfig(
@@ -206,3 +207,5 @@ if __name__ == "__main__":
         port=config.PORT,
         log_level="info"
     )
+    migration = migrate_legacy_data()
+    logger.info(f"SQLite 数据库: {migration['database_path']}")

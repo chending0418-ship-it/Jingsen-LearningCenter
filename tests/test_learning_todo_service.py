@@ -46,7 +46,8 @@ def test_storage_is_isolated_from_existing_learning_data(tmp_path, fixed_today):
 
     assert todo.data_dir == (data_dir / "learning-todo").resolve()
     assert all(path.read_bytes() == content for path, content in before.items())
-    assert (data_dir / "learning-todo" / "tasks" / "2026-07.json").is_file()
+    assert todo._database.path.is_file()
+    assert not (data_dir / "learning-todo" / "tasks" / "2026-07.json").exists()
 
 
 def test_weekly_recurrence_generates_independent_instances_across_month(service):
@@ -75,8 +76,7 @@ def test_weekly_recurrence_generates_independent_instances_across_month(service)
         "2026-08-01",
         "2026-08-02",
     }
-    assert (service.tasks_dir / "2026-07.json").is_file()
-    assert (service.tasks_dir / "2026-08.json").is_file()
+    assert service._repository.list_months() == ["2026-07", "2026-08"]
 
 
 def test_overdue_complete_and_manual_uncomplete(service):
@@ -389,7 +389,8 @@ def test_points_spending_is_persisted_bounded_and_restored(service):
     assert spent["account"]["spent_points"] == 4
     assert spent["account"]["available_points"] == 5
     assert spent["account"]["total_points"] == 5
-    assert service.points_ledger_path.is_file()
+    assert service._database.path.is_file()
+    assert not service.points_ledger_path.exists()
 
     reloaded = LearningTodoService(
         data_dir=str(service.data_dir),
@@ -438,3 +439,28 @@ def test_recurring_task_rewards_are_confirmed_per_instance(service):
     assert updated[0]["reward_points"] == 4
     assert updated[1]["reward_points"] == 6
     assert updated[1]["reward_granted_at"] is None
+
+
+def test_subject_and_template_upserts_preserve_existing_task_foreign_keys(service):
+    service.create_task(
+        {
+            "title": "外键保留测试",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "repeat": "daily",
+            "end_date": "2026-07-29",
+        }
+    )
+    subjects = service._repository.read_subjects()
+    reading = next(row for row in subjects["subjects"] if row["id"] == "sub_reading")
+    reading["name"] = "阅读与表达"
+    service._repository.replace_subjects(subjects)
+
+    templates = service._repository.read_templates()
+    templates["templates"][0]["title"] = "更新后的重复模板"
+    service._repository.replace_templates(templates)
+
+    tasks = service.list_tasks(from_date="2026-07-28", to_date="2026-07-29")
+    assert len(tasks) == 2
+    assert next(row for row in service._repository.read_subjects()["subjects"] if row["id"] == "sub_reading")["name"] == "阅读与表达"
+    assert service._repository.read_templates()["templates"][0]["title"] == "更新后的重复模板"

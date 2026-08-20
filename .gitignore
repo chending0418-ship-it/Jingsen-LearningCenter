@@ -43,6 +43,9 @@ data/library_archive.json
 data/learning-todo/
 data/model-settings.json
 data/.model-settings.lock
+data/*.sqlite3
+data/*.sqlite3-wal
+data/*.sqlite3-shm
 
 # OS
 .DS_Store

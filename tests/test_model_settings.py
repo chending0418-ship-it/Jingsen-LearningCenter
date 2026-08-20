@@ -83,7 +83,8 @@ def test_model_selection_persists_and_ai_generator_reads_it_dynamically(tmp_path
         fallback_model="another-fallback",
     )
     assert reloaded.get_selected_model() == "gpt-selected"
-    assert settings_path.is_file()
+    assert not settings_path.exists()
+    assert (settings_path.parent / "learning-center.sqlite3").is_file()
     assert settings_path.parent == Path(tmp_path / "data")
 
 

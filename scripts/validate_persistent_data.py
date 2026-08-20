@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sqlite3
 import sys
 from pathlib import Path
 from typing import Any
@@ -35,11 +36,27 @@ def validate_json_files(data_dir: Path) -> list[str]:
     return checked
 
 
+def validate_sqlite_files(data_dir: Path) -> list[str]:
+    checked = []
+    for path in sorted(data_dir.rglob("*.sqlite3")):
+        try:
+            connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=15)
+            integrity = connection.execute("PRAGMA integrity_check").fetchone()
+            foreign_keys = connection.execute("PRAGMA foreign_key_check").fetchall()
+            connection.close()
+        except sqlite3.Error as exc:
+            raise ValueError(f"SQLite 校验失败: {path}: {exc}") from exc
+        if not integrity or integrity[0] != "ok" or foreign_keys:
+            raise ValueError(f"SQLite 完整性校验失败: {path}")
+        checked.append(path.relative_to(data_dir).as_posix())
+    return checked
+
+
 def build_manifest(data_dir: Path) -> dict[str, Any]:
     files = []
     for path in sorted(item for item in data_dir.rglob("*") if item.is_file()):
         relative = path.relative_to(data_dir).as_posix()
-        if relative == "learning-todo/.storage.lock":
+        if relative == "learning-todo/.storage.lock" or relative.endswith((".sqlite3-wal", ".sqlite3-shm")):
             continue
         files.append(
             {
@@ -95,6 +112,7 @@ def summary(data_dir: Path, json_files: list[str], required_files: list[str]) ->
     return {
         "data_dir": str(data_dir),
         "json_files": len(json_files),
+        "sqlite_databases": len(list(data_dir.rglob("*.sqlite3"))),
         "library_text_files": len(list(data_dir.glob("*.txt"))),
         "library_registry": (data_dir / "library_registry.json").is_file(),
         "library_archive": (data_dir / "library_archive.json").is_file(),
@@ -123,6 +141,7 @@ def main() -> int:
 
     try:
         json_files = validate_json_files(data_dir)
+        validate_sqlite_files(data_dir)
         required_files = validate_required_files(data_dir, args.require_file)
         for manifest_path in args.verify_manifest:
             verify_manifest(data_dir, manifest_path.resolve())

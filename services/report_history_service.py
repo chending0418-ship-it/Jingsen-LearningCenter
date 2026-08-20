@@ -1,6 +1,6 @@
 """
-本地报告历史服务
-使用 data/report_history.json 保存 Word Palace 与 MAP Test 的每日练习记录。
+SQLite 报告历史服务
+保存 Word Palace 与 MAP Test 的每日练习记录。
 """
 import json
 import os
@@ -10,14 +10,18 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from config import config
+from database import ReportRepository, database_for_data_root, migrate_legacy_data
 
 
 class ReportHistoryService:
-    """本地文件报告历史服务"""
+    """SQLite 报告历史服务"""
 
     def __init__(self):
         self.data_dir = config.DATA_DIR
         self.file_path = os.path.join(self.data_dir, "report_history.json")
+        self._database = database_for_data_root(self.data_dir)
+        migrate_legacy_data(self.data_dir, self._database)
+        self._repository = ReportRepository(self._database)
         self._lock = threading.RLock()
         os.makedirs(self.data_dir, exist_ok=True)
 
@@ -115,11 +119,8 @@ class ReportHistoryService:
         return f"{round(correct / total * 100)}%"
 
     def _read_unlocked(self) -> Dict[str, Any]:
-        if not os.path.exists(self.file_path):
-            return {"version": 1, "reports": []}
         try:
-            with open(self.file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self._repository.read_all()
             if not isinstance(data, dict):
                 return {"version": 1, "reports": []}
             data.setdefault("reports", [])
@@ -128,10 +129,7 @@ class ReportHistoryService:
             return {"version": 1, "reports": []}
 
     def _write_unlocked(self, data: Dict[str, Any]) -> None:
-        tmp_path = f"{self.file_path}.tmp"
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        os.replace(tmp_path, self.file_path)
+        self._repository.replace_all(data)
 
 
 _report_history_service: Optional[ReportHistoryService] = None

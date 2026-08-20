@@ -12,6 +12,7 @@ HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:8088/health}"
 SKIP_DEPENDENCY_INSTALL="${SKIP_DEPENDENCY_INSTALL:-0}"
 SKIP_HEALTH_CHECK="${SKIP_HEALTH_CHECK:-0}"
 INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING="${INITIALIZE_LIBRARY_ARCHIVE_IF_MISSING:-0}"
+SQLITE_DB_RELATIVE="${SQLITE_DB_RELATIVE:-learning-center.sqlite3}"
 
 DEPLOY_STAMP="$(date +%Y%m%d-%H%M%S)-$$"
 SNAPSHOT_DIR="$BACKUP_ROOT/releases/$DEPLOY_STAMP"
@@ -100,7 +101,8 @@ from pathlib import Path
 root = Path(sys.argv[1])
 receipt_path = Path(sys.argv[2])
 files = []
-for relative in ("library_registry.json", "library_archive.json"):
+candidates = ["learning-center.sqlite3"] if (root / "learning-center.sqlite3").is_file() else ["library_registry.json", "library_archive.json"]
+for relative in candidates:
     path = root / relative
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     files.append({"path": relative, "size": path.stat().st_size, "sha256": digest})
@@ -109,6 +111,27 @@ receipt_path.write_text(
     encoding="utf-8",
 )
 PY
+}
+
+snapshot_sqlite_database() {
+  local source="$APP_DIR/data/$SQLITE_DB_RELATIVE"
+  local target="$DATA_SNAPSHOT/$SQLITE_DB_RELATIVE"
+  if [ ! -f "$source" ]; then
+    return 0
+  fi
+  "$PYTHON_BIN" - "$source" "$target" <<'PY'
+import sqlite3
+import sys
+from pathlib import Path
+source, target = map(Path, sys.argv[1:])
+target.unlink(missing_ok=True)
+with sqlite3.connect(source) as source_db, sqlite3.connect(target) as target_db:
+    source_db.backup(target_db)
+    assert target_db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+for suffix in ("-wal", "-shm"):
+    Path(str(target) + suffix).unlink(missing_ok=True)
+PY
+  log "已创建一致性 SQLite 快照: $target"
 }
 
 log "开始安全更新：代码与服务器数据分离"
@@ -121,9 +144,11 @@ mkdir -p "$BACKUP_ROOT/releases"
 mkdir -p "$SNAPSHOT_DIR"
 
 # 归档功能首次上线时允许显式创建空文件；之后缺失必须视为数据事故并停止部署。
-[ -f "data/library_registry.json" ] || fail "缺少活动词库注册文件: $APP_DIR/data/library_registry.json"
-initialize_library_archive_if_requested
-require_critical_library_files "$APP_DIR/data" "发布前检查"
+if [ ! -f "data/$SQLITE_DB_RELATIVE" ]; then
+  [ -f "data/library_registry.json" ] || fail "缺少活动词库注册文件: $APP_DIR/data/library_registry.json"
+  initialize_library_archive_if_requested
+  require_critical_library_files "$APP_DIR/data" "发布前检查"
+fi
 
 # 1. 发布前对整个 data 做不可覆盖的版本化快照。
 if [ -d "data" ]; then
@@ -134,12 +159,11 @@ else
   log "当前没有 data，已记录空数据快照"
 fi
 
-require_critical_library_files "$DATA_SNAPSHOT" "发布前快照"
-for relative in "${CRITICAL_LIBRARY_FILES[@]}"; do
-  cmp -s "$APP_DIR/data/$relative" "$DATA_SNAPSHOT/$relative" \
-    || fail "关键词库数据快照与源文件不一致: $relative"
-  log "已确认关键词库数据进入快照: $DATA_SNAPSHOT/$relative"
-done
+snapshot_sqlite_database
+
+if [ ! -f "$DATA_SNAPSHOT/$SQLITE_DB_RELATIVE" ]; then
+  require_critical_library_files "$DATA_SNAPSHOT" "发布前快照"
+fi
 write_library_backup_receipt
 log "词库专项 SHA-256 备份凭据: $LIBRARY_DATA_RECEIPT"
 
@@ -212,9 +236,7 @@ fi
 "$PYTHON_BIN" scripts/validate_persistent_data.py \
   "$APP_DIR/data" \
   --verify-manifest "$DATA_MANIFEST" \
-  --verify-manifest "$LIBRARY_DATA_RECEIPT" \
-  --require-file "library_registry.json" \
-  --require-file "library_archive.json"
+  --verify-manifest "$LIBRARY_DATA_RECEIPT"
 log "持久数据清单验证通过"
 
 chown -R "$RUN_AS_USER:$RUN_AS_GROUP" "$APP_DIR"
@@ -226,6 +248,9 @@ else
   log "已按配置跳过依赖安装"
 fi
 
+log "执行 JSON/TXT 到 SQLite 的幂等迁移"
+"$PYTHON_BIN" scripts/migrate_to_sqlite.py
+
 # 导入应用会执行 Todo JSON 启动校验，并在首次上线时创建独立目录默认文件。
 log "执行应用导入和 Todo 存储校验"
 "$PYTHON_BIN" -c "from main import app; from services.learning_todo_service import get_learning_todo_service; get_learning_todo_service().validate_storage(); print(app.title)"
@@ -235,9 +260,7 @@ chown -R "$RUN_AS_USER:$RUN_AS_GROUP" "$APP_DIR"
 log "已校正应用导入后新增文件的归属"
 "$PYTHON_BIN" scripts/validate_persistent_data.py \
   "$APP_DIR/data" \
-  --require-file "library_registry.json" \
-  --require-file "library_archive.json" \
-  --require-file "learning-todo/points-ledger.json"
+  --require-file "$SQLITE_DB_RELATIVE"
 
 # 这里检查当前进程是否仍可用；代码更新后仍需在宝塔重启 Python 项目。
 if [ "$SKIP_HEALTH_CHECK" != "1" ]; then
