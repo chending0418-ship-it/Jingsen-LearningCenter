@@ -33,9 +33,22 @@ class ErrorResponse(BaseModel):
 class GenerateRequest(BaseModel):
     """题目生成请求模型"""
     count: int = Field(10, ge=1, le=50, description="题目数量")
-    library: Optional[str] = Field("4000-202603", description="词库名称")
+    library: Optional[str] = Field(None, description="词库名称，不传则自动选择")
     mode: Optional[Literal["cloze", "match", "passage_cloze"]] = Field("cloze", description="题型模式")
     difficulty: Optional[Literal["easy", "medium", "hard"]] = Field("medium", description="难度级别")
+
+
+class GenerationJobResponse(BaseModel):
+    """异步分批题目生成任务响应。"""
+    job_id: str
+    kind: str
+    status: Literal["queued", "generating", "completed", "partial_failed", "failed", "cancelled"]
+    requested_count: int
+    generated_count: int
+    questions: List[Dict[str, Any]] = Field(default_factory=list)
+    next_cursor: int = 0
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    error: Optional[str] = None
 
 
 class LibraryInfo(BaseModel):

@@ -30,6 +30,8 @@ class Config:
         "SQLITE_DATABASE_PATH",
         os.path.join(DATA_DIR, "learning-center.sqlite3")
     )
+    GENERATION_JOB_TTL_SECONDS: int = int(os.environ.get("GENERATION_JOB_TTL_SECONDS", "7200"))
+    GENERATION_JOB_STALE_SECONDS: int = int(os.environ.get("GENERATION_JOB_STALE_SECONDS", "180"))
     MODEL_SETTINGS_FILE: str = os.environ.get(
         "MODEL_SETTINGS_FILE",
         os.path.join(DATA_DIR, "model-settings.json")

@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Optional
 from core.ai_generator import get_ai_generator
 from services.library_admin_service import get_library_admin_service
 from services.report_history_service import get_report_history_service
+from services.generation_job_service import GenerationJobNotFound, get_generation_job_service
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,90 @@ class EnglishService:
         self.ai_generator = get_ai_generator()
         self.library_admin_service = get_library_admin_service()
         self.report_history_service = get_report_history_service()
+        self.generation_job_service = get_generation_job_service()
         logger.info("EnglishService initialized")
+
+    def prepare_generation_job(
+        self,
+        count: int,
+        library: Optional[str],
+        mode: str,
+    ) -> Dict[str, Any]:
+        """Freeze the word selection so every async batch has stable order and no duplicates."""
+        if mode not in {"cloze", "match"}:
+            raise ValueError("异步分批生成仅支持 cloze 和 match")
+        resolved_library = self.library_admin_service.resolve_enabled_library(
+            subject="english",
+            requested_library=library,
+        )
+        selected_words = self.library_admin_service.get_random_library_items(
+            resolved_library["file_name"],
+            count,
+        )
+        if not selected_words:
+            raise ValueError(f"Library {resolved_library['name']} not found or empty")
+        return {
+            "mode": mode,
+            "library_name": resolved_library["name"],
+            "library_file_name": resolved_library["file_name"],
+            "selected_words": selected_words,
+        }
+
+    async def generate_prepared_batch(
+        self,
+        plan: Dict[str, Any],
+        start: int,
+        count: int,
+    ) -> List[Dict[str, Any]]:
+        target_words = list(plan.get("selected_words") or [])[start:start + count]
+        if not target_words:
+            return []
+        all_library_words = self.library_admin_service.get_library_items(plan["library_file_name"])
+        prompt = (
+            self._build_cloze_prompt(", ".join(target_words))
+            if plan.get("mode") == "cloze"
+            else self._build_match_prompt(", ".join(target_words))
+        )
+        result = await self.ai_generator.generate_questions(prompt)
+        finalized = self._finalize_options(
+            result.get("questions", []),
+            target_words,
+            all_library_words,
+            str(plan.get("mode") or "cloze"),
+        )
+        by_answer: Dict[str, Dict[str, Any]] = {}
+        for question in finalized:
+            key = self._option_key(question.get("answer"))
+            if key and key not in by_answer:
+                by_answer[key] = question
+        ordered = [by_answer[self._option_key(word)] for word in target_words if self._option_key(word) in by_answer]
+        if len(ordered) != len(target_words):
+            raise ValueError(f"AI 本批应生成 {len(target_words)} 题，实际有效题目为 {len(ordered)} 题")
+        return ordered
+
+    async def run_generation_job(self, job_id: str) -> None:
+        """Generate the first three questions, then continue with larger background batches."""
+        try:
+            record = self.generation_job_service.get_internal_job(job_id, "daily_word")
+            if not self.generation_job_service.mark_generating(job_id):
+                return
+            total = int(record["requested_count"])
+            start = 0
+            while start < total and self.generation_job_service.is_active(job_id):
+                batch_size = min(3 if start == 0 else (8 if total >= 30 else 5), total - start)
+                questions = await self.generate_prepared_batch(record["plan"], start, batch_size)
+                if not self.generation_job_service.is_active(job_id):
+                    return
+                self.generation_job_service.append_questions(job_id, questions)
+                start += batch_size
+        except GenerationJobNotFound:
+            logger.info("Daily Word generation job %s disappeared before completion", job_id)
+        except Exception as exc:
+            logger.error("Daily Word generation job %s failed: %s", job_id, exc)
+            try:
+                self.generation_job_service.mark_failed(job_id, str(exc))
+            except GenerationJobNotFound:
+                pass
     
     async def generate_exam(
         self,

@@ -307,7 +307,10 @@
                                 <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Vocabulary Skills Practice</p>
                                 <h2 id="vocab-practice-title" class="text-2xl font-extrabold mt-2">Practice Questions</h2>
                             </div>
-                            <span id="vocab-answer-progress" class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm font-bold">0 / 0 answered</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="vocab-generation-progress" class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-bold">0 / 0 generated</span>
+                                <span id="vocab-answer-progress" class="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm font-bold">0 / 0 answered</span>
+                            </div>
                         </div>
                     </div>
                     <div id="vocab-question-list" class="space-y-5"></div>
@@ -549,9 +552,38 @@
         let vocabAnswers = {};
         let vocabLastSettings = null;
         let dailyWordLastSettings = null;
+        let dailyGenerationState = createGenerationState();
+        let vocabGenerationState = createGenerationState();
+
+        function createGenerationState() {
+            return {
+                jobId: '',
+                cursor: 0,
+                status: 'idle',
+                requestedCount: 0,
+                started: false,
+                waitingForNext: false,
+                pollTimer: null,
+                pollFailures: 0,
+                errorShown: false
+            };
+        }
+
+        function isGenerationActive(status) {
+            return status === 'queued' || status === 'generating';
+        }
+
+        function isGenerationTerminal(status) {
+            return ['completed', 'partial_failed', 'failed', 'cancelled'].includes(status);
+        }
 
         window.addEventListener('popstate', function () {
             if (quizInProgress) history.pushState(null, null, window.location.href);
+        });
+
+        window.addEventListener('pagehide', function () {
+            cancelGenerationJob(dailyGenerationState, '/api/english/generation-jobs');
+            cancelGenerationJob(vocabGenerationState, '/api/word-palace/vocabulary-skills/generation-jobs');
         });
 
         function showModule(module) {
@@ -1383,7 +1415,19 @@
             return count;
         }
 
+        function cancelGenerationJob(state, endpoint) {
+            if (state.pollTimer) clearTimeout(state.pollTimer);
+            if (state.jobId && isGenerationActive(state.status)) {
+                fetch(`${endpoint}/${encodeURIComponent(state.jobId)}`, {
+                    method: 'DELETE',
+                    keepalive: true
+                }).catch(() => {});
+            }
+        }
+
         function resetVocabSkillsPractice(showSetup = true) {
+            cancelGenerationJob(vocabGenerationState, '/api/word-palace/vocabulary-skills/generation-jobs');
+            vocabGenerationState = createGenerationState();
             vocabQuestions = [];
             vocabAnswers = {};
             document.getElementById('vocab-skills-setup-section')?.classList.toggle('hidden', !showSetup);
@@ -1393,10 +1437,14 @@
             const report = document.getElementById('vocab-skills-report-section');
             if (list) list.innerHTML = '';
             if (report) report.innerHTML = '';
+            const generated = document.getElementById('vocab-generation-progress');
+            if (generated) generated.innerText = '0 / 0 generated';
             updateVocabSubmitState();
         }
 
         function resetDailyWordPractice(showSetup = true) {
+            cancelGenerationJob(dailyGenerationState, '/api/english/generation-jobs');
+            dailyGenerationState = createGenerationState();
             questions = [];
             currentIndex = 0;
             score = 0;
@@ -1439,30 +1487,91 @@
             }
 
             vocabLastSettings = payload;
-            showLoading(true, 'Generating Vocabulary Skills practice...');
+            cancelGenerationJob(vocabGenerationState, '/api/word-palace/vocabulary-skills/generation-jobs');
+            vocabGenerationState = createGenerationState();
+            vocabQuestions = [];
+            vocabAnswers = {};
+            showLoading(true, 'Generating the first 3 Vocabulary Skills questions...');
             try {
-                const response = await fetch('/api/word-palace/vocabulary-skills/generate', {
+                const response = await fetch('/api/word-palace/vocabulary-skills/generation-jobs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await readJsonResponse(response, 'Vocabulary Skills 出题失败');
-                if (!response.ok) throw new Error(getErrorMessage(data, 'Vocabulary Skills 出题失败'));
-                if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效 Vocabulary Skills 题目');
-
-                vocabQuestions = data.questions;
-                vocabAnswers = {};
-                document.getElementById('vocab-skills-setup-section').classList.add('hidden');
-                document.getElementById('vocab-skills-report-section').classList.add('hidden');
-                document.getElementById('vocab-skills-practice-section').classList.remove('hidden');
-                document.getElementById('module-home-btn').classList.add('hidden');
-                document.getElementById('vocab-practice-title').innerText = `${data.grade_level || payload.grade_level} · ${data.skill || payload.skill}`;
-                renderVocabQuestions();
+                const job = await readJsonResponse(response, 'Vocabulary Skills 出题失败');
+                if (!response.ok) throw new Error(getErrorMessage(job, 'Vocabulary Skills 出题失败'));
+                vocabGenerationState.jobId = job.job_id;
+                vocabGenerationState.status = job.status;
+                vocabGenerationState.requestedCount = Number(job.requested_count || questionCount);
+                pollVocabGenerationJob();
             } catch (err) {
-                showNotice('error', err.message || 'Vocabulary Skills 出题失败，请稍后重试');
-            } finally {
                 showLoading(false);
+                showNotice('error', err.message || 'Vocabulary Skills 出题失败，请稍后重试');
             }
+        }
+
+        async function pollVocabGenerationJob() {
+            const state = vocabGenerationState;
+            if (!state.jobId) return;
+            try {
+                const response = await fetch(`/api/word-palace/vocabulary-skills/generation-jobs/${encodeURIComponent(state.jobId)}?after=${state.cursor}`);
+                const data = await readJsonResponse(response, 'Vocabulary Skills 生成进度读取失败');
+                if (!response.ok) throw new Error(getErrorMessage(data, 'Vocabulary Skills 生成进度读取失败'));
+                if (vocabGenerationState.jobId !== state.jobId) return;
+
+                state.pollFailures = 0;
+                state.status = data.status;
+                state.requestedCount = Number(data.requested_count || state.requestedCount);
+                const incoming = Array.isArray(data.questions) ? data.questions : [];
+                if (incoming.length) {
+                    vocabQuestions.push(...incoming);
+                    state.cursor = Number(data.next_cursor || vocabQuestions.length);
+                    if (state.started) renderVocabQuestions();
+                } else {
+                    state.cursor = Number(data.next_cursor || state.cursor);
+                }
+
+                const firstBatchReady = vocabQuestions.length >= Math.min(3, state.requestedCount);
+                if (!state.started && (firstBatchReady || (isGenerationTerminal(state.status) && vocabQuestions.length))) {
+                    beginVocabSkillsPractice(data.metadata || {});
+                }
+                updateVocabSubmitState();
+
+                if (isGenerationTerminal(state.status)) {
+                    if (state.status === 'failed' && !vocabQuestions.length) {
+                        showLoading(false);
+                        showNotice('error', data.error || 'Vocabulary Skills 题目生成失败');
+                    } else if (state.status === 'partial_failed' && !state.errorShown) {
+                        state.errorShown = true;
+                        showNotice('error', `后续题目生成中断，本次可继续完成已生成的 ${vocabQuestions.length} 题`);
+                    }
+                    return;
+                }
+                state.pollTimer = setTimeout(pollVocabGenerationJob, 900);
+            } catch (err) {
+                if (vocabGenerationState.jobId !== state.jobId) return;
+                state.pollFailures += 1;
+                if (state.pollFailures >= 5) {
+                    state.status = vocabQuestions.length ? 'partial_failed' : 'failed';
+                    showLoading(false);
+                    showNotice('error', err.message || 'Vocabulary Skills 生成进度读取失败');
+                    if (!state.started && vocabQuestions.length) beginVocabSkillsPractice({});
+                    updateVocabSubmitState();
+                    return;
+                }
+                state.pollTimer = setTimeout(pollVocabGenerationJob, 1200);
+            }
+        }
+
+        function beginVocabSkillsPractice(metadata = {}) {
+            vocabGenerationState.started = true;
+            showLoading(false);
+            document.getElementById('vocab-skills-setup-section').classList.add('hidden');
+            document.getElementById('vocab-skills-report-section').classList.add('hidden');
+            document.getElementById('vocab-skills-practice-section').classList.remove('hidden');
+            document.getElementById('module-home-btn').classList.add('hidden');
+            document.getElementById('vocab-practice-title').innerText = `${metadata.grade_level || vocabLastSettings?.grade_level || ''} · ${metadata.skill || vocabLastSettings?.skill || ''}`;
+            renderVocabQuestions();
         }
 
         function renderVocabQuestions() {
@@ -1480,11 +1589,14 @@
                         <h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">${escapeHtml(index + 1)}. ${escapeHtml(question.question_stem || 'Choose the best answer.')}</h3>
                         ${question.passage_or_sentence ? `<div class="mt-5 p-5 rounded-2xl bg-white/75 border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">${formatQuestionHtml(question.passage_or_sentence)}</div>` : ''}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                            ${Object.entries(choices).map(([label, text]) => `
-                                <button type="button" onclick="selectVocabAnswer(${Number(question.question_id)}, '${escapeAttr(label)}')" data-vocab-question="${escapeAttr(question.question_id)}" data-vocab-choice="${escapeAttr(label)}" class="la-choice w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70">
-                                    <span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${escapeHtml(label)}</span><span>${escapeHtml(text)}</span><span class="selected-mark hidden float-right text-blue-600 font-extrabold">Selected</span>
-                                </button>
-                            `).join('')}
+                            ${Object.entries(choices).map(([label, text]) => {
+                                const selected = vocabAnswers[String(question.question_id)] === label;
+                                return `
+                                    <button type="button" onclick="selectVocabAnswer(${Number(question.question_id)}, '${escapeAttr(label)}')" data-vocab-question="${escapeAttr(question.question_id)}" data-vocab-choice="${escapeAttr(label)}" class="la-choice w-full p-5 text-left border-2 border-gray-100 rounded-2xl hover:bg-white font-medium bg-white/70 ${selected ? 'selected' : ''}">
+                                        <span class="choice-badge inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-3">${escapeHtml(label)}</span><span>${escapeHtml(text)}</span><span class="selected-mark ${selected ? '' : 'hidden'} float-right text-blue-600 font-extrabold">Selected</span>
+                                    </button>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -1506,10 +1618,18 @@
             const total = vocabQuestions.length;
             const answered = vocabQuestions.filter(q => vocabAnswers[String(q.question_id)]).length;
             const progress = document.getElementById('vocab-answer-progress');
+            const generated = document.getElementById('vocab-generation-progress');
             const btn = document.getElementById('vocab-submit-btn');
-            if (progress) progress.innerText = `${answered} / ${total} answered`;
+            const expected = vocabGenerationState.requestedCount || total;
+            const displayTotal = isGenerationTerminal(vocabGenerationState.status) ? total : expected;
+            if (progress) progress.innerText = `${answered} / ${displayTotal} answered`;
+            if (generated) {
+                generated.innerText = isGenerationActive(vocabGenerationState.status)
+                    ? `${total} / ${expected} generated · continuing...`
+                    : `${total} / ${total} generated`;
+            }
             if (btn) {
-                const ready = total > 0 && answered === total;
+                const ready = total > 0 && isGenerationTerminal(vocabGenerationState.status) && answered === total;
                 btn.disabled = !ready;
                 btn.classList.toggle('opacity-50', !ready);
                 btn.classList.toggle('cursor-not-allowed', !ready);
@@ -1518,6 +1638,10 @@
 
         async function submitVocabSkillsEvaluation() {
             const answered = vocabQuestions.filter(q => vocabAnswers[String(q.question_id)]).length;
+            if (isGenerationActive(vocabGenerationState.status)) {
+                showNotice('error', '后续题目仍在生成，请完成本次全部题目后再提交');
+                return;
+            }
             if (!vocabQuestions.length || answered !== vocabQuestions.length) {
                 showNotice('error', '请完成所有题目后再提交评估');
                 return;
@@ -1540,7 +1664,7 @@
                         topic: vocabLastSettings?.topic,
                         skill: vocabLastSettings?.skill,
                         difficulty: vocabLastSettings?.difficulty,
-                        question_count: vocabLastSettings?.question_count
+                        question_count: vocabQuestions.length
                     })
                 });
                 const report = await readJsonResponse(response, 'Vocabulary Skills 评估失败');
@@ -1801,6 +1925,39 @@
             const library = document.getElementById('word-library').value;
             dailyWordLastSettings = { count, mode, library };
 
+            if (mode === 'passage_cloze') {
+                await startPassageClozeQuiz(count, library, mode);
+                return;
+            }
+
+            cancelGenerationJob(dailyGenerationState, '/api/english/generation-jobs');
+            dailyGenerationState = createGenerationState();
+            questions = [];
+            currentIndex = 0;
+            score = 0;
+            results = [];
+            showLoading(true, 'Generating the first 3 Daily Word questions...');
+            try {
+                const response = await fetch('/api/english/generation-jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count, mode, library: library || null })
+                });
+                const job = await readJsonResponse(response, '出题失败');
+                if (!response.ok) throw new Error(getErrorMessage(job, '出题失败'));
+                dailyGenerationState.jobId = job.job_id;
+                dailyGenerationState.status = job.status;
+                dailyGenerationState.requestedCount = Number(job.requested_count || count);
+                pollDailyGenerationJob();
+            } catch (err) {
+                showLoading(false);
+                showNotice('error', err.message || '出题失败，请稍后重试');
+            }
+        }
+
+        async function startPassageClozeQuiz(count, library, mode) {
+            cancelGenerationJob(dailyGenerationState, '/api/english/generation-jobs');
+            dailyGenerationState = createGenerationState();
             showLoading(true, 'Generating Daily Word quiz...');
             try {
                 const params = new URLSearchParams({ count: String(count), mode });
@@ -1809,25 +1966,102 @@
                 const data = await readJsonResponse(response, '出题失败');
                 if (!response.ok) throw new Error(getErrorMessage(data, '出题失败'));
                 if (!Array.isArray(data.questions) || !data.questions.length) throw new Error('未生成有效题目，请稍后重试');
-
                 questions = data.questions;
-                currentIndex = 0;
-                score = 0;
-                results = [];
-                dailyPassageAnswers = {};
-                quizInProgress = true;
-                history.pushState(null, null, window.location.href);
-
-                document.getElementById('back-btn').classList.add('invisible');
-                document.getElementById('module-home-btn').classList.add('hidden');
-                document.getElementById('module-overview').classList.add('hidden');
-                document.getElementById('setup-section').classList.add('hidden');
-                document.getElementById('quiz-section').classList.remove('hidden');
-                showQuestion();
+                dailyGenerationState.status = 'completed';
+                dailyGenerationState.requestedCount = questions.length;
+                beginDailyQuiz();
             } catch (err) {
                 showNotice('error', err.message || '出题失败，请稍后重试');
             } finally {
                 showLoading(false);
+            }
+        }
+
+        async function pollDailyGenerationJob() {
+            const state = dailyGenerationState;
+            if (!state.jobId) return;
+            try {
+                const response = await fetch(`/api/english/generation-jobs/${encodeURIComponent(state.jobId)}?after=${state.cursor}`);
+                const data = await readJsonResponse(response, 'Daily Word 生成进度读取失败');
+                if (!response.ok) throw new Error(getErrorMessage(data, 'Daily Word 生成进度读取失败'));
+                if (dailyGenerationState.jobId !== state.jobId) return;
+
+                state.pollFailures = 0;
+                state.status = data.status;
+                state.requestedCount = Number(data.requested_count || state.requestedCount);
+                const incoming = Array.isArray(data.questions) ? data.questions : [];
+                if (incoming.length) questions.push(...incoming);
+                state.cursor = Number(data.next_cursor || state.cursor);
+
+                const firstBatchReady = questions.length >= Math.min(3, state.requestedCount);
+                if (!state.started && (firstBatchReady || (isGenerationTerminal(state.status) && questions.length))) {
+                    beginDailyQuiz();
+                }
+                if (state.started) {
+                    updateDailyGenerationProgress();
+                    resumeDailyQuestionIfReady();
+                }
+
+                if (isGenerationTerminal(state.status)) {
+                    if (state.status === 'failed' && !questions.length) {
+                        showLoading(false);
+                        showNotice('error', data.error || 'Daily Word 题目生成失败');
+                    } else if (state.status === 'partial_failed' && !state.errorShown) {
+                        state.errorShown = true;
+                        showNotice('error', `后续题目生成中断，本次可继续完成已生成的 ${questions.length} 题`);
+                    }
+                    return;
+                }
+                state.pollTimer = setTimeout(pollDailyGenerationJob, 900);
+            } catch (err) {
+                if (dailyGenerationState.jobId !== state.jobId) return;
+                state.pollFailures += 1;
+                if (state.pollFailures >= 5) {
+                    state.status = questions.length ? 'partial_failed' : 'failed';
+                    showLoading(false);
+                    showNotice('error', err.message || 'Daily Word 生成进度读取失败');
+                    resumeDailyQuestionIfReady();
+                    return;
+                }
+                state.pollTimer = setTimeout(pollDailyGenerationJob, 1200);
+            }
+        }
+
+        function beginDailyQuiz() {
+            dailyGenerationState.started = true;
+            dailyGenerationState.waitingForNext = false;
+            currentIndex = 0;
+            score = 0;
+            results = [];
+            dailyPassageAnswers = {};
+            quizInProgress = true;
+            history.pushState(null, null, window.location.href);
+            showLoading(false);
+
+            document.getElementById('back-btn').classList.add('invisible');
+            document.getElementById('module-home-btn').classList.add('hidden');
+            document.getElementById('module-overview').classList.add('hidden');
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function updateDailyGenerationProgress() {
+            if (!dailyGenerationState.started || !questions[currentIndex]) return;
+            const expected = isGenerationTerminal(dailyGenerationState.status)
+                ? questions.length
+                : (dailyGenerationState.requestedCount || questions.length);
+            document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} / ${expected} · ${questions.length} generated`;
+        }
+
+        function resumeDailyQuestionIfReady() {
+            if (!dailyGenerationState.waitingForNext) return;
+            if (currentIndex < questions.length) {
+                dailyGenerationState.waitingForNext = false;
+                showQuestion();
+            } else if (isGenerationTerminal(dailyGenerationState.status)) {
+                dailyGenerationState.waitingForNext = false;
+                showReport();
             }
         }
 
@@ -1842,9 +2076,12 @@
             }
             const container = document.getElementById('question-content');
             document.getElementById('next-btn').classList.add('hidden');
-            const progress = ((currentIndex + 1) / questions.length) * 100;
+            const expected = isGenerationTerminal(dailyGenerationState.status)
+                ? questions.length
+                : (dailyGenerationState.requestedCount || questions.length);
+            const progress = ((currentIndex + 1) / Math.max(expected, 1)) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
-            document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} / ${questions.length}`;
+            document.getElementById('progress-text').innerText = `Question ${currentIndex + 1} / ${expected} · ${questions.length} generated`;
 
             container.innerHTML = '';
             const sentence = document.createElement('p');
@@ -2080,7 +2317,11 @@
 
             results.push({ ...q, userAnswer: selected, isCorrect });
             document.getElementById('explanation').classList.remove('hidden');
-            document.getElementById('next-btn').classList.remove('hidden');
+            const nextButton = document.getElementById('next-btn');
+            nextButton.classList.remove('hidden');
+            nextButton.innerText = currentIndex + 1 < questions.length || isGenerationActive(dailyGenerationState.status)
+                ? 'Next Question'
+                : 'View Report';
             const placeholder = document.getElementById('placeholder');
             if (placeholder) {
                 placeholder.innerText = q.answer;
@@ -2090,8 +2331,28 @@
 
         function nextQuestion() {
             currentIndex++;
-            if (currentIndex < questions.length) showQuestion();
-            else showReport();
+            if (currentIndex < questions.length) {
+                showQuestion();
+            } else if (isGenerationActive(dailyGenerationState.status)) {
+                dailyGenerationState.waitingForNext = true;
+                showDailyGenerationWait();
+            } else {
+                showReport();
+            }
+        }
+
+        function showDailyGenerationWait() {
+            document.getElementById('next-btn').classList.add('hidden');
+            const expected = dailyGenerationState.requestedCount || questions.length;
+            document.getElementById('progress-text').innerText = `${questions.length} / ${expected} generated`;
+            document.getElementById('question-content').innerHTML = `
+                <div class="py-12 text-center">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 text-emerald-700 font-extrabold animate-pulse">AI</div>
+                    <h3 class="text-xl font-extrabold mt-5">Next questions are still generating</h3>
+                    <p class="text-gray-500 mt-3">Your completed answers are saved. The next question will appear automatically.</p>
+                    <p class="text-sm font-bold text-emerald-700 mt-4">${questions.length} / ${expected} questions ready</p>
+                </div>
+            `;
         }
 
         function retrySameDailyWord() {

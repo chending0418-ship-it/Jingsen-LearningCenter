@@ -68,6 +68,8 @@ def test_full_legacy_migration_creates_relational_records_without_changing_sourc
         assert connection.execute("SELECT COUNT(*) FROM library_items").fetchone()[0] == 5
         assert connection.execute("SELECT COUNT(*) FROM skill_question_types").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM todo_task_history").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM schema_migrations WHERE version=2").fetchone()[0] == 1
+        assert connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='generation_jobs'").fetchone()[0] == "generation_jobs"
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
 

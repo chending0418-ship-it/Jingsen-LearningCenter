@@ -14,6 +14,7 @@ from models.schemas import (
 )
 from services.report_history_service import get_report_history_service
 from services.skills_service import get_skills_service
+from services.generation_job_service import GenerationJobNotFound, get_generation_job_service
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class VocabularySkillsService:
         self.ai_generator = get_ai_generator()
         self.report_history_service = get_report_history_service()
         self.skills_service = get_skills_service()
+        self.generation_job_service = get_generation_job_service()
         logger.info("VocabularySkillsService initialized")
 
     def get_skills(
@@ -59,6 +61,73 @@ class VocabularySkillsService:
     def get_skill_tree(self, enabled_only: bool = True) -> Dict[str, Any]:
         """生成 Grade -> Topic -> Skill -> Details 树。"""
         return self.skills_service.get_tree(module=MODULE, section=SECTION, enabled_only=enabled_only)
+
+    def prepare_generation_job(self, request: VocabularySkillsGenerateRequest) -> Dict[str, Any]:
+        """Freeze selected Details so background batches cover a stable practice plan."""
+        selected_details = self._select_details_for_request(request)
+        if not selected_details:
+            raise ValueError("没有找到匹配的 Vocabulary Skills，请检查 Grade/Topic/Skill")
+        return {"selected_details": selected_details}
+
+    async def generate_prepared_batch(
+        self,
+        request: VocabularySkillsGenerateRequest,
+        plan: Dict[str, Any],
+        start: int,
+        count: int,
+    ) -> List[Dict[str, Any]]:
+        all_details = list(plan.get("selected_details") or [])
+        if not all_details:
+            raise ValueError("Vocabulary Skills 生成计划没有可用 Detail")
+        scheduled = [all_details[index % len(all_details)] for index in range(start, start + count)]
+        selected_details = []
+        seen = set()
+        for detail in scheduled:
+            key = str(detail.get("id") or detail.get("detail") or "")
+            if key not in seen:
+                seen.add(key)
+                selected_details.append(detail)
+
+        batch_request = request.model_copy(update={"question_count": count})
+        prompt = self._build_generation_prompt(batch_request, selected_details)
+        data = await self.ai_generator.generate_json(
+            prompt,
+            system_message="You are a vocabulary skills practice question generator. Output valid JSON only.",
+            temperature=0.65,
+        )
+        questions = self._normalize_questions(
+            data.get("questions", []),
+            batch_request,
+            selected_details,
+            question_id_start=start + 1,
+        )
+        if len(questions) != count:
+            raise ValueError(f"AI 本批应生成 {count} 题，实际有效题目为 {len(questions)} 题")
+        return questions
+
+    async def run_generation_job(self, job_id: str) -> None:
+        try:
+            record = self.generation_job_service.get_internal_job(job_id, "vocabulary_skills")
+            if not self.generation_job_service.mark_generating(job_id):
+                return
+            request = VocabularySkillsGenerateRequest(**record["request"])
+            total = int(record["requested_count"])
+            start = 0
+            while start < total and self.generation_job_service.is_active(job_id):
+                batch_size = min(3 if start == 0 else 5, total - start)
+                questions = await self.generate_prepared_batch(request, record["plan"], start, batch_size)
+                if not self.generation_job_service.is_active(job_id):
+                    return
+                self.generation_job_service.append_questions(job_id, questions)
+                start += batch_size
+        except GenerationJobNotFound:
+            logger.info("Vocabulary Skills generation job %s disappeared before completion", job_id)
+        except Exception as exc:
+            logger.error("Vocabulary Skills generation job %s failed: %s", job_id, exc)
+            try:
+                self.generation_job_service.mark_failed(job_id, str(exc))
+            except GenerationJobNotFound:
+                pass
 
     async def generate_practice(self, request: VocabularySkillsGenerateRequest) -> Dict[str, Any]:
         try:
@@ -249,7 +318,8 @@ Rules:
         self,
         raw_questions: Any,
         request: VocabularySkillsGenerateRequest,
-        selected_details: List[Dict[str, Any]]
+        selected_details: List[Dict[str, Any]],
+        question_id_start: int = 1,
     ) -> List[Dict[str, Any]]:
         if not isinstance(raw_questions, list):
             return []
@@ -289,7 +359,7 @@ Rules:
                 readable_detail = selected_details[(idx - 1) % len(selected_details)].get("detail", "")
 
             normalized.append({
-                "question_id": int(raw.get("question_id") or idx),
+                "question_id": question_id_start + idx - 1,
                 "grade_level": raw.get("grade_level") or grade,
                 "topic": raw.get("topic") or topic,
                 "skill": raw.get("skill") or request.skill,

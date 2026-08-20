@@ -1,6 +1,7 @@
 """SQLite database layer for Jingsen Learning Center."""
 
 from .sqlite import (
+    GenerationJobRepository,
     LibraryRepository,
     ModelSettingsRepository,
     ReportRepository,
@@ -14,6 +15,7 @@ from .sqlite import (
 )
 
 __all__ = [
+    "GenerationJobRepository",
     "LibraryRepository",
     "ModelSettingsRepository",
     "ReportRepository",

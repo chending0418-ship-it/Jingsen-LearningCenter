@@ -18,6 +18,7 @@ if __name__ == "__main__":
             table: connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
             for table in (
                 "libraries", "library_items", "skills", "practice_reports",
+                "generation_jobs",
                 "todo_subjects", "todo_templates", "todo_tasks", "todo_task_history",
                 "todo_reports", "points_ledger",
             )

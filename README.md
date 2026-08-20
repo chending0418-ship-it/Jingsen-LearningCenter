@@ -270,9 +270,15 @@ data/skills/*.json             # Skills 数据
 
 ### Word Palace / Daily Word
 
+- `POST /api/english/generation-jobs`
+  - `cloze` / `match` 的异步分批生成入口；创建后返回 `job_id`。
+- `GET /api/english/generation-jobs/{job_id}`
+  - 参数：`after`；返回游标后的新题和 `queued/generating/completed/partial_failed/failed/cancelled` 状态。
+- `DELETE /api/english/generation-jobs/{job_id}`
+  - 取消尚未完成的后台生成任务。
 - `GET /api/english/generate`
   - 参数：`count`, `library`, `mode`（`cloze` / `match` / `passage_cloze`）
-  - `passage_cloze` 的 `count` 只支持 `5`, `10`, `15`, `20`，表示短文挖空数量。
+  - 保留兼容；`passage_cloze` 继续使用此完整生成接口，`count` 只支持 `5`, `10`, `15`, `20`。
 - `GET /api/english/libraries`
 - `GET /api/english/library/{library_name}`
 - `POST /api/english/grade`
@@ -281,6 +287,10 @@ data/skills/*.json             # Skills 数据
 
 ### Word Palace / Vocabulary Skills
 
+- `POST /api/word-palace/vocabulary-skills/generation-jobs`
+- `GET /api/word-palace/vocabulary-skills/generation-jobs/{job_id}`
+  - 参数：`after`；前端在首批 3 题后开始作答，并继续获取后续批次。
+- `DELETE /api/word-palace/vocabulary-skills/generation-jobs/{job_id}`
 - `GET /api/word-palace/vocabulary-skills/skills`
   - 参数：`grade`, `topic`, `skill`, `enabled_only`
 - `GET /api/word-palace/vocabulary-skills/skills/tree`

@@ -125,6 +125,24 @@ CREATE TABLE IF NOT EXISTS practice_report_items (
     FOREIGN KEY(report_id) REFERENCES practice_reports(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS generation_jobs (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,
+    status TEXT NOT NULL,
+    requested_count INTEGER NOT NULL,
+    generated_count INTEGER NOT NULL DEFAULT 0,
+    request_json TEXT NOT NULL,
+    plan_json TEXT NOT NULL,
+    metadata_json TEXT NOT NULL DEFAULT '{}',
+    questions_json TEXT NOT NULL DEFAULT '[]',
+    error TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_generation_jobs_expiry
+    ON generation_jobs(expires_at);
+
 CREATE TABLE IF NOT EXISTS model_settings (
     id INTEGER PRIMARY KEY CHECK(id = 1),
     selected_model TEXT,
@@ -256,6 +274,10 @@ class SQLiteDatabase:
                 connection.executescript(SCHEMA)
                 connection.execute(
                     "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(1, ?)",
+                    (_now(),),
+                )
+                connection.execute(
+                    "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(2, ?)",
                     (_now(),),
                 )
             self._initialized = True
@@ -578,6 +600,143 @@ class ReportRepository:
                     item["details"] = details
                 reports.append(item)
         return {"version": 1, "reports": reports}
+
+
+class GenerationJobRepository:
+    """Transactional storage for cross-worker incremental generation jobs."""
+
+    ACTIVE_STATUSES = {"queued", "generating"}
+
+    def __init__(self, database: SQLiteDatabase):
+        self.database = database
+
+    @staticmethod
+    def _payload(row: sqlite3.Row) -> Dict[str, Any]:
+        return {
+            "job_id": row["id"],
+            "kind": row["kind"],
+            "status": row["status"],
+            "requested_count": int(row["requested_count"]),
+            "generated_count": int(row["generated_count"]),
+            "request": _load(row["request_json"], {}),
+            "plan": _load(row["plan_json"], {}),
+            "metadata": _load(row["metadata_json"], {}),
+            "questions": _load(row["questions_json"], []),
+            "error": row["error"],
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+            "expires_at": row["expires_at"],
+        }
+
+    def create(
+        self,
+        *,
+        kind: str,
+        requested_count: int,
+        request: Dict[str, Any],
+        plan: Dict[str, Any],
+        metadata: Dict[str, Any],
+        expires_at: str,
+    ) -> Dict[str, Any]:
+        job_id = uuid.uuid4().hex
+        now = _now()
+        with self.database.transaction() as connection:
+            connection.execute(
+                """INSERT INTO generation_jobs(
+                       id,kind,status,requested_count,generated_count,request_json,plan_json,
+                       metadata_json,questions_json,error,created_at,updated_at,expires_at
+                   ) VALUES(?,?,'queued',?,0,?,?,?,'[]',NULL,?,?,?)""",
+                (
+                    job_id,
+                    kind,
+                    requested_count,
+                    _dump(request),
+                    _dump(plan),
+                    _dump(metadata),
+                    now,
+                    now,
+                    expires_at,
+                ),
+            )
+        return self.get(job_id)
+
+    def get(self, job_id: str, kind: str | None = None) -> Optional[Dict[str, Any]]:
+        with self.database.read() as connection:
+            if kind:
+                row = connection.execute(
+                    "SELECT * FROM generation_jobs WHERE id=? AND kind=?",
+                    (job_id, kind),
+                ).fetchone()
+            else:
+                row = connection.execute(
+                    "SELECT * FROM generation_jobs WHERE id=?",
+                    (job_id,),
+                ).fetchone()
+        return self._payload(row) if row else None
+
+    def mark_generating(self, job_id: str) -> bool:
+        with self.database.transaction() as connection:
+            cursor = connection.execute(
+                "UPDATE generation_jobs SET status='generating',updated_at=? WHERE id=? AND status='queued'",
+                (_now(), job_id),
+            )
+            if cursor.rowcount:
+                return True
+            row = connection.execute("SELECT status FROM generation_jobs WHERE id=?", (job_id,)).fetchone()
+            return bool(row and row["status"] == "generating")
+
+    def append_questions(self, job_id: str, questions: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        if not questions:
+            return self.get(job_id)
+        with self.database.transaction() as connection:
+            row = connection.execute("SELECT * FROM generation_jobs WHERE id=?", (job_id,)).fetchone()
+            if row is None:
+                return None
+            if row["status"] not in self.ACTIVE_STATUSES:
+                return self._payload(row)
+            existing = _load(row["questions_json"], [])
+            remaining = max(0, int(row["requested_count"]) - len(existing))
+            existing.extend(questions[:remaining])
+            generated_count = len(existing)
+            status = "completed" if generated_count >= int(row["requested_count"]) else "generating"
+            connection.execute(
+                """UPDATE generation_jobs
+                   SET status=?,generated_count=?,questions_json=?,updated_at=? WHERE id=?""",
+                (status, generated_count, _dump(existing), _now(), job_id),
+            )
+        return self.get(job_id)
+
+    def fail(self, job_id: str, error: str) -> Optional[Dict[str, Any]]:
+        with self.database.transaction() as connection:
+            connection.execute(
+                """UPDATE generation_jobs
+                   SET status=CASE WHEN generated_count>0 THEN 'partial_failed' ELSE 'failed' END,
+                       error=?,updated_at=?
+                   WHERE id=? AND status IN ('queued','generating')""",
+                (str(error)[:1000], _now(), job_id),
+            )
+        return self.get(job_id)
+
+    def cancel(self, job_id: str, kind: str | None = None) -> Optional[Dict[str, Any]]:
+        with self.database.transaction() as connection:
+            if kind:
+                connection.execute(
+                    """UPDATE generation_jobs SET status='cancelled',updated_at=?
+                       WHERE id=? AND kind=? AND status IN ('queued','generating')""",
+                    (_now(), job_id, kind),
+                )
+            else:
+                connection.execute(
+                    """UPDATE generation_jobs SET status='cancelled',updated_at=?
+                       WHERE id=? AND status IN ('queued','generating')""",
+                    (_now(), job_id),
+                )
+        return self.get(job_id, kind)
+
+    def cleanup_expired(self, before: str) -> int:
+        with self.database.transaction() as connection:
+            cursor = connection.execute("DELETE FROM generation_jobs WHERE expires_at<?", (before,))
+            return int(cursor.rowcount or 0)
 
 
 class ModelSettingsRepository:

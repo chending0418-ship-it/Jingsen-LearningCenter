@@ -1,15 +1,57 @@
 """
 英语学科 API 路由
 """
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Query, HTTPException
 from services.english_service import EnglishService
-from models.schemas import QuestionsResponse, ErrorResponse, LibraryInfo, SubmitRequest, GradeResponse
+from models.schemas import GenerateRequest, GenerationJobResponse, QuestionsResponse, ErrorResponse, LibraryInfo, SubmitRequest, GradeResponse
+from services.generation_job_service import GenerationJobNotFound, get_generation_job_service
 from typing import List, Optional
 
 router = APIRouter(prefix="/api/english", tags=["English"])
 
 # 初始化服务
 english_service = EnglishService()
+generation_job_service = get_generation_job_service()
+
+
+@router.post("/generation-jobs", response_model=GenerationJobResponse, status_code=202)
+async def create_english_generation_job(request: GenerateRequest, background_tasks: BackgroundTasks):
+    """创建 Daily Word 分批生成任务；Passage Cloze 继续使用原完整生成接口。"""
+    if request.mode == "passage_cloze":
+        raise HTTPException(status_code=400, detail="Passage Cloze 是完整文章，请使用 /api/english/generate")
+    try:
+        plan = english_service.prepare_generation_job(request.count, request.library, request.mode or "cloze")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    job = generation_job_service.create_job(
+        kind="daily_word",
+        requested_count=len(plan["selected_words"]),
+        request=request.model_dump(mode="json"),
+        plan=plan,
+        metadata={
+            "subject": "english",
+            "mode": request.mode,
+            "library": plan["library_name"],
+        },
+    )
+    background_tasks.add_task(english_service.run_generation_job, job["job_id"])
+    return job
+
+
+@router.get("/generation-jobs/{job_id}", response_model=GenerationJobResponse)
+async def get_english_generation_job(job_id: str, after: int = Query(0, ge=0)):
+    try:
+        return generation_job_service.get_job(job_id, kind="daily_word", after=after)
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.delete("/generation-jobs/{job_id}", response_model=GenerationJobResponse)
+async def cancel_english_generation_job(job_id: str):
+    try:
+        return generation_job_service.cancel_job(job_id, kind="daily_word")
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get("/generate", response_model=QuestionsResponse)

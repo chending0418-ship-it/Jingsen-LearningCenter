@@ -3,19 +3,65 @@ Word Palace Vocabulary Skills API 路由
 """
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 
 from models.schemas import (
     VocabularySkillsEvaluateRequest,
     VocabularySkillsEvaluationResponse,
     VocabularySkillsGenerateRequest,
     VocabularySkillsGenerateResponse,
+    GenerationJobResponse,
 )
 from services.vocabulary_skills_service import get_vocabulary_skills_service
+from services.generation_job_service import GenerationJobNotFound, get_generation_job_service
 
 router = APIRouter(prefix="/api/word-palace/vocabulary-skills", tags=["Vocabulary Skills"])
 
 vocabulary_skills_service = get_vocabulary_skills_service()
+generation_job_service = get_generation_job_service()
+
+
+@router.post("/generation-jobs", response_model=GenerationJobResponse, status_code=202)
+async def create_vocabulary_generation_job(
+    request: VocabularySkillsGenerateRequest,
+    background_tasks: BackgroundTasks,
+):
+    try:
+        plan = vocabulary_skills_service.prepare_generation_job(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    topic = request.topic or plan["selected_details"][0].get("topic", "Vocabulary")
+    job = generation_job_service.create_job(
+        kind="vocabulary_skills",
+        requested_count=request.question_count,
+        request=request.model_dump(mode="json"),
+        plan=plan,
+        metadata={
+            "test_title": "Vocabulary Skills Practice",
+            "grade_level": vocabulary_skills_service._normalize_grade(request.grade_level),
+            "topic": topic,
+            "skill": request.skill,
+            "difficulty": request.difficulty,
+        },
+    )
+    background_tasks.add_task(vocabulary_skills_service.run_generation_job, job["job_id"])
+    return job
+
+
+@router.get("/generation-jobs/{job_id}", response_model=GenerationJobResponse)
+async def get_vocabulary_generation_job(job_id: str, after: int = Query(0, ge=0)):
+    try:
+        return generation_job_service.get_job(job_id, kind="vocabulary_skills", after=after)
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.delete("/generation-jobs/{job_id}", response_model=GenerationJobResponse)
+async def cancel_vocabulary_generation_job(job_id: str):
+    try:
+        return generation_job_service.cancel_job(job_id, kind="vocabulary_skills")
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @router.get("/skills")
