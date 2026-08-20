@@ -12,9 +12,10 @@
 - `MAP Test` 当前包含 `Language Arts` 和 `Reading`。
 - `MAP Language Arts` 已接入用户提供的 Skills 数据，支持按 `Grade -> Topic -> Skill` 出题，并按 `Detail` 做诊断报告。
 - `MAP Reading` 已有 Skills 数据文件，但出题/评估/前端练习流程暂时 Pending。
-- 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到服务器本地文件。
+- 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到统一 SQLite 数据库。
+- Word Palace 的普通 Daily Word（`cloze` / `match`）和 Vocabulary Skills 已改为异步分批出题：创建任务后立即返回，首批 3 题生成后即可开始答题，后续题目在后台继续生成。
 
-当前版本仍使用本地文件持久化，不使用数据库。
+当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `2`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
 
 ---
 
@@ -80,7 +81,7 @@
   - `Weak Knowledge Points` 显示可读 Detail。
   - `Recommended Next Practice` 显示可读 Detail。
   - 后端会把 AI 返回的 detail id 映射为真实 Detail 文本。
-  - 本地评估结果会写入 `data/report_history.json`。
+  - 评估结果会写入 SQLite 练习报告表。
 
 P1 说明：
 
@@ -134,7 +135,7 @@ P1 说明：
    - Weak Knowledge Points 显示可读 Detail。
    - Recommended Next Practice 指向具体 Detail。
 6. Daily Reports：
-   - Reading 完成评估后写入 `data/report_history.json`。
+   - Reading 完成评估后写入 SQLite 练习报告表。
    - Daily Reports 前端增加 `MAP Reading` 模块过滤项。
 
 注意：P2 当前保持 Pending，不在本轮继续实现。
@@ -175,7 +176,7 @@ P1 说明：
   - `question_results`
   - `weak_knowledge_points`
   - `recommended_next_practice`
-- 评估完成后写入 `data/report_history.json`：
+- 评估完成后写入 SQLite 练习报告表：
   - `module`: `word_vocabulary_skills`
   - `module_label`: `Vocabulary Skills`
 - Daily Reports 前端已支持筛选和展示 `Vocabulary Skills` 历史报告。
@@ -188,6 +189,23 @@ P1 说明：
   - 对应 Home 入口
 - Vocabulary Skills 和 MAP Language Arts 的 Weak Knowledge Points 支持按弱项 Detail 单独再练。
 - Vocabulary Skills 和 MAP Language Arts 的 Recommended Next Practice 会提升一个难度等级并可直接生成练习。
+
+---
+
+### P4：Word Palace 异步分批出题
+
+状态：已完成并已验证。
+
+- Daily Word 的 `cloze` / `match` 与 Vocabulary Skills 创建后台生成任务后立即返回 `job_id`，页面不再等待全部题目一次性生成。
+- 首批固定生成 3 题；前端收到首批后立即进入答题，轮询期间会追加后续题目，并保留学生已经选择的答案。
+- 学生答到尚未生成的位置时，只在当前题位等待，不阻塞已经可答的题目。
+- `Passage Cloze` 需要一次生成完整短文及全部空位，继续使用同步完整生成流程。
+- 任务状态保存在 SQLite `generation_jobs` 表中，支持 Gunicorn 多 worker 共享进度。
+- 状态包括 `queued`、`generating`、`completed`、`partial_failed`、`failed` 和 `cancelled`。
+- 后续批次失败时保留已经生成的题目；取消、超时和过期清理可避免页面无限 loading。
+- 原有同步 `/generate` API 保留兼容。
+
+验证结果：完整测试集 `33 passed`；SQLite 迁移幂等、完整性检查及外键检查通过。
 
 ---
 
@@ -230,24 +248,25 @@ Grade 6 | Grammar and mechanics | Spelling | Learn to spell words with prefixes:
 - 后端框架：FastAPI
 - AI 服务：OpenAI API
 - 前端：静态 HTML + Tailwind CSS + 原生 JavaScript
-- 数据持久化：本地文件
+- 数据持久化：SQLite（WAL 模式，统一数据库）
 - Python：3.11+
 
 ---
 
-## 本地持久化文件
+## 本地持久化数据
 
 生产数据主要在 `data/`：
 
 ```text
-data/library_registry.json     # 词库元数据
-data/library_archive.json      # 归档词库元数据与完整词条（服务器运行数据）
-data/*.txt                     # 当前活动词库内容；归档后移入上面的独立 JSON
-data/report_history.json       # 每日练习报告
-data/skills/*.json             # Skills 数据
+data/learning-center.sqlite3   # 统一数据库：词库、Skills、报告、Todo、异步生成任务等
+data/library_registry.json     # 旧词库元数据及迁移/部署备份来源
+data/library_archive.json      # 旧归档词库数据及迁移/部署备份来源
+data/*.txt                     # 旧活动词库内容及迁移来源
+data/report_history.json       # 旧报告迁移来源
+data/skills/*.json             # Skills 种子与旧数据迁移来源
 ```
 
-部署时必须保留服务器上的 `data/`，不要用本地 `data/` 覆盖线上 `data/`。
+SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate_to_sqlite.py` 会幂等应用 Schema 版本并迁移尚未导入的旧数据。部署时必须完整保留服务器上的 `data/`，不要用本地 `data/` 覆盖线上数据。
 
 ---
 
@@ -282,7 +301,7 @@ data/skills/*.json             # Skills 数据
 - `GET /api/english/libraries`
 - `GET /api/english/library/{library_name}`
 - `POST /api/english/grade`
-  - 批改完成后写入 `data/report_history.json`。
+  - 批改完成后写入 SQLite 练习报告表。
   - `passage_cloze` 会按每个 blank 单独计分，并保存错词到历史报告。
 
 ### Word Palace / Vocabulary Skills
@@ -298,7 +317,7 @@ data/skills/*.json             # Skills 数据
 - `POST /api/word-palace/vocabulary-skills/generate`
   - 当前请求重点字段：`grade_level`, `topic`, `skill`, `difficulty`, `question_count`, `option_count`, `include_explanation`, `detail_focus`。
 - `POST /api/word-palace/vocabulary-skills/evaluate`
-  - 评估完成后写入 `data/report_history.json`，模块标识为 `word_vocabulary_skills`。
+  - 评估完成后写入 SQLite 练习报告表，模块标识为 `word_vocabulary_skills`。
 
 ### MAP Language Arts
 
@@ -307,7 +326,7 @@ data/skills/*.json             # Skills 数据
 - `POST /api/map/language-arts/generate`
   - 当前请求重点字段：`grade_level`, `topic`, `skill`, `difficulty`, `question_count`, `option_count`, `include_explanation`, `subskill_focus`。
 - `POST /api/map/language-arts/evaluate`
-  - 评估完成后写入 `data/report_history.json`。
+  - 评估完成后写入 SQLite 练习报告表。
 
 ### Skills 管理
 
@@ -401,3 +420,8 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 - 保留线上 `.env`
 - 不覆盖线上词库和 Skills 数据
 - 使用 `www` 用户执行 git，避免 `dubious ownership`
+- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v2
+- 运行 `scripts/validate_persistent_data.py` 并确认 SQLite 完整性
+- 更新完成后重启或平滑重载 Gunicorn，再检查 `/health` 和异步 generation-jobs API
+
+仓库内的 `update_safe.sh` 已包含数据快照、代码同步、依赖更新、SQLite 迁移、持久数据校验和更新前健康检查；脚本成功后仍需重载应用进程，才能让 worker 使用新代码。
