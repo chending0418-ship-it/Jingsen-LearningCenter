@@ -11,6 +11,7 @@ from models.todo_schemas import (
     CopyDayRequest,
     CopyWeekRequest,
     EditScope,
+    PointsCorrectionRequest,
     PointsSpendRequest,
     ReportCommentRequest,
     SettingsUpdateRequest,
@@ -127,6 +128,19 @@ async def get_points_account():
 async def spend_points(request: PointsSpendRequest):
     try:
         return _service().spend_points(request.points, request.purpose)
+    except TodoDataError as error:
+        _raise_todo_error(error)
+
+
+@admin_router.post("/points/correct", status_code=status.HTTP_201_CREATED)
+async def correct_points(request: PointsCorrectionRequest):
+    try:
+        return _service().correct_points(
+            effective_date=request.effective_date.isoformat(),
+            points=request.points,
+            purpose=request.purpose,
+            streak_action=request.streak_action,
+        )
     except TodoDataError as error:
         _raise_todo_error(error)
 

@@ -566,6 +566,7 @@
                     <span id="reward-next" class="reward-chip">下一次 +— 分</span>
                     <span id="reward-completion" class="reward-chip">连续完成积分 — 分</span>
                     <span id="reward-task" class="reward-chip">任务 Reward 积分 — 分</span>
+                    <span id="reward-correction" class="reward-chip" hidden>积分修正 — 分</span>
                     <span id="reward-earned" class="reward-chip">累计获得 — 分</span>
                     <span id="reward-spent" class="reward-chip">已支出 — 分</span>
                 </div>
@@ -724,6 +725,7 @@
                 spent_points: 0,
                 completion_points: 0,
                 task_reward_points: 0,
+                correction_points: 0,
                 today_points: 0,
                 current_streak: 0,
                 next_points: 1,
@@ -748,6 +750,7 @@
                 spent_points: demoRewardBase.spentPoints,
                 completion_points: demoRewardBase.completionPoints + earned,
                 task_reward_points: demoRewardBase.bonusPoints,
+                correction_points: 0,
                 today_points: earned,
                 current_streak: streak,
                 next_points: streak + 1,
@@ -897,7 +900,8 @@
             const nextPoints = Number(reward.next_points || currentStreak + 1);
             const completionPoints = Number(reward.completion_points || 0);
             const taskRewardPoints = Number(reward.task_reward_points || 0);
-            const earnedPoints = Number(reward.earned_points ?? (completionPoints + taskRewardPoints));
+            const correctionPoints = Number(reward.correction_points || 0);
+            const earnedPoints = Number(reward.earned_points ?? (completionPoints + taskRewardPoints + correctionPoints));
             const spentPoints = Number(reward.spent_points || 0);
 
             document.getElementById('reward-total').textContent = availablePoints;
@@ -905,6 +909,9 @@
             document.getElementById('reward-next').textContent = `下一次全部完成 +${nextPoints} 分`;
             document.getElementById('reward-completion').textContent = `连续完成积分 ${completionPoints} 分`;
             document.getElementById('reward-task').textContent = `任务 Reward 积分 ${taskRewardPoints} 分`;
+            const correctionChip = document.getElementById('reward-correction');
+            correctionChip.hidden = correctionPoints === 0;
+            correctionChip.textContent = `积分修正 ${correctionPoints > 0 ? '+' : ''}${correctionPoints} 分`;
             document.getElementById('reward-earned').textContent = `累计获得 ${earnedPoints} 分`;
             document.getElementById('reward-spent').textContent = `已支出 ${spentPoints} 分`;
 

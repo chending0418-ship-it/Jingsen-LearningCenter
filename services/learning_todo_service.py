@@ -39,6 +39,8 @@ DEFAULT_SUBJECTS = [
 ACTIVE_LIFECYCLE = "active"
 INACTIVE_LIFECYCLES = {"cancelled", "voided"}
 REPEAT_KINDS = {"once", "daily", "weekly", "monthly"}
+POINT_TRANSACTION_TYPES = {"spend", "correction"}
+STREAK_CORRECTION_ACTIONS = {"none", "preserve", "clear"}
 
 
 class TodoDataError(ValueError):
@@ -205,12 +207,26 @@ class LearningTodoService:
         for transaction in payload["transactions"]:
             if not isinstance(transaction, dict):
                 raise TodoDataError("points-ledger.json 包含无效流水")
-            if transaction.get("type") != "spend":
+            transaction_type = transaction.get("type")
+            if transaction_type not in POINT_TRANSACTION_TYPES:
                 raise TodoDataError("points-ledger.json 包含未知流水类型")
-            if not isinstance(transaction.get("points"), int) or transaction["points"] <= 0:
+            points = transaction.get("points")
+            if not isinstance(points, int) or isinstance(points, bool):
                 raise TodoDataError("points-ledger.json 包含无效积分")
             if not str(transaction.get("purpose") or "").strip():
                 raise TodoDataError("points-ledger.json 包含空用途")
+            if transaction_type == "spend" and points <= 0:
+                raise TodoDataError("points-ledger.json 包含无效支出积分")
+            if transaction_type == "correction":
+                streak_action = transaction.get("streak_action", "none")
+                if streak_action not in STREAK_CORRECTION_ACTIONS:
+                    raise TodoDataError("points-ledger.json 包含无效连续记录修正")
+                if points == 0 and streak_action == "none":
+                    raise TodoDataError("points-ledger.json 包含空修正")
+                try:
+                    self._parse_date(transaction.get("effective_date", ""))
+                except TodoDataError as exc:
+                    raise TodoDataError("points-ledger.json 包含无效修正日期") from exc
         return payload
 
     def _month_path(self, month: str) -> Path:
@@ -1226,24 +1242,44 @@ class LearningTodoService:
         """按计划日计算积分；无任务日不加分也不中断。"""
         all_tasks = all_tasks if all_tasks is not None else self._all_tasks_unlocked()
         today = self.today()
+        transactions = self._points_ledger_unlocked()["transactions"]
+        streak_correction_dates: set[str] = set()
+        for transaction in transactions:
+            if transaction.get("type") != "correction":
+                continue
+            effective_date = str(transaction.get("effective_date") or "")
+            if not effective_date or effective_date > today:
+                continue
+            action = transaction.get("streak_action", "none")
+            if action == "preserve":
+                streak_correction_dates.add(effective_date)
+            elif action == "clear":
+                streak_correction_dates.discard(effective_date)
+
         scheduled_by_date: Dict[str, List[Dict[str, Any]]] = {}
         for task in all_tasks:
             planned_date = task.get("planned_date")
             if not planned_date or planned_date > today or not self._counts_on_date(task, planned_date):
                 continue
             scheduled_by_date.setdefault(planned_date, []).append(task)
+        actual_scheduled_dates = set(scheduled_by_date)
+        # 连续修正也能恢复因误删任务造成的历史缺口，因此允许创建一个可审计的虚拟计分日。
+        for corrected_date in streak_correction_dates:
+            scheduled_by_date.setdefault(corrected_date, [])
 
         completion_points = 0
         streak = 0
         today_points = 0
-        today_has_tasks = today in scheduled_by_date
+        today_has_tasks = today in actual_scheduled_dates
         today_completed = False
         last_scored_date: Optional[str] = None
         recent_scores = []
 
         for planned_date in sorted(scheduled_by_date):
             tasks = scheduled_by_date[planned_date]
-            completed_on_time = all(task.get("completed_local_date") == planned_date for task in tasks)
+            completed_on_time = planned_date in streak_correction_dates or (
+                bool(tasks) and all(task.get("completed_local_date") == planned_date for task in tasks)
+            )
             points = 0
             if completed_on_time:
                 streak += 1
@@ -1262,6 +1298,7 @@ class LearningTodoService:
                     "date": planned_date,
                     "points": points,
                     "completed": completed_on_time,
+                    "corrected": planned_date in streak_correction_dates,
                 }
             )
 
@@ -1271,8 +1308,17 @@ class LearningTodoService:
             for task in all_tasks
             if task.get("reward_granted_local_date") == today
         )
-        earned_points = completion_points + task_reward_points
-        spent_points = sum(transaction["points"] for transaction in self._points_ledger_unlocked()["transactions"])
+        correction_points = sum(
+            transaction["points"]
+            for transaction in transactions
+            if transaction.get("type") == "correction"
+        )
+        earned_points = completion_points + task_reward_points + correction_points
+        spent_points = sum(
+            transaction["points"]
+            for transaction in transactions
+            if transaction.get("type") == "spend"
+        )
         available_points = earned_points - spent_points
         return {
             # total_points 继续保留，兼容已经上线的孩子端；其含义调整为当前可用积分。
@@ -1282,6 +1328,7 @@ class LearningTodoService:
             "spent_points": spent_points,
             "completion_points": completion_points,
             "task_reward_points": task_reward_points,
+            "correction_points": correction_points,
             "today_task_reward_points": today_task_reward_points,
             "today_points": today_points,
             "current_streak": streak,
@@ -1290,7 +1337,7 @@ class LearningTodoService:
             "today_completed": today_completed,
             "last_scored_date": last_scored_date,
             "recent_scores": recent_scores[-31:],
-            "rule": "可用积分 = 连续完成积分 + 家长确认的任务奖励积分 - 已支出积分",
+            "rule": "可用积分 = 连续完成积分 + 家长确认的任务奖励积分 + 人工积分修正 - 已支出积分",
         }
 
     def reward_summary(self) -> Dict[str, Any]:
@@ -1344,6 +1391,66 @@ class LearningTodoService:
                 reverse=True,
             )
             return {"transaction": transaction, "account": {**account, "transactions": transactions}}
+
+    def correct_points(
+        self,
+        effective_date: str,
+        points: int,
+        purpose: str,
+        streak_action: str = "none",
+    ) -> Dict[str, Any]:
+        """登记带生效日期的积分/连续记录修正，并保留完整审计流水。"""
+        purpose = str(purpose or "").strip()
+        if not isinstance(points, int) or isinstance(points, bool) or abs(points) > 1000000:
+            raise TodoDataError("积分修正必须是 -1000000 到 1000000 之间的整数")
+        if not purpose:
+            raise TodoDataError("请填写修正原因")
+        if streak_action not in STREAK_CORRECTION_ACTIONS:
+            raise TodoDataError("连续记录修正类型无效")
+        if points == 0 and streak_action == "none":
+            raise TodoDataError("请填写积分调整，或选择连续记录修正")
+
+        parsed_date = self._parse_date(effective_date)
+        today = self._parse_date(self.today())
+        if parsed_date > today:
+            raise TodoDataError("不能修正未来日期")
+        normalized_date = parsed_date.isoformat()
+
+        with self._guard():
+            self._materialize_default_horizon_unlocked(self.today())
+            before = self._reward_summary_unlocked()
+            ledger = self._points_ledger_unlocked()
+            self._backup_locked("before-points-correction")
+            transaction = {
+                "id": f"correction_{uuid.uuid4().hex}",
+                "type": "correction",
+                "points": points,
+                "purpose": purpose,
+                "effective_date": normalized_date,
+                "streak_action": streak_action,
+                "created_at": self._now(),
+                "local_date": self.today(),
+            }
+            ledger["transactions"].append(transaction)
+            self._atomic_write_json(self.points_ledger_path, ledger)
+
+            account = self._reward_summary_unlocked()
+            transactions = sorted(
+                ledger["transactions"],
+                key=lambda row: (row.get("created_at", ""), row.get("id", "")),
+                reverse=True,
+            )
+            impact = {
+                "available_points": account["available_points"] - before["available_points"],
+                "completion_points": account["completion_points"] - before["completion_points"],
+                "correction_points": account["correction_points"] - before["correction_points"],
+                "current_streak": account["current_streak"] - before["current_streak"],
+            }
+            return {
+                "transaction": transaction,
+                "impact": impact,
+                "account": {**account, "transactions": transactions},
+            }
 
     def overview(self) -> Dict[str, Any]:
         today = self.today()

@@ -17,7 +17,7 @@ Todo 均通过服务器本地文件持久化，因此部署的重点是让代码
 │   │   ├── *.txt
 │   │   ├── skills/
 │   │   ├── report_history.json
-│   │   └── learning-todo/       # 含任务、评语和 points-ledger.json 积分支出流水
+│   │   └── learning-todo/       # 含任务、评语和 points-ledger.json 积分修正/支出流水
 │   └── .env
 └── backups/
     ├── releases/<时间>/         # 每次发布前的完整快照
@@ -216,7 +216,7 @@ cd /www/wwwroot/learningcenter/app
 - `/learningcenter/admin`：归档词库只在勾选“显示已归档词库”时出现，且不参与出题。
 - `/learningcenter/admin/models`：可读取当前 Key 的模型列表并保存默认模型。
 - `/learningcenter/english`：Daily Reports 历史存在。
-- `/learningcenter/admin/todo`：任务、Reward 配置/发放、积分支出流水、科目、统计和评语存在。
+- `/learningcenter/admin/todo`：任务、Reward 配置/发放、积分修正/支出流水、科目、统计和评语存在。
 - `/learningcenter/todo`：孩子端完成、取消完成、Reward 目标、累计获得/支出和可用积分正常。
 
 不要把“页面能打开”当作数据验收；必须同时执行数据校验并人工抽查三类历史内容。

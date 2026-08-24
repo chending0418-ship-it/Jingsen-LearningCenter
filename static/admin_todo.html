@@ -399,16 +399,20 @@
         .backup-name { font-size: 11px; font-weight: 800; }
         .backup-meta { margin-top: 3px; color: var(--muted); font-size: 9px; }
 
-        .points-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
+        .points-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
         .points-layout { display: grid; grid-template-columns: minmax(320px,.72fr) minmax(0,1.28fr); gap: 16px; }
         .points-form { display: grid; gap: 13px; }
         .points-form .control { width: 100%; }
         .points-balance-note { padding: 12px 14px; border-radius: 12px; background: var(--teal-soft); color: var(--teal-dark); font-size: 11px; font-weight: 750; line-height: 1.55; }
+        .points-correction-note { background: var(--blue-soft); color: #315F86; }
+        .points-history-panel { grid-column: 1 / -1; }
         .points-history { display: grid; gap: 8px; max-height: 390px; overflow-y: auto; padding-right: 2px; }
         .points-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; background: #FAFBFA; }
         .points-purpose { overflow-wrap: anywhere; font-size: 12px; font-weight: 800; }
         .points-time { margin-top: 4px; color: var(--muted); font-size: 9px; }
         .points-spent { color: var(--red); font-size: 17px; font-weight: 850; white-space: nowrap; }
+        .points-added { color: var(--teal); font-size: 17px; font-weight: 850; white-space: nowrap; }
+        .points-neutral { color: var(--blue); font-size: 12px; font-weight: 850; white-space: nowrap; }
 
         .api-error {
             display: none;
@@ -663,7 +667,7 @@
                 <button class="nav-tab" data-view="week">周视图</button>
                 <button class="nav-tab" data-view="month">月视图</button>
                 <button class="nav-tab" data-view="stats">周月统计</button>
-                <button class="nav-tab" data-view="points">积分支出</button>
+                <button class="nav-tab" data-view="points">积分修正与支出</button>
                 <button class="nav-tab" data-view="subjects">科目管理</button>
                 <button class="nav-tab" data-view="settings">设置</button>
             </nav>
@@ -803,14 +807,26 @@
 
         <section id="view-points" class="view">
             <div class="section-title-row">
-                <div><p class="section-label">Points account</p><h2>积分支出</h2><p class="section-copy">记录孩子兑换的奖励，支出后孩子端的可用积分会同步扣减。</p></div>
+                <div><p class="section-label">Points account</p><h2>积分修正与支出</h2><p class="section-copy">修正误操作造成的积分或连续记录偏差，也可以登记奖励兑换支出。</p></div>
             </div>
             <div class="metric-grid points-metrics">
                 <div class="metric-card"><span class="metric-icon">★</span><div id="points-available" class="metric-number">0</div><div class="metric-name">当前可用积分</div></div>
-                <div class="metric-card blue"><span class="metric-icon">＋</span><div id="points-earned" class="metric-number">0</div><div class="metric-name">累计获得积分</div></div>
+                <div class="metric-card blue"><span class="metric-icon">＋</span><div id="points-earned" class="metric-number">0</div><div id="points-earned-label" class="metric-name">累计获得积分</div></div>
                 <div class="metric-card red"><span class="metric-icon">−</span><div id="points-spent" class="metric-number">0</div><div class="metric-name">累计支出积分</div></div>
+                <div class="metric-card blue"><span class="metric-icon">↗</span><div id="points-streak" class="metric-number">0</div><div class="metric-name">当前连续任务日</div></div>
             </div>
             <div class="points-layout">
+                <article class="panel">
+                    <div class="panel-head"><div><h3>积分与连续修正</h3><p class="section-copy">默认修正昨天；每次修正都会保留在流水和 Todo 备份中。</p></div></div>
+                    <form id="points-correction-form" class="points-form" onsubmit="correctPoints(event)">
+                        <div class="field"><label for="points-correction-date">修正日期</label><input id="points-correction-date" class="control" type="date" required></div>
+                        <div class="field"><label for="points-correction-streak">连续记录</label><select id="points-correction-streak" class="control"><option value="preserve" selected>将该日视为连续完成</option><option value="none">不调整连续记录</option><option value="clear">取消该日已有的连续修正</option></select></div>
+                        <div class="field"><label for="points-correction-value">额外积分调整</label><input id="points-correction-value" class="control" type="number" min="-1000000" max="1000000" step="1" value="0" required placeholder="正数补发，负数扣回"></div>
+                        <div class="field"><label for="points-correction-purpose">修正原因</label><input id="points-correction-purpose" class="control" type="text" maxlength="300" required value="修正误操作" placeholder="例如：误点取消了昨天的完成记录"></div>
+                        <div class="points-balance-note points-correction-note">选择“视为连续完成”后，系统会自动补回该日并重算后续连续积分，一般无需再填额外积分。</div>
+                        <button id="points-correction-submit" class="primary-button" type="submit">确认修正</button>
+                    </form>
+                </article>
                 <article class="panel">
                     <div class="panel-head"><div><h3>登记积分支出</h3><p class="section-copy">填写兑换所需积分和具体用途。</p></div></div>
                     <form id="points-spend-form" class="points-form" onsubmit="spendPoints(event)">
@@ -820,8 +836,8 @@
                         <button id="points-spend-submit" class="primary-button" type="submit">确认扣除积分</button>
                     </form>
                 </article>
-                <article class="panel">
-                    <div class="panel-head"><div><h3>支出记录</h3><p class="section-copy">流水按登记时间倒序保存，记录会进入 Todo 数据备份。</p></div></div>
+                <article class="panel points-history-panel">
+                    <div class="panel-head"><div><h3>积分流水</h3><p class="section-copy">修正和支出按登记时间倒序保存，可按生效日期追溯。</p></div></div>
                     <div id="points-history" class="points-history"></div>
                 </article>
             </div>
@@ -916,7 +932,7 @@
             monthCursor: null,
             comments: { week: '', month: '' },
             backups: [],
-            points: { available_points: 0, earned_points: 0, spent_points: 0, transactions: [] }
+            points: { available_points: 0, earned_points: 0, spent_points: 0, correction_points: 0, current_streak: 0, transactions: [] }
         };
 
         document.getElementById('admin-back').href = withBasePath('/admin');
@@ -1011,6 +1027,8 @@
                 spent_points: 7,
                 completion_points: 18,
                 task_reward_points: 4,
+                correction_points: 0,
+                current_streak: 3,
                 transactions: [
                     { id:'spend_demo_2', type:'spend', points:5, purpose:'兑换周末看一部电影', local_date:state.today, created_at:new Date().toISOString() },
                     { id:'spend_demo_1', type:'spend', points:2, purpose:'晚饭后玩 20 分钟游戏', local_date:addDays(state.today,-2), created_at:new Date(Date.now()-172800000).toISOString() }
@@ -1306,25 +1324,118 @@
         function renderPoints() {
             const account = state.points || {};
             const available = Number(account.available_points ?? account.total_points ?? 0);
-            const earned = Number(account.earned_points ?? ((account.completion_points || 0) + (account.task_reward_points || 0)));
+            const correctionPoints = Number(account.correction_points || 0);
+            const earned = Number(account.earned_points ?? ((account.completion_points || 0) + (account.task_reward_points || 0) + correctionPoints));
             const spent = Number(account.spent_points || 0);
+            const currentStreak = Number(account.current_streak || 0);
             const transactions = Array.isArray(account.transactions) ? account.transactions : [];
             document.getElementById('points-available').textContent = available;
             document.getElementById('points-earned').textContent = earned;
             document.getElementById('points-spent').textContent = spent;
+            document.getElementById('points-streak').textContent = currentStreak;
+            document.getElementById('points-earned-label').textContent = correctionPoints
+                ? `累计获得积分（修正 ${correctionPoints > 0 ? '+' : ''}${correctionPoints}）`
+                : '累计获得积分';
             document.getElementById('points-balance-note').textContent = `当前最多可以支出 ${available} 分。确认后，可用积分将变为 ${available} 分减去本次支出。`;
             const pointsInput = document.getElementById('points-spend-value');
             pointsInput.max = String(Math.max(0, available));
             document.getElementById('points-spend-submit').disabled = available <= 0;
+            const correctionDate = document.getElementById('points-correction-date');
+            correctionDate.max = state.today;
+            if (!correctionDate.value && state.today) correctionDate.value = addDays(state.today, -1);
             document.getElementById('points-history').innerHTML = transactions.length ? transactions.map(transaction => {
+                const isSpend = transaction.type === 'spend';
+                const points = Number(transaction.points || 0);
                 let time = transaction.local_date || '';
                 if (transaction.created_at) {
                     try {
                         time = new Intl.DateTimeFormat('zh-CN', { dateStyle:'medium', timeStyle:'short' }).format(new Date(transaction.created_at));
                     } catch (_) {}
                 }
-                return `<div class="points-row"><div><div class="points-purpose">${escapeHtml(transaction.purpose)}</div><div class="points-time">${escapeHtml(time)}</div></div><div class="points-spent">−${Number(transaction.points)} 分</div></div>`;
-            }).join('') : '<div class="empty">还没有积分支出记录</div>';
+                const streakText = transaction.streak_action === 'preserve'
+                    ? ' · 视为连续完成'
+                    : transaction.streak_action === 'clear' ? ' · 取消连续修正' : '';
+                const effectiveText = transaction.effective_date ? `生效 ${transaction.effective_date}${streakText} · ` : '';
+                let amount = `<div class="points-neutral">连续修正</div>`;
+                if (isSpend) amount = `<div class="points-spent">−${Math.abs(points)} 分</div>`;
+                else if (points > 0) amount = `<div class="points-added">＋${points} 分</div>`;
+                else if (points < 0) amount = `<div class="points-spent">−${Math.abs(points)} 分</div>`;
+                return `<div class="points-row"><div><div class="points-purpose">${escapeHtml(transaction.purpose)}</div><div class="points-time">${escapeHtml(effectiveText + time)}</div></div>${amount}</div>`;
+            }).join('') : '<div class="empty">还没有积分修正或支出记录</div>';
+        }
+
+        async function correctPoints(event) {
+            event.preventDefault();
+            const effectiveDate = document.getElementById('points-correction-date').value;
+            const points = Number(document.getElementById('points-correction-value').value);
+            const purpose = document.getElementById('points-correction-purpose').value.trim();
+            const streakAction = document.getElementById('points-correction-streak').value;
+            if (!effectiveDate || effectiveDate > state.today) {
+                showToast('请选择今天或更早的修正日期');
+                return;
+            }
+            if (!Number.isInteger(points) || Math.abs(points) > 1000000) {
+                showToast('积分调整必须是 -1000000 到 1000000 之间的整数');
+                return;
+            }
+            if (points === 0 && streakAction === 'none') {
+                showToast('请填写积分调整，或选择连续记录修正');
+                return;
+            }
+            if (!purpose) {
+                showToast('请填写修正原因');
+                return;
+            }
+            const actionText = streakAction === 'preserve'
+                ? '并将该日视为连续完成'
+                : streakAction === 'clear' ? '并取消该日已有的连续修正' : '';
+            const pointsText = points ? `，额外${points > 0 ? '补发' : '扣回'} ${Math.abs(points)} 分` : '';
+            if (!window.confirm(`确认修正 ${effectiveDate} 的记录${actionText}${pointsText}吗？`)) return;
+
+            const submit = document.getElementById('points-correction-submit');
+            submit.disabled = true;
+            try {
+                let impact;
+                if (DEMO_MODE) {
+                    const beforeAvailable = Number(state.points.available_points || 0);
+                    let automaticStreakPoints = 0;
+                    const transaction = {
+                        id:`correction_demo_${Date.now()}`,
+                        type:'correction', points, purpose, effective_date:effectiveDate,
+                        streak_action:streakAction, local_date:state.today, created_at:new Date().toISOString()
+                    };
+                    state.points.transactions.unshift(transaction);
+                    state.points.correction_points = Number(state.points.correction_points || 0) + points;
+                    if (streakAction === 'preserve') {
+                        state.points.current_streak = Number(state.points.current_streak || 0) + 1;
+                        automaticStreakPoints = state.points.current_streak;
+                        state.points.completion_points = Number(state.points.completion_points || 0) + automaticStreakPoints;
+                    }
+                    state.points.earned_points = Number(state.points.earned_points || 0) + points + automaticStreakPoints;
+                    state.points.available_points = beforeAvailable + points + automaticStreakPoints;
+                    state.points.total_points = state.points.available_points;
+                    impact = { available_points:points + automaticStreakPoints };
+                } else {
+                    const result = await apiRequest('/api/admin/todo/points/correct', {
+                        method:'POST',
+                        body:JSON.stringify({ effective_date:effectiveDate, points, purpose, streak_action:streakAction })
+                    });
+                    state.points = result.account;
+                    impact = result.impact;
+                }
+                document.getElementById('points-correction-value').value = '0';
+                document.getElementById('points-correction-streak').value = 'none';
+                document.getElementById('points-correction-purpose').value = '';
+                renderPoints();
+                const delta = Number(impact?.available_points || 0);
+                const deltaText = `${delta >= 0 ? '+' : ''}${delta}`;
+                showToast(`修正已生效：可用积分 ${deltaText} 分，当前连续 ${Number(state.points.current_streak || 0)} 个任务日`);
+            } catch (error) {
+                showToast(error.message || '积分修正失败');
+                renderPoints();
+            } finally {
+                submit.disabled = false;
+            }
         }
 
         async function spendPoints(event) {

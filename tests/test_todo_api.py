@@ -90,6 +90,33 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
             json={"points": 5, "purpose": "超额支出"},
         ).status_code == 400
 
+        correction = client.post(
+            "/api/admin/todo/points/correct",
+            json={
+                "effective_date": "2026-07-27",
+                "points": 0,
+                "purpose": "修正昨天的误操作",
+                "streak_action": "preserve",
+            },
+        )
+        assert correction.status_code == 201
+        assert correction.json()["impact"]["completion_points"] == 2
+        assert correction.json()["account"]["current_streak"] == 2
+        assert correction.json()["account"]["available_points"] == 6
+        assert correction.json()["account"]["correction_points"] == 0
+        assert correction.json()["account"]["transactions"][0]["type"] == "correction"
+
+        empty_correction = client.post(
+            "/api/admin/todo/points/correct",
+            json={
+                "effective_date": "2026-07-27",
+                "points": 0,
+                "purpose": "没有实际变化",
+                "streak_action": "none",
+            },
+        )
+        assert empty_correction.status_code == 422
+
         prefixed = client.get("/learningcenter/api/admin/todo/overview")
         assert prefixed.status_code == 200
         assert prefixed.json()["completed"] == 1

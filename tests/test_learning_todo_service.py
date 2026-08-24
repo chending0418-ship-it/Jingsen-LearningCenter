@@ -330,6 +330,95 @@ def test_reward_points_grow_with_streak_and_restart_after_missed_task_day(tmp_pa
     )
 
 
+def test_points_correction_restores_yesterday_points_and_continuous_streak(tmp_path):
+    current_day = [date(2026, 7, 25)]
+    todo = LearningTodoService(
+        data_dir=str(tmp_path / "data" / "learning-todo"),
+        today_provider=lambda: current_day[0],
+    )
+
+    for day in (25, 26):
+        current_day[0] = date(2026, 7, day)
+        task = todo.create_task(
+            {
+                "title": f"第 {day} 日任务",
+                "subject_id": "sub_english",
+                "planned_date": current_day[0].isoformat(),
+                "repeat": "once",
+            }
+        )
+        todo.complete_task(task["id"])
+
+    current_day[0] = date(2026, 7, 27)
+    todo.create_task(
+        {
+            "title": "被误操作中断的任务日",
+            "subject_id": "sub_math",
+            "planned_date": "2026-07-27",
+            "repeat": "once",
+        }
+    )
+    current_day[0] = date(2026, 7, 28)
+    todo.create_task(
+        {
+            "title": "今天待完成",
+            "subject_id": "sub_reading",
+            "planned_date": "2026-07-28",
+            "repeat": "once",
+        }
+    )
+
+    before = todo.reward_summary()
+    assert (before["completion_points"], before["current_streak"], before["next_points"]) == (3, 0, 1)
+
+    corrected = todo.correct_points(
+        effective_date="2026-07-27",
+        points=0,
+        purpose="修正误操作",
+        streak_action="preserve",
+    )
+    assert corrected["transaction"]["effective_date"] == "2026-07-27"
+    assert corrected["impact"] == {
+        "available_points": 3,
+        "completion_points": 3,
+        "correction_points": 0,
+        "current_streak": 3,
+    }
+    account = corrected["account"]
+    assert (account["completion_points"], account["current_streak"], account["next_points"]) == (6, 3, 4)
+    assert account["recent_scores"][-2] == {
+        "date": "2026-07-27",
+        "points": 3,
+        "completed": True,
+        "corrected": True,
+    }
+
+    reloaded = LearningTodoService(
+        data_dir=str(todo.data_dir),
+        today_provider=lambda: current_day[0],
+    )
+    assert reloaded.reward_summary()["current_streak"] == 3
+
+    reloaded.correct_points("2026-07-27", 2, "补发额外偏差", "none")
+    assert reloaded.reward_summary()["correction_points"] == 2
+    assert reloaded.reward_summary()["available_points"] == 8
+
+    reloaded.correct_points("2026-07-27", -1, "扣回多发的一分", "none")
+    assert reloaded.reward_summary()["correction_points"] == 1
+    assert reloaded.reward_summary()["available_points"] == 7
+
+    cleared = reloaded.correct_points("2026-07-27", 0, "取消连续修正", "clear")
+    assert cleared["account"]["completion_points"] == 3
+    assert cleared["account"]["current_streak"] == 0
+    assert cleared["account"]["available_points"] == 4
+
+    with pytest.raises(TodoDataError, match="未来日期"):
+        reloaded.correct_points("2026-07-29", 1, "未来修正", "none")
+
+    with pytest.raises(TodoDataError, match="积分调整"):
+        reloaded.correct_points("2026-07-27", 0, "空修正", "none")
+
+
 def test_parent_confirmed_task_reward_is_added_once_and_saved_as_snapshot(service):
     task = service.create_task(
         {

@@ -3,7 +3,7 @@
 from datetime import date
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 RepeatKind = Literal["once", "daily", "weekly", "monthly"]
@@ -131,6 +131,27 @@ class PointsSpendRequest(BaseModel):
         if not value:
             raise ValueError("积分用途不能为空")
         return value
+
+
+class PointsCorrectionRequest(BaseModel):
+    effective_date: date
+    points: int = Field(default=0, ge=-1000000, le=1000000)
+    purpose: str = Field(min_length=1, max_length=300)
+    streak_action: Literal["none", "preserve", "clear"] = "none"
+
+    @field_validator("purpose")
+    @classmethod
+    def clean_correction_purpose(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("修正原因不能为空")
+        return value
+
+    @model_validator(mode="after")
+    def require_an_actual_correction(self):
+        if self.points == 0 and self.streak_action == "none":
+            raise ValueError("请填写积分调整，或选择连续记录修正")
+        return self
 
 
 class SettingsUpdateRequest(BaseModel):

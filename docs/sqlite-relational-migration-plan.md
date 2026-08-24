@@ -139,7 +139,7 @@ API Key 仍只存在环境变量，不写入数据库。
 - `todo_tasks`：任务主体，不再按月份拆文件。
 - `todo_task_history`：任务完成、取消、作废等历史事件，一次事件一条记录。
 - `todo_reports`：周报、月报和评语。
-- `points_ledger`：积分支出流水。
+- `points_ledger`：积分修正与支出流水。
 - `todo_settings`：时区、重复任务生成范围和备份保留数量。
 
 `todo_tasks.planned_date`、`subject_id`、`template_id` 和状态字段建立索引，替代遍历全部月份 JSON 的做法。
