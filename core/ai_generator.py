@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 class AIGenerator:
     """AI 内容生成器类"""
+
+    MINIMAL_REASONING_MODEL_PREFIXES = ("gpt-5",)
     
     def __init__(self):
         """初始化 OpenAI 客户端"""
@@ -33,7 +35,16 @@ class AIGenerator:
         """实时读取 Admin 选择；未选择时回退到环境变量 MODEL_NAME。"""
         return get_model_settings_service().get_selected_model()
 
+    @classmethod
+    def _uses_minimal_reasoning(cls, model: str) -> bool:
+        """Only add the GPT-5 reasoning parameter to compatible model families."""
+        normalized = str(model or "").strip().lower()
+        return normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
+
     async def _create_chat_completion(self, **kwargs):
+        model = str(kwargs.get("model") or "")
+        if self._uses_minimal_reasoning(model):
+            kwargs.setdefault("reasoning_effort", "minimal")
         try:
             return await asyncio.wait_for(
                 asyncio.to_thread(self.client.chat.completions.create, **kwargs),

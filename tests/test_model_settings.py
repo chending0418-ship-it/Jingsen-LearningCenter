@@ -1,5 +1,6 @@
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 from fastapi.testclient import TestClient
@@ -86,6 +87,57 @@ def test_model_selection_persists_and_ai_generator_reads_it_dynamically(tmp_path
     assert not settings_path.exists()
     assert (settings_path.parent / "learning-center.sqlite3").is_file()
     assert settings_path.parent == Path(tmp_path / "data")
+
+
+def test_ai_generator_uses_minimal_reasoning_for_gpt5_models(monkeypatch):
+    observed = []
+
+    def create(**kwargs):
+        observed.append(kwargs)
+        return "response"
+
+    monkeypatch.setattr(config, "OPENAI_API_KEY", "test-key")
+    generator = AIGenerator()
+    generator.client = SimpleNamespace(
+        chat=SimpleNamespace(
+            completions=SimpleNamespace(create=create),
+        )
+    )
+
+    result = asyncio.run(
+        generator._create_chat_completion(
+            model="gpt-5-mini-fast",
+            messages=[],
+        )
+    )
+
+    assert result == "response"
+    assert observed[0]["reasoning_effort"] == "minimal"
+
+
+def test_ai_generator_does_not_send_reasoning_effort_to_other_models(monkeypatch):
+    observed = []
+
+    def create(**kwargs):
+        observed.append(kwargs)
+        return "response"
+
+    monkeypatch.setattr(config, "OPENAI_API_KEY", "test-key")
+    generator = AIGenerator()
+    generator.client = SimpleNamespace(
+        chat=SimpleNamespace(
+            completions=SimpleNamespace(create=create),
+        )
+    )
+
+    asyncio.run(
+        generator._create_chat_completion(
+            model="claude-opus-4-6-medium",
+            messages=[],
+        )
+    )
+
+    assert "reasoning_effort" not in observed[0]
 
 
 def test_admin_model_api_requires_session_and_saves_only_available_model(tmp_path, monkeypatch):
