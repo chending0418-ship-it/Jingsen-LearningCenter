@@ -17,6 +17,8 @@
 
 当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `2`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
 
+重要功能里程碑、线上部署基线和故障恢复记录见 [`CHANGELOG.md`](CHANGELOG.md)。
+
 ---
 
 ## 当前阶段状态
