@@ -44,7 +44,11 @@ class AIGenerator:
     async def _create_chat_completion(self, **kwargs):
         model = str(kwargs.get("model") or "")
         if self._uses_minimal_reasoning(model):
-            kwargs.setdefault("reasoning_effort", "minimal")
+            # `extra_body` keeps this compatible with the production OpenAI
+            # Python SDK 1.x while still sending the standard API field.
+            extra_body = dict(kwargs.get("extra_body") or {})
+            extra_body.setdefault("reasoning_effort", "minimal")
+            kwargs["extra_body"] = extra_body
         try:
             return await asyncio.wait_for(
                 asyncio.to_thread(self.client.chat.completions.create, **kwargs),

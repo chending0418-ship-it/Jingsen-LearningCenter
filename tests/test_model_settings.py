@@ -112,7 +112,7 @@ def test_ai_generator_uses_minimal_reasoning_for_gpt5_models(monkeypatch):
     )
 
     assert result == "response"
-    assert observed[0]["reasoning_effort"] == "minimal"
+    assert observed[0]["extra_body"]["reasoning_effort"] == "minimal"
 
 
 def test_ai_generator_does_not_send_reasoning_effort_to_other_models(monkeypatch):
@@ -137,7 +137,7 @@ def test_ai_generator_does_not_send_reasoning_effort_to_other_models(monkeypatch
         )
     )
 
-    assert "reasoning_effort" not in observed[0]
+    assert "extra_body" not in observed[0]
 
 
 def test_admin_model_api_requires_session_and_saves_only_available_model(tmp_path, monkeypatch):
