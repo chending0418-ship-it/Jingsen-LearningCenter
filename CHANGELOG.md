@@ -9,7 +9,37 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
-## 2026-09-03：Learning Center 前后台视觉统一与 English 重构（本地待确认）
+## 2026-09-03：Jingsen.cc 首页与 Learning Center 视觉重构上线
+
+### 变更目的与用户可见结果
+
+- 将本日完成的个人首页、统一 Admin、Gallery 瀑布流、Learning Center 门户、English、Learning Todo 与 Learning Admin 视觉重构正式发布到生产环境。
+- 根域名 `https://jingsen.cc/` 从宝塔默认站点页切换为新的个人主页，`/admin`、`/gallery` 与 `/baseball` 同时成为可直接访问的全站一级路径。
+- `https://jingsen.cc/learningcenter/portal` 的地址和“Learning Center 课程选择入口”职责保持不变；页面内容更新为本次确认的新版视觉，现有 English、Todo 与 Admin 入口继续使用原路径。
+- Chinese 与 Math 暂时展示风格一致的“正在建设中”页面；English、Todo 及其后台数据和功能继续保留。
+
+### 发布、回档与数据保护
+
+- 功能版本提交为 `672a363`，生产分支为 `deploy/tencent-learningcenter-path`。
+- 发布前线上实际代码 `f28e946` 已建立并推送标签 `rollback-pre-redesign-20260903`，作为本次视觉重构的代码回档点。
+- `update_safe.sh` 在同步代码前完成 `data/`、一致性 SQLite 和 `.env` 快照；首轮发布快照位于 `/www/wwwroot/learningcenter/backups/releases/20260903-152654-229698`。
+- 原 Nginx 站点配置备份为 `/www/server/panel/vhost/nginx/jingsen.cc.conf.pre-redesign-20260903`。新增根路径与 `/static/` 反向代理，同时保留 `/learningcenter/` 前缀代理和 `/learningcenter` 到 `/learningcenter/` 的兼容跳转。
+- 修正 `update_safe.sh` 的词库专项凭据：凭据现在始终记录 `library_registry.json` 与 `library_archive.json`，不再把运行后会发生正常页级变化的整个 SQLite 文件误当作词库哈希，避免发布后产生数据丢失的假告警；完整数据清单仍在迁移前验证 SQLite 原样恢复。
+
+### 验证
+
+- 发布前全量测试通过：`40 passed`；14 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
+- 安全发布脚本确认快照与恢复后的持久数据清单一致；SQLite 快照与运行库均通过 `integrity_check` 和外键检查。
+- 发布后快照库与运行库的主要业务表记录数完全一致：48 个词库、3457 个词条、635 条 Skills、205 份练习报告、1128 个 Todo 任务、2818 条 Todo 历史和 2 条积分流水；词条按“词库、内容、规范化内容、顺序”计算的语义哈希一致。
+- 公网逐项检查首页、Learning Center 门户、English、Chinese、Math、Todo、Gallery、Baseball、Admin、共享样式与公开 API，均返回 HTTP 200；浏览器实际检查首页、`/learningcenter/portal`、Todo 和 Admin 登录页正常渲染。
+- Nginx 配置在替换前后均通过 `nginx -t`，`learningcenter.service` 保持 active，内部与公网健康接口正常。
+
+### 后续风险
+
+- 代码回档时需同时恢复上述 Nginx 备份，才能让根域名重新回到发布前的宝塔静态站点行为；服务器持久数据应优先使用发布快照恢复，禁止用 Git 中的数据覆盖。
+- SQLite 服务启动可能在不改变词条内容和顺序的情况下重写内部自增 ID 与时间戳，因此发布后使用专项 JSON 凭据与业务记录比对验收，不使用整个运行中 SQLite 文件的 SHA-256 作为唯一判断。
+
+## 2026-09-03：Learning Center 前后台视觉统一与 English 重构（已上线）
 
 ### 变更目的
 
@@ -37,14 +67,14 @@
 - 本地浏览器实际检查 English 首页、Word Palace、Daily Word 和 MAP Language Arts，模块切换、技能数据加载和表单展示正常，页面无横向溢出。
 - 本地浏览器逐页复核 Learning Admin 的首页、新建、详情、Skills、Todo、模型六类页面，字体栈一致且均无横向溢出；六页面包屑内容与链接目标一致，三个元素处于同一水平线；模型页头按钮数量为 0，筛选栏保存按钮仍可用。
 - 全量测试通过：`40 passed`；18 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
-- 本任务仅在本地开发与启动，未提交、未推送、未部署。
+- 已随本日 Jingsen.cc 首页与 Learning Center 视觉重构正式上线。
 
 ### 后续风险
 
 - Google Fonts 无法访问时会依次回退到系统自带的苹方、微软雅黑和 Arial，仍保持无衬线显示。
 - Chinese 与 Math 暂时只展示建设中页面，重新开放练习功能时需将对应路由切回保留的原页面并按共享主题继续适配。
 
-## 2026-09-03：Learning Center Admin 全页面紧凑主题（本地待确认）
+## 2026-09-03：Learning Center Admin 全页面紧凑主题（已上线）
 
 ### 变更目的
 
@@ -64,9 +94,9 @@
 - 新增共享样式 `static/admin_learning_theme.css`，由六个页面共同引用，并通过 `/static/admin_learning_theme.css` 提供；页面业务脚本与数据接口未改动。
 - 本地浏览器逐页检查六类页面均无横向溢出；Todo 管理的今日概览、任务、日、周、月、统计、积分、科目和设置视图全部可正常切换。
 - 全量测试通过：`40 passed`；17 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
-- 本任务仅在本地开发与启动，未提交、未推送、未部署。
+- 已随本日 Jingsen.cc 首页与 Learning Center 视觉重构正式上线。
 
-## 2026-09-03：Learning Todo 编辑风格视觉预览（本地待确认）
+## 2026-09-03：Learning Todo 编辑风格视觉预览（已上线）
 
 ### 变更目的与结果
 
@@ -83,9 +113,9 @@
 - 在 1280×720 视口复查压缩版首屏：标题区高度 250px，统计区位于第 356–632px，今日完成数与可用积分均完整显示在首屏内。
 - 在 1280px 宽桌面视口检查任务看板，三列宽度均约 381px，逾期、待完成、已完成任务互不遮挡且无横向溢出。
 - 实际操作“完成逾期任务”后数量从 `2` 变为 `1`、已完成从 `2` 变为 `3`，随后撤销恢复原值，确认核心交互未受视觉改版影响。
-- 全部改动仍未提交、未推送、未部署；如不采用此方向，可单独回退 Todo 页面视觉。
+- 已随本日生产发布上线；如不采用此方向，仍可单独回退 Todo 页面视觉。
 
-## 2026-09-03：二级页面视觉统一与首页滚动文案配置（本地待发布）
+## 2026-09-03：二级页面视觉统一与首页滚动文案配置（已上线）
 
 ### 变更目的
 
@@ -111,9 +141,9 @@
 
 - 全量测试通过：`40 passed`；17 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
 - 本地浏览器逐页检查三个二级页面：返回入口与栏目编号纵向位置一致，编号中心相对视口偏移均为 0，页面无横向溢出；Baseball 装饰不再盖住正文。
-- Learning Center 本次只重做门户，进入后的具体学科练习页仍沿用原有视觉；仅在本地验证，未推送、未部署。
+- Learning Center 门户及后续确认的 English 学习区已完成视觉适配，并随本日生产发布上线。
 
-## 2026-09-03：Admin 信息架构重构与 Gallery 瀑布流（本地待发布）
+## 2026-09-03：Admin 信息架构重构与 Gallery 瀑布流（已上线）
 
 ### 变更目的
 
@@ -144,14 +174,14 @@
 - 新增 Gallery 服务与路由测试，覆盖上传、元数据编辑、公开读取、图片读取、移除保留原文件，以及新 Admin 路由和旧地址兼容。
 - 全量测试通过：`40 passed`。
 - 所有静态页面的内联 JavaScript 均通过语法检查。
-- 本任务仅在本地开发与启动，不推送、不部署。
+- 已随本日 Jingsen.cc 首页与 Learning Center 视觉重构正式上线。
 
 ### 后续风险
 
 - Gallery 当前保留上传原图，没有生成多尺寸缩略图；大量高分辨率照片上线后可增加服务端缩略图和响应式 `srcset`。
 - Baseball 内容类型尚未确定，当前没有数据模型与编辑控件。
 
-## 2026-09-03：Jingsen.cc 个人主页与统一 Admin 入口（本地待发布）
+## 2026-09-03：Jingsen.cc 个人主页与统一 Admin 入口（已上线）
 
 ### 变更目的
 
@@ -179,7 +209,7 @@
 
 - 新增首页服务与路由测试，覆盖默认设置、持久化修改、图片替换/恢复、Admin 鉴权、不安全链接拒绝，以及旧 Admin 路由重定向。
 - 本地浏览器完成桌面端与 390px 移动端验收，无横向溢出；同时检查 Admin 登录页、编辑表单和主视觉预览。
-- 本任务只在本地完成开发与启动，未推送、未部署。
+- 已随本日生产发布上线，根域名 Nginx 代理同步调整为应用入口。
 
 ### 后续风险
 

@@ -101,7 +101,10 @@ from pathlib import Path
 root = Path(sys.argv[1])
 receipt_path = Path(sys.argv[2])
 files = []
-candidates = ["learning-center.sqlite3"] if (root / "learning-center.sqlite3").is_file() else ["library_registry.json", "library_archive.json"]
+# This receipt protects the two human-recoverable library sources specifically.
+# The full manifest already covers SQLite before migrations run, while opening the
+# database may legitimately change SQLite's file-level checksum after deployment.
+candidates = ["library_registry.json", "library_archive.json"]
 for relative in candidates:
     path = root / relative
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
