@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页设置 — Jingsen Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --paper: #f3f1e9; --ink: #141414; --blue: #1747d8; --acid: #dfff00; --line: #d2d0c8; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font-family: Manrope, "PingFang SC", system-ui, sans-serif; }
+        button, input, textarea { font: inherit; }
+        button { cursor: pointer; }
+        .shell { width: min(1450px, 100%); margin: auto; padding: 0 clamp(18px, 3vw, 46px) 70px; }
+        nav { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
+        nav a { color: inherit; text-decoration: none; }
+        .brand { font-size: 22px; font-weight: 800; letter-spacing: -.05em; }
+        .nav-actions { display: flex; align-items: center; gap: 18px; font: 500 11px/1 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+        header { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding: 58px 0 34px; }
+        .kicker { display: block; margin-bottom: 12px; font: 500 11px/1 "DM Mono", monospace; color: var(--blue); letter-spacing: .1em; text-transform: uppercase; }
+        h1 { margin: 0; font-size: clamp(42px, 6vw, 78px); line-height: .9; letter-spacing: -.07em; }
+        header p { max-width: 520px; margin: 0; color: #65645f; line-height: 1.55; }
+        .layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); gap: 18px; align-items: start; }
+        .panel { background: white; border: 1px solid var(--ink); }
+        .panel-title { padding: 18px 22px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+        .panel-title h2 { margin: 0; font-size: 18px; letter-spacing: -.03em; }
+        .panel-title span { font: 500 10px/1 "DM Mono", monospace; color: #777; letter-spacing: .08em; }
+        .panel-body { padding: 24px; }
+        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .field { display: grid; gap: 8px; }
+        .field.full { grid-column: 1 / -1; }
+        label { font-size: 12px; font-weight: 700; }
+        .hint { color: #777; font-weight: 400; }
+        input, textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #c9c7bf;
+            border-radius: 0;
+            outline: none;
+            background: #fbfaf6;
+            color: var(--ink);
+            transition: border-color .2s, box-shadow .2s;
+        }
+        textarea { resize: vertical; min-height: 94px; line-height: 1.5; }
+        input:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(23,71,216,.12); }
+        .section-list { display: grid; gap: 12px; margin-top: 28px; }
+        .section-editor { border: 1px solid var(--line); background: #fbfaf6; }
+        .section-editor summary { list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 17px; cursor: pointer; font-weight: 800; }
+        .section-editor summary::-webkit-details-marker { display: none; }
+        .section-editor summary::after { content: "+"; font: 500 18px/1 "DM Mono", monospace; }
+        .section-editor[open] summary::after { content: "−"; }
+        .section-fields { padding: 0 17px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .toolbar { position: sticky; bottom: 12px; display: flex; justify-content: flex-end; gap: 10px; padding: 16px; margin-top: 18px; background: rgba(243,241,233,.9); border: 1px solid var(--line); backdrop-filter: blur(12px); }
+        .button { border: 1px solid var(--ink); padding: 12px 17px; background: white; color: var(--ink); font: 600 12px/1 "DM Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
+        .button.primary { background: var(--ink); color: white; }
+        .button.primary:hover { background: var(--blue); }
+        .button:disabled { opacity: .45; cursor: wait; }
+        .preview-panel { position: sticky; top: 18px; }
+        .preview { aspect-ratio: 4 / 3; padding: 10px; background: var(--blue); }
+        .preview img { width: 100%; height: 100%; display: block; object-fit: cover; background: #111; }
+        .upload-zone { padding: 20px; border-top: 1px solid var(--line); }
+        .file-input { display: none; }
+        .upload-row { display: flex; flex-wrap: wrap; gap: 9px; }
+        .upload-info { margin: 13px 0 0; color: #72716d; font-size: 12px; line-height: 1.5; }
+        .status { min-height: 20px; margin: 16px 0 0; font-size: 12px; font-weight: 700; }
+        .status.success { color: #087343; }
+        .status.error { color: #b42318; }
+        .login {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: var(--blue);
+        }
+        .login[hidden] { display: none; }
+        .login-card { width: min(430px, 100%); padding: 30px; background: var(--paper); border: 1px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); }
+        .login-card h2 { margin: 10px 0 8px; font-size: 34px; letter-spacing: -.05em; }
+        .login-card p { color: #666; margin: 0 0 22px; line-height: 1.5; }
+        .login-form { display: grid; gap: 10px; }
+        .loading { opacity: .45; pointer-events: none; }
+        @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .preview-panel { position: static; } header { align-items: start; flex-direction: column; } }
+        @media (max-width: 620px) { .field-grid, .section-fields { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .nav-actions a:first-child { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="login" id="login" hidden>
+        <form class="login-card" id="login-form">
+            <span class="kicker">JINGSEN.CC / ADMIN</span>
+            <h2>管理员验证</h2>
+            <p>请输入现有后台密码，验证后即可编辑首页内容。</p>
+            <div class="login-form">
+                <input id="password" type="password" autocomplete="current-password" placeholder="后台密码" required>
+                <button class="button primary" type="submit">进入后台 ↗</button>
+            </div>
+            <div class="status error" id="login-error" role="alert"></div>
+        </form>
+    </div>
+
+    <div class="shell" id="app">
+        <nav>
+            <a class="brand" href="/admin">jingsen.cc / admin</a>
+            <div class="nav-actions"><a href="/admin">← 后台首页</a><a href="/" target="_blank">预览网站 ↗</a></div>
+        </nav>
+        <header>
+            <div><span class="kicker">Homepage editor / 01</span><h1>首页设置</h1></div>
+            <p>编辑个人主页的核心文字、三个栏目入口与主视觉。保存后刷新 jingsen.cc 首页即可看到变化。</p>
+        </header>
+
+        <div class="layout">
+            <form id="settings-form">
+                <section class="panel">
+                    <div class="panel-title"><h2>主页文字</h2><span>PUBLIC CONTENT</span></div>
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <div class="field full">
+                                <label for="profile-label">顶部小标题</label>
+                                <input id="profile-label" maxlength="60" required>
+                            </div>
+                            <div class="field full">
+                                <label for="headline">主标题 <span class="hint">换行会在首页保留</span></label>
+                                <textarea id="headline" maxlength="120" required></textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="introduction">简介</label>
+                                <textarea id="introduction" maxlength="360" required></textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="ticker">荧光滚动条文字 <span class="hint">首页会自动循环显示</span></label>
+                                <input id="ticker" maxlength="180" required>
+                            </div>
+                            <div class="field">
+                                <label for="note">图片角标</label>
+                                <input id="note" maxlength="120" required>
+                            </div>
+                            <div class="field">
+                                <label for="hero-alt">图片无障碍描述</label>
+                                <input id="hero-alt" maxlength="160" required>
+                            </div>
+                        </div>
+
+                        <div class="section-list" id="section-list"></div>
+                    </div>
+                </section>
+                <div class="toolbar">
+                    <button class="button" type="button" onclick="loadSettings()">放弃修改</button>
+                    <button class="button primary" id="save-button" type="submit">保存并发布 ↗</button>
+                </div>
+                <div class="status" id="save-status" role="status"></div>
+            </form>
+
+            <aside class="panel preview-panel">
+                <div class="panel-title"><h2>主视觉</h2><span>JPG / PNG / WEBP</span></div>
+                <div class="preview"><img id="hero-preview" src="/api/site/homepage/hero?v=default" alt="当前主页主视觉"></div>
+                <div class="upload-zone">
+                    <input class="file-input" id="hero-file" type="file" accept="image/jpeg,image/png,image/webp">
+                    <div class="upload-row">
+                        <button class="button" type="button" onclick="document.getElementById('hero-file').click()">选择图片</button>
+                        <button class="button primary" id="upload-button" type="button" disabled>上传替换</button>
+                        <button class="button" id="reset-button" type="button">恢复默认</button>
+                    </div>
+                    <p class="upload-info" id="upload-info">建议使用横向图片，最大 10MB。上传文件保存在 data 中，会随现有数据备份流程一起保护。</p>
+                    <div class="status" id="upload-status" role="status"></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        const state = { settings: null, file: null, previewUrl: null };
+        const sectionNames = { learning: 'Learning Center', gallery: 'Gallery', baseball: 'Baseball' };
+
+        function setStatus(id, message, type = '') {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        async function api(path, options = {}) {
+            const response = await fetch(path, options);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const error = new Error(data.detail || `请求失败（${response.status}）`);
+                error.status = response.status;
+                throw error;
+            }
+            return data;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+        }
+
+        function renderSections(sections) {
+            document.getElementById('section-list').innerHTML = sections.map((section, index) => `
+                <details class="section-editor" data-key="${escapeHtml(section.key)}" ${index === 0 ? 'open' : ''}>
+                    <summary>${escapeHtml(sectionNames[section.key] || section.title)}</summary>
+                    <div class="section-fields">
+                        <div class="field"><label>栏目小标题</label><input data-name="eyebrow" maxlength="40" value="${escapeHtml(section.eyebrow)}" required></div>
+                        <div class="field"><label>栏目名称</label><input data-name="title" maxlength="60" value="${escapeHtml(section.title)}" required></div>
+                        <div class="field full"><label>栏目简介</label><textarea data-name="description" maxlength="220" required>${escapeHtml(section.description)}</textarea></div>
+                        <div class="field"><label>链接</label><input data-name="href" maxlength="500" value="${escapeHtml(section.href)}" required></div>
+                        <div class="field"><label>按钮文字</label><input data-name="action" maxlength="40" value="${escapeHtml(section.action)}" required></div>
+                    </div>
+                </details>
+            `).join('');
+        }
+
+        function fillForm(settings) {
+            state.settings = settings;
+            document.getElementById('profile-label').value = settings.profile_label;
+            document.getElementById('headline').value = settings.headline;
+            document.getElementById('introduction').value = settings.introduction;
+            document.getElementById('ticker').value = settings.ticker;
+            document.getElementById('note').value = settings.note;
+            document.getElementById('hero-alt').value = settings.hero_alt;
+            document.getElementById('hero-preview').src = settings.hero_url;
+            renderSections(settings.sections);
+        }
+
+        async function loadSettings() {
+            setStatus('save-status', '正在载入…');
+            try {
+                fillForm(await api('/api/admin/homepage'));
+                setStatus('save-status', '');
+            } catch (error) {
+                if (error.status === 401) {
+                    document.getElementById('login').hidden = false;
+                    setStatus('save-status', '');
+                    return;
+                }
+                setStatus('save-status', error.message, 'error');
+            }
+        }
+
+        function collectSettings() {
+            const sections = [...document.querySelectorAll('.section-editor')].map((editor) => {
+                const value = (name) => editor.querySelector(`[data-name="${name}"]`).value.trim();
+                return {
+                    key: editor.dataset.key,
+                    eyebrow: value('eyebrow'),
+                    title: value('title'),
+                    description: value('description'),
+                    href: value('href'),
+                    action: value('action')
+                };
+            });
+            return {
+                profile_label: document.getElementById('profile-label').value.trim(),
+                headline: document.getElementById('headline').value.trim(),
+                introduction: document.getElementById('introduction').value.trim(),
+                ticker: document.getElementById('ticker').value.trim(),
+                note: document.getElementById('note').value.trim(),
+                hero_alt: document.getElementById('hero-alt').value.trim(),
+                sections
+            };
+        }
+
+        document.getElementById('settings-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = document.getElementById('save-button');
+            button.disabled = true;
+            setStatus('save-status', '正在保存…');
+            try {
+                fillForm(await api('/api/admin/homepage', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(collectSettings())
+                }));
+                setStatus('save-status', '首页内容已发布。', 'success');
+            } catch (error) {
+                setStatus('save-status', error.message, 'error');
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById('hero-file').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            state.file = file || null;
+            document.getElementById('upload-button').disabled = !file;
+            if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
+            if (!file) return;
+            state.previewUrl = URL.createObjectURL(file);
+            document.getElementById('hero-preview').src = state.previewUrl;
+            document.getElementById('upload-info').textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+            setStatus('upload-status', '图片已在本页预览，点击“上传替换”后才会发布。');
+        });
+
+        document.getElementById('upload-button').addEventListener('click', async () => {
+            const file = state.file;
+            if (!file) return;
+            const button = document.getElementById('upload-button');
+            button.disabled = true;
+            setStatus('upload-status', '正在上传…');
+            try {
+                const settings = await api('/api/admin/homepage/hero', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': file.type },
+                    body: file
+                });
+                fillForm(settings);
+                state.file = null;
+                document.getElementById('hero-file').value = '';
+                setStatus('upload-status', '主视觉已替换。', 'success');
+            } catch (error) {
+                setStatus('upload-status', error.message, 'error');
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById('reset-button').addEventListener('click', async () => {
+            if (!confirm('确认恢复为项目内置的默认主视觉吗？已上传文件会保留在 data 中。')) return;
+            setStatus('upload-status', '正在恢复…');
+            try {
+                fillForm(await api('/api/admin/homepage/hero/reset', { method: 'POST' }));
+                setStatus('upload-status', '已恢复默认主视觉。', 'success');
+            } catch (error) {
+                setStatus('upload-status', error.message, 'error');
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            setStatus('login-error', '正在验证…');
+            try {
+                await api('/api/admin/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: document.getElementById('password').value })
+                });
+                document.getElementById('login').hidden = true;
+                document.getElementById('password').value = '';
+                setStatus('login-error', '');
+                await loadSettings();
+            } catch (error) {
+                setStatus('login-error', error.message, 'error');
+            }
+        });
+
+        loadSettings();
+    </script>
+</body>
+</html>

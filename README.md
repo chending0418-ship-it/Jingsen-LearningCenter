@@ -266,6 +266,7 @@ data/library_archive.json      # 旧归档词库数据及迁移/部署备份来�
 data/*.txt                     # 旧活动词库内容及迁移来源
 data/report_history.json       # 旧报告迁移来源
 data/skills/*.json             # Skills 种子与旧数据迁移来源
+data/gallery-assets/*          # Gallery 上传的原始图片，由全量 data 快照保护
 ```
 
 SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate_to_sqlite.py` 会幂等应用 Schema 版本并迁移尚未导入的旧数据。部署时必须完整保留服务器上的 `data/`，不要用本地 `data/` 覆盖线上数据。
@@ -274,16 +275,26 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 
 ## 页面入口
 
-- `/portal`：学科门户
+- `/`：Jingsen.cc 个人主页，包含 Learning Center、Gallery、Baseball 三个栏目入口
+- `/learningcenter`：Learning Center 入口，继续跳转到现有学科门户
+- `/portal`：兼容保留的学科门户地址
+- `/gallery`：Gallery 公开瀑布流，展示从后台发布的拍摄内容
+- `/baseball`：Baseball 首版空白栏目页
 - `/english`：英语模块首页
-- `/admin`：Admin 首页，可选择词库管理或 Skills 管理
-- `/admin/new`：新增词库
-- `/admin/library?id=<library_id>`：词库详情/编辑
-- `/admin/skills`：Skills 知识点查看和启用/停用维护
+- `/admin`：统一 Admin 管理中枢与登录入口
+- `/admin/index`：个人主页文字、荧光滚动条文案、栏目链接与主视觉管理
+- `/admin/learningcenter`：Learning Center 管理首页，包含词库、Skills、Todo 与模型管理
+- `/admin/learningcenter/new`：新增词库
+- `/admin/learningcenter/library?id=<library_id>`：词库详情/编辑
+- `/admin/learningcenter/skills`：Skills 知识点查看和启用/停用维护
+- `/admin/learningcenter/todo`：Learning Todo 管理
+- `/admin/learningcenter/models`：全站 AI 模型管理
+- `/admin/gallery`：Gallery 图片上传与内容资料管理
+- `/admin/baseball`：预留的 Baseball 管理页面
 - `/chinese`：语文练习
 - `/math`：数学页面
 
-> 从 `/portal` 进入 `Library Admin` 需要输入固定密码 `0418`。
+> 从 `/learningcenter/portal` 进入 Admin 时仍会先验证现有后台密码，验证后跳转到统一的 `/admin` 地址。旧 `/learningcenter/admin*` 与上一版 `/admin/homepage`、`/admin/todo` 等页面地址会重定向到新的分层地址。
 
 ---
 

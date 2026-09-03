@@ -3,10 +3,11 @@ Skills 知识点 API
 """
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from services.skills_service import get_skills_service
+from services.admin_session_service import require_admin_session
 
 router = APIRouter(prefix="/api/skills", tags=["Skills"])
 skills_service = get_skills_service()
@@ -58,7 +59,7 @@ async def list_skills(
     return {"skills": rows, "total": len(rows)}
 
 
-@router.patch("/{skill_id}")
+@router.patch("/{skill_id}", dependencies=[Depends(require_admin_session)])
 async def update_skill(skill_id: str, request: SkillUpdateRequest):
     """维护单个 skill 的启用状态或基础字段"""
     try:

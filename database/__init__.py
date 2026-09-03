@@ -2,6 +2,8 @@
 
 from .sqlite import (
     GenerationJobRepository,
+    GalleryRepository,
+    HomepageSettingsRepository,
     LibraryRepository,
     ModelSettingsRepository,
     ReportRepository,
@@ -16,6 +18,8 @@ from .sqlite import (
 
 __all__ = [
     "GenerationJobRepository",
+    "GalleryRepository",
+    "HomepageSettingsRepository",
     "LibraryRepository",
     "ModelSettingsRepository",
     "ReportRepository",

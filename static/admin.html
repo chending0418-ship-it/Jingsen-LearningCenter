@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>词库管理后台 - 列表</title>
+    <title>Learning Center 管理</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,50 +11,52 @@
         body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; background: var(--bg-main); }
         .card { border: 1px solid #E5E7EB; border-radius: 16px; background: #fff; }
     </style>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="learning-admin tailwind-admin learning-admin-home min-h-screen p-4 md:p-8">
     <div id="notice" class="hidden fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg"></div>
 
     <div class="max-w-7xl mx-auto space-y-4">
         <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-                <button onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                    返回门户
-                </button>
-                <h1 class="text-3xl font-bold text-gray-900">Admin 管理后台</h1>
+                <nav class="admin-context-line" aria-label="Admin breadcrumb">
+                    <a href="/admin">BACK2ADMIN</a><span aria-hidden="true">|</span><a href="/admin/learningcenter">Learning Center</a>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900">Learning Center 管理</h1>
                 <p class="text-gray-500 mt-1">管理词库、Skills、Todo 与全站 AI 模型。</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="location.href=withBasePath('/admin/new')" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:opacity-90">新增词库</button>
-                <button onclick="loadLibraries()" class="px-5 py-2.5 rounded-xl bg-[var(--accent)] text-white font-semibold hover:opacity-90">刷新词库</button>
             </div>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             <button class="card p-5 text-left border-2 border-indigo-500 bg-indigo-50/60">
                 <div class="text-xs font-bold text-indigo-600 uppercase tracking-[0.16em]">当前页面</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">词库管理</h2>
                 <p class="text-gray-500 mt-2">维护 Word Palace / 中文模块使用的词库、词条、启用状态。</p>
             </button>
-            <button onclick="location.href=withBasePath('/admin/skills')" class="card p-5 text-left hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
+            <button onclick="location.href='/admin/learningcenter/skills'" class="card p-5 text-left hover:border-blue-400 hover:bg-blue-50/50 transition-colors">
                 <div class="text-xs font-bold text-blue-600 uppercase tracking-[0.16em]">Skills</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">Skills 管理</h2>
                 <p class="text-gray-500 mt-2">维护 MAP Language Arts / Reading / Vocabulary Skills 的 Grade ｜ Topic ｜ Skill ｜ Detail。</p>
             </button>
-            <button onclick="location.href=withBasePath('/admin/todo')" class="card p-5 text-left hover:border-amber-400 hover:bg-amber-50/60 transition-colors">
+            <button onclick="location.href='/admin/learningcenter/todo'" class="card p-5 text-left hover:border-amber-400 hover:bg-amber-50/60 transition-colors">
                 <div class="text-xs font-bold text-amber-600 uppercase tracking-[0.16em]">Learning Todo</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">Todo 管理</h2>
                 <p class="text-gray-500 mt-2">安排学习任务，查看日、周、月进度与完成统计。</p>
             </button>
-            <button onclick="location.href=withBasePath('/admin/models')" class="card p-5 text-left hover:border-violet-400 hover:bg-violet-50/60 transition-colors">
+            <button onclick="location.href='/admin/learningcenter/models'" class="card p-5 text-left hover:border-violet-400 hover:bg-violet-50/60 transition-colors">
                 <div class="text-xs font-bold text-violet-600 uppercase tracking-[0.16em]">AI Models</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">模型选择</h2>
                 <p class="text-gray-500 mt-2">读取当前 Key 可用模型，并设置所有出题模块的默认模型。</p>
             </button>
         </section>
+
+        <div class="library-action-bar" aria-label="词库操作">
+            <div class="library-action-copy"><span>Library controls</span><strong>词库操作</strong></div>
+            <div class="library-action-buttons">
+                <button onclick="location.href='/admin/learningcenter/new'">新增词库</button>
+                <button onclick="loadLibraries()">刷新词库</button>
+            </div>
+        </div>
 
         <div class="card p-4 md:p-5">
             <div class="flex flex-col md:flex-row gap-3 md:items-end">
@@ -211,7 +213,7 @@
                             <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
                             <td class="p-3">
                                 <div class="flex flex-wrap gap-2">
-                                    <button onclick="location.href=withBasePath('/admin/library?id=${lib.id}')" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
+                                    <button onclick="location.href='/admin/learningcenter/library?id=${lib.id}'" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
                                     ${lib.archived ? '' : `<button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>`}
                                     <button onclick="toggleArchive('${lib.id}', ${!lib.archived})" class="px-2.5 py-1.5 rounded-lg ${lib.archived ? 'bg-indigo-600 text-white' : 'border border-amber-300 text-amber-700 hover:bg-amber-50'}">${lib.archived ? '取消归档' : '归档'}</button>
                                 </div>

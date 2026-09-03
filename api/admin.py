@@ -3,7 +3,7 @@
 """
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models.schemas import (
     LibraryListResponse,
@@ -16,8 +16,13 @@ from models.schemas import (
     LibraryDetailResponse
 )
 from services.library_admin_service import get_library_admin_service
+from services.admin_session_service import require_admin_session
 
-router = APIRouter(prefix="/api/admin", tags=["Admin"])
+router = APIRouter(
+    prefix="/api/admin",
+    tags=["Admin"],
+    dependencies=[Depends(require_admin_session)],
+)
 library_admin_service = get_library_admin_service()
 
 

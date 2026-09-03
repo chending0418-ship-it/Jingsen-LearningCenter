@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>English Learning - Jingsen 学习中心 1.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -37,22 +37,23 @@
         .la-choice.selected { border-color: #2563EB !important; background: #DBEAFE !important; color: #1D4ED8; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); transform: translateY(-1px); }
         .la-choice.selected .choice-badge { background: #2563EB; color: #FFFFFF; }
     </style>
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
 </head>
-<body class="min-h-screen p-4 md:p-8 text-gray-900">
+<body class="learning-english min-h-screen p-4 md:p-8 text-gray-900">
     <div class="max-w-6xl mx-auto">
-        <header class="flex flex-col md:flex-row md:justify-between md:items-center gap-5 mb-8">
-            <div>
-                <button id="back-btn" onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-800 flex items-center gap-2 mb-3 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                    Back to Portal
-                </button>
-                <p class="text-sm font-bold text-emerald-600 tracking-[0.24em] uppercase">English Learning</p>
-                <h1 id="page-title" class="text-4xl md:text-5xl font-extrabold tracking-tight mt-2">English Learning</h1>
-                <p id="page-subtitle" class="text-gray-500 mt-3 max-w-2xl">Choose Word Palace for vocabulary training, or enter MAP Test for Language Arts and Reading.</p>
+        <nav class="english-nav" aria-label="English section navigation">
+            <button id="back-btn" onclick="location.href=withBasePath('/portal')">BACK2LEARNING</button>
+            <span>03 / LANGUAGE</span>
+            <span>ENGLISH</span>
+        </nav>
+
+        <header class="english-header">
+            <div class="english-heading">
+                <p class="english-kicker">PRACTICE / TEST / REVIEW</p>
+                <h1 id="page-title">English Learning</h1>
+                <p id="page-subtitle">Choose Word Palace for vocabulary training, or enter MAP Test for Language Arts and Reading.</p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <div class="english-header-actions">
                 <button onclick="showReportHistory()" class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-blue-600 hover:text-blue-800 hover:bg-white shadow-sm transition-colors">Daily Reports</button>
                 <div id="progress-text" class="hidden inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/80 border border-white text-sm font-bold text-gray-500 shadow-sm"></div>
             </div>
@@ -577,6 +578,10 @@
             return ['completed', 'partial_failed', 'failed', 'cancelled'].includes(status);
         }
 
+        function scrollEnglishTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         window.addEventListener('popstate', function () {
             if (quizInProgress) history.pushState(null, null, window.location.href);
         });
@@ -613,6 +618,7 @@
             if (!isWordPalace) {
                 showMapArea('overview');
             }
+            scrollEnglishTop();
         }
 
         function showWordPalaceArea(area) {
@@ -649,6 +655,7 @@
             if (showOverview) {
                 document.getElementById('progress-text').innerText = 'Word Palace';
             }
+            scrollEnglishTop();
         }
 
         function showModuleHome() {
@@ -672,6 +679,7 @@
             document.getElementById('progress-text').innerText = '';
             resetVocabSkillsPractice(false);
             showMapArea('overview');
+            scrollEnglishTop();
         }
 
         async function showReportHistory() {
@@ -688,6 +696,7 @@
             document.getElementById('page-subtitle').innerText = 'Review daily Daily Word, Vocabulary Skills, and MAP Test practice history saved in the local server file.';
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = 'History';
+            scrollEnglishTop();
             await loadReportHistory();
         }
 
@@ -875,6 +884,7 @@
             } else if (!document.getElementById('map-test-section').classList.contains('hidden')) {
                 document.getElementById('progress-text').innerText = 'MAP Test Preview';
             }
+            scrollEnglishTop();
         }
 
         async function loadLanguageArtsSkillTree() {

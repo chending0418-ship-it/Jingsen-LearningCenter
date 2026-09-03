@@ -3,11 +3,14 @@ Jingsen 学习中心 1.0 - 主应用入口
 多学科题目生成后端系统
 """
 import logging
-from fastapi import FastAPI
+from urllib.parse import quote
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, map_language_arts, model_settings, report_history, skills, vocabulary_skills, todo
+from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, report_history, skills, vocabulary_skills, todo
 from config import config
+from services.admin_session_service import is_admin_authenticated
 from services.model_settings_service import get_model_settings_service
 from database import migrate_legacy_data
 
@@ -51,6 +54,10 @@ app.include_router(todo.admin_session_router)
 app.include_router(todo.public_router)
 app.include_router(todo.admin_router)
 app.include_router(model_settings.router)
+app.include_router(homepage.public_router)
+app.include_router(homepage.admin_router)
+app.include_router(gallery.public_router)
+app.include_router(gallery.admin_router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
@@ -76,8 +83,8 @@ def serve_static_file(path: str, not_found_message: str):
 
 @app.get("/")
 async def root():
-    """根路径 - 重定向到门户页面"""
-    return RedirectResponse(url=f"{BASE_PATH}/portal")
+    """Jingsen.cc 个人主页。"""
+    return serve_static_file("static/home.html", "Homepage not found")
 
 
 @app.get(BASE_PATH)
@@ -104,6 +111,30 @@ async def serve_portal():
     return serve_static_file("static/portal.html", "Portal page not found")
 
 
+@app.get("/static/admin_learning_theme.css", include_in_schema=False)
+async def serve_admin_learning_theme():
+    """提供 Learning Center Admin 各页面共用的紧凑视觉主题。"""
+    return serve_static_file("static/admin_learning_theme.css", "Admin theme not found")
+
+
+@app.get("/static/learning_front_theme.css", include_in_schema=False)
+async def serve_learning_front_theme():
+    """提供 Learning Center 前台页面共用的编辑感视觉主题。"""
+    return serve_static_file("static/learning_front_theme.css", "Learning theme not found")
+
+
+@app.get("/gallery")
+async def serve_gallery():
+    """提供公开 Gallery 瀑布流页面。"""
+    return serve_static_file("static/gallery.html", "Gallery page not found")
+
+
+@app.get("/baseball")
+async def serve_baseball():
+    """提供 Baseball 首版空白栏目页。"""
+    return serve_static_file("static/personal_section.html", "Baseball page not found")
+
+
 @app.get("/english")
 @app.get(f"{BASE_PATH}/english")
 async def serve_english_portal():
@@ -114,15 +145,15 @@ async def serve_english_portal():
 @app.get("/chinese")
 @app.get(f"{BASE_PATH}/chinese")
 async def serve_chinese_portal():
-    """提供语文学习页面"""
-    return serve_static_file("static/chinese.html", "Chinese page not found")
+    """提供语文栏目建设中页面。"""
+    return serve_static_file("static/learning_construction.html", "Chinese page not found")
 
 
 @app.get("/math")
 @app.get(f"{BASE_PATH}/math")
 async def serve_math_portal():
-    """提供数学学习页面"""
-    return serve_static_file("static/math.html", "Math page not found")
+    """提供数学栏目建设中页面。"""
+    return serve_static_file("static/learning_construction.html", "Math page not found")
 
 
 @app.get("/todo")
@@ -132,46 +163,137 @@ async def serve_todo_page():
     return serve_static_file("static/todo.html", "Todo page not found")
 
 
+def serve_admin_file(request: Request, path: str, not_found_message: str):
+    """Serve an Admin page only after the shared Admin session is present."""
+    if not is_admin_authenticated(request):
+        requested = request.url.path
+        if request.url.query:
+            requested = f"{requested}?{request.url.query}"
+        return RedirectResponse(url=f"/admin?next={quote(requested, safe='')}", status_code=303)
+    return serve_static_file(path, not_found_message)
+
+
+def redirect_with_query(request: Request, target: str):
+    if request.url.query:
+        target = f"{target}?{request.url.query}"
+    return RedirectResponse(url=target, status_code=308)
+
+
 @app.get("/admin")
-@app.get(f"{BASE_PATH}/admin")
 async def serve_admin_portal():
-    """提供词库管理后台列表页面"""
-    return serve_static_file("static/admin.html", "Admin page not found")
+    """提供 Jingsen.cc 统一管理中枢。"""
+    return serve_static_file("static/admin_portal.html", "Admin portal not found")
+
+
+@app.get("/admin/index")
+async def serve_admin_index(request: Request):
+    return serve_admin_file(request, "static/admin_homepage.html", "Homepage admin page not found")
+
+
+@app.get("/admin/learningcenter")
+async def serve_learningcenter_admin(request: Request):
+    return serve_admin_file(request, "static/admin.html", "Learning Center admin page not found")
+
+
+@app.get("/admin/learningcenter/new")
+async def serve_learningcenter_admin_create(request: Request):
+    return serve_admin_file(request, "static/admin_create.html", "Admin create page not found")
+
+
+@app.get("/admin/learningcenter/library")
+async def serve_learningcenter_admin_library(request: Request):
+    return serve_admin_file(request, "static/admin_detail.html", "Admin detail page not found")
+
+
+@app.get("/admin/learningcenter/skills")
+async def serve_learningcenter_admin_skills(request: Request):
+    return serve_admin_file(request, "static/admin_skills.html", "Admin skills page not found")
+
+
+@app.get("/admin/learningcenter/todo")
+async def serve_learningcenter_admin_todo(request: Request):
+    return serve_admin_file(request, "static/admin_todo.html", "Admin Todo page not found")
+
+
+@app.get("/admin/learningcenter/models")
+async def serve_learningcenter_admin_models(request: Request):
+    return serve_admin_file(request, "static/admin_models.html", "Admin models page not found")
+
+
+@app.get("/admin/gallery")
+async def serve_gallery_admin(request: Request):
+    return serve_admin_file(request, "static/admin_gallery.html", "Gallery admin page not found")
+
+
+@app.get("/admin/baseball")
+async def serve_baseball_admin(request: Request):
+    return serve_admin_file(request, "static/admin_baseball.html", "Baseball admin page not found")
+
+
+# Compatibility redirects for bookmarks from the previous Admin layout.
+@app.get("/admin/homepage")
+async def redirect_old_homepage_admin(request: Request):
+    return redirect_with_query(request, "/admin/index")
 
 
 @app.get("/admin/new")
-@app.get(f"{BASE_PATH}/admin/new")
-async def serve_admin_create_page():
-    """提供新增词库页面"""
-    return serve_static_file("static/admin_create.html", "Admin create page not found")
+async def redirect_old_admin_create(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/new")
 
 
 @app.get("/admin/library")
-@app.get(f"{BASE_PATH}/admin/library")
-async def serve_admin_detail_page():
-    """提供词库详情页面"""
-    return serve_static_file("static/admin_detail.html", "Admin detail page not found")
+async def redirect_old_admin_library(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/library")
 
 
 @app.get("/admin/skills")
-@app.get(f"{BASE_PATH}/admin/skills")
-async def serve_admin_skills_page():
-    """提供 Skills 知识点管理页面"""
-    return serve_static_file("static/admin_skills.html", "Admin skills page not found")
+async def redirect_old_admin_skills(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/skills")
 
 
 @app.get("/admin/todo")
-@app.get(f"{BASE_PATH}/admin/todo")
-async def serve_admin_todo_page():
-    """提供 Learning Todo 管理页面"""
-    return serve_static_file("static/admin_todo.html", "Admin Todo page not found")
+async def redirect_old_admin_todo(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/todo")
 
 
 @app.get("/admin/models")
+async def redirect_old_admin_models(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/models")
+
+
+@app.get(f"{BASE_PATH}/admin")
+async def redirect_legacy_admin_portal(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter")
+
+
+@app.get(f"{BASE_PATH}/admin/homepage")
+async def redirect_legacy_homepage_admin(request: Request):
+    return redirect_with_query(request, "/admin/index")
+
+
+@app.get(f"{BASE_PATH}/admin/new")
+async def redirect_legacy_admin_create(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/new")
+
+
+@app.get(f"{BASE_PATH}/admin/library")
+async def redirect_legacy_admin_library(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/library")
+
+
+@app.get(f"{BASE_PATH}/admin/skills")
+async def redirect_legacy_admin_skills(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/skills")
+
+
+@app.get(f"{BASE_PATH}/admin/todo")
+async def redirect_legacy_admin_todo(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/todo")
+
+
 @app.get(f"{BASE_PATH}/admin/models")
-async def serve_admin_models_page():
-    """提供全站默认 AI 模型选择页面"""
-    return serve_static_file("static/admin_models.html", "Admin models page not found")
+async def redirect_legacy_admin_models(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/models")
 
 
 @app.on_event("startup")

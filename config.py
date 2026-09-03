@@ -36,6 +36,10 @@ class Config:
         "MODEL_SETTINGS_FILE",
         os.path.join(DATA_DIR, "model-settings.json")
     )
+    GALLERY_ASSET_DIR: str = os.environ.get(
+        "GALLERY_ASSET_DIR",
+        os.path.join(DATA_DIR, "gallery-assets")
+    )
 
     # Admin 会话配置。沿用现有后台密码，不为 Learning Todo 增加第二套密码。
     ADMIN_PASSWORD: str = os.environ.get("ADMIN_PASSWORD", "0418")

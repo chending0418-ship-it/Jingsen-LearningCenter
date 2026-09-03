@@ -9,6 +9,183 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-09-03：Learning Center 前后台视觉统一与 English 重构（本地待确认）
+
+### 变更目的
+
+- 统一 Learning Center 前后台的字体、文字颜色、导航和紧凑信息密度，尤其确保中文内容始终使用无衬线字体。
+- 将 English 学习区从圆角玻璃拟态界面适配为与个人主页一致的编辑感设计，同时完整保留现有练习能力。
+- 在 Chinese 与 Math 内容继续开发期间提供明确、统一的建设中状态页。
+
+### 用户可见结果
+
+- Learning Admin 六类页面统一采用 `Manrope + Noto Sans SC` 字体栈；蓝色面板中的主要数字和说明改为白色高对比文字，浅色面板继续使用黑色或深灰文字。
+- “新增词库”“刷新词库”从后台页头移至四个管理模块下方的“词库操作”区域，操作层级更清晰。
+- Learning Admin 首页、新建词库、词库详情、Skills、Todo 和模型选择六类页面的首行导航统一为单行 `BACK2ADMIN | Learning Center`；`BACK2ADMIN` 返回全站 Admin，`Learning Center` 返回 Learning Admin 首页。
+- 模型选择页移除右上角“退出 Admin”和“保存选择”按钮；筛选栏继续保留“刷新列表”和“保存选择”，模型设置能力不受影响。
+- Todo 管理的九项视图标签不再使用仅适合拉丁字符的等宽字体，改用与正文一致的 `Manrope + Noto Sans SC` 无衬线字体栈，并将字号从 10px 提升至 13px、标签高度提升至 40px。
+- Learning Admin 首页、新建词库、词库详情、Skills、Todo 与模型选择的主标题在桌面端统一为 36px、移动端统一为 30px，并使用相同字重、行高与字距；移除 Todo、模型页原先单独使用的 25px 视觉差异。
+- Todo 管理的今日概览、周月统计和积分统计卡移除装饰性小图标，统一改为“大字号指标名称 + 数字”的单行表达；指标名称为 17px、数字为 31px，并继续使用原有四色状态区分。
+- 上述统计卡进一步改为左右两端布局：指标名称位于左下、数值位于右下，二者按卡片底边对齐，便于快速横向比较四项数据。
+- English 首页及 Word Palace、Daily Word、Vocabulary Skills、MAP Test、Language Arts、Reading、Daily Reports 等现有视图共用纸张底色、黑色细边框、直角面板和蓝色/荧光黄色状态色；表单、题目、报告和加载状态也随共享主题统一。
+- English 页面顶部使用 `BACK2LEARNING / 03 / LANGUAGE / ENGLISH` 三栏导航，进入子模块后自动回到页面顶部，避免切换后标题或导航被当前滚动位置裁掉。
+- Chinese 与 Math 入口现在分别展示 `01 / LANGUAGE`、`02 / LOGIC` 的“正在建设中”页面，并可返回 Learning Center；原业务接口及旧页面文件保留，便于以后继续开发。
+
+### 实现与验证
+
+- 新增 `static/learning_front_theme.css` 与 `static/learning_construction.html`，并增加共享样式静态路由；English 业务脚本和 API 未改动。
+- 本地浏览器实际检查 English 首页、Word Palace、Daily Word 和 MAP Language Arts，模块切换、技能数据加载和表单展示正常，页面无横向溢出。
+- 本地浏览器逐页复核 Learning Admin 的首页、新建、详情、Skills、Todo、模型六类页面，字体栈一致且均无横向溢出；六页面包屑内容与链接目标一致，三个元素处于同一水平线；模型页头按钮数量为 0，筛选栏保存按钮仍可用。
+- 全量测试通过：`40 passed`；18 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
+- 本任务仅在本地开发与启动，未提交、未推送、未部署。
+
+### 后续风险
+
+- Google Fonts 无法访问时会依次回退到系统自带的苹方、微软雅黑和 Arial，仍保持无衬线显示。
+- Chinese 与 Math 暂时只展示建设中页面，重新开放练习功能时需将对应路由切回保留的原页面并按共享主题继续适配。
+
+## 2026-09-03：Learning Center Admin 全页面紧凑主题（本地待确认）
+
+### 变更目的
+
+- 将 Learning Center 后台首页及全部子页面统一到个人主页的编辑感设计语言。
+- 按反馈控制信息密度，避免超大标题、大面积卡片和过多空白，让管理操作尽量集中在首屏。
+
+### 用户可见结果
+
+- `/admin/learningcenter`、`new`、`library`、`skills`、`todo`、`models` 六类页面统一使用纸张底色、黑色细边框、直角组件、蓝色/荧光黄色/橙色/紫色状态色和紧凑字体层级。
+- Learning Center 管理首页的四个模块入口改为紧凑彩色导航板，筛选器与词库表格直接跟随其后。
+- 新建词库与词库详情缩短输入区和间距；词库详情的元信息、词条和两个保存操作可在 720px 高桌面首屏内完整显示。
+- Skills 将筛选、四项统计和数据表压缩排列，桌面首屏可显示 6 行知识点。
+- Todo 管理保留全部 9 个视图，缩短顶部、标签、统计卡和面板高度；模型管理使用四列紧凑模型网格。
+
+### 实现与验证
+
+- 新增共享样式 `static/admin_learning_theme.css`，由六个页面共同引用，并通过 `/static/admin_learning_theme.css` 提供；页面业务脚本与数据接口未改动。
+- 本地浏览器逐页检查六类页面均无横向溢出；Todo 管理的今日概览、任务、日、周、月、统计、积分、科目和设置视图全部可正常切换。
+- 全量测试通过：`40 passed`；17 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
+- 本任务仅在本地开发与启动，未提交、未推送、未部署。
+
+## 2026-09-03：Learning Todo 编辑风格视觉预览（本地待确认）
+
+### 变更目的与结果
+
+- 按个人主页与新版 Learning Center 的设计语言，为公开 Learning Todo 页面制作一版可回退的视觉预览。
+- 顶部改为 `BACK2LEARNING / 04 / RHYTHM / 日期` 三栏导航；首屏使用超大标题和蓝色几何线条。
+- 今日进度与学习积分改为蓝色、荧光黄色并列信息板，任务分组与任务卡片改用直角边框、大字号标题和栏目式排版。
+- 根据首轮预览反馈压缩标题区：标题与说明改为左右两栏，降低字号和留白，并将统计信息板提前到首屏完整展示。
+- 桌面端任务区进一步改为“逾期 / 待完成 / 已完成”三栏看板，并缩小分组标题、卡片内边距、控件和卡片间距；820px 以下仍使用单列布局。
+- 保留原有真实数据读取、Demo 数据、任务完成、取消完成、撤销、积分刷新和 Admin 管理逻辑，仅修改 `static/todo.html` 的展示层。
+
+### 验证与风险
+
+- 使用 `?demo=1` 在本地浏览器检查完整页面，进度与积分卡片等高、页面无横向溢出。
+- 在 1280×720 视口复查压缩版首屏：标题区高度 250px，统计区位于第 356–632px，今日完成数与可用积分均完整显示在首屏内。
+- 在 1280px 宽桌面视口检查任务看板，三列宽度均约 381px，逾期、待完成、已完成任务互不遮挡且无横向溢出。
+- 实际操作“完成逾期任务”后数量从 `2` 变为 `1`、已完成从 `2` 变为 `3`，随后撤销恢复原值，确认核心交互未受视觉改版影响。
+- 全部改动仍未提交、未推送、未部署；如不采用此方向，可单独回退 Todo 页面视觉。
+
+## 2026-09-03：二级页面视觉统一与首页滚动文案配置（本地待发布）
+
+### 变更目的
+
+- 统一 Learning Center、Gallery、Baseball 三个二级空间的导航语言和栏目编号位置。
+- 让 Learning Center 与新个人主页保持同一套编辑感视觉，同时完整保留原有入口。
+- 允许站长从首页管理中修改荧光滚动条文案。
+
+### 用户可见结果
+
+- 首页顶部品牌字样统一为 `JINGSEN.cc`，其中 `JINGSEN` 使用大写、`cc` 保持小写，蓝色圆点样式不变。
+- 三个二级页面左上角统一显示 `BACK2INDEX` 并返回 `/`；顶部正中分别显示 `01 / LEARN`、`02 / SEE`、`03 / PLAY`。
+- Learning Center 门户改为大字号标题、几何装饰和不对称彩色卡片网格，继续提供 Chinese、Math、English、Learning Todo 与 Admin 五个入口，Admin 密码验证流程保持不变。
+- `/admin/index` 的“主页文字”区域新增“荧光滚动条文字”，保存后首页四组循环文案同步更新。
+- 修复 Baseball 右侧棒球装饰覆盖 `On deck.` 标题和说明文字的问题；正文现在固定在装饰图形之上。
+- 修复 Gallery 无内容状态下 `Developing.` 标题下沉笔画与说明文字重叠的问题，扩大标题行高和段落间距。
+
+### 实现说明
+
+- 滚动文案作为 `homepage_settings` 的 `ticker` 字段写入现有 `app_state`，旧数据缺少该字段时自动使用当前默认文案，不涉及 Schema 迁移。
+- Baseball 正文建立独立前景层，装饰球固定在背景层并禁止接收指针事件。
+
+### 验证与风险
+
+- 全量测试通过：`40 passed`；17 段静态页面内联脚本通过语法检查，`git diff --check` 通过。
+- 本地浏览器逐页检查三个二级页面：返回入口与栏目编号纵向位置一致，编号中心相对视口偏移均为 0，页面无横向溢出；Baseball 装饰不再盖住正文。
+- Learning Center 本次只重做门户，进入后的具体学科练习页仍沿用原有视觉；仅在本地验证，未推送、未部署。
+
+## 2026-09-03：Admin 信息架构重构与 Gallery 瀑布流（本地待发布）
+
+### 变更目的
+
+- 将原先以 Learning Center 词库为首页的 Admin 重构为全站统一内容管理入口。
+- 按 Index、Learning Center、Gallery、Baseball 四个空间组织前后台结构。
+- 让 Gallery 可以真正上传、管理并公开展示拍摄内容。
+
+### 用户可见结果
+
+- `/admin` 改为统一管理中枢，登录后可进入首页管理、Learning Center 管理、Gallery 管理和 Baseball 管理。
+- 首页管理迁移至 `/admin/index`。
+- 原 Learning Center 后台整体迁移至 `/admin/learningcenter`，继续包含词库、Skills、Learning Todo 和 AI 模型管理；具体子页面统一放在 `/admin/learningcenter/*`。
+- `/admin/gallery` 支持选择照片、预览、上传发布、编辑标题/说明/地点/日期/无障碍描述，以及从公开 Gallery 中移除。
+- `/gallery` 改为响应式摄影瀑布流，根据原图比例自然排列，支持懒加载和无内容状态。
+- Baseball 的公开页面和 `/admin/baseball` 管理页面按要求保持为预留空白状态。
+- 上一版 `/admin/homepage`、`/admin/todo` 等地址及 `/learningcenter/admin*` 继续通过 308 重定向兼容旧书签。
+
+### 实现与数据说明
+
+- Gallery 元数据写入现有 SQLite `app_state`，不增加数据表、不改变 Schema 版本。
+- 图片使用内容哈希命名并保存到 `data/gallery-assets/`，单张支持 JPG、PNG、WebP，限制 15MB；现有全量 data 快照与清单校验会自动保护这些文件。
+- 从 Gallery 移除内容只撤下元数据，原始图片文件继续保留在 data 中，便于审计和人工恢复。
+- Gallery 公开读取与图片接口位于 `/api/site/gallery*`；上传、编辑、移除接口位于 `/api/admin/gallery*` 并复用现有 Admin 会话。
+- 词库管理 API 与 Skills 修改接口现在也要求有效 Admin 会话，避免绕过页面登录直接修改 Learning Center 数据；Skills 的公开读取接口保持不变。
+
+### 验证
+
+- 新增 Gallery 服务与路由测试，覆盖上传、元数据编辑、公开读取、图片读取、移除保留原文件，以及新 Admin 路由和旧地址兼容。
+- 全量测试通过：`40 passed`。
+- 所有静态页面的内联 JavaScript 均通过语法检查。
+- 本任务仅在本地开发与启动，不推送、不部署。
+
+### 后续风险
+
+- Gallery 当前保留上传原图，没有生成多尺寸缩略图；大量高分辨率照片上线后可增加服务端缩略图和响应式 `srcset`。
+- Baseball 内容类型尚未确定，当前没有数据模型与编辑控件。
+
+## 2026-09-03：Jingsen.cc 个人主页与统一 Admin 入口（本地待发布）
+
+### 变更目的
+
+- 将根域名从 Learning Center 的直接跳转升级为更具个人主页气质的入口页。
+- 首期集中展示 Learning Center、Gallery、Baseball 三个栏目，并让主页主要内容与大图可由 Admin 更新。
+- 将原先挂在 Learning Center 路径下的后台页面统一迁移到 `/admin`。
+
+### 用户可见结果
+
+- `/` 提供全新响应式个人主页，采用编辑感排版、鲜明色彩与三张栏目卡片。
+- Learning Center 继续通过 `/learningcenter` 进入现有学习门户；Gallery 与 Baseball 先提供风格一致的栏目预告页。
+- Learning Center 门户顶部新增 `Jingsen.cc / Index` 返回入口，方便从学习空间回到个人主页。
+- `/admin/homepage` 新增首页设置，可编辑主标题、简介、图片角标、无障碍描述，以及三个栏目的名称、简介、按钮和链接。
+- 支持上传 JPG、PNG、WebP 主视觉（最大 10MB），也可恢复项目内置默认图。
+- `/learningcenter/admin` 及其既有子页面使用 HTTP 308 重定向至对应 `/admin` 地址；Learning Center 门户内的 Admin 入口完成验证后也跳转到 `/admin`。
+
+### 实现与数据说明
+
+- 首页文字配置写入现有 SQLite `app_state`，不新增表或改变 Schema 版本。
+- 自定义主视觉以内容哈希命名，保存在 `data/homepage-assets/`；因此会被现有全量 data 快照、恢复和清单校验流程覆盖。
+- 首页读取接口为 `/api/site/homepage`，图片接口为 `/api/site/homepage/hero`；修改、上传和恢复接口均受现有 Admin 会话保护。
+- 默认主视觉由内置 imagegen 工作流生成，项目文件为 `static/assets/homepage-hero.webp`；画面以笔记本、相机与棒球对应三个首发栏目，无人物肖像和品牌标识。WebP 交付文件约 75KB，保留 1536×1024 尺寸以兼顾清晰度与首屏加载速度。
+
+### 验证
+
+- 新增首页服务与路由测试，覆盖默认设置、持久化修改、图片替换/恢复、Admin 鉴权、不安全链接拒绝，以及旧 Admin 路由重定向。
+- 本地浏览器完成桌面端与 390px 移动端验收，无横向溢出；同时检查 Admin 登录页、编辑表单和主视觉预览。
+- 本任务只在本地完成开发与启动，未推送、未部署。
+
+### 后续风险
+
+- Gallery 与 Baseball 当前为首版预告页，正式内容模型及其后台管理需在后续迭代补充。
+- 上线前需确认 Nginx 根域名 `/` 已反向代理到本应用，而非继续强制跳转到 `/learningcenter/`。
+
 ## 2026-09-03：建立强制更新日志制度
 
 - 将“每次重要更新后主动补充 `CHANGELOG.md`”设为仓库级维护规则。

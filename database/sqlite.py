@@ -758,6 +758,67 @@ class ModelSettingsRepository:
                 operation(conn)
 
 
+class HomepageSettingsRepository:
+    """Store the public homepage document in the generic app-state table."""
+
+    STATE_KEY = "homepage_settings"
+
+    def __init__(self, database: SQLiteDatabase):
+        self.database = database
+
+    def read(self) -> Dict[str, Any]:
+        with self.database.read() as connection:
+            row = connection.execute(
+                "SELECT value FROM app_state WHERE key = ?",
+                (self.STATE_KEY,),
+            ).fetchone()
+        return _load(row["value"], {}) if row else {}
+
+    def write(self, payload: Dict[str, Any]) -> None:
+        now = _now()
+        with self.database.transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO app_state(key, value, updated_at) VALUES(?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET
+                    value = excluded.value,
+                    updated_at = excluded.updated_at
+                """,
+                (self.STATE_KEY, _dump(payload), now),
+            )
+
+
+class GalleryRepository:
+    """Store Gallery metadata as one ordered document in app_state."""
+
+    STATE_KEY = "gallery_items"
+
+    def __init__(self, database: SQLiteDatabase):
+        self.database = database
+
+    def read(self) -> List[Dict[str, Any]]:
+        with self.database.read() as connection:
+            row = connection.execute(
+                "SELECT value FROM app_state WHERE key = ?",
+                (self.STATE_KEY,),
+            ).fetchone()
+        payload = _load(row["value"], []) if row else []
+        return payload if isinstance(payload, list) else []
+
+    def write(self, items: List[Dict[str, Any]]) -> None:
+        now = _now()
+        with self.database.transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO app_state(key, value, updated_at) VALUES(?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET
+                    value = excluded.value,
+                    updated_at = excluded.updated_at
+                """,
+                (self.STATE_KEY, _dump(items), now),
+            )
+
+
 class TodoRepository:
     def __init__(self, database: SQLiteDatabase):
         self.database = database

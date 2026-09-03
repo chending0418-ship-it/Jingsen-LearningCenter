@@ -1,0 +1,321 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap");
+
+:root {
+    --lc-paper: #f2f0e8;
+    --lc-ink: #121212;
+    --lc-blue: #1646d8;
+    --lc-acid: #dfff00;
+    --lc-red: #ff4c2f;
+    --lc-purple: #c9b8ff;
+    --lc-amber: #ffd16a;
+    --lc-line: rgba(18, 18, 18, .28);
+    --lc-muted: #65635d;
+}
+
+body.learning-admin {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh;
+    color: var(--lc-ink) !important;
+    background: var(--lc-paper) !important;
+    font-family: Manrope, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
+
+.learning-admin button,
+.learning-admin input,
+.learning-admin select,
+.learning-admin textarea { font: inherit; }
+
+.learning-admin :is(h1, h2, h3, h4, p, span, div, button, input, select, textarea, table) { font-family: inherit; }
+.learning-admin :is(.text-gray-900, .text-gray-800, .text-gray-700) { color: var(--lc-ink) !important; }
+.learning-admin :is(.text-gray-600, .text-gray-500, .text-gray-400) { color: var(--lc-muted) !important; }
+
+.learning-admin button { cursor: pointer; }
+
+.learning-admin :is(button, input, select, textarea, .card, .panel, .toolbar, .message, .model-card, .metric-card, .nav-tabs, .nav-tab, .control, .modal, .modal-head, .modal-footer, .status-pill, .action-btn, .count-pill) {
+    border-radius: 0 !important;
+}
+
+.learning-admin :is(.card, .panel, .toolbar, .model-card, .metric-card) {
+    border-color: var(--lc-line) !important;
+    box-shadow: none !important;
+}
+
+.learning-admin :is(input, select, textarea, .control, .search-input) {
+    border: 1px solid var(--lc-line) !important;
+    background: #fff !important;
+    color: var(--lc-ink) !important;
+    outline: none !important;
+}
+
+.learning-admin :is(input, select, textarea, .control, .search-input):focus {
+    border-color: var(--lc-blue) !important;
+    box-shadow: inset 0 -3px 0 var(--lc-blue) !important;
+}
+
+.learning-admin label,
+.learning-admin .input-label,
+.learning-admin .field label {
+    color: var(--lc-muted) !important;
+    font-family: "DM Mono", monospace !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.learning-admin .admin-context-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    color: var(--lc-blue);
+    font: 500 10px/1 "DM Mono", monospace;
+    letter-spacing: .075em;
+    white-space: nowrap;
+}
+
+.learning-admin .admin-context-line a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+}
+
+.learning-admin .admin-context-line a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.learning-admin .admin-context-line span {
+    color: var(--lc-muted);
+    font: inherit;
+}
+
+.learning-admin table { border-collapse: collapse; }
+.learning-admin th { background: var(--lc-acid) !important; color: var(--lc-ink) !important; font: 500 10px/1.3 "DM Mono", monospace !important; letter-spacing: .055em; text-transform: uppercase; }
+.learning-admin td { border-color: var(--lc-line) !important; }
+.learning-admin tbody tr:hover { background: rgba(201, 184, 255, .18); }
+
+/* Tailwind-based library and Skills pages. */
+.learning-admin.tailwind-admin > :is(.max-w-7xl, .max-w-4xl, .max-w-3xl) {
+    width: min(calc(100% - 40px), 1420px) !important;
+    max-width: 1420px !important;
+    margin: 0 auto !important;
+    padding: 18px 0 56px;
+}
+
+.learning-admin.tailwind-admin > .max-w-4xl,
+.learning-admin.tailwind-admin > .max-w-3xl { max-width: 880px !important; }
+
+.learning-admin.tailwind-admin header {
+    min-height: 74px;
+    margin-bottom: 14px;
+    padding: 8px 0 14px;
+    border-bottom: 1px solid var(--lc-line);
+}
+
+.learning-admin.tailwind-admin header h1 {
+    margin: 0 !important;
+    color: var(--lc-ink) !important;
+    font-size: clamp(25px, 3vw, 36px) !important;
+    line-height: 1 !important;
+    letter-spacing: -.045em;
+}
+
+.learning-admin.tailwind-admin header p { margin-top: 6px !important; color: var(--lc-muted) !important; font-size: 12px !important; }
+.learning-admin.tailwind-admin header > div:first-child > button:first-child,
+.learning-admin.tailwind-admin header > button:first-child { margin-bottom: 8px !important; padding: 0 !important; color: var(--lc-blue) !important; background: transparent !important; font: 500 10px/1 "DM Mono", monospace !important; letter-spacing: .07em; text-transform: uppercase; }
+.learning-admin.tailwind-admin header > div:first-child > button:first-child svg,
+.learning-admin.tailwind-admin header > button:first-child svg { display: none; }
+
+.learning-admin.tailwind-admin button { min-height: 36px; }
+.learning-admin.tailwind-admin :is(.rounded-xl, .rounded-lg, .rounded-full) { border-radius: 0 !important; }
+.learning-admin.tailwind-admin :is(.px-5, .px-4) { padding-left: 13px !important; padding-right: 13px !important; }
+.learning-admin.tailwind-admin :is(.py-2\.5) { padding-top: 8px !important; padding-bottom: 8px !important; }
+.learning-admin.tailwind-admin .card { border: 1px solid var(--lc-line) !important; background: #fff; }
+.learning-admin.tailwind-admin .card.p-5 { padding: 18px !important; }
+.learning-admin.tailwind-admin .card.p-4 { padding: 14px !important; }
+
+.learning-admin-home section.grid { gap: 0 !important; border-top: 1px solid var(--lc-ink); border-left: 1px solid var(--lc-ink); }
+.learning-admin-home section.grid .card { min-height: 138px; padding: 17px !important; border: 0 !important; border-right: 1px solid var(--lc-ink) !important; border-bottom: 1px solid var(--lc-ink) !important; }
+.learning-admin-home section.grid .card h2 { margin-top: 8px !important; font-size: 21px !important; line-height: 1 !important; letter-spacing: -.035em; }
+.learning-admin-home section.grid .card p { margin-top: 8px !important; font-size: 11px !important; line-height: 1.45; }
+.learning-admin-home section.grid .card > div { font: 500 9px/1 "DM Mono", monospace !important; letter-spacing: .09em; }
+.learning-admin-home section.grid .card:nth-child(1) { background: var(--lc-blue) !important; }
+.learning-admin-home section.grid .card:nth-child(1) :is(div,h2,p) { color: #fff !important; }
+.learning-admin-home section.grid .card:nth-child(2) { background: var(--lc-acid) !important; }
+.learning-admin-home section.grid .card:nth-child(3) { background: var(--lc-amber) !important; }
+.learning-admin-home section.grid .card:nth-child(4) { background: var(--lc-purple) !important; }
+.learning-admin-home .library-action-bar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 12px; border: 1px solid var(--lc-ink); background: #fff; }
+.learning-admin-home .library-action-copy { display: flex; align-items: baseline; gap: 10px; }
+.learning-admin-home .library-action-copy span { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+.learning-admin-home .library-action-copy strong { font-size: 17px; letter-spacing: -.025em; }
+.learning-admin-home .library-action-buttons { display: flex; gap: 8px; }
+.learning-admin-home .library-action-buttons button { min-height: 36px; padding: 0 13px !important; border: 1px solid var(--lc-ink); color: #fff; font-size: 12px; font-weight: 600; }
+.learning-admin-home .library-action-buttons button:first-child { background: var(--lc-ink) !important; }
+.learning-admin-home .library-action-buttons button:last-child { background: var(--lc-blue) !important; }
+.learning-admin-home table th,
+.learning-admin-home table td,
+.skills-admin-page table th,
+.skills-admin-page table td { padding: 9px 11px !important; }
+.learning-admin-home table button,
+.skills-admin-page table button { min-height: 30px; padding-top: 5px !important; padding-bottom: 5px !important; }
+
+.library-create-page .card,
+.library-detail-page #panel { padding: 16px !important; }
+.library-create-page .space-y-4 > :not([hidden]) ~ :not([hidden]),
+.library-detail-page .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+.library-create-page textarea { min-height: 150px; height: 150px; resize: vertical; }
+.library-detail-page textarea { min-height: 130px; height: 130px; resize: vertical; }
+
+.skills-admin-page #summary-cards { gap: 0 !important; border-top: 1px solid var(--lc-ink); border-left: 1px solid var(--lc-ink); }
+.skills-admin-page #summary-cards .card { min-height: 76px; padding: 12px 14px !important; border: 0 !important; border-right: 1px solid var(--lc-ink) !important; border-bottom: 1px solid var(--lc-ink) !important; }
+.skills-admin-page #summary-cards .card:nth-child(1) { background: var(--lc-blue); color: white; }
+.skills-admin-page #summary-cards .card:nth-child(2) { background: var(--lc-acid); }
+.skills-admin-page #summary-cards .card:nth-child(3) { background: var(--lc-amber); }
+.skills-admin-page #summary-cards .card:nth-child(4) { background: var(--lc-purple); }
+.skills-admin-page #summary-cards .text-sm { color: inherit !important; font: 500 9px/1 "DM Mono", monospace !important; letter-spacing: .06em; text-transform: uppercase; }
+.skills-admin-page #summary-cards .text-2xl { margin-top: 7px !important; font-size: 23px !important; }
+.skills-admin-page #skills-tbody tr { height: 58px !important; }
+.skills-admin-page #skills-tbody td { padding-top: 7px !important; padding-bottom: 7px !important; }
+.skills-admin-page .status-pill,
+.skills-admin-page .action-btn { height: 27px; font-size: 10px !important; }
+
+/* Todo admin. */
+.todo-admin-page {
+    --bg: var(--lc-paper);
+    --panel: #fff;
+    --ink: var(--lc-ink);
+    --muted: var(--lc-muted);
+    --line: var(--lc-line);
+    --teal: var(--lc-blue);
+    --teal-dark: #0d35aa;
+    --teal-soft: #dce4ff;
+    --amber: #995800;
+    --amber-soft: var(--lc-amber);
+    --red: #cf3d29;
+    --red-soft: #ffd7cf;
+    --blue: var(--lc-blue);
+}
+
+.todo-admin-page .app-shell { width: min(calc(100% - 36px), 1460px); padding: 14px 0 42px; }
+.todo-admin-page .topbar { min-height: 72px; margin-bottom: 8px; padding: 6px 0 11px; align-items: flex-end; border-bottom: 1px solid var(--lc-line); }
+.todo-admin-page .brand-row { display: block; }
+.todo-admin-page .eyebrow,
+.todo-admin-page .section-label { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .1em; }
+.todo-admin-page h1 { font-size: 25px; letter-spacing: -.045em; }
+.todo-admin-page h2 { font-size: 22px; }
+.todo-admin-page :is(.primary-button, .secondary-button, .ghost-button, .danger-button) { min-height: 34px; padding: 0 11px; border-radius: 0; box-shadow: none; font-size: 11px; }
+.todo-admin-page .primary-button { border-color: var(--lc-ink); background: var(--lc-ink); }
+.todo-admin-page .nav-wrap { margin-bottom: 10px; padding: 5px 0; background: rgba(242,240,232,.96); }
+.todo-admin-page .nav-tabs { gap: 0; padding: 0; border: 1px solid var(--lc-ink); background: #fff; }
+.todo-admin-page .nav-tab {
+    min-height: 40px;
+    padding: 0 17px;
+    border-right: 1px solid var(--lc-line);
+    font-family: Manrope, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+}
+.todo-admin-page .nav-tab.active { background: var(--lc-acid); color: var(--lc-ink); box-shadow: none; }
+.todo-admin-page .section-title-row { margin-bottom: 9px; }
+.todo-admin-page .section-copy { margin-top: 3px; font-size: 11px; }
+.todo-admin-page .metric-grid { gap: 0; margin-bottom: 10px; border-top: 1px solid var(--lc-ink); border-left: 1px solid var(--lc-ink); }
+.todo-admin-page .metric-card { min-height: 82px; padding: 12px 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; border: 0; border-right: 1px solid var(--lc-ink) !important; border-bottom: 1px solid var(--lc-ink) !important; }
+.todo-admin-page .metric-icon { display: none !important; }
+.todo-admin-page .metric-number { margin: 0; font-size: 31px; font-weight: 800; line-height: 1; }
+.todo-admin-page .metric-name { margin: 0; color: var(--lc-ink); font-size: 17px; font-weight: 700; line-height: 1.15; letter-spacing: -.025em; }
+.todo-admin-page .metric-card.blue { background: var(--lc-blue); color: white; }
+.todo-admin-page .metric-card.blue .metric-icon { background: var(--lc-acid); color: var(--lc-ink); }
+.todo-admin-page .metric-card.blue .metric-number { color: #fff; }
+.todo-admin-page .metric-card.blue .metric-name { color: rgba(255,255,255,.78); }
+.todo-admin-page .metric-card.amber { background: var(--lc-amber); }
+.todo-admin-page .metric-card.red { background: #ffd7cf; }
+.todo-admin-page .overview-grid { gap: 10px; }
+.todo-admin-page .panel { padding: 13px 14px; border-radius: 0; }
+.todo-admin-page .progress-panel { min-height: 178px; background: var(--lc-blue); }
+.todo-admin-page .overview-progress-value { margin-top: 14px; font-size: 38px; }
+.todo-admin-page .overview-track { height: 8px; margin-top: 9px; border-radius: 0; }
+.todo-admin-page .overview-fill { border-radius: 0; background: var(--lc-acid); }
+.todo-admin-page .week-day,
+.todo-admin-page .calendar-cell,
+.todo-admin-page .mini-task,
+.todo-admin-page .admin-task-card,
+.todo-admin-page .subject-row,
+.todo-admin-page .backup-row,
+.todo-admin-page .points-row { border-radius: 0 !important; box-shadow: none !important; }
+.todo-admin-page .toolbar { gap: 7px; margin-bottom: 9px; padding: 9px; }
+.todo-admin-page .control { min-height: 34px; }
+.todo-admin-page .modal { border: 1px solid var(--lc-ink); box-shadow: 10px 10px 0 var(--lc-acid); }
+
+/* Model admin. */
+.models-admin-page {
+    --bg: var(--lc-paper);
+    --panel: #fff;
+    --ink: var(--lc-ink);
+    --muted: var(--lc-muted);
+    --line: var(--lc-line);
+    --violet: var(--lc-blue);
+    --violet-dark: #0d35aa;
+    --violet-soft: #dce4ff;
+}
+
+.models-admin-page .shell { width: min(calc(100% - 36px), 1420px); padding: 14px 0 42px; }
+.models-admin-page .topbar { min-height: 72px; margin-bottom: 10px; padding: 6px 0 11px; align-items: flex-end; border-bottom: 1px solid var(--lc-line); }
+.models-admin-page .brand { width: 100%; display: block; }
+.models-admin-page .eyebrow { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .1em; }
+.models-admin-page h1 { font-size: 25px; }
+.models-admin-page h2 { font-size: 18px; }
+.models-admin-page .button { min-height: 34px; padding: 0 11px; border-radius: 0; box-shadow: none; font-size: 11px; }
+.models-admin-page .button.primary { border-color: var(--lc-ink); background: var(--lc-ink); }
+.models-admin-page .hero-panel { margin-bottom: 10px; }
+.models-admin-page .hero-main,
+.models-admin-page .hero-stat { padding: 15px 17px; }
+.models-admin-page .hero-main { background: var(--lc-blue); }
+.models-admin-page .current-model { margin-top: 6px; font-size: 22px; }
+.models-admin-page .toolbar { margin-bottom: 10px; padding: 11px; }
+.models-admin-page .search-input { height: 36px; }
+.models-admin-page .catalog-panel { padding: 14px; }
+.models-admin-page .model-grid,
+.models-admin-page .loading-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+.models-admin-page .model-card { padding: 10px; gap: 8px; }
+.models-admin-page .radio { width: 17px; height: 17px; }
+.models-admin-page .message { margin-bottom: 9px; padding: 9px 11px; }
+.models-admin-page .count-pill { padding: 6px 8px; background: var(--lc-acid); color: var(--lc-ink); }
+
+/* Keep the title hierarchy identical across every Learning Admin page. */
+.learning-admin.tailwind-admin header h1,
+.todo-admin-page .topbar h1,
+.models-admin-page .topbar h1 {
+    font-size: 36px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: -.045em !important;
+}
+
+@media (max-width: 900px) {
+    .learning-admin-home section.grid .card { min-height: 120px; }
+    .models-admin-page .model-grid,
+    .models-admin-page .loading-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 680px) {
+    .learning-admin.tailwind-admin > :is(.max-w-7xl, .max-w-4xl, .max-w-3xl) { width: min(calc(100% - 24px), 1420px) !important; padding-top: 12px; }
+    .learning-admin.tailwind-admin header { min-height: auto; }
+    .learning-admin-home section.grid { border-left: 1px solid var(--lc-ink); }
+    .todo-admin-page .app-shell,
+    .models-admin-page .shell { width: min(calc(100% - 24px), 1420px); }
+    .models-admin-page .model-grid,
+    .models-admin-page .loading-grid { grid-template-columns: 1fr; }
+    .learning-admin-home .library-action-bar { align-items: flex-start; flex-direction: column; }
+    .learning-admin-home .library-action-buttons { width: 100%; }
+    .learning-admin-home .library-action-buttons button { flex: 1; }
+    .learning-admin.tailwind-admin header h1,
+    .todo-admin-page .topbar h1,
+    .models-admin-page .topbar h1 { font-size: 30px !important; }
+}

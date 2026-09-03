@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin — Jingsen.cc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --paper:#f2f0e8; --ink:#121212; --blue:#1646d8; --acid:#dfff00; --red:#ff4c2f; --purple:#c9b5ff; --line:rgba(18,18,18,.22); }
+        * { box-sizing:border-box; }
+        [hidden] { display:none !important; }
+        body { margin:0; min-height:100svh; color:var(--ink); background:var(--paper); font-family:Manrope,"PingFang SC",system-ui,sans-serif; }
+        button,input { font:inherit; }
+        button { cursor:pointer; }
+        .shell { width:min(1500px,100%); margin:auto; padding:0 clamp(20px,4vw,64px) 60px; }
+        nav { min-height:78px; display:flex; align-items:center; justify-content:space-between; gap:20px; border-bottom:1px solid var(--line); }
+        nav a { color:inherit; text-decoration:none; }
+        .brand { font-size:24px; font-weight:800; letter-spacing:-.055em; }
+        .nav-actions { display:flex; align-items:center; gap:18px; font:500 11px/1 "DM Mono",monospace; letter-spacing:.07em; text-transform:uppercase; }
+        .logout { padding:0; border:0; background:none; font:inherit; text-transform:inherit; letter-spacing:inherit; }
+        header { padding:clamp(60px,8vw,115px) 0 38px; display:grid; grid-template-columns:1.3fr .7fr; align-items:end; gap:40px; }
+        .kicker { font:500 11px/1.3 "DM Mono",monospace; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); }
+        h1 { margin:17px 0 0; font-size:clamp(64px,10vw,154px); line-height:.74; letter-spacing:-.09em; }
+        header p { max-width:480px; margin:0; font-size:17px; line-height:1.55; }
+        .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:14px; }
+        .card { min-height:410px; padding:clamp(24px,3vw,40px); border:1px solid var(--ink); color:var(--ink); text-decoration:none; display:flex; flex-direction:column; overflow:hidden; position:relative; transition:transform .24s ease,box-shadow .24s ease; }
+        .card:hover { transform:translate(-4px,-4px); box-shadow:8px 8px 0 var(--ink); }
+        .card:nth-child(1) { grid-column:span 3; background:var(--acid); }
+        .card:nth-child(2) { grid-column:span 4; background:var(--blue); color:white; }
+        .card:nth-child(3) { grid-column:span 3; background:var(--purple); }
+        .card:nth-child(4) { grid-column:span 2; background:var(--red); }
+        .card-top { display:flex; justify-content:space-between; gap:15px; position:relative; z-index:2; }
+        .card .number { font:500 11px/1 "DM Mono",monospace; letter-spacing:.08em; }
+        .arrow { font-size:28px; line-height:.8; transition:transform .2s; }
+        .card:hover .arrow { transform:translate(4px,-4px); }
+        .card h2 { margin:auto 0 16px; font-size:clamp(32px,3.5vw,56px); line-height:.9; letter-spacing:-.065em; position:relative; z-index:2; }
+        .card:nth-child(4) h2 { font-size:clamp(30px,2.45vw,40px); letter-spacing:-.06em; }
+        .card p { margin:0; max-width:340px; font-size:13px; line-height:1.5; position:relative; z-index:2; }
+        .orb { position:absolute; width:210px; aspect-ratio:1; border-radius:50%; border:2px solid currentColor; right:-75px; top:80px; opacity:.32; }
+        .orb::after { content:""; position:absolute; inset:22%; border:2px dashed currentColor; border-radius:50%; }
+        footer { margin-top:90px; padding:24px 0; border-top:1px solid var(--line); display:flex; justify-content:space-between; font:400 10px/1 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .login { position:fixed; inset:0; z-index:20; display:grid; place-items:center; padding:20px; background:var(--blue); }
+        .login-card { width:min(440px,100%); padding:34px; background:var(--paper); border:1px solid var(--ink); box-shadow:10px 10px 0 var(--ink); }
+        .login-card h2 { margin:14px 0 8px; font-size:38px; letter-spacing:-.055em; }
+        .login-card p { color:#676660; line-height:1.5; }
+        .login-card form { display:grid; gap:10px; margin-top:22px; }
+        .login-card input { width:100%; padding:14px; border:1px solid #aaa89f; border-radius:0; background:white; outline:none; }
+        .button { padding:14px; border:1px solid var(--ink); background:var(--ink); color:white; font:600 12px/1 "DM Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
+        .status { min-height:18px; margin-top:12px; color:#b42318; font-size:12px; font-weight:700; }
+        .loading { min-height:calc(100svh - 78px); display:grid; place-items:center; font:500 11px/1 "DM Mono",monospace; letter-spacing:.1em; }
+        @media(max-width:950px){ header{grid-template-columns:1fr;} .card:nth-child(1),.card:nth-child(3){grid-column:span 6}.card:nth-child(2){grid-column:span 6}.card:nth-child(4){grid-column:span 6} }
+        @media(max-width:620px){ .nav-actions a{display:none} header{padding-top:65px}.grid{gap:10px}.card:nth-child(n){grid-column:span 12;min-height:300px}.card:hover{transform:none;box-shadow:none} }
+    </style>
+</head>
+<body>
+    <div class="login" id="login" hidden>
+        <div class="login-card">
+            <span class="kicker">JINGSEN.CC / PRIVATE</span>
+            <h2>进入 Admin</h2>
+            <p>首页、Learning Center、Gallery 与 Baseball 的内容管理统一放在这里。</p>
+            <form id="login-form">
+                <input id="password" type="password" autocomplete="current-password" placeholder="后台密码" required>
+                <button class="button" type="submit">验证并进入 ↗</button>
+            </form>
+            <div class="status" id="login-error" role="alert"></div>
+        </div>
+    </div>
+
+    <div class="shell">
+        <nav>
+            <a class="brand" href="/admin">jingsen.cc / admin</a>
+            <div class="nav-actions"><a href="/">查看 Index ↗</a><button class="logout" id="logout" hidden>退出</button></div>
+        </nav>
+        <div class="loading" id="loading">CHECKING SESSION…</div>
+        <main id="hub" hidden>
+            <header>
+                <div><span class="kicker">Content control / 04 spaces</span><h1>ADMIN.</h1></div>
+                <p>Choose a space to manage. 首页是入口，Learning Center 是学习系统，Gallery 收集影像，Baseball 等待下一次开场。</p>
+            </header>
+            <div class="grid">
+                <a class="card" href="/admin/index">
+                    <div class="card-top"><span class="number">01 / INDEX</span><span class="arrow">↗</span></div><span class="orb"></span>
+                    <h2>首页<br>管理</h2><p>修改主页文字、栏目链接和主视觉。</p>
+                </a>
+                <a class="card" href="/admin/learningcenter">
+                    <div class="card-top"><span class="number">02 / LEARNING</span><span class="arrow">↗</span></div><span class="orb"></span>
+                    <h2>Learning<br>Center</h2><p>管理词库、Skills、Todo 与全站 AI 模型。</p>
+                </a>
+                <a class="card" href="/admin/gallery">
+                    <div class="card-top"><span class="number">03 / GALLERY</span><span class="arrow">↗</span></div><span class="orb"></span>
+                    <h2>Gallery</h2><p><span id="gallery-count">—</span> 件已发布影像。上传并维护拍摄内容。</p>
+                </a>
+                <a class="card" href="/admin/baseball">
+                    <div class="card-top"><span class="number">04 / BASEBALL</span><span class="arrow">↗</span></div><span class="orb"></span>
+                    <h2>Baseball</h2><p>管理空间已预留，暂不放置功能。</p>
+                </a>
+            </div>
+        </main>
+        <footer id="footer" hidden><span>JINGSEN.CC / ADMIN SYSTEM</span><span>INDEX · LEARNING · GALLERY · BASEBALL</span></footer>
+    </div>
+    <script>
+        const login = document.getElementById('login');
+        const loading = document.getElementById('loading');
+        const hub = document.getElementById('hub');
+        const footer = document.getElementById('footer');
+        const nextPath = new URLSearchParams(location.search).get('next');
+        const safeNext = nextPath && nextPath.startsWith('/admin/') && !nextPath.startsWith('//') ? nextPath : '';
+
+        function showHub() {
+            login.hidden = true; loading.hidden = true; hub.hidden = false; footer.hidden = false;
+            document.getElementById('logout').hidden = false;
+            fetch('/api/site/gallery').then(r => r.ok ? r.json() : null).then(data => {
+                if (data) document.getElementById('gallery-count').textContent = data.total;
+            }).catch(() => {});
+        }
+        async function checkSession() {
+            try {
+                const response = await fetch('/api/admin/session', {cache:'no-store'});
+                const data = await response.json();
+                if (data.authenticated) {
+                    if (safeNext) return location.replace(safeNext);
+                    return showHub();
+                }
+            } catch (_) {}
+            loading.hidden = true; login.hidden = false; setTimeout(() => document.getElementById('password').focus(), 0);
+        }
+        document.getElementById('login-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            const error = document.getElementById('login-error'); error.textContent = '正在验证…';
+            try {
+                const response = await fetch('/api/admin/session', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('password').value})});
+                if (!response.ok) throw new Error('密码错误，请重试');
+                if (safeNext) return location.replace(safeNext);
+                error.textContent = ''; showHub();
+            } catch (requestError) { error.textContent = requestError.message; }
+        });
+        document.getElementById('logout').addEventListener('click', async () => {
+            await fetch('/api/admin/session',{method:'DELETE'}).catch(() => {}); location.reload();
+        });
+        checkSession();
+    </script>
+</body>
+</html>

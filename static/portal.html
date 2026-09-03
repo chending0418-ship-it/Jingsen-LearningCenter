@@ -3,183 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jingsen 学习中心 1.0</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="Jingsen Learning Center — choose a subject and keep learning.">
+    <meta name="theme-color" content="#f2f0e8">
+    <title>Learning Center — Jingsen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #F8F9FB;
-            --text-primary: #1A1A1A;
-            --text-secondary: #6B7280;
-            --chinese-theme: #FFEDED;
-            --chinese-accent: #FF4B4B;
-            --math-theme: #EEF7FF;
-            --math-accent: #3B82F6;
-            --english-theme: #ECFDF5;
-            --english-accent: #10B981;
-            --todo-theme: #FFF7E7;
-            --todo-accent: #D97706;
-            --admin-theme: #EEF2FF;
-            --admin-accent: #4F46E5;
+            --paper:#f2f0e8;
+            --ink:#121212;
+            --blue:#1646d8;
+            --acid:#dfff00;
+            --red:#ff4c2f;
+            --purple:#c9b8ff;
+            --line:rgba(18,18,18,.26);
+            --pad:clamp(20px,4vw,64px);
         }
-
-        body {
-            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            -webkit-tap-highlight-color: transparent;
+        * { box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; color:var(--ink); background:var(--paper); font-family:Manrope,"Noto Sans SC","PingFang SC","Microsoft YaHei",Arial,sans-serif; -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; }
+        a { color:inherit; }
+        .shell { width:min(1600px,100%); margin:auto; }
+        nav { min-height:78px; padding:0 var(--pad); display:grid; grid-template-columns:1fr auto 1fr; align-items:center; border-bottom:1px solid var(--line); }
+        .back2index,.nav-center,.nav-label { font:500 11px/1 "DM Mono",monospace; letter-spacing:.09em; text-transform:uppercase; }
+        .back2index { justify-self:start; text-decoration:none; }
+        .back2index:hover { text-decoration:underline; text-underline-offset:4px; }
+        .nav-center { justify-self:center; }
+        .nav-label { justify-self:end; }
+        .hero { min-height:500px; padding:clamp(72px,9vw,138px) var(--pad) 48px; display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr); align-items:end; gap:50px; border-bottom:1px solid var(--line); position:relative; overflow:hidden; }
+        .hero-copy { position:relative; z-index:2; }
+        .eyebrow { color:var(--blue); font:500 11px/1 "DM Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
+        h1 { max-width:960px; margin:18px 0 0; font-size:clamp(76px,12.5vw,200px); line-height:.7; letter-spacing:-.09em; }
+        .hero-intro { position:relative; z-index:2; max-width:450px; margin:0 0 8px auto; font-size:clamp(17px,1.5vw,22px); line-height:1.48; }
+        .hero-intro small { display:block; margin-top:22px; font:500 10px/1.4 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .hero-shape { position:absolute; width:260px; aspect-ratio:1; right:-85px; top:-85px; border:2px solid var(--blue); border-radius:50%; pointer-events:none; }
+        .hero-shape::after { content:""; position:absolute; inset:25%; border:2px dashed var(--blue); border-radius:50%; }
+        .course-section { padding:clamp(64px,8vw,120px) var(--pad) clamp(90px,10vw,150px); }
+        .section-heading { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-bottom:28px; }
+        .section-heading h2 { margin:0; font-size:clamp(32px,5vw,68px); line-height:.88; letter-spacing:-.065em; }
+        .section-heading span { font:500 10px/1.4 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .course-grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); border-top:1px solid var(--ink); border-left:1px solid var(--ink); }
+        .course-card { min-height:310px; padding:24px; display:flex; flex-direction:column; position:relative; overflow:hidden; border:0; border-right:1px solid var(--ink); border-bottom:1px solid var(--ink); color:var(--ink); text-align:left; text-decoration:none; font:inherit; cursor:pointer; transition:transform .22s ease,filter .22s ease; }
+        .course-card:hover { transform:translateY(-5px); filter:saturate(1.08); z-index:2; box-shadow:0 5px 0 var(--ink); }
+        .course-card:focus-visible,.modal-button:focus-visible,.back2index:focus-visible { outline:3px solid var(--acid); outline-offset:3px; }
+        .course-card:nth-child(1) { grid-column:span 4; background:#ffcec5; }
+        .course-card:nth-child(2) { grid-column:span 3; background:var(--blue); color:white; }
+        .course-card:nth-child(3) { grid-column:span 5; background:var(--acid); }
+        .course-card:nth-child(4) { grid-column:span 7; background:#ffd16a; }
+        .course-card:nth-child(5) { grid-column:span 5; background:var(--purple); }
+        .card-top { display:flex; justify-content:space-between; align-items:start; gap:16px; position:relative; z-index:2; font:500 10px/1 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .card-symbol { margin:auto 0 22px; position:relative; z-index:2; font-size:clamp(68px,7vw,116px); font-weight:800; line-height:.75; letter-spacing:-.08em; }
+        .course-card h3 { margin:0; position:relative; z-index:2; font-size:clamp(32px,4.2vw,64px); line-height:.86; letter-spacing:-.065em; }
+        .course-card p { max-width:360px; margin:14px 0 0; position:relative; z-index:2; font-size:13px; line-height:1.5; }
+        .card-orb { position:absolute; width:190px; aspect-ratio:1; right:-60px; bottom:-76px; border:2px solid currentColor; border-radius:50%; opacity:.65; }
+        .card-orb::after { content:""; position:absolute; inset:23%; border:2px dashed currentColor; border-radius:50%; }
+        footer { padding:32px var(--pad); display:flex; justify-content:space-between; gap:20px; color:var(--paper); background:var(--ink); font:400 10px/1.4 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .modal { position:fixed; inset:0; z-index:50; align-items:flex-start; justify-content:center; padding:14vh 20px 20px; background:rgba(18,18,18,.68); backdrop-filter:blur(8px); }
+        .modal-card { width:min(430px,100%); padding:28px; border:1px solid var(--ink); background:var(--paper); box-shadow:9px 9px 0 var(--acid); }
+        .modal-kicker { font:500 10px/1 "DM Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
+        .modal h3 { margin:18px 0 8px; font-size:34px; line-height:.9; letter-spacing:-.055em; }
+        .modal p { margin:0 0 22px; color:#66645e; font-size:14px; }
+        .modal input { width:100%; padding:14px; border:1px solid var(--ink); border-radius:0; background:white; color:var(--ink); font:inherit; outline:none; }
+        .modal input:focus { box-shadow:inset 0 -3px 0 var(--blue); }
+        .modal-error { margin:9px 0 0!important; color:#c92f1e!important; font-size:12px!important; }
+        .modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:22px; }
+        .modal-button { min-height:44px; border:1px solid var(--ink); border-radius:0; background:white; color:var(--ink); font:500 11px/1 "DM Mono",monospace; letter-spacing:.07em; text-transform:uppercase; cursor:pointer; }
+        .modal-button.primary { background:var(--ink); color:white; }
+        .hidden { display:none!important; }
+        .flex { display:flex; }
+        @media(max-width:860px) {
+            .hero { min-height:560px; grid-template-columns:1fr; align-content:end; }
+            .hero-intro { margin:0; }
+            .course-card:nth-child(1),.course-card:nth-child(2),.course-card:nth-child(3) { grid-column:span 4; }
+            .course-card:nth-child(4) { grid-column:span 7; }
+            .course-card:nth-child(5) { grid-column:span 5; }
         }
-
-        .container-custom {
-            width: 100%;
-            max-width: 1024px;
-            margin: 0 auto;
+        @media(max-width:620px) {
+            nav { min-height:70px; }
+            .back2index,.nav-center,.nav-label { font-size:9px; }
+            .hero { min-height:500px; padding-top:72px; gap:34px; }
+            h1 { font-size:clamp(67px,23vw,112px); }
+            .section-heading { align-items:start; flex-direction:column; }
+            .course-grid { display:block; border-top:1px solid var(--ink); }
+            .course-card { min-height:260px; border-left:1px solid var(--ink); }
+            footer { flex-direction:column; }
         }
-
-        .course-card {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.65);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-        }
-
-        .course-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(130deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
-            pointer-events: none;
-        }
-
-        .course-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
-            filter: saturate(1.05);
-        }
-
-        .course-card:active {
-            transform: scale(0.98);
-        }
-
-        .progress-bar-container {
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        /* Subject Image Placeholder Styles */
-        .subject-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #f0f0f0;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 768px) {
-            .subject-img {
-                width: 100px;
-                height: 100px;
-            }
-            .course-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-                gap: 1.5rem;
-            }
-        }
-
-        .card-chinese { background: linear-gradient(145deg, #fff4f4, #ffe2e2); }
-        .card-math { background: linear-gradient(145deg, #f2f8ff, #dbeafe); }
-        .card-english { background: linear-gradient(145deg, #effef6, #d1fae5); }
-        .card-todo { background: linear-gradient(145deg, #fffaf0, #fdecc8); }
-        .card-admin { background: linear-gradient(145deg, #f3f4ff, #e0e7ff); }
-
-        .img-chinese { background: linear-gradient(135deg, #FFE4E1, #FFB6C1); }
-        .img-math { background: linear-gradient(135deg, #B0C4DE, #87CEEB); }
-        .img-english { background: linear-gradient(135deg, #E0FFF0, #98FB98); }
-        .img-todo { background: linear-gradient(135deg, #FEF3C7, #FCD34D); }
-        .img-admin { background: linear-gradient(135deg, #E0E7FF, #C7D2FE); }
-
+        @media(prefers-reduced-motion:reduce) { html{scroll-behavior:auto}.course-card{transition:none} }
     </style>
 </head>
-<body class="min-h-screen pb-32 md:pb-40">
-    <!-- Main Content -->
-    <main class="container-custom px-6 py-4 md:py-12">
-        <header class="mb-6 md:mb-12">
-            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">Choose your course</h2>
-            <p class="text-gray-500 text-base md:text-xl">Pick a subject to start your learning journey.</p>
+<body>
+    <div class="shell">
+        <nav aria-label="Section navigation">
+            <a class="back2index" href="/">BACK2INDEX</a>
+            <span class="nav-center">01 / LEARN</span>
+            <span class="nav-label">LEARNING CENTER</span>
+        </nav>
+
+        <header class="hero">
+            <div class="hero-copy">
+                <span class="eyebrow">READ / PRACTICE / REPEAT</span>
+                <h1>Learning<br>Center.</h1>
+            </div>
+            <p class="hero-intro">A place to turn curiosity into practice. Pick a subject, keep a steady rhythm, and let small sessions add up.<small>Choose a course below ↓</small></p>
+            <span class="hero-shape" aria-hidden="true"></span>
         </header>
 
-        <!-- Course List -->
-        <div class="course-grid space-y-4 md:space-y-0">
-            <div class="course-card card-chinese rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('chinese')">
-                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
-                    <span class="text-xl md:text-2xl">📖</span>
-                    <h3 class="text-lg md:text-xl font-bold">Chinese</h3>
-                </div>
-                <div class="subject-img img-chinese ml-4 md:ml-0 md:mt-6">
-                    <span class="text-3xl md:text-4xl">🖌️</span>
-                </div>
+        <main class="course-section">
+            <div class="section-heading"><h2>What are we<br>learning today?</h2><span>05 SPACES / ALWAYS IN PROGRESS</span></div>
+            <div class="course-grid">
+                <a class="course-card" href="/learningcenter/chinese" data-subject="chinese">
+                    <div class="card-top"><span>01 / LANGUAGE</span><span>BUILDING ↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">文</span>
+                    <h3>Chinese</h3><p>Read closely, understand structure, and build confidence with every passage.</p><span class="card-orb" aria-hidden="true"></span>
+                </a>
+                <a class="course-card" href="/learningcenter/math" data-subject="math">
+                    <div class="card-top"><span>02 / LOGIC</span><span>BUILDING ↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">∑</span>
+                    <h3>Math</h3><p>Work through patterns, numbers, and precise ways of thinking.</p><span class="card-orb" aria-hidden="true"></span>
+                </a>
+                <a class="course-card" href="/learningcenter/english" data-subject="english">
+                    <div class="card-top"><span>03 / LANGUAGE</span><span>↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">Aa</span>
+                    <h3>English</h3><p>Build vocabulary and fluency through focused daily practice.</p><span class="card-orb" aria-hidden="true"></span>
+                </a>
+                <a class="course-card" href="/learningcenter/todo" data-subject="todo">
+                    <div class="card-top"><span>04 / RHYTHM</span><span>↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">✓</span>
+                    <h3>Learning Todo</h3><p>Turn plans into the next clear action and keep the learning rhythm visible.</p><span class="card-orb" aria-hidden="true"></span>
+                </a>
+                <button class="course-card" type="button" data-subject="admin" onclick="openAdminAuth()">
+                    <div class="card-top"><span>05 / PRIVATE</span><span>↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">⚙</span>
+                    <h3>Admin</h3><p>Manage Learning Center content, Todo, Gallery, Baseball, and the index.</p><span class="card-orb" aria-hidden="true"></span>
+                </button>
             </div>
+        </main>
 
-            <div class="course-card card-math rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('math')">
-                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
-                    <span class="text-xl md:text-2xl">🔢</span>
-                    <h3 class="text-lg md:text-xl font-bold">Math</h3>
-                </div>
-                <div class="subject-img img-math ml-4 md:ml-0 md:mt-6">
-                    <span class="text-3xl md:text-4xl">📐</span>
-                </div>
-            </div>
+        <footer><span>JINGSEN.CC / LEARNING CENTER</span><span>STAY CURIOUS · KEEP PRACTICING</span></footer>
+    </div>
 
-            <div class="course-card card-english rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('english')">
-                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
-                    <span class="text-xl md:text-2xl">🔤</span>
-                    <h3 class="text-lg md:text-xl font-bold">English</h3>
-                </div>
-                <div class="subject-img img-english ml-4 md:ml-0 md:mt-6">
-                    <span class="text-3xl md:text-4xl">🌍</span>
-                </div>
-            </div>
-
-            <div class="course-card card-todo rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('todo')">
-                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
-                    <span class="text-xl md:text-2xl">✓</span>
-                    <h3 class="text-lg md:text-xl font-bold">Todo</h3>
-                </div>
-                <div class="subject-img img-todo ml-4 md:ml-0 md:mt-6">
-                    <span class="text-3xl md:text-4xl">🗒️</span>
-                </div>
-            </div>
-
-            <div class="course-card card-admin rounded-3xl p-4 md:p-6 flex items-center md:flex-col md:text-center justify-between cursor-pointer" onclick="selectSubject('admin')">
-                <div class="flex items-center md:flex-col md:w-full md:justify-center gap-2 md:gap-4">
-                    <span class="text-xl md:text-2xl">🛠️</span>
-                    <h3 class="text-lg md:text-xl font-bold">Admin</h3>
-                </div>
-                <div class="subject-img img-admin ml-4 md:ml-0 md:mt-6">
-                    <span class="text-3xl md:text-4xl">⚙️</span>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Bottom Progress Bar Removed -->
-
-    <div id="admin-auth-modal" class="fixed inset-0 bg-black/40 hidden items-start justify-center pt-[12vh] md:pt-[16vh] z-50">
-        <div class="bg-white rounded-2xl shadow-xl w-[92%] max-w-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-2">管理员验证</h3>
-            <p class="text-sm text-gray-500 mb-4">请输入后台密码</p>
-            <input id="admin-password-input" type="password" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="请输入密码" />
-            <p id="admin-auth-error" class="text-sm text-red-500 mt-2 hidden">密码错误，请重试</p>
-            <div class="flex gap-2 mt-5">
-                <button onclick="closeAdminAuth()" class="flex-1 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">取消</button>
-                <button onclick="confirmAdminAuth()" class="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl hover:opacity-90">确认</button>
+    <div id="admin-auth-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="admin-auth-title">
+        <div class="modal-card">
+            <span class="modal-kicker">PRIVATE ACCESS / ADMIN</span>
+            <h3 id="admin-auth-title">管理员验证</h3>
+            <p>请输入后台密码，继续进入全站管理空间。</p>
+            <input id="admin-password-input" type="password" autocomplete="current-password" placeholder="请输入密码">
+            <p id="admin-auth-error" class="modal-error hidden">密码错误，请重试</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-button" onclick="closeAdminAuth()">取消</button>
+                <button type="button" class="modal-button primary" onclick="confirmAdminAuth()">确认</button>
             </div>
         </div>
     </div>
@@ -187,6 +160,10 @@
     <script>
         const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
         const withBasePath = (path) => `${BASE_PATH}${path}`;
+
+        document.querySelectorAll('[data-subject]:not([data-subject="admin"])').forEach(link => {
+            link.href = withBasePath(`/${link.dataset.subject}`);
+        });
 
         function openAdminAuth() {
             const modal = document.getElementById('admin-auth-modal');
@@ -223,34 +200,19 @@
                 return;
             }
             closeAdminAuth();
-            window.location.href = withBasePath('/admin');
+            window.location.href = '/admin';
         }
 
-        function selectSubject(subject) {
-            console.log('Selected subject:', subject);
-            if (subject === 'english') {
-                window.location.href = withBasePath('/english');
-            } else if (subject === 'chinese') {
-                window.location.href = withBasePath('/chinese');
-            } else if (subject === 'math') {
-                window.location.href = withBasePath('/math');
-            } else if (subject === 'todo') {
-                window.location.href = withBasePath('/todo');
-            } else if (subject === 'admin') {
-                openAdminAuth();
-            } else {
-                alert(subject.charAt(0).toUpperCase() + subject.slice(1) + ' module is coming soon!');
-            }
-        }
-
-        document.getElementById('admin-password-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeAdminAuth();
-            if (e.key === 'Enter') confirmAdminAuth();
+        document.getElementById('admin-password-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') closeAdminAuth();
+            if (event.key === 'Enter') confirmAdminAuth();
         });
 
-        if (new URLSearchParams(window.location.search).get('admin') === '1') {
-            openAdminAuth();
-        }
+        document.getElementById('admin-auth-modal').addEventListener('click', function(event) {
+            if (event.target === this) closeAdminAuth();
+        });
+
+        if (new URLSearchParams(window.location.search).get('admin') === '1') openAdminAuth();
     </script>
 </body>
 </html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jingsen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100svh; background: #f2f0e8; color: #121212; font-family: Manrope, system-ui, sans-serif; }
+        .page { min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; padding: 0 clamp(20px, 4vw, 64px); position: relative; overflow: hidden; }
+        nav { height: 78px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid rgba(18,18,18,.25); }
+        nav a { color: inherit; font: 500 11px/1 "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+        .back2index { justify-self: start; text-decoration: none; }
+        .back2index:hover { text-decoration: underline; text-underline-offset: 4px; }
+        .nav-center, .nav-label { font: 500 11px/1 "DM Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+        .nav-center { justify-self: center; }
+        .nav-label { justify-self: end; }
+        main { display: grid; place-items: center; text-align: center; position: relative; z-index: 1; isolation: isolate; padding: 80px 0; }
+        main > div { position: relative; z-index: 2; }
+        h1 { margin: 0 0 18px; font-size: clamp(74px, 15vw, 220px); line-height: .75; letter-spacing: -.09em; }
+        p { max-width: 500px; margin: 0 auto 36px; font-size: clamp(16px, 2vw, 20px); line-height: 1.55; }
+        .home { display: inline-block; background: #121212; color: white; padding: 15px 20px; text-decoration: none; font: 500 11px/1 "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; box-shadow: 6px 6px 0 #dfff00; }
+        .orb { position: absolute; z-index: 0; width: min(46vw, 650px); aspect-ratio: 1; border-radius: 50%; right: -13vw; top: 16vh; background: var(--accent); border: 2px solid #121212; opacity: .94; pointer-events: none; }
+        .orb::after { content: ""; position: absolute; inset: 17%; border-radius: 50%; border: 2px dashed #121212; }
+        footer { padding: 24px 0; display: flex; justify-content: space-between; border-top: 1px solid rgba(18,18,18,.25); font: 400 10px/1.4 "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+        @media (max-width: 620px) { nav { height: 70px; } nav a, .nav-center, .nav-label { font-size: 9px; } .orb { width: min(74vw, 420px); right: -34vw; top: 23vh; } footer { flex-direction: column; gap: 10px; } }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <nav aria-label="Section navigation"><a class="back2index" href="/">BACK2INDEX</a><span class="nav-center" id="nav-kicker"></span><span class="nav-label" id="nav-label"></span></nav>
+        <main>
+            <div>
+                <h1 id="title"></h1>
+                <p id="description"></p>
+                <a class="home" href="/">Back to the index ↗</a>
+            </div>
+            <span class="orb" aria-hidden="true"></span>
+        </main>
+        <footer><span>WORK IN PROGRESS</span><span id="footer-label"></span></footer>
+    </div>
+    <script>
+        const isBaseball = location.pathname.includes('baseball');
+        const content = isBaseball
+            ? { kicker: '03 / PLAY', title: 'On deck.', description: 'The Baseball space is warming up. Training notes, game moments, and field stories will live here.', label: 'BASEBALL', accent: '#ff4c2f' }
+            : { kicker: '02 / SEE', title: 'Developing.', description: 'The Gallery archive is taking shape. Photographs, places, and small visual stories are coming soon.', label: 'GALLERY', accent: '#a98bea' };
+        document.documentElement.style.setProperty('--accent', content.accent);
+        document.title = `${content.label} — Jingsen`;
+        document.getElementById('nav-kicker').textContent = content.kicker;
+        document.getElementById('nav-label').textContent = content.label;
+        document.getElementById('title').textContent = content.title;
+        document.getElementById('description').textContent = content.description;
+        document.getElementById('footer-label').textContent = content.label;
+    </script>
+</body>
+</html>

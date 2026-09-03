@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f0e8">
+    <title>正在建设中 — Jingsen Learning Center</title>
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
+</head>
+<body class="learning-construction">
+    <div class="construction-shell">
+        <nav class="construction-nav" aria-label="Learning Center section navigation">
+            <a id="back-to-learning" href="/learningcenter/portal">BACK2LEARNING</a>
+            <span id="subject-index">01 / LANGUAGE</span>
+            <span id="subject-label">CHINESE</span>
+        </nav>
+
+        <main class="construction-main">
+            <section>
+                <span class="construction-kicker">THE NEXT CHAPTER IS TAKING SHAPE</span>
+                <h1 id="subject-title">Chinese.</h1>
+                <p id="subject-copy" class="construction-copy">这个学习空间正在重新整理。课程结构、练习方式和学习反馈会在准备完成后出现在这里。</p>
+                <div class="construction-meta" aria-label="建设状态">
+                    <span>STATUS / BUILDING</span>
+                    <span>LEARNING CENTER / JINGSEN.CC</span>
+                </div>
+            </section>
+
+            <aside class="construction-status">
+                <small>WORK IN PROGRESS</small>
+                <strong>正在建设中</strong>
+                <p>现在可以返回 Learning Center，继续使用 English 或 Learning Todo。这个入口和后续内容会保持同一套视觉与操作方式。</p>
+            </aside>
+        </main>
+    </div>
+
+    <script>
+        const isMath = window.location.pathname.toLowerCase().includes('/math');
+        const usesLearningPrefix = window.location.pathname.startsWith('/learningcenter');
+        const subject = isMath
+            ? {
+                title: 'Math.',
+                label: 'MATH',
+                index: '02 / LOGIC',
+                copy: '这个数学学习空间正在重新整理。课程结构、练习方式和学习反馈会在准备完成后出现在这里。'
+            }
+            : {
+                title: 'Chinese.',
+                label: 'CHINESE',
+                index: '01 / LANGUAGE',
+                copy: '这个语文学习空间正在重新整理。课程结构、练习方式和学习反馈会在准备完成后出现在这里。'
+            };
+
+        document.title = `${subject.label} 正在建设中 — Jingsen Learning Center`;
+        document.getElementById('subject-title').textContent = subject.title;
+        document.getElementById('subject-label').textContent = subject.label;
+        document.getElementById('subject-index').textContent = subject.index;
+        document.getElementById('subject-copy').textContent = subject.copy;
+        document.getElementById('back-to-learning').href = usesLearningPrefix ? '/learningcenter/portal' : '/portal';
+    </script>
+</body>
+</html>

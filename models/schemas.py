@@ -2,7 +2,7 @@
 数据模型定义
 使用 Pydantic 定义请求和响应的数据模型
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Any, Dict, List, Optional, Union, Literal
 
 
@@ -144,6 +144,69 @@ class LibraryArchiveRequest(BaseModel):
 class LibraryItemsUpdateRequest(BaseModel):
     """更新词条请求"""
     items: List[str] = Field(default_factory=list, description="词条列表")
+
+
+class HomepageSectionSettings(BaseModel):
+    """Homepage destination card editable from Admin."""
+
+    key: Literal["learning", "gallery", "baseball"]
+    eyebrow: str = Field(..., min_length=1, max_length=40)
+    title: str = Field(..., min_length=1, max_length=60)
+    description: str = Field(..., min_length=1, max_length=220)
+    href: str = Field(..., min_length=1, max_length=500)
+    action: str = Field(..., min_length=1, max_length=40)
+
+    @field_validator("href")
+    @classmethod
+    def validate_href(cls, value: str) -> str:
+        clean = value.strip()
+        if clean.startswith("/") and not clean.startswith("//"):
+            return clean
+        if clean.startswith(("https://", "http://")):
+            return clean
+        raise ValueError("链接必须是站内 / 路径或 http(s) 地址")
+
+
+class HomepageSettingsUpdate(BaseModel):
+    """Editable public homepage content."""
+
+    profile_label: str = Field(..., min_length=1, max_length=60)
+    headline: str = Field(..., min_length=1, max_length=120)
+    introduction: str = Field(..., min_length=1, max_length=360)
+    ticker: str = Field(..., min_length=1, max_length=180)
+    note: str = Field(..., min_length=1, max_length=120)
+    hero_alt: str = Field(..., min_length=1, max_length=160)
+    sections: List[HomepageSectionSettings] = Field(..., min_length=3, max_length=3)
+
+    @field_validator("sections")
+    @classmethod
+    def validate_sections(cls, value: List[HomepageSectionSettings]) -> List[HomepageSectionSettings]:
+        expected = {"learning", "gallery", "baseball"}
+        if {item.key for item in value} != expected:
+            raise ValueError("栏目必须且只能包含 Learning Center、Gallery、Baseball")
+        return value
+
+
+class GalleryItemUpdate(BaseModel):
+    """Editable metadata for a Gallery photograph."""
+
+    title: str = Field(..., min_length=1, max_length=100)
+    caption: str = Field("", max_length=600)
+    location: str = Field("", max_length=100)
+    shot_date: Optional[str] = Field(None, max_length=10)
+    alt: str = Field(..., min_length=1, max_length=180)
+
+    @field_validator("shot_date")
+    @classmethod
+    def validate_shot_date(cls, value: Optional[str]) -> Optional[str]:
+        if value in (None, ""):
+            return None
+        from datetime import date
+        try:
+            date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("拍摄日期必须使用 YYYY-MM-DD") from exc
+        return value
 
 
 MapLanguageArtsDifficulty = Literal["easy", "medium", "hard", "adaptive"]

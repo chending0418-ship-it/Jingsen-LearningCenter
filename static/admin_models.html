@@ -282,24 +282,18 @@
             *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
     </style>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
 </head>
-<body>
+<body class="learning-admin models-admin-page">
     <main class="shell">
         <header class="topbar">
             <div class="brand">
-                <a id="back-link" class="back-link" href="/admin" aria-label="返回 Admin">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                </a>
+                <nav class="admin-context-line" aria-label="Admin breadcrumb">
+                    <a id="back-link" href="/admin">BACK2ADMIN</a><span aria-hidden="true">|</span><a href="/admin/learningcenter">Learning Center</a>
+                </nav>
                 <div>
-                    <p class="eyebrow">AI Model Control</p>
                     <h1>模型选择</h1>
                 </div>
-            </div>
-            <div class="top-actions">
-                <button class="button secondary" type="button" onclick="logoutAdmin()">退出 Admin</button>
-                <button id="header-save-button" class="button primary" type="button" onclick="saveSelection()" disabled>保存选择</button>
             </div>
         </header>
 
@@ -362,7 +356,7 @@
             saving: false
         };
 
-        document.getElementById('back-link').href = withBasePath('/admin');
+        document.getElementById('back-link').href = '/admin';
         document.getElementById('model-search').addEventListener('input', renderModels);
 
         async function apiRequest(path, options = {}) {
@@ -376,7 +370,7 @@
                 }
             });
             if (response.status === 401) {
-                window.location.href = withBasePath('/portal?admin=1');
+                window.location.href = `/admin?next=${encodeURIComponent('/admin/learningcenter/models')}`;
                 throw new Error('Admin session required');
             }
             let payload = null;
@@ -503,7 +497,6 @@
             );
             const disabled = !changed || state.loading || state.saving;
             document.getElementById('save-button').disabled = disabled;
-            document.getElementById('header-save-button').disabled = disabled;
         }
 
         function setMessage(type, text, hidden = false) {

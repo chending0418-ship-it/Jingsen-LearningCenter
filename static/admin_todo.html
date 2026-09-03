@@ -635,18 +635,16 @@
             *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
     </style>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
 </head>
-<body>
+<body class="learning-admin todo-admin-page">
     <main class="app-shell">
         <header class="topbar">
             <div class="brand-row">
-                <a id="admin-back" class="back-button" href="/admin" aria-label="返回 Admin 首页">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                        <path d="M15 18l-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                </a>
+                <nav class="admin-context-line" aria-label="Admin breadcrumb">
+                    <a id="admin-back" href="/admin">BACK2ADMIN</a><span aria-hidden="true">|</span><a href="/admin/learningcenter">Learning Center</a>
+                </nav>
                 <div class="title-wrap">
-                    <p class="eyebrow">Jingsen Learning Center</p>
                     <h1>Learning Todo 管理</h1>
                 </div>
             </div>
@@ -685,10 +683,10 @@
                 <button class="secondary-button" type="button" onclick="switchView('day')">查看今日明细</button>
             </div>
             <div class="metric-grid">
-                <div class="metric-card blue"><span class="metric-icon">≡</span><div id="metric-total" class="metric-number">—</div><div class="metric-name">今日任务总数</div></div>
-                <div class="metric-card"><span class="metric-icon">✓</span><div id="metric-done" class="metric-number">—</div><div class="metric-name">今日已完成</div></div>
-                <div class="metric-card amber"><span class="metric-icon">○</span><div id="metric-pending" class="metric-number">—</div><div class="metric-name">今日未完成</div></div>
-                <div class="metric-card red"><span class="metric-icon">!</span><div id="metric-overdue" class="metric-number">—</div><div class="metric-name">当前逾期</div></div>
+                <div class="metric-card blue"><div class="metric-name">今日任务总数</div><div id="metric-total" class="metric-number">—</div></div>
+                <div class="metric-card"><div class="metric-name">今日已完成</div><div id="metric-done" class="metric-number">—</div></div>
+                <div class="metric-card amber"><div class="metric-name">今日未完成</div><div id="metric-pending" class="metric-number">—</div></div>
+                <div class="metric-card red"><div class="metric-name">当前逾期</div><div id="metric-overdue" class="metric-number">—</div></div>
             </div>
             <div class="overview-grid">
                 <article class="panel progress-panel">
@@ -782,10 +780,10 @@
                 <select id="stats-range" class="control" onchange="renderStats()"><option value="week">本周统计</option><option value="month">本月统计</option></select>
             </div>
             <div class="metric-grid">
-                <div class="metric-card blue"><span class="metric-icon">≡</span><div id="stats-total" class="metric-number">0</div><div class="metric-name">计划任务</div></div>
-                <div class="metric-card"><span class="metric-icon">✓</span><div id="stats-completed" class="metric-number">0</div><div class="metric-name">已完成</div></div>
-                <div class="metric-card amber"><span class="metric-icon">↗</span><div id="stats-late" class="metric-number">0</div><div class="metric-name">逾期完成</div></div>
-                <div class="metric-card red"><span class="metric-icon">○</span><div id="stats-current" class="metric-number">0</div><div class="metric-name">当前未完成</div></div>
+                <div class="metric-card blue"><div class="metric-name">计划任务</div><div id="stats-total" class="metric-number">0</div></div>
+                <div class="metric-card"><div class="metric-name">已完成</div><div id="stats-completed" class="metric-number">0</div></div>
+                <div class="metric-card amber"><div class="metric-name">逾期完成</div><div id="stats-late" class="metric-number">0</div></div>
+                <div class="metric-card red"><div class="metric-name">当前未完成</div><div id="stats-current" class="metric-number">0</div></div>
             </div>
             <div class="stats-grid">
                 <article class="panel">
@@ -810,10 +808,10 @@
                 <div><p class="section-label">Points account</p><h2>积分修正与支出</h2><p class="section-copy">修正误操作造成的积分或连续记录偏差，也可以登记奖励兑换支出。</p></div>
             </div>
             <div class="metric-grid points-metrics">
-                <div class="metric-card"><span class="metric-icon">★</span><div id="points-available" class="metric-number">0</div><div class="metric-name">当前可用积分</div></div>
-                <div class="metric-card blue"><span class="metric-icon">＋</span><div id="points-earned" class="metric-number">0</div><div id="points-earned-label" class="metric-name">累计获得积分</div></div>
-                <div class="metric-card red"><span class="metric-icon">−</span><div id="points-spent" class="metric-number">0</div><div class="metric-name">累计支出积分</div></div>
-                <div class="metric-card blue"><span class="metric-icon">↗</span><div id="points-streak" class="metric-number">0</div><div class="metric-name">当前连续任务日</div></div>
+                <div class="metric-card"><div class="metric-name">当前可用积分</div><div id="points-available" class="metric-number">0</div></div>
+                <div class="metric-card blue"><div id="points-earned-label" class="metric-name">累计获得积分</div><div id="points-earned" class="metric-number">0</div></div>
+                <div class="metric-card red"><div class="metric-name">累计支出积分</div><div id="points-spent" class="metric-number">0</div></div>
+                <div class="metric-card blue"><div class="metric-name">当前连续任务日</div><div id="points-streak" class="metric-number">0</div></div>
             </div>
             <div class="points-layout">
                 <article class="panel">
@@ -935,7 +933,7 @@
             points: { available_points: 0, earned_points: 0, spent_points: 0, correction_points: 0, current_streak: 0, transactions: [] }
         };
 
-        document.getElementById('admin-back').href = withBasePath('/admin');
+        document.getElementById('admin-back').href = '/admin';
         document.getElementById('demo-badge').classList.toggle('visible', DEMO_MODE);
         document.querySelectorAll('.nav-tab').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
         document.getElementById('task-modal-backdrop').addEventListener('click', event => {
@@ -973,7 +971,7 @@
                 }
             });
             if (response.status === 401) {
-                window.location.href = withBasePath('/portal?admin=1');
+                window.location.href = `/admin?next=${encodeURIComponent('/admin/learningcenter/todo')}`;
                 throw new Error('Admin session required');
             }
             let payload = null;
