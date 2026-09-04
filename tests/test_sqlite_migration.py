@@ -1,4 +1,5 @@
 import json
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 
 from database import (
@@ -70,6 +71,10 @@ def test_full_legacy_migration_creates_relational_records_without_changing_sourc
         assert connection.execute("SELECT COUNT(*) FROM todo_task_history").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM schema_migrations WHERE version=2").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM schema_migrations WHERE version=3").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM schema_migrations WHERE version=4").fetchone()[0] == 1
+        assert "question_focus" in {
+            row[1] for row in connection.execute("PRAGMA table_info(reading_sessions)")
+        }
         assert connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='generation_jobs'").fetchone()[0] == "generation_jobs"
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -95,3 +100,49 @@ def test_concurrent_worker_startup_runs_legacy_migration_only_once(tmp_path):
     with SQLiteDatabase(database_path).read() as connection:
         assert connection.execute("SELECT COUNT(*) FROM app_state WHERE key LIKE 'legacy_migrated:%'").fetchone()[0] == 1
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+
+
+def test_schema_v4_preserves_existing_reading_sessions_and_defaults_focus(tmp_path):
+    database_path = tmp_path / "learning-center.sqlite3"
+    with sqlite3.connect(database_path) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+            CREATE TABLE reading_sessions (
+                id TEXT PRIMARY KEY,
+                access_token_hash TEXT NOT NULL,
+                book_id TEXT NOT NULL,
+                chapter_ids_json TEXT NOT NULL,
+                status TEXT NOT NULL,
+                question_count INTEGER NOT NULL,
+                overall_level TEXT,
+                student_summary TEXT,
+                parent_summary TEXT,
+                evaluation_json TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                completed_at TEXT
+            );
+            INSERT INTO schema_migrations(version, applied_at) VALUES(3, '2026-09-04T00:00:00Z');
+            INSERT INTO reading_sessions(
+                id, access_token_hash, book_id, chapter_ids_json, status, question_count,
+                created_at, updated_at
+            ) VALUES(
+                'session_before_v4', 'hash', 'book_1', '["chapter_1"]', 'active', 4,
+                '2026-09-04T00:00:00Z', '2026-09-04T00:00:00Z'
+            );
+            """
+        )
+
+    database = SQLiteDatabase(database_path)
+    with database.read() as connection:
+        row = connection.execute(
+            "SELECT id, question_count, question_focus FROM reading_sessions WHERE id=?",
+            ("session_before_v4",),
+        ).fetchone()
+        assert dict(row) == {
+            "id": "session_before_v4", "question_count": 4, "question_focus": "mixed"
+        }
+        assert connection.execute(
+            "SELECT COUNT(*) FROM schema_migrations WHERE version=4"
+        ).fetchone()[0] == 1

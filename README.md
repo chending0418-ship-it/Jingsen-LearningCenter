@@ -348,13 +348,13 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 ### Book Reading
 
 - `GET /api/reading/books`：孩子端读取已发布书籍与章节。
-- `POST /api/reading/sessions`：按所选章节生成 3–6 个引导问题并创建一次阅读记录。
+- `POST /api/reading/sessions`：按所选章节生成 3、4 或 5 个引导问题并创建一次阅读记录；`question_focus` 可选择 `main_idea`、`detail` 或 `mixed`。
 - `GET /api/reading/sessions/{session_id}`：使用该次阅读的随机访问凭证恢复进度。
 - `POST /api/reading/sessions/{session_id}/answers`：提交文字答案；模型可追加一次有针对性的追问。
 - `POST /api/reading/sessions/{session_id}/finish`：生成孩子可读总结和家长评估。
 - `/api/admin/reading/*`：受 Admin 会话保护的 PDF/封面上传、书籍资料、章节、发布状态和完整报告接口。
 
-PDF 上传限制默认 80MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。语音输入因当前模型供应商不支持转写接口而暂时移除。
+PDF 上传限制默认 80MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。提问和评估鼓励孩子用自己的总结与表达体现理解，不要求摘抄原文。语音输入因当前模型供应商不支持转写接口而暂时移除。
 
 ### Skills 管理
 
@@ -453,7 +453,7 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 - 保留线上 `.env`
 - 不覆盖线上词库和 Skills 数据
 - 使用 `www` 用户执行 git，避免 `dubious ownership`
-- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v3
+- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v4
 - 运行 `scripts/validate_persistent_data.py` 并确认 SQLite 完整性
 - 更新完成后重启或平滑重载 Gunicorn，再检查 `/health` 和异步 generation-jobs API
 

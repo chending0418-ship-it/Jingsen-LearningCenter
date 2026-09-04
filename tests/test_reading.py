@@ -13,7 +13,11 @@ class FakeReader:
 
 
 class FakeAI:
+    def __init__(self):
+        self.prompts = []
+
     async def generate_json(self, prompt, **_kwargs):
+        self.prompts.append(prompt)
         if "Detect the chapter starts" in prompt:
             return {"chapters": []}
         if "Create " in prompt and "comprehension questions" in prompt:
@@ -106,8 +110,12 @@ async def _exercise_full_guided_flow(tmp_path, monkeypatch):
     assert published["has_cover"] is True
     assert len(service.list_public_books()) == 1
 
-    session = await service.start_session(book["id"], [book["chapters"][0]["id"]], 4)
+    session = await service.start_session(book["id"], [book["chapters"][0]["id"]], 4, "main_idea")
     assert len(session["questions"]) == 4
+    assert session["question_focus"] == "main_idea"
+    question_prompt = next(prompt for prompt in service.ai_generator.prompts if "comprehension questions" in prompt)
+    assert "Focus: MAIN IDEA" in question_prompt
+    assert "Never ask the child to quote, copy, recite" in question_prompt
     assert "reference_answer" not in session["questions"][0]
     token = session["access_token"]
     question_id = session["questions"][0]["id"]
@@ -117,12 +125,19 @@ async def _exercise_full_guided_flow(tmp_path, monkeypatch):
     )
     assert first["questions"][0]["follow_up_question"]
     assert first["questions"][0]["answered_at"] is None
+    evaluation_prompt = next(prompt for prompt in service.ai_generator.prompts if "Evaluate a child's reading answer" in prompt)
+    assert "conceptual understanding" in evaluation_prompt
+    assert "Never ask for an exact quote" in evaluation_prompt
 
     followed = await service.answer_question(
         session["id"], token, question_id, "The chapter says he crossed the river.", "text", True
     )
     assert followed["questions"][0]["answered_at"]
     assert followed["questions"][0]["follow_up_feedback"]
+    with pytest.raises(ValueError, match="不需要补充回答"):
+        await service.answer_question(
+            session["id"], token, question_id, "One more answer.", "text", True
+        )
 
     completed = await service.finish_session(session["id"], token)
     assert completed["status"] == "completed"
@@ -140,7 +155,15 @@ def test_reading_routes_are_protected_and_public_flow_works(tmp_path, monkeypatc
     monkeypatch.setattr(reading_api, "get_reading_service", lambda: service)
 
     with TestClient(app, follow_redirects=False) as client:
-        assert client.get("/english/reading").status_code == 200
+        reading_page = client.get("/english/reading")
+        assert reading_page.status_code == 200
+        assert '<option value="3">3</option>' in reading_page.text
+        assert '<option value="4" selected>4</option>' in reading_page.text
+        assert '<option value="5">5</option>' in reading_page.text
+        assert 'value="main_idea">Main Idea' in reading_page.text
+        assert 'value="detail">Detail' in reading_page.text
+        assert 'value="mixed" selected>Mixed' in reading_page.text
+        assert "deep dive" not in reading_page.text
         assert client.get("/learningcenter/english/reading").status_code == 200
         assert client.get("/admin/learningcenter/reading").status_code == 303
         assert client.get("/api/admin/reading/books").status_code == 401
@@ -165,10 +188,19 @@ def test_reading_routes_are_protected_and_public_flow_works(tmp_path, monkeypatc
         assert public["total"] == 1
         started = client.post(
             "/api/reading/sessions",
-            json={"book_id": book["id"], "chapter_ids": [book["chapters"][0]["id"]], "question_count": 3},
+            json={
+                "book_id": book["id"], "chapter_ids": [book["chapters"][0]["id"]],
+                "question_count": 3, "question_focus": "detail",
+            },
         )
         assert started.status_code == 201
         payload = started.json()
+        assert payload["question_count"] == 3
+        assert payload["question_focus"] == "detail"
+        detail_prompt = [
+            prompt for prompt in service.ai_generator.prompts if "comprehension questions" in prompt
+        ][-1]
+        assert "Focus: DETAIL" in detail_prompt
         assert client.get(
             f"/api/reading/sessions/{payload['id']}", params={"access_token": payload["access_token"]}
         ).status_code == 200
@@ -178,12 +210,26 @@ def test_reading_routes_are_protected_and_public_flow_works(tmp_path, monkeypatc
         assert redetected.json()["status"] == "draft"
         assert len(redetected.json()["chapters"]) == 2
 
+        assert client.post(
+            "/api/reading/sessions",
+            json={
+                "book_id": book["id"], "chapter_ids": [book["chapters"][0]["id"]],
+                "question_count": 6, "question_focus": "mixed",
+            },
+        ).status_code == 422
+
 
 def test_ai_json_parser_accepts_compatible_provider_code_fences():
     assert AIGenerator._parse_json_content('```json\n{"chapters":[{"title":"One"}]}\n```') == {
         "chapters": [{"title": "One"}]
     }
     assert AIGenerator._parse_json_content('Here is the result:\n{"ok":true}') == {"ok": True}
+
+
+def test_mixed_question_focus_balances_main_idea_and_detail():
+    instructions = ReadingService._question_focus_instructions("mixed", 5)
+    assert "3 main-idea questions" in instructions
+    assert "2 meaningful-detail questions" in instructions
 
 
 def test_toc_detection_sends_a_focused_prompt(tmp_path):

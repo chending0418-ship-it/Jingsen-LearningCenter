@@ -9,6 +9,30 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-09-04：Book Reading 题量与问题重点优化（待发布）
+
+### 变更目的与用户可见结果
+
+- 阅读开始前的问题数改为只显示 `3`、`4`、`5`，默认选择 4，不再使用 Quick、Balanced、Deep Dive 等容易与模型推理强度混淆的名称。
+- 新增与问题数同级的 `Question focus` 选择：`Main Idea` 聚焦中心思想、重要事件、人物目标或变化；`Detail` 聚焦支持理解的动作、顺序、线索、描写和因果；`Mixed` 按题数同时覆盖大意与有意义的细节，默认选择 Mixed。
+- 每道主问题仍最多追加一次追问；第二次提交同题追问会被后端明确拒绝，不会继续调用模型。
+- 所有题型都鼓励孩子用自己的总结、转述和解释来回答。评估依据改为概念是否理解，不因措辞、拼写或语法与参考答案不同而扣分，也不把仅复制原文视为更好的理解证据。
+
+### 实现与数据兼容
+
+- 会话创建 API 新增受限字段 `question_focus=main_idea|detail|mixed`，题量服务端限制为 3–5；生成提示会根据选择应用独立的出题策略，并明确禁止要求孩子摘抄、背诵或复现原句。
+- SQLite Schema 升级到 v4，在 `reading_sessions` 增加 `question_focus`；旧阅读记录无损保留并自动标记为 `mixed`。孩子进行中的阅读和 Admin 历史报告都会显示本次选择的问题重点。
+- 本次变更不修改 `reading_books`、`reading_chapters` 或 `data/reading-books` 的结构与内容；生产发布继续通过 `update_safe.sh` 对完整 `data/` 和 `.env` 做发布前快照、恢复及清单校验。
+
+### 验证
+
+- 全量自动测试通过：`46 passed`。新增验证 3/4/5 页面选项、Main Idea 与 Detail 提示、Mixed 题目配比、6 题请求拒绝、一次追问上限，以及从 Schema v3 升级时旧阅读记录仍存在且默认 focus 为 Mixed。
+- Python 编译、Git 空白检查以及 Reading 与 Reading Admin 页面内联 JavaScript 语法检查通过。
+
+### 后续风险
+
+- Main Idea、Detail 与 Mixed 的实际问题质量仍受所选模型及 PDF 文字提取质量影响；发布后应使用线上已上传书籍各生成一次，观察模型是否稳定遵循问题重点和自主表达规则。
+
 ## 2026-09-04：Book Reading 引导式阅读首版（已上线）
 
 ### 变更目的与用户可见结果

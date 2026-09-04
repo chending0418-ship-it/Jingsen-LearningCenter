@@ -71,7 +71,7 @@ async def get_public_cover(book_id: str):
 async def start_reading_session(payload: ReadingSessionCreate):
     try:
         return await get_reading_service().start_session(
-            payload.book_id, payload.chapter_ids, payload.question_count
+            payload.book_id, payload.chapter_ids, payload.question_count, payload.question_focus
         )
     except Exception as exc:
         _raise_reading_error(exc)
