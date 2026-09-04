@@ -9,6 +9,25 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-09-04：Book Reading Summary 证据约束修复（待发布）
+
+### 问题与用户可见结果
+
+- 线上复盘确认：一次 4 题阅读中，主回答和追问回答全部为 `test`，逐题等级均正确记录为 `needs_support`，但最终模型仍把“完成问题、持续尝试”列成优势，孩子端又会在 strengths 为空时补充默认表扬，导致 Summary 看起来敷衍且与真实回答不符。
+- 修复后，`test`、`testing`、`asdf`、`qwerty`、`skip` 等明确占位回答会收到一次简短重试引导；第二次仍为占位回答时结束该题并记为 `needs_support`。这条确定性路径不会调用逐题评分模型，既避免虚假反馈也减少无效 Token。
+- 如果整次阅读只有重复占位回答，最终 Summary 会明确说明无法从这些回答判断阅读理解、指出回答没有解释书中观点，并给出重新作答的具体方式；不会再把完成、参与、坚持或努力包装成“理解优势”。结果页标题会改为 `Let’s try that again.`，无可证实优势时显示 `What your answers showed`。
+
+### 实现与评估约束
+
+- 最终理解等级现在由逐题等级计算上限，模型只能保持或下调，不能把多数 `needs_support` 的会话提升为较高等级。
+- Summary 提示必须引用本次实际理解点或具体缺口；后端继续过滤 engagement、attempt、completion、persistence 等非理解类 strengths。没有任何 `clear` 或 `mostly_clear` 题目时，strengths 强制为空。
+- 非占位的简短回答仍会交给模型按语义评估，继续接受孩子自己的总结和转述，不使用死板字数、关键词或原文相似度判分。
+
+### 验证与风险
+
+- 全量自动测试通过：`48 passed`。新增覆盖连续 `test` 主回答和追问、零额外评分/总结模型调用、诚实的 `needs_support` Summary、空 strengths、证据化 strengths 过滤、泛化 Summary 确定性替换和逐题等级汇总上限；Python 编译、页面 JavaScript 语法及 Git 空白检查通过。
+- 历史阅读记录继续作为当时的原始审计记录保留，不自动重写；本修复应用于部署后新提交的回答和新完成的 Summary。
+
 ## 2026-09-04：Book Reading 题量与问题重点优化（已上线）
 
 ### 变更目的与用户可见结果
