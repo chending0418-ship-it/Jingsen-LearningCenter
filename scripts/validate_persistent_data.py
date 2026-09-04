@@ -120,6 +120,7 @@ def summary(data_dir: Path, json_files: list[str], required_files: list[str]) ->
         "daily_reports": (data_dir / "report_history.json").is_file(),
         "model_settings": (data_dir / "model-settings.json").is_file(),
         "gallery_assets": len(list((data_dir / "gallery-assets").glob("*"))),
+        "reading_book_assets": len(list((data_dir / "reading-books").glob("*"))),
         "todo_directory": (data_dir / "learning-todo").is_dir(),
         "todo_task_months": len(list((data_dir / "learning-todo" / "tasks").glob("*.json"))),
         "todo_backups": len(list((data_dir / "learning-todo" / "backups").glob("*.zip"))),

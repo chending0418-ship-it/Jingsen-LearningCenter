@@ -41,6 +41,27 @@ class AIGenerator:
         normalized = str(model or "").strip().lower()
         return normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
 
+    @staticmethod
+    def _parse_json_content(content: Any) -> Any:
+        """Accept strict JSON and common fenced JSON from compatible providers."""
+        if not isinstance(content, str) or not content.strip():
+            raise json.JSONDecodeError("AI response content is empty", str(content or ""), 0)
+        text = content.strip()
+        if text.startswith("```"):
+            lines = text.splitlines()
+            if lines and lines[0].strip().lower() in {"```", "```json", "```javascript"}:
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            start, end = text.find("{"), text.rfind("}")
+            if 0 <= start < end:
+                return json.loads(text[start:end + 1])
+            raise
+
     async def _create_chat_completion(self, **kwargs):
         model = str(kwargs.get("model") or "")
         if self._uses_minimal_reasoning(model):
@@ -97,10 +118,10 @@ class AIGenerator:
             )
             
             content = response.choices[0].message.content
-            data = json.loads(content)
+            data = self._parse_json_content(content)
             
             # 兼容不同的返回格式
-            questions = data.get("questions", data.get("results", []))
+            questions = data.get("questions", data.get("results", [])) if isinstance(data, dict) else []
             
             # 如果获取的是空数组，尝试直接处理 data
             if not questions and isinstance(data, list):
@@ -138,7 +159,7 @@ class AIGenerator:
                 **kwargs
             )
             content = response.choices[0].message.content
-            data = json.loads(content)
+            data = self._parse_json_content(content)
             if not isinstance(data, dict):
                 raise ValueError("AI response is not a JSON object")
             logger.info("Successfully generated JSON content")

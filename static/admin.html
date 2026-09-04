@@ -27,7 +27,7 @@
             </div>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
             <button class="card p-5 text-left border-2 border-indigo-500 bg-indigo-50/60">
                 <div class="text-xs font-bold text-indigo-600 uppercase tracking-[0.16em]">当前页面</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">词库管理</h2>
@@ -47,6 +47,11 @@
                 <div class="text-xs font-bold text-violet-600 uppercase tracking-[0.16em]">AI Models</div>
                 <h2 class="text-2xl font-bold text-gray-900 mt-2">模型选择</h2>
                 <p class="text-gray-500 mt-2">读取当前 Key 可用模型，并设置所有出题模块的默认模型。</p>
+            </button>
+            <button onclick="location.href='/admin/learningcenter/reading'" class="card p-5 text-left hover:border-lime-500 hover:bg-lime-50/60 transition-colors">
+                <div class="text-xs font-bold text-lime-700 uppercase tracking-[0.16em]">Book Reading</div>
+                <h2 class="text-2xl font-bold text-gray-900 mt-2">阅读管理</h2>
+                <p class="text-gray-500 mt-2">上传 PDF、检查章节、发布书籍，并查看孩子每次问答与理解评估。</p>
             </button>
         </section>
 

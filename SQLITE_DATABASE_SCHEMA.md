@@ -5,8 +5,8 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`2`
-- 表总数：`21`
+- 当前 Schema 版本：`3`
+- 表总数：`25`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
 - 日期时间通常使用 `TEXT` 保存 ISO 8601 字符串；日期使用 `YYYY-MM-DD`，月份使用 `YYYY-MM`。
@@ -37,6 +37,10 @@
 | 19 | `todo_task_history` | Todo | 保存 Todo 任务状态变更历史 | 5 |
 | 20 | `todo_reports` | Todo | 保存 Todo 报告记录 | 3 |
 | 21 | `points_ledger` | Todo | 保存积分收支流水 | 7 |
+| 22 | `reading_books` | Book Reading | 保存上传书籍、资源路径和发布状态 | 15 |
+| 23 | `reading_chapters` | Book Reading | 保存识别或人工修正后的章节及页内文字 | 10 |
+| 24 | `reading_sessions` | Book Reading | 保存每次引导阅读及整体评估 | 13 |
+| 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
 
 ## 3. 系统与迁移表
 
@@ -424,7 +428,93 @@
 | `created_at` | `TEXT` | 是 | `NULL` |  | 流水创建时间 |
 | `payload_json` | `TEXT` | 否 | 无 |  | 流水完整原始数据 |
 
-## 9. 表关系总览
+## 9. Book Reading 表
+
+### 9.1 `reading_books`
+
+用途：保存 Admin 上传的 PDF 书籍、可选封面、解析状态和孩子端发布状态。
+
+| 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `id` | `TEXT` | 否 | 无 | 主键 | 书籍 ID |
+| `title` | `TEXT` | 否 | 无 |  | 书名 |
+| `author` | `TEXT` | 否 | `''` |  | 作者 |
+| `description` | `TEXT` | 否 | `''` |  | 给孩子的简介 |
+| `age_level` | `TEXT` | 否 | `''` |  | 适读年龄或年级 |
+| `language` | `TEXT` | 否 | `'English'` |  | 书籍语言 |
+| `pdf_asset` | `TEXT` | 否 | 无 |  | 原始 PDF 的服务器路径，不通过公开接口暴露 |
+| `cover_asset` | `TEXT` | 是 | `NULL` |  | 可选封面路径 |
+| `pdf_sha256` | `TEXT` | 否 | 无 | 唯一 | PDF 内容哈希，用于阻止重复上传 |
+| `page_count` | `INTEGER` | 否 | 无 |  | PDF 总页数 |
+| `status` | `TEXT` | 否 | 无 | `draft/published/archived` | 发布状态 |
+| `extraction_status` | `TEXT` | 否 | 无 |  | `ready` 或 `needs_ocr` |
+| `created_at` | `TEXT` | 否 | 无 |  | 创建时间 |
+| `updated_at` | `TEXT` | 否 | 无 |  | 更新时间 |
+| `extra_json` | `TEXT` | 否 | `'{}'` |  | 可读字符数等扩展信息 |
+
+### 9.2 `reading_chapters`
+
+用途：保存从 PDF 书签、章节标题或模型识别出的目录。Admin 修改页码后会重新提取对应页文字。
+
+| 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `id` | `TEXT` | 否 | 无 | 主键 | 章节 ID |
+| `book_id` | `TEXT` | 否 | 无 | 外键 | 关联 `reading_books.id` |
+| `title` | `TEXT` | 否 | 无 |  | 章节名称 |
+| `start_page` | `INTEGER` | 否 | 无 |  | PDF 起始页 |
+| `end_page` | `INTEGER` | 否 | 无 |  | PDF 结束页 |
+| `sort_order` | `INTEGER` | 否 | 无 | 与 `book_id` 联合唯一 | 章节顺序 |
+| `detection_source` | `TEXT` | 否 | 无 |  | `pdf_outline/page_heading/ai_detected/admin/fallback` |
+| `confidence` | `REAL` | 否 | `0` |  | 自动识别置信度 |
+| `content_text` | `TEXT` | 否 | `''` |  | 带 PDF 页码标记的章节文字，供问题生成使用 |
+| `extra_json` | `TEXT` | 否 | `'{}'` |  | 扩展信息 |
+
+### 9.3 `reading_sessions`
+
+用途：保存一次选定章节的引导式阅读过程及最终理解评估。
+
+| 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `id` | `TEXT` | 否 | 无 | 主键 | 阅读记录 ID |
+| `access_token_hash` | `TEXT` | 否 | 无 |  | 孩子端随机访问凭证的 SHA-256；不保存原凭证 |
+| `book_id` | `TEXT` | 否 | 无 | 外键 | 关联书籍 |
+| `chapter_ids_json` | `TEXT` | 否 | 无 |  | 所选章节 ID 列表 |
+| `status` | `TEXT` | 否 | 无 | `active/completed/abandoned` | 进度状态 |
+| `question_count` | `INTEGER` | 否 | 无 |  | 本次问题数 |
+| `overall_level` | `TEXT` | 是 | `NULL` |  | `clear/mostly_clear/needs_support` |
+| `student_summary` | `TEXT` | 是 | `NULL` |  | 孩子可见总结 |
+| `parent_summary` | `TEXT` | 是 | `NULL` |  | 仅 Admin 可见总结 |
+| `evaluation_json` | `TEXT` | 否 | `'{}'` |  | 优势、回看重点和建议 |
+| `created_at` | `TEXT` | 否 | 无 |  | 开始时间 |
+| `updated_at` | `TEXT` | 否 | 无 |  | 最近互动时间 |
+| `completed_at` | `TEXT` | 是 | `NULL` |  | 完成时间 |
+
+### 9.4 `reading_session_questions`
+
+用途：保存每道开放问题、孩子回答、最多一次追问、即时反馈及家长侧评估依据。
+
+| 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `id` | `TEXT` | 否 | 无 | 主键 | 问题 ID |
+| `session_id` | `TEXT` | 否 | 无 | 外键 | 关联阅读记录 |
+| `position` | `INTEGER` | 否 | 无 | 与 `session_id` 联合唯一 | 问题顺序 |
+| `question_text` | `TEXT` | 否 | 无 |  | 给孩子的问题 |
+| `question_type` | `TEXT` | 否 | 无 |  | 回忆、推理、因果、联系或预测等 |
+| `purpose` | `TEXT` | 否 | `''` |  | 评估目的 |
+| `reference_answer` | `TEXT` | 否 | `''` |  | 仅 Admin/模型使用的参考理解 |
+| `evidence_json` | `TEXT` | 否 | `'[]'` |  | PDF 页码与短证据 |
+| `child_answer` | `TEXT` | 是 | `NULL` |  | 孩子的原始答案文字 |
+| `input_mode` | `TEXT` | 是 | `NULL` |  | `text` 或 `voice`；语音原文件不保存 |
+| `feedback` | `TEXT` | 是 | `NULL` |  | 首次回答的即时反馈 |
+| `understanding_level` | `TEXT` | 是 | `NULL` |  | 本题理解层级 |
+| `parent_note` | `TEXT` | 是 | `NULL` |  | 仅 Admin 可见备注 |
+| `follow_up_question` | `TEXT` | 是 | `NULL` |  | 可选的一次引导追问 |
+| `follow_up_answer` | `TEXT` | 是 | `NULL` |  | 追问答案 |
+| `follow_up_feedback` | `TEXT` | 是 | `NULL` |  | 追问反馈 |
+| `answered_at` | `TEXT` | 是 | `NULL` |  | 本题及必要追问完成时间 |
+| `extra_json` | `TEXT` | 否 | `'{}'` |  | 扩展信息 |
+
+## 10. 表关系总览
 
 | 父表 | 子表 | 外键 | 删除父记录时的行为 |
 | --- | --- | --- | --- |
@@ -438,8 +528,11 @@
 | `todo_templates` | `todo_template_weekdays` | `todo_template_weekdays.template_id` | 级联删除星期设置 |
 | `todo_templates` | `todo_tasks` | `todo_tasks.template_id` | 阻止删除仍被引用的模板 |
 | `todo_tasks` | `todo_task_history` | `todo_task_history.task_id` | 级联删除任务历史 |
+| `reading_books` | `reading_chapters` | `reading_chapters.book_id` | 级联删除章节 |
+| `reading_books` | `reading_sessions` | `reading_sessions.book_id` | 阻止删除仍有历史记录的书籍 |
+| `reading_sessions` | `reading_session_questions` | `reading_session_questions.session_id` | 级联删除逐题记录 |
 
-## 10. 索引总览
+## 11. 索引总览
 
 除主键和唯一约束自动产生的 SQLite 索引外，Schema 显式定义了以下索引：
 
@@ -452,8 +545,12 @@
 | `idx_generation_jobs_expiry` | `generation_jobs` | `expires_at` |
 | `idx_todo_templates_active` | `todo_templates` | `active`, `start_date`, `end_date` |
 | `idx_todo_tasks_calendar` | `todo_tasks` | `planned_date`, `lifecycle_status`, `subject_id` |
+| `idx_reading_books_status` | `reading_books` | `status`, `updated_at DESC` |
+| `idx_reading_chapters_book` | `reading_chapters` | `book_id`, `sort_order` |
+| `idx_reading_sessions_history` | `reading_sessions` | `created_at DESC`, `book_id` |
+| `idx_reading_questions_session` | `reading_session_questions` | `session_id`, `position` |
 
-## 11. 数据完整性规则
+## 12. 数据完整性规则
 
 - 数据库连接启用 `PRAGMA foreign_keys = ON`，因此外键和级联规则会实际生效。
 - 数据库使用 WAL 日志模式，写入事务使用 `BEGIN IMMEDIATE`。
@@ -463,3 +560,4 @@
 - 单例设置表通过 `CHECK(id = 1)` 保证最多只有一条有效配置记录。
 - 所有父子表的顺序型数据均通过 `position` 或 `sort_order` 保留原 JSON 数组顺序。
 - 异步生成任务的状态、进度和题目通过事务写入统一 SQLite 数据库，可由多个应用 worker 安全共享。
+- Book Reading 的 PDF、封面和 SQLite 记录都位于 `data/` 范围内，会被现有全量快照与清单校验保护；原始语音不写入服务器磁盘。

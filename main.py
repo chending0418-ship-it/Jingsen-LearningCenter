@@ -8,7 +8,7 @@ from urllib.parse import quote
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, report_history, skills, vocabulary_skills, todo
+from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, reading, report_history, skills, vocabulary_skills, todo
 from config import config
 from services.admin_session_service import is_admin_authenticated
 from services.model_settings_service import get_model_settings_service
@@ -58,6 +58,8 @@ app.include_router(homepage.public_router)
 app.include_router(homepage.admin_router)
 app.include_router(gallery.public_router)
 app.include_router(gallery.admin_router)
+app.include_router(reading.public_router)
+app.include_router(reading.admin_router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
@@ -71,6 +73,8 @@ app.include_router(todo.admin_session_router, prefix=BASE_PATH)
 app.include_router(todo.public_router, prefix=BASE_PATH)
 app.include_router(todo.admin_router, prefix=BASE_PATH)
 app.include_router(model_settings.router, prefix=BASE_PATH)
+app.include_router(reading.public_router, prefix=BASE_PATH)
+app.include_router(reading.admin_router, prefix=BASE_PATH)
 
 
 def serve_static_file(path: str, not_found_message: str):
@@ -140,6 +144,13 @@ async def serve_baseball():
 async def serve_english_portal():
     """提供英语学习页面"""
     return serve_static_file("static/english.html", "English page not found")
+
+
+@app.get("/english/reading")
+@app.get(f"{BASE_PATH}/english/reading")
+async def serve_book_reading():
+    """提供孩子使用的引导式英文阅读页面。"""
+    return serve_static_file("static/reading.html", "Book Reading page not found")
 
 
 @app.get("/chinese")
@@ -220,6 +231,11 @@ async def serve_learningcenter_admin_models(request: Request):
     return serve_admin_file(request, "static/admin_models.html", "Admin models page not found")
 
 
+@app.get("/admin/learningcenter/reading")
+async def serve_learningcenter_admin_reading(request: Request):
+    return serve_admin_file(request, "static/admin_reading.html", "Book Reading admin page not found")
+
+
 @app.get("/admin/gallery")
 async def serve_gallery_admin(request: Request):
     return serve_admin_file(request, "static/admin_gallery.html", "Gallery admin page not found")
@@ -261,6 +277,11 @@ async def redirect_old_admin_models(request: Request):
     return redirect_with_query(request, "/admin/learningcenter/models")
 
 
+@app.get("/admin/reading")
+async def redirect_old_admin_reading(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/reading")
+
+
 @app.get(f"{BASE_PATH}/admin")
 async def redirect_legacy_admin_portal(request: Request):
     return redirect_with_query(request, "/admin/learningcenter")
@@ -294,6 +315,11 @@ async def redirect_legacy_admin_todo(request: Request):
 @app.get(f"{BASE_PATH}/admin/models")
 async def redirect_legacy_admin_models(request: Request):
     return redirect_with_query(request, "/admin/learningcenter/models")
+
+
+@app.get(f"{BASE_PATH}/admin/reading")
+async def redirect_legacy_admin_reading(request: Request):
+    return redirect_with_query(request, "/admin/learningcenter/reading")
 
 
 @app.on_event("startup")
