@@ -9,7 +9,7 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
-## 2026-09-04：Book Reading 题量与问题重点优化（待发布）
+## 2026-09-04：Book Reading 题量与问题重点优化（已上线）
 
 ### 变更目的与用户可见结果
 
@@ -28,6 +28,8 @@
 
 - 全量自动测试通过：`46 passed`。新增验证 3/4/5 页面选项、Main Idea 与 Detail 提示、Mixed 题目配比、6 题请求拒绝、一次追问上限，以及从 Schema v3 升级时旧阅读记录仍存在且默认 focus 为 Mixed。
 - Python 编译、Git 空白检查以及 Reading 与 Reading Admin 页面内联 JavaScript 语法检查通过。
+- 开发提交 `0b83f72` 已从 `devBookReading` 合并为生产提交 `ae6231c`；`update_safe.sh` 创建发布前快照 `/www/wwwroot/learningcenter/backups/releases/20260904-113357-521798`，持久数据清单与 SQLite 完整性检查通过，Schema 迁移 1/2/3/4 均已登记且无外键违规。
+- 发布前后均为 1 本书、24 个章节、1 次阅读记录和 4 道历史问题；已上传《Shoe Dog》的 PDF（1,232,646 bytes）与封面（144,176 bytes）逐文件 SHA-256 完全一致，书籍保持 Published。公网 Reading 页面与书架 API 正常，页面已显示 3/4/5、Main Idea/Detail/Mixed，服务保持 `enabled`、`active` 且近五分钟无 warning。
 
 ### 后续风险
 
