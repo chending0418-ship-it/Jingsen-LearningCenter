@@ -31,7 +31,8 @@ class ReadingChaptersUpdate(BaseModel):
 class ReadingSessionCreate(BaseModel):
     book_id: str = Field(..., min_length=1, max_length=64)
     chapter_ids: List[str] = Field(..., min_length=1, max_length=3)
-    question_count: int = Field(5, ge=3, le=6)
+    question_count: int = Field(4, ge=3, le=5)
+    question_focus: Literal["main_idea", "detail", "mixed"] = "mixed"
 
     @field_validator("chapter_ids")
     @classmethod

@@ -267,6 +267,7 @@ CREATE TABLE IF NOT EXISTS reading_sessions (
     chapter_ids_json TEXT NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('active', 'completed', 'abandoned')),
     question_count INTEGER NOT NULL,
+    question_focus TEXT NOT NULL DEFAULT 'mixed' CHECK(question_focus IN ('main_idea', 'detail', 'mixed')),
     overall_level TEXT,
     student_summary TEXT,
     parent_summary TEXT,
@@ -363,6 +364,23 @@ class SQLiteDatabase:
                         )
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(3, ?)",
+                            (_now(),),
+                        )
+                        reading_session_columns = {
+                            row["name"] for row in connection.execute("PRAGMA table_info(reading_sessions)")
+                        }
+                        if "question_focus" not in reading_session_columns:
+                            try:
+                                connection.execute(
+                                    """ALTER TABLE reading_sessions
+                                       ADD COLUMN question_focus TEXT NOT NULL DEFAULT 'mixed'
+                                       CHECK(question_focus IN ('main_idea', 'detail', 'mixed'))"""
+                                )
+                            except sqlite3.OperationalError as exc:
+                                if "duplicate column name" not in str(exc).lower():
+                                    raise
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(4, ?)",
                             (_now(),),
                         )
                     break
@@ -1085,7 +1103,8 @@ class ReadingRepository:
         payload: Dict[str, Any] = {
             "id": row["id"], "book_id": row["book_id"],
             "chapter_ids": _load(row["chapter_ids_json"], []), "status": row["status"],
-            "question_count": row["question_count"], "overall_level": row["overall_level"],
+            "question_count": row["question_count"], "question_focus": row["question_focus"],
+            "overall_level": row["overall_level"],
             "student_summary": row["student_summary"], "created_at": row["created_at"],
             "updated_at": row["updated_at"], "completed_at": row["completed_at"],
             "questions": [cls._question_payload(question, include_private) for question in questions],
@@ -1099,12 +1118,13 @@ class ReadingRepository:
         with self.database.transaction() as connection:
             connection.execute(
                 """INSERT INTO reading_sessions(
-                       id,access_token_hash,book_id,chapter_ids_json,status,question_count,
+                       id,access_token_hash,book_id,chapter_ids_json,status,question_count,question_focus,
                        created_at,updated_at,evaluation_json
-                   ) VALUES(?,?,?,?,?,?,?,?,?)""",
+                   ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
                 (
                     session["id"], session["access_token_hash"], session["book_id"],
                     _dump(session["chapter_ids"]), "active", len(questions),
+                    session.get("question_focus", "mixed"),
                     session["created_at"], session["updated_at"], "{}",
                 ),
             )

@@ -5,7 +5,7 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`3`
+- 当前 Schema 版本：`4`
 - 表总数：`25`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
@@ -39,7 +39,7 @@
 | 21 | `points_ledger` | Todo | 保存积分收支流水 | 7 |
 | 22 | `reading_books` | Book Reading | 保存上传书籍、资源路径和发布状态 | 15 |
 | 23 | `reading_chapters` | Book Reading | 保存识别或人工修正后的章节及页内文字 | 10 |
-| 24 | `reading_sessions` | Book Reading | 保存每次引导阅读及整体评估 | 13 |
+| 24 | `reading_sessions` | Book Reading | 保存每次引导阅读及整体评估 | 14 |
 | 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
 
 ## 3. 系统与迁移表
@@ -481,6 +481,7 @@
 | `chapter_ids_json` | `TEXT` | 否 | 无 |  | 所选章节 ID 列表 |
 | `status` | `TEXT` | 否 | 无 | `active/completed/abandoned` | 进度状态 |
 | `question_count` | `INTEGER` | 否 | 无 |  | 本次问题数 |
+| `question_focus` | `TEXT` | 否 | `'mixed'` | `main_idea/detail/mixed` | 本次选择的提问重点；旧记录自动按 Mixed 处理 |
 | `overall_level` | `TEXT` | 是 | `NULL` |  | `clear/mostly_clear/needs_support` |
 | `student_summary` | `TEXT` | 是 | `NULL` |  | 孩子可见总结 |
 | `parent_summary` | `TEXT` | 是 | `NULL` |  | 仅 Admin 可见总结 |
