@@ -9,7 +9,7 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
-## 2026-09-04：Book Reading Summary 证据约束修复（待发布）
+## 2026-09-04：Book Reading Summary 证据约束修复（已上线）
 
 ### 问题与用户可见结果
 
@@ -26,6 +26,9 @@
 ### 验证与风险
 
 - 全量自动测试通过：`48 passed`。新增覆盖连续 `test` 主回答和追问、零额外评分/总结模型调用、诚实的 `needs_support` Summary、空 strengths、证据化 strengths 过滤、泛化 Summary 确定性替换和逐题等级汇总上限；Python 编译、页面 JavaScript 语法及 Git 空白检查通过。
+- 功能提交 `b47250d` 与措辞修正 `1dc8ba7` 已从 `devBookReading` 合并为生产提交 `8c99ecf`、`28afa60` 并发布。两轮安全更新分别创建快照 `/www/wwwroot/learningcenter/backups/releases/20260904-114924-525860` 与 `/www/wwwroot/learningcenter/backups/releases/20260904-115037-526321`，完整持久数据恢复和校验通过。
+- 生产环境只读冒烟确认：`test` 会被识别为占位回答；泛化的“保持参与、继续努力”会被替换为基于具体问题的 `I couldn’t yet confirm...` 提示，单题措辞正确使用 `this answer`。服务保持 `enabled`、`active`，内部及公网健康、English、Reading 和公开书架 API 均返回 HTTP 200，Admin Reading 未登录时按预期返回 303，近十分钟无 Error、Traceback 或 Exception。
+- 发布前后继续保持 1 本书、24 个章节、1 次历史阅读与 4 道历史问题；已上传《Shoe Dog》的 PDF（1,232,646 bytes，SHA-256 `9b95850b455c4cd36c3d66542711ce24bdf3af8c316fa13cf024a6e23b0e5cb7`）与封面（144,176 bytes，SHA-256 `6c1a5bbab4934f4abbe8bd6cfa2a4b686e3a704c40a140430f1bf5c7aab7660d`）均未变化，书籍仍为 Published。
 - 历史阅读记录继续作为当时的原始审计记录保留，不自动重写；本修复应用于部署后新提交的回答和新完成的 Summary。
 
 ## 2026-09-04：Book Reading 题量与问题重点优化（已上线）
