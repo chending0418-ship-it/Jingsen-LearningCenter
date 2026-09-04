@@ -300,6 +300,7 @@ def test_summary_strengths_must_be_comprehension_evidence():
         "needs_support",
     )
     assert "kept trying" not in summary
+    assert "from this answer" in summary
     assert "Why did Phil change his plan?" in summary
 
 

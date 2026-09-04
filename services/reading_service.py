@@ -743,9 +743,10 @@ Return JSON only: {{"feedback":"warm and specific 1-2 sentence feedback","unders
             questions[0] if questions else None,
         )
         review_question = _clean(review.get("question_text") if review else "", 350)
+        answer_scope = "this answer" if total == 1 else f"these {total} answers"
         if overall_level == "needs_support":
             return (
-                f"I couldn’t yet confirm your understanding from these {total} answers. "
+                f"I couldn’t yet confirm your understanding from {answer_scope}. "
                 f"Start again with this idea: {review_question} "
                 "Explain what you think in your own words, then add one reason or clue from the chapter."
             )
