@@ -35,8 +35,10 @@
 
 - 全量自动测试通过：`44 passed`，覆盖 Admin 会话保护、上传/识别/发布、公开书架、随机凭证、问题与追问、文字答案、完成评估、家长报告、聚焦目录请求和兼容接口 JSON 代码块解析。
 - 使用真实三页 PDF 检查书签目录与文字提取，正确得到 `Chapter One`（第 1–2 页）和 `Chapter Two`（第 3 页）。
-- 使用当前线上模型 `claude-opus-4-6-medium` 对实际上传的 320 页 PDF 验证：从第 5 个 PDF 页面中的 Table of Contents 正确识别出 24 个章节，并成功基于抽样后的所选内容生成 3 个理解/发散问题；已将该书的目录更新为 24 项并转回草稿。
+- 使用开发环境当时配置的兼容模型 `claude-opus-4-6-medium` 对实际上传的 320 页 PDF 验证：从第 5 个 PDF 页面中的 Table of Contents 正确识别出 24 个章节，并成功基于抽样后的所选内容生成 3 个理解/发散问题；已将该书的目录更新为 24 项并转回草稿。
 - Python 编译、Git 空白检查以及 Reading、Reading Admin、English、Learning Admin 四个页面的内联 JavaScript 语法检查均通过。
+- 生产分支发布提交为 `5fb3574`；`update_safe.sh` 创建发布前快照 `/www/wwwroot/learningcenter/backups/releases/20260904-111842-517732`，恢复后确认 48 个词库、3457 个词条、635 条 Skills、207 份练习报告、1133 个 Todo 任务、2833 条 Todo 历史及 2 条积分流水仍在，SQLite 完整性检查为 `ok`。
+- 重启 `learningcenter.service` 后服务保持 `enabled`、`active` 且近五分钟无 warning；Schema 迁移 1/2/3 均已登记，四张 Reading 表存在，`pypdf 6.16.2` 可用。公网健康、English、Reading 页面与公开书架 API 均返回 HTTP 200，Admin 页面未登录时 303 跳转登录，Admin API 返回 401。生产健康接口当前报告模型为 `gpt-5.4-nano`。
 
 ### 后续风险
 
