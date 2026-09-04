@@ -44,8 +44,8 @@ class ReadingSessionCreate(BaseModel):
 class ReadingAnswerRequest(BaseModel):
     access_token: str = Field(..., min_length=20, max_length=200)
     question_id: str = Field(..., min_length=1, max_length=64)
-    answer: str = Field(..., min_length=1, max_length=5000)
-    input_mode: Literal["text", "voice"] = "text"
+    answer: str = Field(..., min_length=1, max_length=1500)
+    input_mode: Literal["text"] = "text"
     is_follow_up: bool = False
 
 

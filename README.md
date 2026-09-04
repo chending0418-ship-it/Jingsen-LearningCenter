@@ -12,7 +12,7 @@
 - `MAP Test` 当前包含 `Language Arts` 和 `Reading`。
 - `MAP Language Arts` 已接入用户提供的 Skills 数据，支持按 `Grade -> Topic -> Skill` 出题，并按 `Detail` 做诊断报告。
 - `MAP Reading` 已有 Skills 数据文件，但出题/评估/前端练习流程暂时 Pending。
-- `Book Reading` 是独立于 MAP Reading 的引导式阅读：家长上传带文字层的 PDF、核对章节并发布；孩子选择刚读完的章节，用文字或语音回答模型生成的开放问题；后台保留逐题问答与整体理解评估。
+- `Book Reading` 是独立于 MAP Reading 的引导式阅读：家长上传带文字层的 PDF、核对章节并发布；孩子选择刚读完的章节，用文字回答模型生成的开放问题；后台保留逐题问答与整体理解评估。
 - 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到统一 SQLite 数据库。
 - Word Palace 的普通 Daily Word（`cloze` / `match`）和 Vocabulary Skills 已改为异步分批出题：创建任务后立即返回，首批 3 题生成后即可开始答题，后续题目在后台继续生成。
 
@@ -350,12 +350,11 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `GET /api/reading/books`：孩子端读取已发布书籍与章节。
 - `POST /api/reading/sessions`：按所选章节生成 3–6 个引导问题并创建一次阅读记录。
 - `GET /api/reading/sessions/{session_id}`：使用该次阅读的随机访问凭证恢复进度。
-- `POST /api/reading/sessions/{session_id}/answers`：提交文字答案或语音转写文本；模型可追加一次有针对性的追问。
+- `POST /api/reading/sessions/{session_id}/answers`：提交文字答案；模型可追加一次有针对性的追问。
 - `POST /api/reading/sessions/{session_id}/finish`：生成孩子可读总结和家长评估。
-- `POST /api/reading/transcriptions`：将一次录音转成文字；原始音频不落盘。
 - `/api/admin/reading/*`：受 Admin 会话保护的 PDF/封面上传、书籍资料、章节、发布状态和完整报告接口。
 
-PDF 上传限制默认 80MB，录音默认 12MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。
+PDF 上传限制默认 80MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。语音输入因当前模型供应商不支持转写接口而暂时移除。
 
 ### Skills 管理
 

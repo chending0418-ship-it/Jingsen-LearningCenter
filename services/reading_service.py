@@ -9,13 +9,11 @@ import logging
 import re
 import secrets
 import shutil
-import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from openai import OpenAI
 from pypdf import PdfReader
 
 from config import config
@@ -36,10 +34,6 @@ def _clean(value: Any, limit: int = 5000) -> str:
 
 class ReadingService:
     PDF_TYPES = {"application/pdf", "application/x-pdf", "application/octet-stream"}
-    AUDIO_TYPES = {
-        "audio/mpeg", "audio/mp3", "audio/mp4", "audio/m4a", "audio/x-m4a",
-        "audio/wav", "audio/x-wav", "audio/webm", "audio/ogg", "video/webm",
-    }
     IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 
     def __init__(
@@ -47,7 +41,6 @@ class ReadingService:
         data_root: str | Path | None = None,
         asset_dir: str | Path | None = None,
         ai_generator: Any | None = None,
-        transcription_client: Any | None = None,
     ):
         self.data_root = Path(data_root or config.DATA_DIR).resolve()
         if asset_dir is not None:
@@ -59,24 +52,12 @@ class ReadingService:
         self.asset_dir.mkdir(parents=True, exist_ok=True)
         self.repository = ReadingRepository(database_for_data_root(self.data_root))
         self._ai_generator = ai_generator
-        self._transcription_client = transcription_client
 
     @property
     def ai_generator(self):
         if self._ai_generator is None:
             self._ai_generator = get_ai_generator()
         return self._ai_generator
-
-    @property
-    def transcription_client(self):
-        if self._transcription_client is None:
-            self._transcription_client = OpenAI(
-                api_key=config.OPENAI_API_KEY,
-                base_url=config.fix_base_url(),
-                timeout=config.AI_REQUEST_TIMEOUT,
-                max_retries=1,
-            )
-        return self._transcription_client
 
     @staticmethod
     def _extract_pages(pdf_path: Path) -> tuple[PdfReader, List[str]]:
@@ -194,7 +175,7 @@ FOCUSED EXCERPTS:
                 prompt,
                 system_message="You identify document structure conservatively. Output valid JSON only.",
                 temperature=0.1,
-                max_tokens=4096,
+                max_tokens=2048,
             )
         except Exception as exc:
             logger.warning("Online chapter detection failed: %s", exc)
@@ -471,7 +452,7 @@ READING:
                 prompt,
                 system_message="You are a warm, curious reading coach for children. Output valid JSON only.",
                 temperature=0.75,
-                max_tokens=4096,
+                max_tokens=2500,
             )
 
         try:
@@ -565,7 +546,7 @@ READING:
         first_open = next((item for item in questions if not item.get("answered_at")), None)
         if first_open and first_open["id"] != question_id:
             raise ValueError("请按顺序回答问题")
-        clean_answer = _clean(answer, 5000)
+        clean_answer = _clean(answer, 1500)
         if not clean_answer:
             raise ValueError("请先说说你的想法")
 
@@ -635,11 +616,15 @@ Return JSON only: {{"feedback":"warm and specific 1-2 sentence feedback","unders
         if not answered:
             raise ValueError("至少回答一个问题后再完成阅读")
         transcript = "\n\n".join(
-            f"Q: {item['question_text']}\nA: {item.get('child_answer')}\n"
-            f"Follow-up: {item.get('follow_up_question') or '-'}\nFollow-up answer: {item.get('follow_up_answer') or '-'}\n"
-            f"Level: {item.get('understanding_level')}\nParent note: {item.get('parent_note') or '-'}"
+            _clean(
+                f"Q: {item['question_text']}\nA: {_clean(item.get('child_answer'), 1200)}\n"
+                f"Follow-up: {item.get('follow_up_question') or '-'}\n"
+                f"Follow-up answer: {_clean(item.get('follow_up_answer'), 1200) or '-'}\n"
+                f"Level: {item.get('understanding_level')}\nParent note: {item.get('parent_note') or '-'}",
+                3000,
+            )
             for item in answered
-        )
+        )[:20000]
         prompt = f"""Summarize this child's completed guided reading session for both child and parent.
 Be encouraging and evidence-based. Do not diagnose or label the child. The overall level must reflect the answers, not writing fluency alone.
 Return JSON only: {{"overall_level":"clear|mostly_clear|needs_support","student_summary":"2-3 warm sentences addressed to the child","parent_summary":"specific 2-4 sentence overview","strengths":["..."],"review_next":["..."],"next_steps":["..."]}}.
@@ -674,33 +659,6 @@ SESSION:
         book = self.repository.get_book(session["book_id"])
         session["book"] = self._admin_book(book) if book else None
         return session
-
-    async def transcribe_audio(self, audio: bytes, content_type: str, filename: str = "answer.webm") -> str:
-        mime = content_type.split(";", 1)[0].lower()
-        if mime not in self.AUDIO_TYPES:
-            raise ValueError("暂不支持这种录音格式")
-        if not audio:
-            raise ValueError("录音内容为空")
-        if len(audio) > config.READING_MAX_AUDIO_BYTES:
-            raise ValueError(f"单次录音不能超过 {config.READING_MAX_AUDIO_BYTES // (1024 * 1024)}MB")
-
-        def request_transcription():
-            with tempfile.NamedTemporaryFile(suffix=Path(filename).suffix or ".webm") as handle:
-                handle.write(audio)
-                handle.flush()
-                with open(handle.name, "rb") as stream:
-                    return self.transcription_client.audio.transcriptions.create(
-                        model=config.READING_TRANSCRIPTION_MODEL,
-                        file=stream,
-                        prompt="A child is answering an English reading comprehension question. Preserve their own words.",
-                    )
-
-        response = await asyncio.to_thread(request_transcription)
-        text = _clean(getattr(response, "text", response if isinstance(response, str) else ""), 5000)
-        if not text:
-            raise ValueError("没有识别到清楚的语音，请再试一次")
-        return text
-
 
 _reading_service: Optional[ReadingService] = None
 

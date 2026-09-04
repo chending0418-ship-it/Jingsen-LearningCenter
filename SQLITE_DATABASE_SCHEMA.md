@@ -504,7 +504,7 @@
 | `reference_answer` | `TEXT` | 否 | `''` |  | 仅 Admin/模型使用的参考理解 |
 | `evidence_json` | `TEXT` | 否 | `'[]'` |  | PDF 页码与短证据 |
 | `child_answer` | `TEXT` | 是 | `NULL` |  | 孩子的原始答案文字 |
-| `input_mode` | `TEXT` | 是 | `NULL` |  | `text` 或 `voice`；语音原文件不保存 |
+| `input_mode` | `TEXT` | 是 | `NULL` |  | 当前固定为 `text`；保留字段便于以后扩展输入方式 |
 | `feedback` | `TEXT` | 是 | `NULL` |  | 首次回答的即时反馈 |
 | `understanding_level` | `TEXT` | 是 | `NULL` |  | 本题理解层级 |
 | `parent_note` | `TEXT` | 是 | `NULL` |  | 仅 Admin 可见备注 |
@@ -560,4 +560,4 @@
 - 单例设置表通过 `CHECK(id = 1)` 保证最多只有一条有效配置记录。
 - 所有父子表的顺序型数据均通过 `position` 或 `sort_order` 保留原 JSON 数组顺序。
 - 异步生成任务的状态、进度和题目通过事务写入统一 SQLite 数据库，可由多个应用 worker 安全共享。
-- Book Reading 的 PDF、封面和 SQLite 记录都位于 `data/` 范围内，会被现有全量快照与清单校验保护；原始语音不写入服务器磁盘。
+- Book Reading 的 PDF、封面和 SQLite 记录都位于 `data/` 范围内，会被现有全量快照与清单校验保护。

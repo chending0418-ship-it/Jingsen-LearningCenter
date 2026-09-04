@@ -104,18 +104,6 @@ async def finish_reading_session(session_id: str, payload: ReadingFinishRequest)
         _raise_reading_error(exc)
 
 
-@public_router.post("/transcriptions")
-async def transcribe_reading_answer(request: Request, filename: str = Query("answer.webm", max_length=120)):
-    _check_length(request, config.READING_MAX_AUDIO_BYTES, "录音")
-    try:
-        transcript = await get_reading_service().transcribe_audio(
-            await request.body(), request.headers.get("content-type", ""), filename
-        )
-        return {"text": transcript}
-    except Exception as exc:
-        _raise_reading_error(exc)
-
-
 @admin_router.get("/books")
 async def list_admin_books():
     books = get_reading_service().list_admin_books()

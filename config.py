@@ -45,8 +45,6 @@ class Config:
         os.path.join(DATA_DIR, "reading-books")
     )
     READING_MAX_PDF_BYTES: int = int(os.environ.get("READING_MAX_PDF_BYTES", str(80 * 1024 * 1024)))
-    READING_MAX_AUDIO_BYTES: int = int(os.environ.get("READING_MAX_AUDIO_BYTES", str(12 * 1024 * 1024)))
-    READING_TRANSCRIPTION_MODEL: str = os.environ.get("READING_TRANSCRIPTION_MODEL", "gpt-transcribe")
 
     # Admin 会话配置。沿用现有后台密码，不为 Learning Todo 增加第二套密码。
     ADMIN_PASSWORD: str = os.environ.get("ADMIN_PASSWORD", "0418")

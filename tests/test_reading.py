@@ -1,6 +1,4 @@
 import asyncio
-from types import SimpleNamespace
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -71,22 +69,11 @@ class TocAI:
         }
 
 
-class FakeTranscriptions:
-    def create(self, **_kwargs):
-        return SimpleNamespace(text="The character was trying to help a friend.")
-
-
-class FakeOpenAI:
-    def __init__(self):
-        self.audio = SimpleNamespace(transcriptions=FakeTranscriptions())
-
-
 def make_service(tmp_path, monkeypatch):
     service = ReadingService(
         data_root=tmp_path / "data",
         asset_dir=tmp_path / "assets",
         ai_generator=FakeAI(),
-        transcription_client=FakeOpenAI(),
     )
     pages = [
         "Chapter One\nMilo found a small boat and decided to help his friend.",
@@ -132,7 +119,7 @@ async def _exercise_full_guided_flow(tmp_path, monkeypatch):
     assert first["questions"][0]["answered_at"] is None
 
     followed = await service.answer_question(
-        session["id"], token, question_id, "The chapter says he crossed the river.", "voice", True
+        session["id"], token, question_id, "The chapter says he crossed the river.", "text", True
     )
     assert followed["questions"][0]["answered_at"]
     assert followed["questions"][0]["follow_up_feedback"]
@@ -147,10 +134,6 @@ async def _exercise_full_guided_flow(tmp_path, monkeypatch):
     assert report["parent_summary"]
     with pytest.raises(ValueError):
         service.get_public_session(session["id"], "wrong-token-that-is-long-enough")
-
-    transcript = await service.transcribe_audio(b"voice-data", "audio/webm")
-    assert "help a friend" in transcript
-
 
 def test_reading_routes_are_protected_and_public_flow_works(tmp_path, monkeypatch):
     service = make_service(tmp_path, monkeypatch)

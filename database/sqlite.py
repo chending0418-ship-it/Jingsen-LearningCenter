@@ -1018,7 +1018,7 @@ class ReadingRepository:
         return self.get_book(row["id"]) if row else None
 
     def list_books(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
-        query = "SELECT id FROM reading_books"
+        query = "SELECT * FROM reading_books"
         parameters: List[Any] = []
         if status:
             query += " WHERE status=?"
@@ -1026,7 +1026,23 @@ class ReadingRepository:
         query += " ORDER BY updated_at DESC,title"
         with self.database.read() as connection:
             rows = connection.execute(query, parameters).fetchall()
-        return [book for row in rows if (book := self.get_book(row["id"]))]
+            if not rows:
+                return []
+            ids = [row["id"] for row in rows]
+            placeholders = ",".join("?" for _ in ids)
+            chapter_rows = connection.execute(
+                f"SELECT * FROM reading_chapters WHERE book_id IN ({placeholders}) ORDER BY book_id,sort_order,id",
+                ids,
+            ).fetchall()
+        chapters_by_book: Dict[str, List[Dict[str, Any]]] = {book_id: [] for book_id in ids}
+        for chapter in chapter_rows:
+            chapters_by_book[chapter["book_id"]].append(self._chapter_payload(chapter))
+        books = []
+        for row in rows:
+            payload = self._book_payload(row)
+            payload["chapters"] = chapters_by_book[row["id"]]
+            books.append(payload)
+        return books
 
     def update_book(self, book_id: str, values: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         allowed = {"title", "author", "description", "age_level", "language", "status", "extraction_status", "cover_asset"}
@@ -1127,8 +1143,22 @@ class ReadingRepository:
 
     def list_sessions(self) -> List[Dict[str, Any]]:
         with self.database.read() as connection:
-            rows = connection.execute("SELECT id FROM reading_sessions ORDER BY created_at DESC").fetchall()
-        return [session for row in rows if (session := self.get_session(row["id"], include_private=True))]
+            rows = connection.execute("SELECT * FROM reading_sessions ORDER BY created_at DESC").fetchall()
+            if not rows:
+                return []
+            ids = [row["id"] for row in rows]
+            placeholders = ",".join("?" for _ in ids)
+            question_rows = connection.execute(
+                f"SELECT * FROM reading_session_questions WHERE session_id IN ({placeholders}) ORDER BY session_id,position,id",
+                ids,
+            ).fetchall()
+        questions_by_session: Dict[str, List[sqlite3.Row]] = {session_id: [] for session_id in ids}
+        for question in question_rows:
+            questions_by_session[question["session_id"]].append(question)
+        return [
+            self._session_payload(row, questions_by_session[row["id"]], include_private=True)
+            for row in rows
+        ]
 
     def update_question(self, session_id: str, question_id: str, values: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         allowed = {
