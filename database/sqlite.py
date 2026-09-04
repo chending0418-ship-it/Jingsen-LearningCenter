@@ -8,6 +8,7 @@ import os
 import re
 import sqlite3
 import threading
+import time
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -223,6 +224,84 @@ CREATE TABLE IF NOT EXISTS points_ledger (
     created_at TEXT,
     payload_json TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS reading_books (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    age_level TEXT NOT NULL DEFAULT '',
+    language TEXT NOT NULL DEFAULT 'English',
+    pdf_asset TEXT NOT NULL,
+    cover_asset TEXT,
+    pdf_sha256 TEXT NOT NULL UNIQUE,
+    page_count INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('draft', 'published', 'archived')),
+    extraction_status TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    extra_json TEXT NOT NULL DEFAULT '{}'
+);
+CREATE INDEX IF NOT EXISTS idx_reading_books_status
+    ON reading_books(status, updated_at DESC);
+CREATE TABLE IF NOT EXISTS reading_chapters (
+    id TEXT PRIMARY KEY,
+    book_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    start_page INTEGER NOT NULL,
+    end_page INTEGER NOT NULL,
+    sort_order INTEGER NOT NULL,
+    detection_source TEXT NOT NULL,
+    confidence REAL NOT NULL DEFAULT 0,
+    content_text TEXT NOT NULL DEFAULT '',
+    extra_json TEXT NOT NULL DEFAULT '{}',
+    FOREIGN KEY(book_id) REFERENCES reading_books(id) ON DELETE CASCADE,
+    UNIQUE(book_id, sort_order)
+);
+CREATE INDEX IF NOT EXISTS idx_reading_chapters_book
+    ON reading_chapters(book_id, sort_order);
+CREATE TABLE IF NOT EXISTS reading_sessions (
+    id TEXT PRIMARY KEY,
+    access_token_hash TEXT NOT NULL,
+    book_id TEXT NOT NULL,
+    chapter_ids_json TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('active', 'completed', 'abandoned')),
+    question_count INTEGER NOT NULL,
+    overall_level TEXT,
+    student_summary TEXT,
+    parent_summary TEXT,
+    evaluation_json TEXT NOT NULL DEFAULT '{}',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    completed_at TEXT,
+    FOREIGN KEY(book_id) REFERENCES reading_books(id)
+);
+CREATE INDEX IF NOT EXISTS idx_reading_sessions_history
+    ON reading_sessions(created_at DESC, book_id);
+CREATE TABLE IF NOT EXISTS reading_session_questions (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    question_type TEXT NOT NULL,
+    purpose TEXT NOT NULL DEFAULT '',
+    reference_answer TEXT NOT NULL DEFAULT '',
+    evidence_json TEXT NOT NULL DEFAULT '[]',
+    child_answer TEXT,
+    input_mode TEXT,
+    feedback TEXT,
+    understanding_level TEXT,
+    parent_note TEXT,
+    follow_up_question TEXT,
+    follow_up_answer TEXT,
+    follow_up_feedback TEXT,
+    answered_at TEXT,
+    extra_json TEXT NOT NULL DEFAULT '{}',
+    FOREIGN KEY(session_id) REFERENCES reading_sessions(id) ON DELETE CASCADE,
+    UNIQUE(session_id, position)
+);
+CREATE INDEX IF NOT EXISTS idx_reading_questions_session
+    ON reading_session_questions(session_id, position);
 """
 
 
@@ -269,17 +348,28 @@ class SQLiteDatabase:
         with self._init_lock:
             if self._initialized:
                 return
-            with self.connect() as connection:
-                connection.execute("PRAGMA journal_mode = WAL")
-                connection.executescript(SCHEMA)
-                connection.execute(
-                    "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(1, ?)",
-                    (_now(),),
-                )
-                connection.execute(
-                    "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(2, ?)",
-                    (_now(),),
-                )
+            for attempt in range(6):
+                try:
+                    with self.connect() as connection:
+                        connection.execute("PRAGMA journal_mode = WAL")
+                        connection.executescript(SCHEMA)
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(1, ?)",
+                            (_now(),),
+                        )
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(2, ?)",
+                            (_now(),),
+                        )
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(3, ?)",
+                            (_now(),),
+                        )
+                    break
+                except sqlite3.OperationalError as exc:
+                    if "locked" not in str(exc).lower() or attempt == 5:
+                        raise
+                    time.sleep(0.05 * (attempt + 1))
             self._initialized = True
 
     @contextmanager
@@ -817,6 +907,261 @@ class GalleryRepository:
                 """,
                 (self.STATE_KEY, _dump(items), now),
             )
+
+
+class ReadingRepository:
+    """Persistence for uploaded books, detected chapters, and guided reading reports."""
+
+    def __init__(self, database: SQLiteDatabase):
+        self.database = database
+
+    @staticmethod
+    def _chapter_payload(row: sqlite3.Row) -> Dict[str, Any]:
+        return {
+            "id": row["id"],
+            "book_id": row["book_id"],
+            "title": row["title"],
+            "start_page": row["start_page"],
+            "end_page": row["end_page"],
+            "sort_order": row["sort_order"],
+            "detection_source": row["detection_source"],
+            "confidence": row["confidence"],
+            "content_text": row["content_text"],
+            "extra": _load(row["extra_json"], {}),
+        }
+
+    @staticmethod
+    def _book_payload(row: sqlite3.Row) -> Dict[str, Any]:
+        return {
+            "id": row["id"],
+            "title": row["title"],
+            "author": row["author"],
+            "description": row["description"],
+            "age_level": row["age_level"],
+            "language": row["language"],
+            "pdf_asset": row["pdf_asset"],
+            "cover_asset": row["cover_asset"],
+            "pdf_sha256": row["pdf_sha256"],
+            "page_count": row["page_count"],
+            "status": row["status"],
+            "extraction_status": row["extraction_status"],
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+            "extra": _load(row["extra_json"], {}),
+        }
+
+    def create_book(self, book: Dict[str, Any], chapters: List[Dict[str, Any]]) -> Dict[str, Any]:
+        with self.database.transaction() as connection:
+            connection.execute(
+                """INSERT INTO reading_books(
+                       id,title,author,description,age_level,language,pdf_asset,cover_asset,
+                       pdf_sha256,page_count,status,extraction_status,created_at,updated_at,extra_json
+                   ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    book["id"], book["title"], book.get("author", ""),
+                    book.get("description", ""), book.get("age_level", ""),
+                    book.get("language", "English"), book["pdf_asset"],
+                    book.get("cover_asset"), book["pdf_sha256"], int(book["page_count"]),
+                    book.get("status", "draft"), book.get("extraction_status", "ready"),
+                    book["created_at"], book["updated_at"], _dump(book.get("extra", {})),
+                ),
+            )
+            self._replace_chapters(connection, book["id"], chapters)
+        return self.get_book(book["id"])  # type: ignore[return-value]
+
+    def _replace_chapters(
+        self, connection: sqlite3.Connection, book_id: str, chapters: List[Dict[str, Any]]
+    ) -> None:
+        connection.execute("DELETE FROM reading_chapters WHERE book_id=?", (book_id,))
+        for position, chapter in enumerate(chapters):
+            connection.execute(
+                """INSERT INTO reading_chapters(
+                       id,book_id,title,start_page,end_page,sort_order,detection_source,
+                       confidence,content_text,extra_json
+                   ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    chapter.get("id") or uuid.uuid4().hex, book_id, chapter["title"],
+                    int(chapter["start_page"]), int(chapter["end_page"]),
+                    int(chapter.get("sort_order", position)),
+                    chapter.get("detection_source", "admin"),
+                    float(chapter.get("confidence", 1.0)), chapter.get("content_text", ""),
+                    _dump(chapter.get("extra", {})),
+                ),
+            )
+
+    def replace_chapters(self, book_id: str, chapters: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        with self.database.transaction() as connection:
+            if not connection.execute("SELECT 1 FROM reading_books WHERE id=?", (book_id,)).fetchone():
+                return None
+            self._replace_chapters(connection, book_id, chapters)
+            connection.execute(
+                "UPDATE reading_books SET updated_at=?,extraction_status='ready' WHERE id=?",
+                (_now(), book_id),
+            )
+        return self.get_book(book_id)
+
+    def get_book(self, book_id: str) -> Optional[Dict[str, Any]]:
+        with self.database.read() as connection:
+            row = connection.execute("SELECT * FROM reading_books WHERE id=?", (book_id,)).fetchone()
+            if row is None:
+                return None
+            payload = self._book_payload(row)
+            chapters = connection.execute(
+                "SELECT * FROM reading_chapters WHERE book_id=? ORDER BY sort_order,id", (book_id,)
+            ).fetchall()
+        payload["chapters"] = [self._chapter_payload(chapter) for chapter in chapters]
+        return payload
+
+    def find_book_by_sha256(self, digest: str) -> Optional[Dict[str, Any]]:
+        with self.database.read() as connection:
+            row = connection.execute("SELECT id FROM reading_books WHERE pdf_sha256=?", (digest,)).fetchone()
+        return self.get_book(row["id"]) if row else None
+
+    def list_books(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        query = "SELECT id FROM reading_books"
+        parameters: List[Any] = []
+        if status:
+            query += " WHERE status=?"
+            parameters.append(status)
+        query += " ORDER BY updated_at DESC,title"
+        with self.database.read() as connection:
+            rows = connection.execute(query, parameters).fetchall()
+        return [book for row in rows if (book := self.get_book(row["id"]))]
+
+    def update_book(self, book_id: str, values: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        allowed = {"title", "author", "description", "age_level", "language", "status", "extraction_status", "cover_asset"}
+        updates = {key: value for key, value in values.items() if key in allowed}
+        if not updates:
+            return self.get_book(book_id)
+        updates["updated_at"] = _now()
+        assignments = ",".join(f"{key}=?" for key in updates)
+        with self.database.transaction() as connection:
+            cursor = connection.execute(
+                f"UPDATE reading_books SET {assignments} WHERE id=?",
+                [*updates.values(), book_id],
+            )
+            if not cursor.rowcount:
+                return None
+        return self.get_book(book_id)
+
+    @staticmethod
+    def _question_payload(row: sqlite3.Row, include_private: bool) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "id": row["id"], "position": row["position"],
+            "question_text": row["question_text"], "question_type": row["question_type"],
+            "purpose": row["purpose"], "child_answer": row["child_answer"],
+            "input_mode": row["input_mode"], "feedback": row["feedback"],
+            "understanding_level": row["understanding_level"],
+            "follow_up_question": row["follow_up_question"],
+            "follow_up_answer": row["follow_up_answer"],
+            "follow_up_feedback": row["follow_up_feedback"], "answered_at": row["answered_at"],
+        }
+        if include_private:
+            payload.update({
+                "reference_answer": row["reference_answer"],
+                "evidence": _load(row["evidence_json"], []),
+                "parent_note": row["parent_note"],
+            })
+        return payload
+
+    @classmethod
+    def _session_payload(cls, row: sqlite3.Row, questions: List[sqlite3.Row], include_private: bool) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "id": row["id"], "book_id": row["book_id"],
+            "chapter_ids": _load(row["chapter_ids_json"], []), "status": row["status"],
+            "question_count": row["question_count"], "overall_level": row["overall_level"],
+            "student_summary": row["student_summary"], "created_at": row["created_at"],
+            "updated_at": row["updated_at"], "completed_at": row["completed_at"],
+            "questions": [cls._question_payload(question, include_private) for question in questions],
+        }
+        if include_private:
+            payload["parent_summary"] = row["parent_summary"]
+            payload["evaluation"] = _load(row["evaluation_json"], {})
+        return payload
+
+    def create_session(self, session: Dict[str, Any], questions: List[Dict[str, Any]]) -> Dict[str, Any]:
+        with self.database.transaction() as connection:
+            connection.execute(
+                """INSERT INTO reading_sessions(
+                       id,access_token_hash,book_id,chapter_ids_json,status,question_count,
+                       created_at,updated_at,evaluation_json
+                   ) VALUES(?,?,?,?,?,?,?,?,?)""",
+                (
+                    session["id"], session["access_token_hash"], session["book_id"],
+                    _dump(session["chapter_ids"]), "active", len(questions),
+                    session["created_at"], session["updated_at"], "{}",
+                ),
+            )
+            for position, question in enumerate(questions):
+                connection.execute(
+                    """INSERT INTO reading_session_questions(
+                           id,session_id,position,question_text,question_type,purpose,
+                           reference_answer,evidence_json,extra_json
+                       ) VALUES(?,?,?,?,?,?,?,?,?)""",
+                    (
+                        question.get("id") or uuid.uuid4().hex, session["id"], position,
+                        question["question_text"], question.get("question_type", "understanding"),
+                        question.get("purpose", ""), question.get("reference_answer", ""),
+                        _dump(question.get("evidence", [])), _dump(question.get("extra", {})),
+                    ),
+                )
+        return self.get_session(session["id"], include_private=True)  # type: ignore[return-value]
+
+    def get_session(self, session_id: str, include_private: bool = False) -> Optional[Dict[str, Any]]:
+        with self.database.read() as connection:
+            row = connection.execute("SELECT * FROM reading_sessions WHERE id=?", (session_id,)).fetchone()
+            if row is None:
+                return None
+            questions = connection.execute(
+                "SELECT * FROM reading_session_questions WHERE session_id=? ORDER BY position,id",
+                (session_id,),
+            ).fetchall()
+        return self._session_payload(row, questions, include_private)
+
+    def get_session_token_hash(self, session_id: str) -> Optional[str]:
+        with self.database.read() as connection:
+            row = connection.execute(
+                "SELECT access_token_hash FROM reading_sessions WHERE id=?", (session_id,)
+            ).fetchone()
+        return row["access_token_hash"] if row else None
+
+    def list_sessions(self) -> List[Dict[str, Any]]:
+        with self.database.read() as connection:
+            rows = connection.execute("SELECT id FROM reading_sessions ORDER BY created_at DESC").fetchall()
+        return [session for row in rows if (session := self.get_session(row["id"], include_private=True))]
+
+    def update_question(self, session_id: str, question_id: str, values: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        allowed = {
+            "child_answer", "input_mode", "feedback", "understanding_level", "parent_note",
+            "follow_up_question", "follow_up_answer", "follow_up_feedback", "answered_at",
+        }
+        updates = {key: value for key, value in values.items() if key in allowed}
+        if not updates:
+            return self.get_session(session_id, include_private=True)
+        with self.database.transaction() as connection:
+            cursor = connection.execute(
+                f"UPDATE reading_session_questions SET {','.join(f'{key}=?' for key in updates)} WHERE id=? AND session_id=?",
+                [*updates.values(), question_id, session_id],
+            )
+            if not cursor.rowcount:
+                return None
+            connection.execute("UPDATE reading_sessions SET updated_at=? WHERE id=?", (_now(), session_id))
+        return self.get_session(session_id, include_private=True)
+
+    def complete_session(self, session_id: str, evaluation: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        now = _now()
+        with self.database.transaction() as connection:
+            cursor = connection.execute(
+                """UPDATE reading_sessions SET status='completed',overall_level=?,student_summary=?,
+                       parent_summary=?,evaluation_json=?,updated_at=?,completed_at=? WHERE id=?""",
+                (
+                    evaluation.get("overall_level"), evaluation.get("student_summary", ""),
+                    evaluation.get("parent_summary", ""), _dump(evaluation), now, now, session_id,
+                ),
+            )
+            if not cursor.rowcount:
+                return None
+        return self.get_session(session_id, include_private=True)
 
 
 class TodoRepository:

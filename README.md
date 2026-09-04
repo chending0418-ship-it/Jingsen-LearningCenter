@@ -12,10 +12,11 @@
 - `MAP Test` 当前包含 `Language Arts` 和 `Reading`。
 - `MAP Language Arts` 已接入用户提供的 Skills 数据，支持按 `Grade -> Topic -> Skill` 出题，并按 `Detail` 做诊断报告。
 - `MAP Reading` 已有 Skills 数据文件，但出题/评估/前端练习流程暂时 Pending。
+- `Book Reading` 是独立于 MAP Reading 的引导式阅读：家长上传带文字层的 PDF、核对章节并发布；孩子选择刚读完的章节，用文字或语音回答模型生成的开放问题；后台保留逐题问答与整体理解评估。
 - 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到统一 SQLite 数据库。
 - Word Palace 的普通 Daily Word（`cloze` / `match`）和 Vocabulary Skills 已改为异步分批出题：创建任务后立即返回，首批 3 题生成后即可开始答题，后续题目在后台继续生成。
 
-当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `2`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
+当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `3`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
 
 重要功能里程碑、线上部署基线和故障恢复记录见 [`CHANGELOG.md`](CHANGELOG.md)。
 
@@ -267,6 +268,7 @@ data/*.txt                     # 旧活动词库内容及迁移来源
 data/report_history.json       # 旧报告迁移来源
 data/skills/*.json             # Skills 种子与旧数据迁移来源
 data/gallery-assets/*          # Gallery 上传的原始图片，由全量 data 快照保护
+data/reading-books/<book-id>/  # Book Reading 的原始 PDF 与可选封面
 ```
 
 SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate_to_sqlite.py` 会幂等应用 Schema 版本并迁移尚未导入的旧数据。部署时必须完整保留服务器上的 `data/`，不要用本地 `data/` 覆盖线上数据。
@@ -281,6 +283,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/gallery`：Gallery 公开瀑布流，展示从后台发布的拍摄内容
 - `/baseball`：Baseball 首版空白栏目页
 - `/english`：英语模块首页
+- `/english/reading`：孩子使用的 Book Reading 选书、选章节、问答与阅读总结
 - `/admin`：统一 Admin 管理中枢与登录入口
 - `/admin/index`：个人主页文字、荧光滚动条文案、栏目链接与主视觉管理
 - `/admin/learningcenter`：Learning Center 管理首页，包含词库、Skills、Todo 与模型管理
@@ -289,6 +292,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/admin/learningcenter/skills`：Skills 知识点查看和启用/停用维护
 - `/admin/learningcenter/todo`：Learning Todo 管理
 - `/admin/learningcenter/models`：全站 AI 模型管理
+- `/admin/learningcenter/reading`：上传 PDF、核对章节、发布书籍及查看完整阅读记录
 - `/admin/gallery`：Gallery 图片上传与内容资料管理
 - `/admin/baseball`：预留的 Baseball 管理页面
 - `/chinese`：语文练习
@@ -341,6 +345,18 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `POST /api/map/language-arts/evaluate`
   - 评估完成后写入 SQLite 练习报告表。
 
+### Book Reading
+
+- `GET /api/reading/books`：孩子端读取已发布书籍与章节。
+- `POST /api/reading/sessions`：按所选章节生成 3–6 个引导问题并创建一次阅读记录。
+- `GET /api/reading/sessions/{session_id}`：使用该次阅读的随机访问凭证恢复进度。
+- `POST /api/reading/sessions/{session_id}/answers`：提交文字答案或语音转写文本；模型可追加一次有针对性的追问。
+- `POST /api/reading/sessions/{session_id}/finish`：生成孩子可读总结和家长评估。
+- `POST /api/reading/transcriptions`：将一次录音转成文字；原始音频不落盘。
+- `/api/admin/reading/*`：受 Admin 会话保护的 PDF/封面上传、书籍资料、章节、发布状态和完整报告接口。
+
+PDF 上传限制默认 80MB，录音默认 12MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。
+
 ### Skills 管理
 
 - `GET /api/skills`
@@ -381,6 +397,8 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/learningcenter/api/skills`
 - `/api/reports/history`
 - `/learningcenter/api/reports/history`
+- `/api/reading/books`
+- `/learningcenter/api/reading/books`
 
 前端页面会根据当前路径自动处理 `/learningcenter` 前缀。
 
@@ -391,8 +409,9 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 迁移到 Codex 后建议先做以下检查：
 
 ```bash
-python3 -m py_compile main.py api/skills.py api/map_language_arts.py api/vocabulary_skills.py api/report_history.py models/schemas.py services/skills_service.py services/map_language_arts_service.py services/vocabulary_skills_service.py services/report_history_service.py services/english_service.py
-node -e "const fs=require('fs'); for (const f of ['static/english.html','static/admin.html','static/admin_skills.html']) { const html=fs.readFileSync(f,'utf8'); const scripts=[...html.matchAll(/<script[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]); scripts.forEach(s=>new Function(s)); console.log(f+': ok'); }"
+python3 -m py_compile main.py api/reading.py models/reading_schemas.py services/reading_service.py database/sqlite.py
+node -e "const fs=require('fs'); for (const f of ['static/english.html','static/reading.html','static/admin.html','static/admin_reading.html']) { const html=fs.readFileSync(f,'utf8'); const scripts=[...html.matchAll(/<script[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]); scripts.forEach(s=>new Function(s)); console.log(f+': ok'); }"
+pytest -q
 ```
 
 然后启动：
@@ -404,8 +423,9 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 重点查看：
 
 - `http://127.0.0.1:8000/english`
+- `http://127.0.0.1:8000/english/reading`
 - `http://127.0.0.1:8000/admin`
-- `http://127.0.0.1:8000/admin/skills`
+- `http://127.0.0.1:8000/admin/learningcenter/reading`
 
 ---
 
@@ -414,8 +434,9 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 1. **P2：MAP Reading**
    - 保持 Pending。
    - 等 Vocabulary Skills 稳定后再做 Reading 出题和评估。
-2. **OCR / 图片上传 / Vision**
-   - 已取消，不再作为后续计划。
+2. **Book Reading 后续**
+   - Audio Book 与自由对话模式保持 Pending。
+   - 当前版本要求 PDF 带文字层；扫描 PDF 的 OCR/Vision 识别暂未实现。
 
 ---
 
@@ -433,7 +454,7 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 - 保留线上 `.env`
 - 不覆盖线上词库和 Skills 数据
 - 使用 `www` 用户执行 git，避免 `dubious ownership`
-- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v2
+- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v3
 - 运行 `scripts/validate_persistent_data.py` 并确认 SQLite 完整性
 - 更新完成后重启或平滑重载 Gunicorn，再检查 `/health` 和异步 generation-jobs API
 
