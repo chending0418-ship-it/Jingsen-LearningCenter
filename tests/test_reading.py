@@ -143,6 +143,9 @@ async def _exercise_full_guided_flow(tmp_path, monkeypatch):
     assert completed["status"] == "completed"
     assert completed["overall_level"] == "clear"
     assert completed["evaluation"]["strengths"]
+    summary_prompt = next(prompt for prompt in service.ai_generator.prompts if "Summarize this child's" in prompt)
+    assert "Never list attendance, completion, engagement" in summary_prompt
+    assert "Do not invent improvement, effort, feelings" in summary_prompt
     assert "parent_summary" not in completed
     report = service.get_admin_session(session["id"])
     assert report["questions"][0]["parent_note"]
@@ -164,6 +167,8 @@ def test_reading_routes_are_protected_and_public_flow_works(tmp_path, monkeypatc
         assert 'value="detail">Detail' in reading_page.text
         assert 'value="mixed" selected>Mixed' in reading_page.text
         assert "deep dive" not in reading_page.text
+        assert "Let’s try that again." in reading_page.text
+        assert "What your answers showed" in reading_page.text
         assert client.get("/learningcenter/english/reading").status_code == 200
         assert client.get("/admin/learningcenter/reading").status_code == 303
         assert client.get("/api/admin/reading/books").status_code == 401
@@ -230,6 +235,72 @@ def test_mixed_question_focus_balances_main_idea_and_detail():
     instructions = ReadingService._question_focus_instructions("mixed", 5)
     assert "3 main-idea questions" in instructions
     assert "2 meaningful-detail questions" in instructions
+
+
+def test_summary_rejects_repeated_placeholder_answers(tmp_path, monkeypatch):
+    asyncio.run(_exercise_placeholder_summary(tmp_path, monkeypatch))
+
+
+async def _exercise_placeholder_summary(tmp_path, monkeypatch):
+    service = make_service(tmp_path, monkeypatch)
+    book = await service.create_book(
+        b"%PDF-placeholder-summary-test", "application/pdf", title="Milo's Journey"
+    )
+    service.set_status(book["id"], "published")
+    session = await service.start_session(
+        book["id"], [book["chapters"][0]["id"]], 3, "mixed"
+    )
+    token = session["access_token"]
+    model_calls_after_questions = len(service.ai_generator.prompts)
+
+    for _ in range(3):
+        question = next(item for item in session["questions"] if not item["answered_at"])
+        session = await service.answer_question(
+            session["id"], token, question["id"], "test", "text", False
+        )
+        assert session["questions"][question["position"]]["follow_up_question"]
+        session = await service.answer_question(
+            session["id"], token, question["id"], "test", "text", True
+        )
+
+    completed = await service.finish_session(session["id"], token)
+    assert len(service.ai_generator.prompts) == model_calls_after_questions
+    assert completed["overall_level"] == "needs_support"
+    assert completed["evaluation"]["strengths"] == []
+    assert "repeated test or placeholder words" in completed["student_summary"]
+    assert "one question at a time in your own words" in completed["student_summary"]
+    assert len(completed["evaluation"]["next_steps"]) == 2
+
+    report = service.get_admin_session(session["id"])
+    assert "does not provide evidence of reading comprehension" in report["parent_summary"]
+    assert all(
+        question["understanding_level"] == "needs_support"
+        for question in report["questions"]
+    )
+
+
+def test_summary_strengths_must_be_comprehension_evidence():
+    needs_support = [{"understanding_level": "needs_support"}]
+    assert ReadingService._supported_strengths(
+        ["Stayed engaged with every question", "Identified the character's goal"], needs_support
+    ) == []
+
+    clear = [{"understanding_level": "clear"}]
+    assert ReadingService._supported_strengths(
+        ["Kept trying", "Identified the character's goal"], clear
+    ) == ["Identified the character's goal"]
+    assert ReadingService._derived_overall_level([
+        {"understanding_level": "needs_support"},
+        {"understanding_level": "needs_support"},
+        {"understanding_level": "mostly_clear"},
+    ]) == "needs_support"
+    summary = ReadingService._grounded_student_summary(
+        "You kept trying and worked through the questions.",
+        [{"understanding_level": "needs_support", "question_text": "Why did Phil change his plan?"}],
+        "needs_support",
+    )
+    assert "kept trying" not in summary
+    assert "Why did Phil change his plan?" in summary
 
 
 def test_toc_detection_sends_a_focused_prompt(tmp_path):
