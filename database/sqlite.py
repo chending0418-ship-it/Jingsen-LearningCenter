@@ -615,6 +615,39 @@ class LibraryRepository:
             rows = connection.execute("SELECT legacy_file_name FROM libraries WHERE archived = 0 ORDER BY legacy_file_name").fetchall()
         return [str(row["legacy_file_name"]) for row in rows if row["legacy_file_name"]]
 
+    def get_merge_source(self, connection: sqlite3.Connection, library_id: str) -> Dict[str, Any]:
+        row = connection.execute("SELECT * FROM libraries WHERE id = ?", (library_id,)).fetchone()
+        if row is None:
+            raise ValueError("所选词库不存在，请刷新后重新选择")
+        payload = self._row_payload(row)
+        payload["archived"] = bool(row["archived"])
+        payload["items"] = [item["content"] for item in connection.execute(
+            "SELECT content FROM library_items WHERE library_id = ? ORDER BY sort_order", (library_id,)
+        )]
+        return payload
+
+    def merge_name_exists(self, connection: sqlite3.Connection, name: str) -> bool:
+        return connection.execute(
+            "SELECT 1 FROM libraries WHERE name = ? OR legacy_file_name = ?", (name, name)
+        ).fetchone() is not None
+
+    def save_library_merge(
+        self, connection: sqlite3.Connection, entry: Dict[str, Any], sources: List[Dict[str, Any]]
+    ) -> None:
+        """Use the caller's transaction; preserve every original item and unrelated library."""
+        self._upsert_library(connection, entry, False)
+        self._replace_items(connection, entry["id"], entry["items"])
+        for source in sources:
+            if source["action"] == "keep":
+                continue
+            archived = source["action"] == "archive"
+            connection.execute(
+                """UPDATE libraries SET enabled = 0, archived = ?, archived_at = ?, updated_at = ?
+                   WHERE id = ?""",
+                (int(archived), entry["updated_at"] if archived else None,
+                 entry["updated_at"], source["library_id"]),
+            )
+
 
 class SkillsRepository:
     def __init__(self, database: SQLiteDatabase):

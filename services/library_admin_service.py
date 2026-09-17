@@ -3,9 +3,11 @@
 词库元数据与每一条词条都存为数据库记录。
 """
 
+import hashlib
 import json
 import os
 import random
+import sqlite3
 import tempfile
 import threading
 import uuid
@@ -411,6 +413,88 @@ class LibraryAdminService:
             result = self._library_with_count(entry)
             result["items"] = cleaned
             return result
+
+    def _prepare_library_merge(
+        self, connection: sqlite3.Connection, sources: List[Dict[str, str]], name: str, enabled: bool
+    ) -> Dict[str, Any]:
+        name = name.strip()
+        if not name or len(name) > 120:
+            raise ValueError("请填写 1–120 字的词库名称")
+        if name in {".", ".."} or any(char in name for char in "/\\") or any(ord(char) < 32 for char in name):
+            raise ValueError("词库名称不能包含路径分隔符或控制字符")
+        if len(sources) < 2:
+            raise ValueError("请至少选择两个英语词库")
+        source_ids = [source["library_id"] for source in sources]
+        if len(set(source_ids)) != len(source_ids):
+            raise ValueError("不能重复选择同一个词库")
+        if any(source["action"] not in {"keep", "disable", "archive"} for source in sources):
+            raise ValueError("原词库处理方式仅支持保留现状、停用或归档")
+        if self._repository.merge_name_exists(connection, name):
+            raise ValueError("词库名称已存在（含已归档词库），请使用新名称")
+
+        rows, summaries, items, seen = [], [], [], set()
+        total_source_items = 0
+        for source in sources:
+            row = self._repository.get_merge_source(connection, source["library_id"])
+            if row["subject"] != "english":
+                raise ValueError("只能合并英语词库")
+            if row["archived"]:
+                raise ValueError(f"词库「{row['name']}」已归档，请先取消归档再合并")
+            rows.append(row)
+            summaries.append({
+                "library_id": row["id"], "name": row["name"], "enabled": row["enabled"],
+                "total_items": len(row["items"]), "action": source["action"],
+            })
+            for raw in row["items"]:
+                item = raw.strip()
+                if not item:
+                    continue
+                total_source_items += 1
+                key = item.casefold()
+                if key not in seen:
+                    seen.add(key)
+                    items.append(item)
+        if not items:
+            raise ValueError("所选词库没有可合并的词条")
+
+        # Bind the preview to both the chosen settings and a consistent source snapshot.
+        fingerprint = json.dumps(
+            {"name": name, "enabled": enabled, "sources": sources, "rows": rows},
+            ensure_ascii=False, sort_keys=True,
+        )
+        return {
+            "name": name, "enabled": enabled, "sources": summaries, "items": items,
+            "total_source_items": total_source_items, "total_items": len(items),
+            "duplicate_count": total_source_items - len(items),
+            "preview_token": hashlib.sha256(fingerprint.encode("utf-8")).hexdigest(),
+        }
+
+    def preview_library_merge(
+        self, sources: List[Dict[str, str]], name: str, enabled: bool = True
+    ) -> Dict[str, Any]:
+        with self._lock, self._database.read() as connection:
+            connection.execute("BEGIN")
+            return self._prepare_library_merge(connection, sources, name, enabled)
+
+    def merge_libraries(
+        self, sources: List[Dict[str, str]], name: str, preview_token: str, enabled: bool = True
+    ) -> Dict[str, Any]:
+        with self._lock, self._database.transaction() as connection:
+            preview = self._prepare_library_merge(connection, sources, name, enabled)
+            if preview_token != preview["preview_token"]:
+                raise ValueError("词库内容、状态或合并设置已变化，请重新预览后再合并")
+            now = self._now()
+            entry = {
+                "id": uuid.uuid4().hex, "subject": "english", "name": preview["name"],
+                "file_name": preview["name"], "enabled": enabled, "library_type": None,
+                "created_at": now, "updated_at": now, "items": preview["items"],
+            }
+            self._repository.save_library_merge(connection, entry, sources)
+            return {
+                **entry, "archived": False, "archived_at": None,
+                "total_items": preview["total_items"], "source_count": len(sources),
+                "duplicate_count": preview["duplicate_count"],
+            }
 
     def update_library(
         self,

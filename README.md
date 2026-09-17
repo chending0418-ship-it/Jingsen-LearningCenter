@@ -290,6 +290,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/admin/index`：个人主页文字、荧光滚动条文案、栏目链接与主视觉管理
 - `/admin/learningcenter`：Learning Center 管理首页，包含词库、Skills、Todo 与模型管理
 - `/admin/learningcenter/new`：新增词库
+- `/admin/learningcenter/merge`：合并英语词库，预览去重结果并分别设置原词库保留现状、停用或归档
 - `/admin/learningcenter/library?id=<library_id>`：词库详情/编辑
 - `/admin/learningcenter/skills`：Skills 知识点查看和启用/停用维护
 - `/admin/learningcenter/todo`：Learning Todo 管理
@@ -359,6 +360,16 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 PDF 上传限制默认 80MB。章节优先读取 PDF 书签目录，其次识别每页章节标题，再使用当前模型辅助判断；扫描图片型 PDF 暂不发布，需换用带可选择文字层的版本。孩子端不会收到参考答案、页内证据或家长备注。提问和评估鼓励孩子用自己的总结与表达体现理解，不要求摘抄原文。语音输入因当前模型供应商不支持转写接口而暂时移除。
 
 Reading 的最终总结以逐题理解结果和实际回答为依据，不把完成题目、持续尝试或提交占位文字当作理解优势。`test`、`asdf`、`skip` 等占位回答会得到一次不泄露答案的重试提示；如果整次阅读仍只有重复占位回答，系统会直接给出明确的 `needs_support` 总结，不再让模型生成泛化表扬，也不会为这类回答额外消耗评分与总结 Token。
+
+### 英语词库合并
+
+在 Admin → Learning Center → 词库操作中选择「合并英语词库」。选择至少两个未归档的英语词库（可包含已停用词库），填写新名称并设置新词库是否立即启用。可搜索、多选、批量或逐个设置原词库的处理方式：保留现状维持当前启用状态；停用保留在普通列表但停止出题；归档移入归档列表并停止出题，可随后恢复。原词条完整保留。
+
+合并先去除词条首尾空格，再忽略大小写去重，按列表顺序保留首次出现的写法。页面展示原词条数、重复数、合并后数量、完整词条和各原词库的处理方式，预览确认后保存。
+
+- `POST /api/admin/libraries/merge-preview`：请求为 `name`、`enabled`、`sources: [{library_id, action}]`，其中 `action` 为 `keep` / `disable` / `archive`，默认 `keep`；返回统计、词条和 `preview_token`，不写入数据。
+- `POST /api/admin/libraries/merge`：提交相同设置及预览返回的 `preview_token`，返回新词库详情、`source_count` 和 `duplicate_count`。预览后原词库内容、状态或设置变化时，需重新预览。
+- 两个接口均要求 Admin 会话，并支持 `/learningcenter` 前缀。新词库名称不得与现有或归档词库重名。创建新词库及更新原词库状态使用同一个 SQLite 事务，失败全部回滚；无需数据库迁移或新增依赖。
 
 ### Skills 管理
 

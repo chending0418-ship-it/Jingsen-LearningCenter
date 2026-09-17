@@ -9,6 +9,10 @@ from models.schemas import (
     LibraryListResponse,
     LibraryAdminItem,
     LibraryCreateRequest,
+    LibraryMergePreviewRequest,
+    LibraryMergePreviewResponse,
+    LibraryMergeRequest,
+    LibraryMergeResponse,
     LibraryUpdateRequest,
     LibraryStatusRequest,
     LibraryArchiveRequest,
@@ -42,6 +46,31 @@ async def list_libraries(
         include_archived=include_archived,
     )
     return {"libraries": libraries, "total": len(libraries)}
+
+
+@router.post("/libraries/merge-preview", response_model=LibraryMergePreviewResponse)
+async def preview_library_merge(request: LibraryMergePreviewRequest):
+    try:
+        return library_admin_service.preview_library_merge(
+            sources=[source.model_dump() for source in request.sources],
+            name=request.name,
+            enabled=request.enabled,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=_error_status_by_message(str(e)), detail=str(e))
+
+
+@router.post("/libraries/merge", response_model=LibraryMergeResponse)
+async def merge_libraries(request: LibraryMergeRequest):
+    try:
+        return library_admin_service.merge_libraries(
+            sources=[source.model_dump() for source in request.sources],
+            name=request.name,
+            enabled=request.enabled,
+            preview_token=request.preview_token,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=_error_status_by_message(str(e)), detail=str(e))
 
 
 @router.get("/libraries/{library_id}", response_model=LibraryDetailResponse)

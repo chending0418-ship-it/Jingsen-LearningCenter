@@ -220,6 +220,11 @@ async def serve_learningcenter_admin_create(request: Request):
     return serve_admin_file(request, "static/admin_create.html", "Admin create page not found")
 
 
+@app.get("/admin/learningcenter/merge")
+async def serve_learningcenter_admin_merge(request: Request):
+    return serve_admin_file(request, "static/admin_merge.html", "Admin merge page not found")
+
+
 @app.get("/admin/learningcenter/library")
 async def serve_learningcenter_admin_library(request: Request):
     return serve_admin_file(request, "static/admin_detail.html", "Admin detail page not found")

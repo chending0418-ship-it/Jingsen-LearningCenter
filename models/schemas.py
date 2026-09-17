@@ -125,6 +125,43 @@ class LibraryCreateRequest(BaseModel):
     library_type: Optional[str] = Field(None, description="词库用途类型")
 
 
+class LibraryMergeSource(BaseModel):
+    library_id: str = Field(..., min_length=1, description="原词库 ID")
+    action: Literal["keep", "disable", "archive"] = Field("keep", description="原词库处理方式")
+
+
+class LibraryMergePreviewRequest(BaseModel):
+    sources: List[LibraryMergeSource] = Field(..., min_length=2, description="按合并顺序排列的英语词库")
+    name: str = Field(..., min_length=1, max_length=120, description="新词库名称")
+    enabled: bool = Field(True, description="新词库是否立即启用")
+
+
+class LibraryMergeRequest(LibraryMergePreviewRequest):
+    preview_token: str = Field(..., min_length=64, max_length=64, description="合并预览版本")
+
+
+class LibraryMergeSourcePreview(LibraryMergeSource):
+    name: str
+    enabled: bool
+    total_items: int
+
+
+class LibraryMergePreviewResponse(BaseModel):
+    name: str
+    enabled: bool
+    sources: List[LibraryMergeSourcePreview]
+    items: List[str]
+    total_source_items: int
+    total_items: int
+    duplicate_count: int
+    preview_token: str
+
+
+class LibraryMergeResponse(LibraryDetailResponse):
+    source_count: int
+    duplicate_count: int
+
+
 class LibraryUpdateRequest(BaseModel):
     """更新词库元信息请求"""
     name: Optional[str] = Field(None, min_length=1, description="词库名称")
