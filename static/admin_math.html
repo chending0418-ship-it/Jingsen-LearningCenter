@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Math 训练记录 — Learning Center Admin</title>
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
+    <link rel="stylesheet" href="/static/math/math.css">
+    <script src="/static/math/math-input.js" defer></script>
+    <script src="/static/math/admin-math.js" defer></script>
+</head>
+<body class="learning-admin math-admin">
+    <div class="math-shell">
+        <nav class="math-nav" aria-label="Admin breadcrumb"><a href="/admin/learningcenter">BACK2LEARNING ADMIN</a><span>MATH / RECORDS</span><a href="/learningcenter/math" target="_blank" rel="noopener">打开训练 ↗</a></nav>
+        <header class="math-header"><div><span class="math-kicker">Learning Center / Math</span><h1>数学训练记录</h1><p>因式分解 · 每轮 10 题 · 查看首次答案、正确率与错误内容。</p></div><button id="refresh-button" class="math-button" type="button">刷新记录 ↻</button></header>
+        <div id="notice" class="math-notice" role="alert" hidden></div>
+        <section id="history-metrics" class="math-metrics" aria-label="已完成训练汇总"></section>
+        <div class="history-toolbar"><label for="history-status">训练状态 <select id="history-status"><option value="">全部记录</option><option value="completed">已完成</option><option value="active">进行中</option></select></label><span class="muted">汇总仅统计完成的训练；正确率按首次提交计算。</span></div>
+        <main class="history-layout">
+            <aside id="history-list" class="history-list" aria-label="训练记录列表"><div class="empty-state">正在读取记录…</div></aside>
+            <section id="history-detail" class="history-detail" aria-live="polite"><div class="empty-state">选择左侧记录，查看完整题目与答案。</div></section>
+        </main>
+        <div class="history-pagination"><button id="previous-button" class="math-button" type="button" disabled>← 上一页</button><span id="page-info" class="muted"></span><button id="more-button" class="math-button" type="button" disabled>下一页 →</button></div>
+        <footer class="math-footer"><span>JINGSEN LEARNING CENTER / ADMIN</span><span>MATH PRACTICE HISTORY</span></footer>
+    </div>
+</body>
+</html>

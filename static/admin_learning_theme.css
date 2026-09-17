@@ -149,6 +149,7 @@ body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
 .learning-admin-home section.grid .card:nth-child(2) { background: var(--lc-acid) !important; }
 .learning-admin-home section.grid .card:nth-child(3) { background: var(--lc-amber) !important; }
 .learning-admin-home section.grid .card:nth-child(4) { background: var(--lc-purple) !important; }
+.learning-admin-home section.grid .card:nth-child(6) { background: #dce4ff !important; }
 .learning-admin-home .library-action-bar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 12px; border: 1px solid var(--lc-ink); background: #fff; }
 .learning-admin-home .library-action-copy { display: flex; align-items: baseline; gap: 10px; }
 .learning-admin-home .library-action-copy span { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }

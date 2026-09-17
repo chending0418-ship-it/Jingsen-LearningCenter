@@ -60,7 +60,10 @@ def test_homepage_routes_admin_auth_and_legacy_redirects(tmp_path, monkeypatch):
         assert math_page.status_code == 200
         assert "learning-construction" in chinese_page.text
         assert "正在建设中" in chinese_page.text
-        assert "learning-construction" in math_page.text
+        assert "math-page" in math_page.text
+        assert "因式分解" in math_page.text
+        assert client.get("/static/math/math-input.js").status_code == 200
+        assert client.get("/static/math/math.css").status_code == 200
         assert client.get("/learningcenter/admin").headers["location"] == "/admin/learningcenter"
         detail_redirect = client.get("/learningcenter/admin/library?id=library-1")
         assert detail_redirect.headers["location"] == "/admin/learningcenter/library?id=library-1"

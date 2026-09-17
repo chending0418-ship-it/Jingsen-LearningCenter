@@ -15,8 +15,10 @@
 - `Book Reading` 是独立于 MAP Reading 的引导式阅读：家长上传带文字层的 PDF、核对章节并发布；孩子选择刚读完的章节，用文字回答模型生成的开放问题；后台保留逐题问答与整体理解评估。
 - 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到统一 SQLite 数据库。
 - Word Palace 的普通 Daily Word（`cloze` / `match`）和 Vocabulary Skills 已改为异步分批出题：创建任务后立即返回，首批 3 题生成后即可开始答题，后续题目在后台继续生成。
+- Math 已加入因式分解专项：每轮固定 10 题（8 道常规与进阶 + 2 道换元/添项思考题），提供点击式数学键盘、可选草稿、逐级提示、首次答案自动批改和刷新恢复。题目通过规则生成，使用精确多项式运算检查等价和分解完整性，不调用 AI。
+- `/admin/learningcenter/math` 可查看数学训练历史、正确率、独立答对数、错题、首次答案、参考答案、推导草稿及提示次数。数学记录独立存入 `math_sessions` / `math_session_questions`，不接入英语 Daily Reports。
 
-当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `3`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
+当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `5`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。
 
 重要功能里程碑、线上部署基线和故障恢复记录见 [`CHANGELOG.md`](CHANGELOG.md)。
 
@@ -455,7 +457,7 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 - 保留线上 `.env`
 - 不覆盖线上词库和 Skills 数据
 - 使用 `www` 用户执行 git，避免 `dubious ownership`
-- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v4
+- 运行 `scripts/migrate_to_sqlite.py`，幂等升级到 SQLite Schema v5
 - 运行 `scripts/validate_persistent_data.py` 并确认 SQLite 完整性
 - 更新完成后重启或平滑重载 Gunicorn，再检查 `/health` 和异步 generation-jobs API
 

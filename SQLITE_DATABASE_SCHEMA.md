@@ -5,8 +5,8 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`4`
-- 表总数：`25`
+- 当前 Schema 版本：`5`
+- 表总数：`27`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
 - 日期时间通常使用 `TEXT` 保存 ISO 8601 字符串；日期使用 `YYYY-MM-DD`，月份使用 `YYYY-MM`。
@@ -41,6 +41,8 @@
 | 23 | `reading_chapters` | Book Reading | 保存识别或人工修正后的章节及页内文字 | 10 |
 | 24 | `reading_sessions` | Book Reading | 保存每次引导阅读及整体评估 | 14 |
 | 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
+| 26 | `math_sessions` | Math | 保存固定 10 题的因式分解训练与正确率统计 | 8 |
+| 27 | `math_session_questions` | Math | 保存原题、首次答案、草稿、提示与判题结果 | 9 |
 
 ## 3. 系统与迁移表
 
@@ -515,6 +517,39 @@
 | `answered_at` | `TEXT` | 是 | `NULL` |  | 本题及必要追问完成时间 |
 | `extra_json` | `TEXT` | 否 | `'{}'` |  | 扩展信息 |
 
+## 9A. Math 因式分解表
+
+数学训练独立保存，不向英语 `practice_reports` / Daily Reports 写入记录。每轮固定 10 题，完成第 10 次提交时，在同一事务中计算本轮正确数及未使用提示的正确数。
+
+### `math_sessions`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `id` | `TEXT` 主键 | 训练 UUID |
+| `access_token_hash` | `TEXT NOT NULL` | 随机访问凭证的 SHA-256；不保存明文，不返回 Admin |
+| `status` | `TEXT NOT NULL` | `active` / `completed`，默认 `active` |
+| `question_count` | `INTEGER NOT NULL` | 固定为 10，受 CHECK 约束 |
+| `created_at` | `TEXT NOT NULL` | 创建时间，带 Asia/Shanghai 时区偏移 |
+| `completed_at` | `TEXT` | 第 10 题提交后的完成时间 |
+| `correct_count` | `INTEGER NOT NULL` | 完成后首次答对数，正确率为该值 / 10 |
+| `independent_correct_count` | `INTEGER NOT NULL` | 完成后未看提示且首次答对数 |
+
+### `math_session_questions`
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `id` | `TEXT` 主键 | 题目 UUID |
+| `session_id` | `TEXT NOT NULL` 外键 | 所属训练；父记录删除时级联 |
+| `position` | `INTEGER NOT NULL` | 1–10，同一训练内唯一 |
+| `question_json` | `TEXT NOT NULL` | 不可变题目快照：原式、技能、标准答案、提示与解析 |
+| `hints_used` | `INTEGER NOT NULL` | 已展示的提示级数；单调递增，提交后不再变化 |
+| `student_answer` | `TEXT` | 学生首次提交的原始答案，跳过时也保留已输入内容 |
+| `scratch_json` | `TEXT NOT NULL` | 最多 6 行可选草稿；保存但不参与判分 |
+| `result_json` | `TEXT` | `correct`、`error_code`、`feedback`；错误分为不等价、未分解彻底或跳过 |
+| `answered_at` | `TEXT` | 首次有效提交时间；语法错误不消耗首次提交 |
+
+提交采用 `BEGIN IMMEDIATE`，重复的相同请求幂等返回，改写已提交答案返回冲突。未提交题目的答案、解析和技能标签不会返回孩子端；提示按显式请求逐级解锁。Admin 页面与历史 API 使用已有管理会话保护。
+
 ## 10. 表关系总览
 
 | 父表 | 子表 | 外键 | 删除父记录时的行为 |
@@ -532,6 +567,7 @@
 | `reading_books` | `reading_chapters` | `reading_chapters.book_id` | 级联删除章节 |
 | `reading_books` | `reading_sessions` | `reading_sessions.book_id` | 阻止删除仍有历史记录的书籍 |
 | `reading_sessions` | `reading_session_questions` | `reading_session_questions.session_id` | 级联删除逐题记录 |
+| `math_sessions` | `math_session_questions` | `math_session_questions.session_id` | 级联删除数学逐题记录 |
 
 ## 11. 索引总览
 
@@ -550,6 +586,8 @@
 | `idx_reading_chapters_book` | `reading_chapters` | `book_id`, `sort_order` |
 | `idx_reading_sessions_history` | `reading_sessions` | `created_at DESC`, `book_id` |
 | `idx_reading_questions_session` | `reading_session_questions` | `session_id`, `position` |
+| `idx_math_sessions_history` | `math_sessions` | `created_at DESC` |
+| `idx_math_questions_session` | `math_session_questions` | `session_id`, `position` |
 
 ## 12. 数据完整性规则
 
@@ -562,3 +600,4 @@
 - 所有父子表的顺序型数据均通过 `position` 或 `sort_order` 保留原 JSON 数组顺序。
 - 异步生成任务的状态、进度和题目通过事务写入统一 SQLite 数据库，可由多个应用 worker 安全共享。
 - Book Reading 的 PDF、封面和 SQLite 记录都位于 `data/` 范围内，会被现有全量快照与清单校验保护。
+- Math Schema v5 仅新增两张表，不重写已有英语、阅读或 Todo 记录；数学历史随统一 SQLite 一起由现有 `data/` 快照保护。

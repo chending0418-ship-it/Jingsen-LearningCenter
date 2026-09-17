@@ -45,6 +45,7 @@ app.add_middleware(
 app.include_router(english.router)
 app.include_router(chinese.router)
 app.include_router(math.router)
+app.include_router(math.admin_router)
 app.include_router(admin.router)
 app.include_router(map_language_arts.router)
 app.include_router(vocabulary_skills.router)
@@ -64,6 +65,7 @@ app.include_router(reading.admin_router)
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
 app.include_router(math.router, prefix=BASE_PATH)
+app.include_router(math.admin_router, prefix=BASE_PATH)
 app.include_router(admin.router, prefix=BASE_PATH)
 app.include_router(map_language_arts.router, prefix=BASE_PATH)
 app.include_router(vocabulary_skills.router, prefix=BASE_PATH)
@@ -127,6 +129,13 @@ async def serve_learning_front_theme():
     return serve_static_file("static/learning_front_theme.css", "Learning theme not found")
 
 
+@app.get("/static/math/{filename}", include_in_schema=False)
+async def serve_math_asset(filename: str):
+    if filename not in {"math.css", "math-input.js", "math.js", "admin-math.js"}:
+        return JSONResponse(status_code=404, content={"error": "Asset not found"})
+    return serve_static_file(f"static/math/{filename}", "Math asset not found")
+
+
 @app.get("/gallery")
 async def serve_gallery():
     """提供公开 Gallery 瀑布流页面。"""
@@ -163,8 +172,8 @@ async def serve_chinese_portal():
 @app.get("/math")
 @app.get(f"{BASE_PATH}/math")
 async def serve_math_portal():
-    """提供数学栏目建设中页面。"""
-    return serve_static_file("static/learning_construction.html", "Math page not found")
+    """提供因式分解专项训练。"""
+    return serve_static_file("static/math.html", "Math page not found")
 
 
 @app.get("/todo")
@@ -234,6 +243,11 @@ async def serve_learningcenter_admin_models(request: Request):
 @app.get("/admin/learningcenter/reading")
 async def serve_learningcenter_admin_reading(request: Request):
     return serve_admin_file(request, "static/admin_reading.html", "Book Reading admin page not found")
+
+
+@app.get("/admin/learningcenter/math")
+async def serve_learningcenter_admin_math(request: Request):
+    return serve_admin_file(request, "static/admin_math.html", "Math admin page not found")
 
 
 @app.get("/admin/gallery")

@@ -303,6 +303,32 @@ CREATE TABLE IF NOT EXISTS reading_session_questions (
 );
 CREATE INDEX IF NOT EXISTS idx_reading_questions_session
     ON reading_session_questions(session_id, position);
+
+CREATE TABLE IF NOT EXISTS math_sessions (
+    id TEXT PRIMARY KEY,
+    access_token_hash TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'completed')),
+    question_count INTEGER NOT NULL DEFAULT 10 CHECK(question_count = 10),
+    created_at TEXT NOT NULL,
+    completed_at TEXT,
+    correct_count INTEGER NOT NULL DEFAULT 0,
+    independent_correct_count INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_math_sessions_history ON math_sessions(created_at DESC);
+CREATE TABLE IF NOT EXISTS math_session_questions (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 10),
+    question_json TEXT NOT NULL,
+    hints_used INTEGER NOT NULL DEFAULT 0,
+    student_answer TEXT,
+    scratch_json TEXT NOT NULL DEFAULT '[]',
+    result_json TEXT,
+    answered_at TEXT,
+    FOREIGN KEY(session_id) REFERENCES math_sessions(id) ON DELETE CASCADE,
+    UNIQUE(session_id, position)
+);
+CREATE INDEX IF NOT EXISTS idx_math_questions_session ON math_session_questions(session_id, position);
 """
 
 
@@ -381,6 +407,10 @@ class SQLiteDatabase:
                                     raise
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(4, ?)",
+                            (_now(),),
+                        )
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(5, ?)",
                             (_now(),),
                         )
                     break

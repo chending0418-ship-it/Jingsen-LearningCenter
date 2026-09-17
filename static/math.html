@@ -3,67 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Learning - Jingsen 学习中心 1.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --bg-main: #F8F9FB;
-            --math-accent: #3B82F6;
-        }
-        body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; background-color: var(--bg-main); }
-    </style>
+    <meta name="theme-color" content="#f2f0e8">
+    <title>因式分解 — Math / Jingsen Learning Center</title>
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
+    <link rel="stylesheet" href="/static/math/math.css">
+    <script src="/static/math/math-input.js" defer></script>
+    <script src="/static/math/math.js" defer></script>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-3xl mx-auto">
-        <button onclick="location.href=withBasePath('/portal')" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-            </svg>
-            返回门户
-        </button>
-
-        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-            <h1 class="text-3xl font-bold text-gray-900 mb-3">Math Learning</h1>
-            <p class="text-gray-600 mb-6">数学页面已就绪，后续可在此接入完整练习交互。</p>
-
-            <button id="test-btn" onclick="testMathApi()" class="px-5 py-2.5 rounded-xl bg-[var(--math-accent)] text-white font-semibold hover:opacity-90">
-                测试数学 API
-            </button>
-
-            <pre id="result" class="mt-6 p-4 bg-gray-50 rounded-xl text-sm text-gray-700 whitespace-pre-wrap"></pre>
-        </div>
+<body class="math-page">
+    <div class="math-shell">
+        <nav class="math-nav" aria-label="Math navigation"><a id="back-link" href="/learningcenter/portal">BACK2LEARNING</a><span>02 / LOGIC</span><span>MATH</span></nav>
+        <header class="math-header"><div><span class="math-kicker">Algebra / Factorization</span><h1>Math.</h1><p>因式分解 · 看清结构，再分解到底。</p></div><span class="session-counter" id="session-counter">10 道题 / 每轮</span></header>
+        <div id="notice" class="math-notice" role="alert" hidden></div>
+        <main>
+            <section id="home-view" class="math-home">
+                <div class="home-intro">
+                    <span class="math-kicker">Practice 01</span><h2>因式分解</h2>
+                    <p>从提公因式、平方差到连续分解，再用换元和添项配方，挑战最后两道思考题。</p>
+                    <div class="home-example" aria-label="x 的四次方减十六，分解为 x 加二乘以 x 减二乘以 x 平方加四"><span>x⁴ − 16</span><span class="example-arrow">↓</span><span>(x + 2)(x − 2)(x² + 4)</span></div>
+                    <div class="home-tags"><span>提公因式</span><span>公式与连续分解</span><span>换元 / 添项</span></div>
+                </div>
+                <div class="home-start">
+                    <span class="math-kicker">One small session</span><div class="home-count">10<span>道题</span></div>
+                    <ul class="session-notes"><li>8 道常规与进阶题 + 2 道思考题</li><li>只需点击按键，直接写出数学公式</li><li>在整数系数范围内分解彻底</li><li>首次提交计分，提示使用单独记录</li></ul>
+                    <button id="start-button" class="math-button primary" type="button">开始这轮训练 ↗</button>
+                    <button id="resume-button" class="math-button" type="button" hidden>继续上次训练 →</button>
+                    <p id="home-status" class="muted" aria-live="polite">每题自动保存，完成后查看正确率与错题。</p>
+                </div>
+            </section>
+            <section id="practice-view" hidden>
+                <div class="math-progress" role="progressbar" aria-label="本轮完成进度" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><span id="progress-fill"></span></div>
+                <div class="practice-layout">
+                    <aside class="practice-side"><span class="math-kicker">Your ten questions</span><h2>这一轮</h2><div id="question-nav" class="question-nav" aria-label="题目进度"></div><p class="muted">提交后可回看本题。最后两题，留一点时间想一想。</p><button id="pause-button" class="math-button text-button" type="button">稍后继续 ↗</button></aside>
+                    <article class="math-question">
+                        <div class="question-heading"><span class="math-kicker" id="question-number"></span><span class="challenge-label" id="challenge-label" hidden>思考题</span></div>
+                        <p class="question-instruction">分解因式，在整数系数范围内分解彻底。</p>
+                        <div id="question-expression" class="question-expression math-expression"></div>
+                        <div id="answer-area"><div id="math-pad"></div><div id="hints" class="math-hints" aria-live="polite" hidden></div>
+                            <div class="answer-actions"><button id="hint-button" class="math-button" type="button">给我一点提示</button><button id="skip-button" class="math-button text-button" type="button">暂时不会</button><button id="submit-button" class="math-button primary" type="button">提交答案 →</button></div>
+                            <div id="skip-confirm" class="skip-confirm" hidden><span>这道题会记录为未完成，并展示解析。</span><button id="confirm-skip-button" class="math-button" type="button">确认跳过</button><button id="cancel-skip-button" class="math-button text-button" type="button">再想一想</button></div>
+                        </div>
+                        <div id="question-feedback" hidden></div><button id="next-button" class="math-button primary next-button" type="button" hidden>下一题 →</button>
+                    </article>
+                </div>
+            </section>
+            <section id="result-view" hidden>
+                <div class="result-heading"><div><span class="math-kicker">Session complete / 10 questions</span><h2>这一轮，完成了。</h2><p class="muted">正确率按首次提交计算；跳过的题目计入未完成。</p></div><button id="again-button" class="math-button primary" type="button">再练 10 题 ↗</button></div>
+                <div class="math-metrics" id="result-metrics"></div>
+                <div class="review-heading"><h3>回看这一轮</h3><label><input id="only-mistakes" type="checkbox"> 只看错题与未完成</label></div>
+                <div id="result-questions" class="result-questions"></div><p class="muted">本轮记录已保存，也可以在 Admin → Learning Center → Math 中查看。</p>
+            </section>
+        </main>
+        <footer class="math-footer"><span>JINGSEN LEARNING CENTER</span><span>SMALL STEPS. CLEAR THINKING.</span></footer>
     </div>
-
-    <script>
-        const BASE_PATH = window.location.pathname.startsWith('/learningcenter') ? '/learningcenter' : '';
-        const withBasePath = (path) => `${BASE_PATH}${path}`;
-
-        async function readJsonResponse(response, fallbackMessage) {
-            const contentType = response.headers.get('content-type') || '';
-            if (contentType.includes('application/json')) {
-                return response.json();
-            }
-
-            const text = await response.text();
-            const title = (text.match(/<title>(.*?)<\/title>/i) || [])[1]
-                || (text.match(/<h1>(.*?)<\/h1>/i) || [])[1]
-                || text.replace(/\s+/g, ' ').trim().slice(0, 120);
-            const status = `${response.status} ${response.statusText || ''}`.trim();
-            throw new Error(`${fallbackMessage}：服务返回了非 JSON 响应 ${status}${title ? ` (${title})` : ''}`);
-        }
-
-        async function testMathApi() {
-            const resultEl = document.getElementById('result');
-            resultEl.textContent = '请求中...';
-            try {
-                const res = await fetch(withBasePath('/api/math/generate?count=3&topic=algebra&difficulty=easy'));
-                const data = await readJsonResponse(res, '请求失败');
-                resultEl.textContent = JSON.stringify(data, null, 2);
-            } catch (e) {
-                resultEl.textContent = `请求失败: ${e.message || '网络错误'}`;
-            }
-        }
-    </script>
 </body>
 </html>
