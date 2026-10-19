@@ -54,7 +54,7 @@
             <div class="prep-content">
                 <div class="prep-toolbar"><button class="button" onclick="leavePreparation()">← 返回课程</button><button class="button blue" onclick="document.getElementById('prep-questions').scrollIntoView({behavior:'smooth'})">查看全部预习问题 ↓</button></div>
                 <h2>Teacher’s Note · 老师课堂重点</h2><div id="prep-notes"></div><p id="prep-source" class="prep-help"></p>
-                <h2>带着这些问题阅读</h2><p class="prep-help">老师讨论题显示中文原文和英文译文，英文引导题为补充。所有问题固定展示，可按自己的顺序填写。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估，已提交回答只读。全部题目完成后，本次预习会自动完成，可反复回来查看。</p>
+                <h2>带着这些问题阅读</h2><p class="prep-help">老师讨论题仅显示英文，英文引导题为补充。所有问题固定展示，可按自己的顺序填写。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估，已提交回答只读。全部题目完成后，本次预习会自动完成，可反复回来查看。</p>
                 <div id="prep-summary" class="prep-summary" hidden></div><div id="prep-questions"></div>
                 <pre id="prep-recovery" class="prep-recovery" hidden></pre>
                 <p id="prep-state" role="status" aria-live="polite"></p>
@@ -130,7 +130,7 @@
             document.getElementById('prep-heading').textContent=`Lesson ${l.number} · ${l.title}`;
             document.getElementById('prep-range').textContent=`${l.reading_label} · PDF pages ${l.start_page}–${l.end_page}`;
             document.getElementById('prep-notes').innerHTML=l.notes.map(n=>`<section class="prep-note"><h3>${escapeHtml(n.heading)}</h3><p>${escapeHtml(n.text).replace(/ (?=\d+\.\s)/g,'\n')}</p></section>`).join('');
-            document.getElementById('prep-source').textContent=`来源：${l.source} · ${l.version}。中文为老师原文；英文为补充译文；引导题为补充。`;
+            document.getElementById('prep-source').textContent=`来源：${l.source} · ${l.version}。老师讨论题按英文译文展示；引导题为补充。`;
             document.getElementById('prep-questions').innerHTML=s.questions.map((q,i)=>preparationQuestion(q,i,answers,completed)).join('');
             document.getElementById('prep-actions').hidden=completed;
             document.getElementById('prep-state').textContent=completed?'本次预习已完成 · 回答、参考标答和评估已保存，可随时回来查看':local?.revision===p.revision?'本机草稿已恢复，可保存到服务器':`服务器草稿 · 版本 ${p.revision}`;
@@ -141,7 +141,7 @@
         }
         function preparationQuestion(q,i,answers,completed){
             const submitted=Boolean(q.answered_at)||completed;
-            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'老师讨论题 · Teacher':'预习引导题 · Guide'} ${i+1}${submitted?' · 已提交':''}</div><h3${q.question_type==='teacher_discussion'?' lang="zh-CN"':' lang="en"'}>${escapeHtml(q.question_text)}</h3>${q.question_text_en?`<p class="prep-question-translation" lang="en">${escapeHtml(q.question_text_en)}</p>`:''}<label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section><section class="feedback"><h4>本次评估 · ${escapeHtml(label(q.understanding_level))}</h4><p>${escapeHtml(q.feedback||'此历史记录未保存逐题点评。')}</p></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
+            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'Teacher discussion':'Reading guide'} ${i+1}${submitted?' · 已提交':''}</div><h3 lang="en">${escapeHtml(q.question_type==='teacher_discussion'?(q.question_text_en||'English translation unavailable for this question.'):q.question_text)}</h3><label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section><section class="feedback"><h4>本次评估 · ${escapeHtml(label(q.understanding_level))}</h4><p>${escapeHtml(q.feedback||'此历史记录未保存逐题点评。')}</p></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
         }
         function setPreparationResponse(updated,token){
             prepSession={...updated,access_token:token};
