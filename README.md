@@ -15,7 +15,7 @@
 - `Book Reading` 是独立于 MAP Reading 的引导式阅读：家长上传带文字层的 PDF、核对章节并发布；孩子选择刚读完的章节，用文字回答模型生成的开放问题；后台保留逐题问答与整体理解评估。
 - 新增 `Daily Reports`，将 Daily Word、Vocabulary Skills 和 MAP Language Arts 的每日练习历史保存到统一 SQLite 数据库。
 - Word Palace 的普通 Daily Word（`cloze` / `match`）和 Vocabulary Skills 已改为异步分批出题：创建任务后立即返回，首批 3 题生成后即可开始答题，后续题目在后台继续生成。
-- Math 已加入因式分解专项：每轮固定 10 题（8 道常规与进阶 + 2 道换元/添项思考题），提供点击式数学键盘、可选草稿、逐级提示、首次答案自动批改和刷新恢复。题目通过规则生成，使用精确多项式运算检查等价和分解完整性，不调用 AI。
+- Math 已加入因式分解专项：每轮固定 10 题（3 道基础 + 5 道进阶 + 2 道挑战，建议约 17 分钟），参考七年级《因式分解大赛（2）》覆盖十字相乘、负首项、多字母、分数配方、相反括号、整体换元与连续公式；原卷含 n 的指数题改用具体整数指数，提供点击式数学键盘、可选草稿、逐级提示、首次答案自动批改和刷新恢复。题目通过规则生成，支持 x、y、a、b、m 和数字分数，使用精确有理数多项式运算检查等价和分解完整性，不调用 AI。
 - `/admin/learningcenter/math` 可查看数学训练历史、正确率、独立答对数、错题、首次答案、参考答案、推导草稿及提示次数。数学记录独立存入 `math_sessions` / `math_session_questions`，不接入英语 Daily Reports。
 
 当前版本以 `data/learning-center.sqlite3` 为统一持久化数据库；旧 JSON/TXT 数据会通过幂等迁移导入并继续作为部署备份来源保留。当前 Schema 版本为 `5`，详细字段见 [`SQLITE_DATABASE_SCHEMA.md`](SQLITE_DATABASE_SCHEMA.md)。

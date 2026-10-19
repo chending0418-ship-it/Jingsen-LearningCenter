@@ -7,7 +7,7 @@
     <title>因式分解 — Math / Jingsen Learning Center</title>
     <link rel="stylesheet" href="/static/learning_front_theme.css">
     <link rel="stylesheet" href="/static/math/math.css">
-    <script src="/static/math/math-input.js" defer></script>
+    <script src="/static/math/math-input.js?v=20261019" defer></script>
     <script src="/static/math/math.js" defer></script>
 </head>
 <body class="math-page">
@@ -19,13 +19,13 @@
             <section id="home-view" class="math-home">
                 <div class="home-intro">
                     <span class="math-kicker">Practice 01</span><h2>因式分解</h2>
-                    <p>从提公因式、平方差到连续分解，再用换元和添项配方，挑战最后两道思考题。</p>
-                    <div class="home-example" aria-label="x 的四次方减十六，分解为 x 加二乘以 x 减二乘以 x 平方加四"><span>x⁴ − 16</span><span class="example-arrow">↓</span><span>(x + 2)(x − 2)(x² + 4)</span></div>
-                    <div class="home-tags"><span>提公因式</span><span>公式与连续分解</span><span>换元 / 添项</span></div>
+                    <p>参考七年级因式分解大赛：从十字相乘、负首项到多字母、分数配方，再挑战整体换元与连续分解。</p>
+                    <div class="home-example" aria-label="x 平方减五 x 减六，分解为 x 减六乘以 x 加一"><span>x² − 5x − 6</span><span class="example-arrow">↓</span><span>(x − 6)(x + 1)</span></div>
+                    <div class="home-tags"><span>十字相乘 / 符号</span><span>多字母 / 分数配方</span><span>整体换元 / 连续公式</span></div>
                 </div>
                 <div class="home-start">
                     <span class="math-kicker">One small session</span><div class="home-count">10<span>道题</span></div>
-                    <ul class="session-notes"><li>8 道常规与进阶题 + 2 道思考题</li><li>只需点击按键，直接写出数学公式</li><li>在整数系数范围内分解彻底</li><li>首次提交计分，提示使用单独记录</li></ul>
+                    <ul class="session-notes"><li>3 道基础 + 5 道进阶 + 2 道挑战</li><li>只需点击按键，直接写出数学公式</li><li>在有理数系数范围内分解彻底</li><li>建议用时约 17 分钟，不强制计时</li><li>首次提交计分，提示使用单独记录</li></ul>
                     <button id="start-button" class="math-button primary" type="button">开始这轮训练 ↗</button>
                     <button id="resume-button" class="math-button" type="button" hidden>继续上次训练 →</button>
                     <p id="home-status" class="muted" aria-live="polite">每题自动保存，完成后查看正确率与错题。</p>
@@ -37,7 +37,7 @@
                     <aside class="practice-side"><span class="math-kicker">Your ten questions</span><h2>这一轮</h2><div id="question-nav" class="question-nav" aria-label="题目进度"></div><p class="muted">提交后可回看本题。最后两题，留一点时间想一想。</p><button id="pause-button" class="math-button text-button" type="button">稍后继续 ↗</button></aside>
                     <article class="math-question">
                         <div class="question-heading"><span class="math-kicker" id="question-number"></span><span class="challenge-label" id="challenge-label" hidden>思考题</span></div>
-                        <p class="question-instruction">分解因式，在整数系数范围内分解彻底。</p>
+                        <p class="question-instruction">分解因式，在有理数系数范围内分解彻底。</p>
                         <div id="question-expression" class="question-expression math-expression"></div>
                         <div id="answer-area"><div id="math-pad"></div><div id="hints" class="math-hints" aria-live="polite" hidden></div>
                             <div class="answer-actions"><button id="hint-button" class="math-button" type="button">给我一点提示</button><button id="skip-button" class="math-button text-button" type="button">暂时不会</button><button id="submit-button" class="math-button primary" type="button">提交答案 →</button></div>

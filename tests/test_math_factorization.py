@@ -46,18 +46,18 @@ def test_parser_rejects_invalid_or_unbounded_input(answer):
 
 
 def test_generated_plans_have_ten_distinct_valid_questions_and_two_challenges():
-    completion_variants = set()
+    variants = set()
     for seed in range(50):
         questions = generate_questions(random.Random(seed))
         assert len(questions) == 10
         assert [q["is_challenge"] for q in questions] == [False] * 8 + [True] * 2
         assert len({parse_expression(q["expression"]).coefficients for q in questions}) == 10
         assert questions[8]["skill"] == "substitution"
-        assert questions[9]["skill"] == "completion"
-        completion_variants.add("+1" if "+1" in questions[9]["hints"][1] else "term")
+        assert questions[9]["skill"] == "nested_square"
+        variants.add(questions[5]["skill"])
         for question in questions:
             assert grade_answer(question, question["correct_answer"])["correct"]
-    assert completion_variants == {"+1", "term"}
+    assert variants == {"mixed_methods", "power_common"}
 
 
 @pytest.fixture
@@ -203,3 +203,41 @@ def test_math_api_admin_auth_paths_and_server_owned_results(service, monkeypatch
         assert detail["questions"][0]["student_answer"] == "0"
         assert "access_token_hash" not in detail and "access_token" not in detail
         assert client.get("/api/admin/math/sessions").json()["total"] == 1
+
+
+@pytest.mark.parametrize("expression,answer", [
+    ("x^2-5*x-6", "(x-6)(x+1)"),
+    ("(a-b)^2-2*(a-b)-24", "(a-b-6)(a-b+4)"),
+    ("(a-b)^2-5*(a-b)-24", "(a-b-8)(a-b+3)"),
+    ("-x^2+7*x-10", "-(x-5)(x-2)"),
+    ("x^3-3*x^2-10*x", "x(x-5)(x+2)"),
+    ("x^2-x*y-1+1/4*y^2", "(x-y/2-1)(x-y/2+1)"),
+    ("3*a*(a+b)^2-27*a*b^2", "3a(a-2b)(a+4b)"),
+    ("4*x^3*y^3-8*x^2*y^2+4*x*y", "4xy(xy-1)^2"),
+    ("(2*x+y)^2+6*(2*x+y)-27", "(2x+y+9)(2x+y-3)"),
+    ("(x^2+4*x)^2-(x^2+4*x)-20", "(x-1)(x+5)(x+2)^2"),
+    ("a^3-2*a^2*b+a*b^2", "a(a-b)^2"),
+    ("a^2*(x-y)+b^2*(y-x)", "(x-y)(a-b)(a+b)"),
+    ("m^2*(m-1)-4*(1-m)^2", "(m-1)(m-2)^2"),
+    ("(x^2+4)^2-16*x^2", "(x-2)^2(x+2)^2"),
+    ("(x^2+1)^2-4*x*(x^2+1)+4*x^2", "(x-1)^4"),
+    ("x^2-x*y-1+y^2/4", "(2x-y-2)(2x-y+2)/4"),
+])
+def test_reference_sheet_structures_and_fraction_normalizations(expression, answer):
+    assert grade_answer({"expression": expression}, answer)["correct"]
+
+
+@pytest.mark.parametrize("expression,answer", [
+    ("a^3-2*a^2*b+a*b^2", "a(a^2-2ab+b^2)"),
+    ("a^2*(x-y)+b^2*(y-x)", "(x-y)(a^2-b^2)"),
+    ("(x^2+4)^2-16*x^2", "(x^2-4x+4)(x^2+4x+4)"),
+    ("m^2*(m-1)-4*(1-m)^2", "(m-1)(m^2-4m+4)"),
+])
+def test_multivariable_and_nested_answers_must_be_complete(expression, answer):
+    assert grade_answer({"expression": expression}, answer)["error_code"] == "incomplete"
+
+
+@pytest.mark.parametrize("answer", ["x/y", "x/0", "x/(2)", "x/999999", "x^n", "z+1", "a^8*b^8", "x/99999/99999", "(x+y+a+b+m)^8"])
+def test_extended_parser_keeps_input_bounded(answer):
+    with pytest.raises(MathInputError):
+        parse_expression(answer)

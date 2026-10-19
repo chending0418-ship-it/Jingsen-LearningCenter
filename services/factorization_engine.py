@@ -10,12 +10,16 @@ import random
 import re
 import uuid
 from dataclasses import dataclass
+from fractions import Fraction
 from typing import Optional
 
 import sympy as sp
 
 
-X = sp.Symbol("x")
+VARIABLES = "xyabm"
+SYMBOLS = sp.symbols("x y a b m")
+X, Y, A, B, M = SYMBOLS
+ZERO_POWER = (0,) * len(VARIABLES)
 MAX_LENGTH = 240
 MAX_DEGREE = 12
 SKILLS = {
@@ -27,6 +31,12 @@ SKILLS = {
     "mixed_methods": "多方法综合",
     "substitution": "换元与整体观察",
     "completion": "添项与配方",
+    "quadratic": "十字相乘",
+    "negative_leading": "负首项与符号处理",
+    "rational_square": "分数配方与平方差",
+    "reverse_bracket": "相反括号与连续分解",
+    "power_common": "幂的公因式与完全平方",
+    "nested_square": "整体公式与彻底分解",
 }
 
 
@@ -34,33 +44,45 @@ class MathInputError(ValueError):
     """A correctable input problem; it does not consume the first attempt."""
 
 
-def _bounded(values) -> tuple[int, ...]:
-    values = list(values)
-    while len(values) > 1 and values[-1] == 0:
-        values.pop()
-    if len(values) > MAX_DEGREE + 1 or any(abs(v) > 10**10 for v in values):
-        raise MathInputError("式子的次数或数字过大，请检查输入。")
-    return tuple(values)
+def _bounded(values):
+    values = {power: Fraction(value) for power, value in dict(values).items() if value}
+    if (len(values) > 100 or any(sum(power) > MAX_DEGREE for power in values)
+            or any(abs(v.numerator) > 10**10 or v.denominator > 10**6 for v in values.values())):
+        raise MathInputError("式子的次数、项数或数字过大，请检查输入。")
+    return tuple(sorted(values.items()))
+
+
+def _constant(value):
+    return _bounded({ZERO_POWER: value})
 
 
 def _add(a, b, sign=1):
-    return _bounded((a[i] if i < len(a) else 0) + sign * (b[i] if i < len(b) else 0)
-                    for i in range(max(len(a), len(b))))
+    values = dict(a)
+    for power, value in b:
+        values[power] = values.get(power, 0) + sign * value
+    return _bounded(values)
 
 
 def _multiply(a, b):
-    if len(a) + len(b) - 2 > MAX_DEGREE:
-        raise MathInputError("式子的次数过大，请检查平方的位置。")
-    values = [0] * (len(a) + len(b) - 1)
-    for i, left in enumerate(a):
-        for j, right in enumerate(b):
-            values[i + j] += left * right
+    values = {}
+    for left, v in a:
+        for right, w in b:
+            power = tuple(i + j for i, j in zip(left, right))
+            if sum(power) > MAX_DEGREE:
+                raise MathInputError("式子的次数过大，请检查平方的位置。")
+            values[power] = values.get(power, 0) + v * w
     return _bounded(values)
+
+
+def _polynomial(coefficients):
+    return sum(sp.Rational(value.numerator, value.denominator)
+               * sp.prod(symbol**power for symbol, power in zip(SYMBOLS, powers))
+               for powers, value in coefficients)
 
 
 @dataclass(frozen=True)
 class Expression:
-    coefficients: tuple[int, ...]
+    coefficients: tuple
     kind: str = "atom"
     children: tuple[Expression, ...] = ()
 
@@ -73,10 +95,10 @@ def parse_expression(text: str) -> Expression:
     source = source.translate(str.maketrans({"−": "-", "–": "-", "×": "*", "·": "*", "（": "(", "）": ")"}))
     source = re.sub(r"\s+", "", source.replace("**", "^")).lower()
     if "=" in source or "t" in source:
-        raise MathInputError("最终答案只填写含 x 的因式乘积；换元等式可以写在草稿中。")
-    tokens = re.findall(r"\d+|x|[+*^()\-]", source)
+        raise MathInputError("最终答案只填写原题字母的因式乘积；换元等式可以写在草稿中。")
+    tokens = re.findall(r"\d+|[xyabm]|[+*/^()\-]", source)
     if "".join(tokens) != source or len(tokens) > 160:
-        raise MathInputError("仅支持整数、x、括号、加减乘和 1—8 次方。")
+        raise MathInputError("支持整数、数字分数、x/y/a/b/m、括号、加减乘和 1—8 次方。")
     position = 0
     depth = 0
 
@@ -86,14 +108,15 @@ def parse_expression(text: str) -> Expression:
     def atom():
         nonlocal position, depth
         current = peek()
-        if current == "x":
+        if current in VARIABLES and current:
             position += 1
-            result = Expression((0, 1))
+            power = tuple(int(v == current) for v in VARIABLES)
+            result = Expression(_bounded({power: 1}))
         elif current.isdigit():
             if len(current) > 5:
                 raise MathInputError("单个数字不能超过五位，请检查输入。")
             position += 1
-            result = Expression((int(current),))
+            result = Expression(_constant(int(current)))
         elif current == "(":
             depth += 1
             if depth > 12:
@@ -105,14 +128,14 @@ def parse_expression(text: str) -> Expression:
             position += 1
             depth -= 1
         else:
-            raise MathInputError("这里还缺少数字、x 或完整的括号。")
+            raise MathInputError("这里还缺少数字、原题字母或完整的括号。")
         if peek() == "^":
             position += 1
             exponent = peek()
             if exponent not in {str(i) for i in range(1, 9)}:
                 raise MathInputError("指数需要是 1—8 的整数。")
             position += 1
-            coefficients = (1,)
+            coefficients = _constant(1)
             for _ in range(int(exponent)):
                 coefficients = _multiply(coefficients, result.coefficients)
             result = Expression(coefficients, "power", (result,) * int(exponent))
@@ -128,13 +151,22 @@ def parse_expression(text: str) -> Expression:
             position += 1
         result = atom()
         if sign == -1:
-            result = Expression(_multiply((-1,), result.coefficients), "multiply", (Expression((-1,)), result))
+            result = Expression(_multiply(_constant(-1), result.coefficients), "multiply", (Expression(_constant(-1)), result))
         return result
 
     def product():
         nonlocal position
         result = unary()
-        while peek() == "*" or peek() == "x" or peek() == "(" or peek().isdigit():
+        while peek() in ("*", "/", "(") or (peek() and peek() in VARIABLES) or peek().isdigit():
+            if peek() == "/":
+                position += 1
+                denominator = peek()
+                if not denominator.isdigit() or len(denominator) > 5 or int(denominator) == 0:
+                    raise MathInputError("分母须为非零正整数，例如 1/4 或 (x+y)/2。")
+                position += 1
+                right = Expression(_constant(Fraction(1, int(denominator))))
+                result = Expression(_multiply(result.coefficients, right.coefficients), "multiply", (result, right))
+                continue
             if peek() == "*":
                 position += 1
             right = unary()
@@ -167,11 +199,13 @@ def _leaves(expression):
 
 def fully_factored(expression: Expression) -> bool:
     for coefficients in _leaves(expression):
-        if len(coefficients) == 1:
+        polynomial = sp.Poly(_polynomial(coefficients), *SYMBOLS, domain=sp.QQ)
+        if polynomial.total_degree() == 0:
             continue
-        polynomial = sp.Poly.from_list(list(reversed(coefficients)), X, domain=sp.ZZ)
         content, factors = polynomial.factor_list()
-        if abs(content) != 1 or len(factors) != 1 or factors[0][1] != 1:
+        # Rational scalar normalizations are equivalent (x-y/2 vs (2x-y)/2).
+        # A non-unit integer common factor still needs to be extracted.
+        if abs(content.p) != 1 or len(factors) != 1 or factors[0][1] != 1:
             return False
     return True
 
@@ -193,6 +227,11 @@ def math_text(expression) -> str:
 
 
 def generate_questions(rng: Optional[random.Random] = None) -> list[dict]:
+    """Ten varied exercises, aligned to the supplied seven-grade week-2 sheet.
+
+    Retain the existing 8+2 session contract; rotate the sheet's fifteen structures.
+    Symbolic n exponents are instantiated to small integer powers for bounded input.
+    """
     rng = rng or random.SystemRandom()
     questions = []
 
@@ -200,8 +239,7 @@ def generate_questions(rng: Optional[random.Random] = None) -> list[dict]:
         if not isinstance(expression, str):
             expression = math_text(sp.expand(expression))
         parsed = parse_expression(expression)
-        polynomial = sum(value * X**i for i, value in enumerate(parsed.coefficients))
-        answer = math_text(sp.factor(polynomial))
+        answer = math_text(sp.factor(_polynomial(parsed.coefficients)))
         questions.append({
             "id": str(uuid.uuid4()), "position": len(questions) + 1,
             "skill": skill, "skill_label": SKILLS[skill],
@@ -210,63 +248,73 @@ def generate_questions(rng: Optional[random.Random] = None) -> list[dict]:
             "solution_steps": steps + [f"最终答案：{answer}"],
         })
 
-    c, a = rng.randint(2, 6), rng.randint(2, 7)
-    push(c * X * (X + a), "common_factor",
-         ["先观察系数和字母有没有共同的部分。", f"两项都含有 {c}x，先把它提出来。"],
-         [f"数字公因数是 {c}，两项还都含有 x。", f"提取 {c}x，括号中留下 x + {a}。"])
+    p, q = rng.randint(2, 8), rng.randint(1, 5)
+    while p == q:
+        q = rng.randint(1, 5)
+    push(X**2 + (q-p)*X - p*q, "quadratic",
+         ["找两个数，乘积等于常数项，和等于一次项系数。", f"这两个数是 {-p} 和 {q}。"],
+         [f"因为 ({-p})×{q}={-p*q}，且 {-p}+{q}={q-p}，所以用十字相乘。"])
 
-    a, b = rng.sample(range(1, 7), 2)
-    push(f"x*(x+{a})+{b}*(x+{a})", "common_expression",
-         ["一个括号也可以看作整体的公因式。", f"两项都含有 (x + {a})。"],
-         [f"把 (x + {a}) 作为整体提取，剩下 x + {b}。"])
+    p, q = sorted(rng.sample(range(1, 8), 2))
+    push(-X**2+(p+q)*X-p*q, "negative_leading",
+         ["首项为负，先提取 −1。", f"括号内变成 x²−{p+q}x+{p*q}，再找和为 {-p-q} 的两个数。"],
+         [f"原式 = −(x²−{p+q}x+{p*q})。", f"括号内分解为 (x−{p})(x−{q})，保留外面的负号。"])
 
-    a, b = rng.choice([(a, b) for a in range(1, 4) for b in range(2, 8) if sp.gcd(a, b) == 1])
-    push(a*a*X**2 - b*b, "difference_squares",
-         ["这两项分别是谁的平方？", f"利用 A² − B² = (A − B)(A + B)，这里 A = {a}x，B = {b}。"],
-         [f"原式是 ({a}x)² − {b}²，使用平方差公式。"])
-
-    a, b, sign = rng.randint(1, 3), rng.randint(1, 5), rng.choice([-1, 1])
-    while sp.gcd(a, b) != 1:
-        b = rng.randint(1, 5)
-    push((a*X + sign*b)**2, "perfect_square",
-         ["检查首尾是否为平方，中间项是否等于两者乘积的两倍。", f"首尾对应 {a}x 和 {b}，再根据中间项确定正负号。"],
-         ["首尾是平方项，中间项符合完全平方公式。"])
-
-    a = rng.randint(2, 4)
-    push(X**4 - a**4, "repeated_squares",
-         ["x⁴ 可以看成 (x²)²，先尝试平方差。", f"第一步得到 (x² − {a*a})(x² + {a*a})，第一个括号还能分解。"],
-         [f"先得到 (x² − {a*a})(x² + {a*a})。", f"继续分解 x² − {a*a}；x² + {a*a} 在整数系数范围内不能再分解。"])
-
-    a = rng.randint(2, 5)
-    push(a**4 - X**4, "repeated_squares",
-         ["先把两项看成平方，再检查分解后的每个因式。", f"得到 ({a*a} − x²)({a*a} + x²) 后继续分解第一个括号。"],
-         [f"连续使用平方差：({a*a} − x²)({a*a} + x²)。", f"{a*a} − x² = ({a} − x)({a} + x)，注意正负号。"])
-
-    c, a, power = rng.randint(2, 5), rng.randint(2, 4), rng.randint(1, 2)
-    push(c*X**power*(X**2-a*a), "mixed_methods",
-         ["先提公因式，再检查括号里的结构。", f"提取 {c}x^{power} 后，括号中是 x² − {a*a}。"],
-         [f"先提取公因式 {c}x^{power}。", f"将 x² − {a*a} 再按平方差公式分解。"])
-
-    a = rng.randint(1, 4)
-    push((X**2-a*a)**2, "mixed_methods",
-         ["先把 x² 看作一个整体，检查是否符合完全平方公式。", f"得到 (x² − {a*a})² 后，括号中还可以继续用平方差公式。"],
-         [f"先写成 (x² − {a*a})²。", "括号里的平方差也要分解，两个因式都保留外面的平方。"])
-
-    a, b = sorted(rng.sample(range(1, 5), 2))
-    push((X**2-a*a)*(X**2-b*b), "substitution",
-         ["观察各项的次数，能否把反复出现的部分看作一个新字母？", f"令 t = x²，得到 t² − {a*a+b*b}t + {a*a*b*b}。", f"分解为 (t − {a*a})(t − {b*b})，换回 x 后继续分解。"],
-         [f"令 t = x²，原式变为 t² − {a*a+b*b}t + {a*a*b*b}。",
-          f"分解为 (t − {a*a})(t − {b*b})。", "把 t 换回 x²，再分别使用平方差公式。"], True)
+    p, q = rng.randint(3, 7), rng.randint(1, 2)
+    push(X*(X-p)*(X+q), "mixed_methods",
+         ["先提取每项共有的 x。", f"提取 x 后得到 x²−{p-q}x−{p*q}，再用十字相乘。"],
+         [f"先提取 x，再将 x²−{p-q}x−{p*q} 分解为 (x−{p})(x+{q})。"])
 
     if rng.choice([True, False]):
-        b = rng.randint(2, 4)
-        push(X**4+2*X**2+1-b*b, "completion",
-             ["前两项离一个完全平方式还差什么？", "可以补上 +1，同时减去 1，保持原式不变。", f"配成 (x² + 1)² − {b*b} 后，再用平方差。"],
-             [f"原式 = x⁴ + 2x² + 1 − 1 + ({1-b*b})。", f"配方得到 (x² + 1)² − {b*b}。", f"分解为 (x² + 1 − {b})(x² + 1 + {b})，再检查是否还能分解。"], True)
+        push("a^3-2*a^2*b+a*b^2", "perfect_square",
+             ["先提公因式，再看括号里的三项。", "提取 a 后，a²−2ab+b² 是完全平方式。"],
+             ["原式 = a(a²−2ab+b²)。", "括号内 = (a−b)²。"])
     else:
-        a = rng.randint(1, 3)
-        push(X**4+4*a**4, "completion",
-             ["两项是相加的，不能直接套平方差。试着构造一个完全平方。", f"补上 {4*a*a}x²，再减去 {4*a*a}x²。", f"得到 (x² + {2*a*a})² − ({2*a}x)²，再用平方差。"],
-             [f"原式 = x⁴ + {4*a*a}x² + {4*a**4} − {4*a*a}x²。", f"写成 (x² + {2*a*a})² − ({2*a}x)²。", "使用平方差公式，得到两个不能继续分解的二次因式。"], True)
+        push("a^2*(x-y)+b^2*(y-x)", "reverse_bracket",
+             ["两个括号互为相反数，先统一方向。", "y−x = −(x−y)，因此可提出 (x−y)。"],
+             ["原式 = (x−y)(a²−b²)。", "继续将 a²−b² 分解为 (a−b)(a+b)。"])
+
+    p, q = rng.choice([(6, 4), (8, 3), (9, 3), (5, 2)])
+    inner = rng.choice(["(a-b)", "(2*x+y)"])
+    push(f"{inner}^2-{p-q}*{inner}-{p*q}", "common_expression",
+         ["把重复出现的整个括号看成一个新字母。", f"令 t={inner}，得到 t²−{p-q}t−{p*q}。"],
+         [f"令 t={inner}，用十字相乘得到 (t−{p})(t+{q})。", "将 t 换回原来的括号，并检查各因式。"])
+
+    if rng.choice([True, False]):
+        k = rng.choice([2, 3, 4])
+        push(f"3*a*(a+b)^2-{3*k*k}*a*b^2", "mixed_methods",
+             ["先提取公因式 3a。", f"括号内为 (a+b)²−({k}b)²，可用平方差公式。"],
+             [f"原式 = 3a((a+b)²−{k*k}b²)。", f"平方差得到 3a(a+b−{k}b)(a+b+{k}b)，合并同类项。"])
+    else:
+        n = rng.randint(2, 4)
+        push(f"4*x^{n+1}*y^{n+1}-8*x^{n}*y^{n}+4*x^{n-1}*y^{n-1}", "power_common",
+             ["字母公因式取各项中相同字母的最低次幂。", f"提取 4x^{n-1}y^{n-1} 后，括号内为 x²y²−2xy+1。"],
+             [f"提取 4x^{n-1}y^{n-1}。", "将 xy 看成整体，x²y²−2xy+1 = (xy−1)²。"])
+
+    d = rng.choice([2, 3, 4])
+    push(f"x^2-2/{d}*x*y+1/{d*d}*y^2-1", "rational_square",
+         ["先将含 x、y 的三项配成完全平方，再观察剩下的 −1。", f"前三项 = (x−y/{d})²，因此是 (x−y/{d})²−1。"],
+         [f"原式 = (x−y/{d})²−1。", f"用平方差公式得到 (x−y/{d}−1)(x−y/{d}+1)。分数系数的等价写法也可。"])
+
+    k = rng.choice([2, 3, 4])
+    push(f"m^2*(m-1)-{k*k}*(1-m)^2", "reverse_bracket",
+         ["注意 (1−m)² = (m−1)²，平方后不再多一个负号。", f"提取 m−1，得到 (m−1)(m²−{k*k}(m−1))。"],
+         [f"统一括号方向后提取 m−1，得到 (m−1)(m²−{k*k}m+{k*k})。", "检查二次因式能否继续分解；不能在有理数范围分解时保留。"])
+
+    c = rng.choice([2, 4, 6])
+    # t²−t−c(c+1)=(t−c−1)(t+c), with t=x²+cx.
+    push(f"(x^2+{c}*x)^2-(x^2+{c}*x)-{c*(c+1)}", "substitution",
+         ["重复出现的二次式也可以整体换元。", f"令 t=x²+{c}x，得到 t²−t−{c*(c+1)}。", f"分解为 (t−{c+1})(t+{c})；换回 x 后还要逐个检查。"],
+         [f"令 t=x²+{c}x，先分解为 (t−{c+1})(t+{c})。", f"换回得到 (x²+{c}x−{c+1})(x²+{c}x+{c})。", f"第一因式 = (x−1)(x+{c+1})；再检查另一个二次因式。"], True)
+
+    k = rng.choice([1, 2, 3])
+    if rng.choice([True, False]):
+        push(f"(x^2+{k*k})^2-{4*k*k}*x^2", "nested_square",
+             ["先把 x² 加常数作为整体，用平方差公式。", f"得到 (x²+{k*k}−{2*k}x)(x²+{k*k}+{2*k}x)。", "两个二次因式都是完全平方式，需要继续分解。"],
+             [f"原式 = (x²−{2*k}x+{k*k})(x²+{2*k}x+{k*k})。", f"两个括号分别是 (x−{k})² 和 (x+{k})²。"], True)
+    else:
+        push(f"(x^2+{k*k})^2-{4*k}*x*(x^2+{k*k})+{4*k*k}*x^2", "nested_square",
+             ["把 x² 加常数看成 A，把含 x 的一次式看成 B，观察 A²−2AB+B²。", f"整体配方得到 (x²+{k*k}−{2*k}x)²。", "里面的三项还能再写成一个完全平方。"],
+             [f"原式 = ((x²+{k*k})−{2*k}x)²。", f"内层 = (x−{k})²，因此原式 = (x−{k})⁴。"], True)
 
     return questions

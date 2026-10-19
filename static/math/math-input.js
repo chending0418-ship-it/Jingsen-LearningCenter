@@ -13,14 +13,14 @@
             this.root = root; this.onChange = onChange;
             this.rows = [[]]; this.active = 0; this.cursor = 0; this.history = []; this.locked = false;
             root.innerHTML = '<div class="pad-label"><span>最终答案</span><span id="pad-position" class="muted"></span></div><div class="pad-final"></div><div class="pad-scratch" hidden></div><div class="pad-tools"><div class="pad-tools-group"><button type="button" data-pad-action="left" aria-label="光标左移">← 左移</button><button type="button" data-pad-action="right" aria-label="光标右移">右移 →</button></div><button type="button" data-pad-action="add">＋ 草稿 / 推导</button></div><div class="pad-extra-keys" hidden><button type="button" data-pad-key="t">t</button><button type="button" data-pad-key="t²">t²</button><button type="button" data-pad-key="=">＝</button></div><div class="pad-keys"></div>';
-            const keys = ['x', 'x²', 'x³', 'x⁴', '(', ')', '7', '8', '9', '+', '−', '退格', '4', '5', '6', '×', '平方', '撤销', '1', '2', '3', '0'];
+            const keys = ['x', 'y', 'a', 'b', 'm', '/', 'x²', 'x³', 'x⁴', '^', '(', ')', '7', '8', '9', '+', '−', '退格', '4', '5', '6', '×', '平方', '撤销', '1', '2', '3', '0'];
             keys.forEach(key => {
                 const button = element('button', /^\d$/.test(key) ? '' : 'pad-symbol', key);
                 button.type = 'button';
                 const action = {'退格': 'backspace', '平方': 'square', '撤销': 'undo'}[key];
                 if (action) { button.dataset.padAction = action; button.classList.add('pad-edit'); }
                 else button.dataset.padKey = key;
-                button.setAttribute('aria-label', {'x²': 'x 平方', 'x³': 'x 三次方', 'x⁴': 'x 四次方', '(': '左括号，自动配对', ')': '右括号，跳出括号', '平方': '将前面的数字、字母或括号整体平方'}[key] || key);
+                button.setAttribute('aria-label', {'/': '分数线，例如 y/2', '^': '次方，后接一到八', 'x²': 'x 平方', 'x³': 'x 三次方', 'x⁴': 'x 四次方', '(': '左括号，自动配对', ')': '右括号，跳出括号', '平方': '将前面的数字、字母或括号整体平方'}[key] || key);
                 if (key === '0') button.style.gridColumn = 'span 3';
                 root.querySelector('.pad-keys').append(button);
             });
@@ -51,7 +51,7 @@
             else { const tokens = Array.from(value); row.splice(this.cursor, 0, ...tokens); this.cursor += tokens.length; }
             this.changed();
         }
-        canSquare() { return /^(x|t|[0-9]|\))$/.test(this.rows[this.active][this.cursor - 1] || ''); }
+        canSquare() { return /^([xyabmt]|[0-9]|\))$/.test(this.rows[this.active][this.cursor - 1] || ''); }
         action(action) {
             const row = this.rows[this.active];
             if (action === 'left') this.cursor = Math.max(0, this.cursor - 1);
