@@ -1,0 +1,822 @@
+{
+  "version": "shoedog-2026-10-19-v3",
+  "source": "Shoe Dog 12节课精读写作学习大纲(1).pdf",
+  "lessons": [
+    {
+      "id": "shoedog-01",
+      "number": 1,
+      "title": "Crazy Idea 的起点",
+      "chapter_titles": [
+        "Dawn",
+        "1962"
+      ],
+      "reading_label": "Dawn + 1962",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Phil Knight 萌生 \"Crazy Idea\" ，受 Stanford MBA 课程启发计划进口日本跑鞋；说服父亲出资开启环球旅行；游历多国，接触禅宗思想；赴日本虚构 Blue Ribbon 拿到 Onitsuka Tiger 经销权，希腊之行见到 Athena Nike 神庙，完成环球旅程归国。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 内向、富于想象，敢于冒险但缺乏商业实战经验； Bill Knight 务实看重体面；家人的战争记忆塑造对日本的固有认知； Carter 是旅行同伴。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "伟大事业始于不被看好的构想； \"Entrepreneurship, Experience, and Perseverance\" 伴随自我怀疑； \"Global Economies\" 体现跨文化交往背负历史包袱； \"Balancing Family and Work\" 说明家庭观念深刻影响创业者。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 开篇晨跑意象象征 ‐ 跑步作为隐喻，代表人生、创业，过程的挣扎、坚持大于终点的输赢 2. 时代背景铺垫 ‐ 还原二战、 Pearl Harbor 等历史记忆，美日之间残存战争对立情绪，铺垫跨文化商业交往心理底色 3. 核心意象象征 ‐\"Crazy Idea\" ，象征不被看好却蕴藏变革力量的创业初心 4. 戏剧反讽 ‐Phil Knight 临场编造并不存在的 Blue Ribbon 公司，日方全然不知情，制造叙事张力 5. 预示伏笔 ‐ 游历期间参观 Athena Nike 神庙，为后续 Nike 品牌命名埋下线索 6. 第一人称回顾性叙事 ‐ 晚年回忆录视角回望青年时代，混合回忆、自省与内心独白，自带事后反思距离感"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Dawn 开篇跑步独白、 \"Crazy Idea\" 内心独白，分析文本如何体现主角早期创业冲动与内心焦虑。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l1-teacher-1",
+          "source": "teacher",
+          "text": "一个 \"Crazy Idea\" 从念头走向落地，需要哪些现实条件",
+          "text_en": "What practical conditions are needed to turn a ‘Crazy Idea’ into reality?",
+          "reference_answer": "A bold idea needs more than enthusiasm: it needs a reason to believe it could work, resources, and a first practical step. Knight draws on his business-school idea about Japanese running shoes, persuades his father to support his trip, and approaches Onitsuka in Japan. His willingness to act turns an untested possibility into a business opportunity, although he still lacks experience and a secure organization."
+        },
+        {
+          "id": "l1-teacher-2",
+          "source": "teacher",
+          "text": "二战遗留的民族隔阂，会给 Phil Knight 在日本的商务沟通带来哪些隐性阻碍",
+          "text_en": "What hidden barriers might the national divisions left by World War II create for Phil Knight’s business communication in Japan?",
+          "reference_answer": "Memories of World War II can make trust difficult before negotiations even begin. Knight’s family carries painful associations with Japan, while doing business requires him to see Japanese people as potential partners rather than only through wartime divisions. His visit asks him to move beyond inherited assumptions. Respectful personal contact can reduce these barriers, but it does not automatically remove cultural differences or uncertainty."
+        },
+        {
+          "id": "l1-teacher-3",
+          "source": "teacher",
+          "text": "分析 Phil Knight 身上胆怯和敢于冒险并存的矛盾性格；思考跑步这一隐喻在开篇承担的叙事作用",
+          "text_en": "Analyze the apparent contradiction between Phil Knight’s timidity and willingness to take risks. What narrative role does running as a metaphor play at the beginning of the book?",
+          "reference_answer": "Knight can be shy in ordinary conversation yet bold when pursuing something he deeply believes in. His approach to Onitsuka shows that fear does not prevent him from acting. The opening run gives this tension a physical form: moving forward involves discomfort, uncertainty, and persistence. Running therefore introduces the memoir’s view of entrepreneurship as an ongoing struggle rather than a simple race toward a final prize."
+        },
+        {
+          "id": "l1-guide-1",
+          "source": "guide",
+          "text": "How does Knight turn his idea into a first agreement in Japan? Explain the steps and one obstacle.",
+          "reference_answer": "Knight develops an idea about importing Japanese running shoes, obtains his father’s support for travel, and meets Onitsuka in Japan. Asked about his company, he improvises the name Blue Ribbon even though the company is not yet an established operation. The agreement grows from preparation and initiative, but the episode also exposes an obstacle: he must earn credibility before he has the experience or organization to support his ambition."
+        },
+        {
+          "id": "l1-guide-2",
+          "source": "guide",
+          "text": "How does the opening run help express Knight’s hopes and doubts? Explain the effect of the running image.",
+          "reference_answer": "The run connects Knight’s private doubts with the physical experience of continuing despite discomfort. It suggests that his ambition depends on forward movement even when the destination is uncertain. Because running is also central to the business he imagines, the image links his personal identity with his future work. The opening thus prepares us to read entrepreneurship as a difficult process, not merely a story about winning."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-02",
+      "number": 2,
+      "title": "信念、等待与合伙关系",
+      "chapter_titles": [
+        "1963",
+        "1964"
+      ],
+      "reading_label": "1963 + 1964",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Phil Knight 等待 Onitsuka 跑鞋样品，一边做 CPA 谋生一边筹备创业；收到第一批跑鞋，与 Bill Bowerman 建立合伙关系；开拓销售，结识 Jeff Johnson ；再赴日本拿下美国西部经销权；经历短暂恋情，妹妹 Jeanne 加入公司。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 挣扎于打工谋生与创业理想之间； Bill Bowerman 兼具教练与产品改良者的双重特质； Bill Knight 现实保守，家人给予隐性支持； Jeff Johnson 展现销售潜力。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" 要求创业者耐受漫长等待与挫败； \"Leadership\" 说明优质合伙人能够改写初创企业命运； \"Global Economies\" 反映海外合作带来不确定性； \"Balancing Family and Work\" 体现理想、生计、家庭之间的拉扯。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 反复出现的短语象征 ‐\"a little more days\" ，日方敷衍的话术，象征跨国供应链里无休止的等待与不确定性 2. 对比叙事 ‐ 枯燥刻板的会计事务所谋生工作 vs 充满热情的跑鞋创业理想，凸显主角的内心分裂 3. 人物对照 ‐Bill Knight 的世俗务实 vs Lota Knight 沉默而叛逆的支持，展现家庭内部两种不同的支持方式 4. 预示伏笔 ‐ 初次相遇 Jeff Johnson ，为后续他成为核心全职员工埋下情节线索 5. 环境与旅程隐喻 ‐Mount Fuji 登山经历，隐喻创业：前路艰难，过程重于终点，同时也象征人生际遇里短暂、转瞬即逝的人和缘分 6. 第一人称回顾性叙事 ‐ 中年之后回望青年时期事业与情感的双重起落，带有释然的自省色彩"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "关于 \"a little more days\" 日方拖延发货的段落； Bowerman 对跑鞋轻量化的论述； Phil Knight 感悟 \"Belief, I decided. Belief is irresistible.\" 的段落，分析文本如何体现创业早期信念的力量。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l2-teacher-1",
+          "source": "teacher",
+          "text": "当理想事业还不能养活自己，创业者一边打工谋生一边追梦，会面临哪些心理现实困境",
+          "text_en": "When a dream business cannot yet support its founder, what psychological and practical difficulties arise from earning a living while pursuing that dream?",
+          "reference_answer": "Earning a living while building a business creates competing demands on time, energy, and confidence. Knight’s accounting work provides income, but it also takes him away from the running-shoe venture that excites him. Waiting for samples makes progress depend on someone else’s timetable. He must tolerate a gap between what his daily life looks like and what he hopes it can become, without yet knowing whether the dream will support him."
+        },
+        {
+          "id": "l2-teacher-2",
+          "source": "teacher",
+          "text": "分析 Bill Bowerman 愿意成为合伙人这一事件，对 Blue Ribbon 意味着什么",
+          "text_en": "What does Bill Bowerman’s decision to become a partner mean for Blue Ribbon?",
+          "reference_answer": "Bowerman brings more than money or a respected name. As a coach interested in improving shoes, he contributes practical knowledge of runners and product design. His decision to partner with Knight gives Blue Ribbon credibility and turns a personal ambition into a shared project. Their different strengths matter: Knight pursues the business opportunity, while Bowerman helps connect the product to athletes’ real needs."
+        },
+        {
+          "id": "l2-teacher-3",
+          "source": "teacher",
+          "text": "跨国合作中，当合作方口头承诺不能兑现，创业者可以有哪些博弈选择；谈谈 \"Belief is irresistible\" 这句话的现实意义",
+          "text_en": "In an international partnership, what strategic options does an entrepreneur have when a partner fails to keep verbal promises? Discuss the practical meaning of ‘Belief is irresistible.’",
+          "reference_answer": "Knight can keep negotiating, seek clearer commitments, maintain other sources of income, or consider alternative partners rather than relying entirely on reassuring words. The delayed samples show how little control a small importer may have. His belief helps him continue and communicate enthusiasm to customers and collaborators. However, belief is persuasive only when it is joined to action; it cannot by itself guarantee that a supplier will deliver."
+        },
+        {
+          "id": "l2-guide-1",
+          "source": "guide",
+          "text": "Compare Knight’s situation in 1963 and 1964. What changes when Bowerman becomes his partner?",
+          "reference_answer": "In 1963, Knight is largely waiting for his idea to become tangible while supporting himself through accounting. The arrival of shoes and Bowerman’s partnership in 1964 make the venture more concrete. Blue Ribbon gains both products to sell and a collaborator with expertise and credibility. Knight still faces uncertainty, but he is no longer trying to build the business entirely on his own."
+        },
+        {
+          "id": "l2-guide-2",
+          "source": "guide",
+          "text": "How does the contrast between accounting work and selling shoes reveal Knight’s priorities?",
+          "reference_answer": "Accounting offers structure and income, whereas selling running shoes gives Knight a sense of conviction and purpose. Placing these activities beside each other makes his divided life visible. The contrast suggests that financial security and meaningful work do not yet come from the same place. It also makes his enthusiasm for the shoe business more convincing because we see it against work that does not inspire him in the same way."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-03",
+      "number": 3,
+      "title": "沟通、扩张与资金压力",
+      "chapter_titles": [
+        "1965",
+        "1966"
+      ],
+      "reading_label": "1965 + 1966",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Jeff Johnson 全职入职，大量信件与 Phil Knight 沟通； Phil Knight 继续兼任 CPA ；银行质疑公司扩张； Johnson 业绩增长、遭遇个人磨难；开设第一家零售店； Kitami 上任， Blue Ribbon 拿到全美独家经销权，但依旧面临资金缺口。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 奉行扩张策略，不擅长情感化沟通下属； Jeff Johnson 热忱渴望认可； Bill Bowerman 持续迭代跑鞋设计； Bob Wallace 代表银行保守立场； Kitami 手握 Onitsuka 对外合作决策权。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，高速扩张会遭遇制度、资金阻力； \"Leadership\" ，放权式管理有优势也存在管控风险； \"Global Economies\" ，合作方人事变动足以改写企业命运； \"Balancing Family and Work\" ，事业重压会破坏个人婚姻。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 信件叙事象征 ‐Jeff Johnson 大量源源不断的信件，象征初创团队旺盛的创造力，也象征上下级之间沟通模式的错位 2. 双线并行叙事 ‐ 一边是公司销售高速增长，另一边是银行持续警告、资金紧绷，表象繁荣和内在风险形成强烈矛盾 3. 人物对照 ‐Phil Knight 内敛寡言的放权管理 vs Jeff Johnson 渴望反馈、渴求肯定的性格，凸显管理上的性格冲突 4. 环境与事件隐喻 ‐Johnson 严重车祸之后仍坚持办公，隐喻创业世界里个人苦难常常和业务推进并行；章鱼捕食螃蟹的场景，隐喻残酷的商业竞争 5. 预示伏笔 ‐Kitami 登场，为后续 Onitsuka 合作关系恶化埋下关键线索 6. 第一人称回顾性叙事 ‐ 晚年回望，反思自己早年沉默的管理方式，带有自省色彩"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "\"Fail fast\" 内心独白； Johnson 关于跑步者的论述；银行反复强调 \"equity\" 的相关段落，分析文本如何体现初创企业的生存压力。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l3-teacher-1",
+          "source": "teacher",
+          "text": "评价 Phil Knight 这种少反馈、充分放权的管理模式，有哪些优势与隐患",
+          "text_en": "Evaluate Phil Knight’s management style of giving little feedback while allowing considerable autonomy. What are its strengths and potential risks?",
+          "reference_answer": "Autonomy allows Johnson to experiment, solve problems, and develop strong relationships with runners without waiting for permission at every step. Yet Knight’s limited replies can leave an enthusiastic employee uncertain about whether his work is valued. The same silence that feels like freedom to one person may feel like neglect to another. Effective delegation therefore requires trust, but also enough feedback to maintain shared goals and motivation."
+        },
+        {
+          "id": "l3-teacher-2",
+          "source": "teacher",
+          "text": "为什么销售额持续增长的 Blue Ribbon ，依然会被银行判定为高风险",
+          "text_en": "Why do banks still consider Blue Ribbon a high-risk business even as its sales keep growing?",
+          "reference_answer": "Growing sales do not guarantee that cash is available when bills fall due. Expansion requires more stock and financing, and banks worry about the limited equity supporting that growth. Blue Ribbon can therefore look successful to customers while appearing fragile to its lenders. The bank’s warnings expose a difference between business momentum and the financial resources needed to sustain it."
+        },
+        {
+          "id": "l3-teacher-3",
+          "source": "teacher",
+          "text": "分析 Kitami 上任带来的影响；谈谈你如何理解书中 \"Fail fast\" 这一创业心态",
+          "text_en": "Analyze the impact of Kitami’s appointment. How do you understand the entrepreneurial mindset expressed by ‘Fail fast’ in the book?",
+          "reference_answer": "Kitami’s arrival changes the person controlling an important supplier relationship, showing how vulnerable Blue Ribbon is to decisions outside its own organization. Gaining national exclusivity is an opportunity, but it does not eliminate the financing problem. ‘Fail fast’ expresses a willingness to face uncertainty and learn through action rather than remain immobilized by fear. It does not mean that every risk is wise or that financial consequences disappear."
+        },
+        {
+          "id": "l3-guide-1",
+          "source": "guide",
+          "text": "What do Johnson’s letters reveal about his needs, and how does Knight respond across these chapters?",
+          "reference_answer": "Johnson’s repeated letters show enthusiasm, inventiveness, and a desire for acknowledgment. Knight gives him considerable independence but often fails to provide the response he wants. Across these chapters, Johnson continues helping the business grow despite this mismatch. The relationship shows that employees may need both freedom to act and reassurance that their effort and ideas are being recognized."
+        },
+        {
+          "id": "l3-guide-2",
+          "source": "guide",
+          "text": "How does the parallel account of rising sales and bank warnings create tension?",
+          "reference_answer": "The account of expanding sales creates an expectation of success, while the repeated bank warnings undermine that expectation. Reading the two developments together produces tension: every advance may require resources the company does not have. This parallel structure makes growth feel precarious rather than reassuring. It also helps the reader understand why Knight can feel threatened at a moment that appears prosperous from the outside."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-04",
+      "number": 4,
+      "title": "人才、妥协与家庭",
+      "chapter_titles": [
+        "1967",
+        "1968"
+      ],
+      "reading_label": "1967 + 1968",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Jeff Johnson 被调往东部开拓市场，劳资谈判达成妥协； Bob Woodell 加入团队； Cortez 跑鞋诞生，遭遇 Adidas 商标威胁； Bowerman 出版 \"Jogging\" ； Phil Knight 辞去会计工作，结识 Penny Parks ，二人结婚；再次出访日本，结识 Fujimoto ；公司规模扩大，资金压力依旧存在。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 周旋多方，搭建团队同时经营感情； Jeff Johnson 才华出众，顾全大局； Bob Woodell 身残志坚，迅速成长为骨干； Bill Bowerman 兼具产品创新与人才发掘能力； Penny Parks 聪慧能干，理解创业处境； Kitami 地位上升，维持表面友好关系。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，扩张伴随人员博弈，妥协取舍是生存常态； \"Leadership\" 要处理核心员工诉求，发掘逆境人才； \"Global Economies\" ，跨国合作交织文化、利益冲突； \"Balancing Family and Work\" ，婚姻嵌入充满不确定性的创业生活。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 人物冲突写实叙事 ‐Johnson 提出合伙人要求的谈判全过程，不美化主角，展现初创公司真实的劳资博弈 2. 身体命运隐喻 ‐Bob Woodell 从田径新星到轮椅上工作，身体的残缺隐喻人生与创业路上不可预料的重创，意志可以突破肉体困境 3. 戏剧反讽 ‐Bowerman 写的 \"Jogging\" 一书大幅带动跑步热潮，却在书中弱化跑鞋品牌价值，给自家公司带来尴尬，理想和商业利益出现错位 4. 环境象征 ‐Blue Ribbon 简陋破旧、紧邻酒馆的办公场地，象征初创企业粗粝、挣扎求生的生存状态 5. 双线并行叙事 ‐ 主线推进公司团队、跨国业务发展；副线描写 Phil Knight 与 Penny 从师生、雇佣走向婚恋，事业线与个人情感线互相交织 6. 预示伏笔 ‐Fujimoto 与 Phil Knight 建立私人友谊，为未来 Onitsuka 内部局势变化埋下线索； Adidas 商标威胁，铺垫未来自主品牌的必要性"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Johnson 谈判的内心独白； Bowerman\"Jogging\" 书中关于跑鞋的相关论述； Phil Knight 婚礼段落，分析文本如何体现创业者在动荡事业之中寻求人生伙伴的心境。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l4-teacher-1",
+          "source": "teacher",
+          "text": "站在 Jeff Johnson 的角度，分析他索要合伙人身份诉求的合理性与局限",
+          "text_en": "From Jeff Johnson’s perspective, how reasonable is his demand to become a partner, and what are the limitations of his position?",
+          "reference_answer": "Johnson has helped build the business and is being asked to take on demanding responsibilities, so a request for partnership can express a reasonable desire for recognition and a share in what he is creating. However, his contribution does not by itself settle questions of ownership, authority, or what the company can afford. The negotiation reveals a genuine conflict between employee loyalty and a founder’s wish to retain control."
+        },
+        {
+          "id": "l4-teacher-2",
+          "source": "teacher",
+          "text": "Bowerman 的 \"Jogging\" 带来巨大行业红利，同时损害自家商业利益，如何看待理想主义和商业目标之间的矛盾",
+          "text_en": "Bowerman’s Jogging greatly benefits the industry while also harming his own company’s commercial interests. How do you view the tension between idealism and business goals?",
+          "reference_answer": "Jogging can enlarge the running community and benefit the whole industry even when its advice does not directly promote Blue Ribbon’s shoes. Bowerman’s commitment to running and Knight’s commercial interests overlap, but they are not identical. The tension shows that an activity can serve a public or sporting ideal without maximizing one company’s advantage. A partnership must make room for these differences rather than assume every benefit will be shared equally."
+        },
+        {
+          "id": "l4-teacher-3",
+          "source": "teacher",
+          "text": "Penny Knight 作为员工、伴侣双重角色加入 Blue Ribbon ，会给 Phil Knight 带来哪些机遇，又潜藏哪些风险",
+          "text_en": "What opportunities and potential risks arise for Phil Knight when Penny Knight joins Blue Ribbon in the dual roles of employee and partner in life?",
+          "reference_answer": "Penny can offer practical help, understanding, and emotional support because she knows the business from inside. Their shared experience can strengthen trust. At the same time, combining work and marriage makes it harder to separate professional pressure from home life. Financial uncertainty and business disagreements can affect both relationships at once, increasing what Penny and Knight each have at stake."
+        },
+        {
+          "id": "l4-guide-1",
+          "source": "guide",
+          "text": "How do Johnson and Woodell contribute differently to the growing company? Use an event from each year.",
+          "reference_answer": "Johnson contributes experience with customers and the ability to develop a new market, even when the move east raises difficult questions about recognition and responsibility. Woodell brings organizational ability and becomes increasingly important to daily operations. Across 1967 and 1968, the team grows through people with different strengths. Their contributions show why a founder needs complementary abilities rather than employees who all work in the same way."
+        },
+        {
+          "id": "l4-guide-2",
+          "source": "guide",
+          "text": "How does weaving Knight’s relationship with Penny into the business story affect our view of him?",
+          "reference_answer": "The relationship with Penny places Knight’s business decisions beside the development of a shared private life. We see him not only as someone negotiating with employees and suppliers but also as a person seeking companionship and commitment. The interwoven stories make his ambition more human and expose its costs: instability at work becomes part of the conditions under which the marriage begins."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-05",
+      "number": 5,
+      "title": "现金流危机与信任",
+      "chapter_titles": [
+        "1969",
+        "1970"
+      ],
+      "reading_label": "1969 + 1970",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Phil Knight 全职创业，结识 Carolyn Davidson ； Blue Ribbon 受资金限制难以大规模赞助奥运； Kitami 到访； Penny 怀孕，长子 Matthew 出生；公司遭遇严重流动性危机，多方寻求融资； Steve Prefontaine 崭露头角；察觉 Onitsuka 打算另寻美国代理商。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 背负家庭、信贷、海外背叛多重压力，行事有鲁莽冲动的一面； Penny Knight 承受家庭与企业双重经济焦虑； Bob Woodell 统筹能力突出； Kitami 权势扩张； Fujimoto 作为内部消息来源； Steve Prefontaine 代表新一代运动员力量。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，销售增长不等于安全，危机下依靠人际信任求生； \"Leadership\" 要应对团队膨胀与内部矛盾； \"Global Economies\" ，合作方人事变动改写企业命运； \"Balancing Family and Work\" ，组建家庭加重经济负担，家人被迫共担创业风险。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 双线并行叙事 ‐ 主线推进公司业务、跨国合作危机；副线同步推进婚姻、买房、 Matthew 出生的家庭故事，事业压力与家庭喜悦形成强烈交织对照 2. 环境象征 ‐Blue Ribbon 简陋破旧的办公场地，和 Onitsuka 高管身份、 Adidas/Puma 雄厚资本形成反差， 象征初创企业的弱势地位 3. 反讽叙事 ‐ 销售额年年翻倍的 Blue Ribbon ，却陷入拿不出现金支付货款的窘境，讽刺 “ 账面好看不等于经营安全 ” 4. 预示伏笔 ‐Carolyn Davidson 初次登场，为后续 Nike Swoosh 标志设计埋下线索； Steve Prefontaine 登上杂志封面，铺垫后续运动员签约的情节； Kitami 权力提升、私下接触其他经销商，为日后合作彻底破裂埋下伏笔； Nissho Iwai 商社的线索铺垫后续关键援助。 5. 第一人称回顾性叙事 ‐ 晚年回望，反思自己写下 “spy” 备忘录的鲁莽，带着事后自省。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Phil Knight 关于公司 “Lots of assets, no cash” 的内心独白； Woodell 母亲借出积蓄时的对话；关于 Steve Prefontaine 的杂志描写段落，分析文本如何体现创业者面对流动性绝境与新生希望的复杂心境。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l5-teacher-1",
+          "source": "teacher",
+          "text": "为什么一家营收持续高速上涨的企业，依然会遭遇致命的现金流 / 流动性危机",
+          "text_en": "Why can a company with rapidly growing revenue still face a potentially fatal cash-flow or liquidity crisis?",
+          "reference_answer": "Revenue records sales, but a company still needs cash at the right moment to pay for stock and other obligations. Rapid expansion can increase the amount of money tied up in goods before customers’ payments replenish it. Blue Ribbon’s growth therefore intensifies its need for financing. The contradiction is only apparent: a business can be selling more while becoming less able to meet its immediate bills."
+        },
+        {
+          "id": "l5-teacher-2",
+          "source": "teacher",
+          "text": "分析 Phil Knight 写 “spy” 备忘录这一行为，思考创业高压下，哪些操作会给跨国合作埋下隐患",
+          "text_en": "Analyze Phil Knight’s decision to write the ‘spy’ memo. Under the pressure of entrepreneurship, what kinds of actions can put an international partnership at risk?",
+          "reference_answer": "The ‘spy’ memo reflects Knight’s anxiety about a partnership he increasingly distrusts. Under pressure, writing down an impulsive suspicion can create evidence that damages a relationship rather than protecting it. The episode illustrates how fear can narrow judgment. In international business, careless language, secretive actions, and assumptions about a partner’s motives can undermine trust precisely when cooperation is most important."
+        },
+        {
+          "id": "l5-teacher-3",
+          "source": "teacher",
+          "text": "当创业风险直接传导到配偶、新生儿等家人身上，创业者会背负怎样的心理困境；家人共同承担商业风险，利弊分别是什么",
+          "text_en": "What psychological difficulties does an entrepreneur face when business risks directly affect a spouse, a newborn, and other family members? What are the advantages and disadvantages of a family sharing business risks?",
+          "reference_answer": "When business risks reach a spouse and newborn, the entrepreneur’s decisions carry emotional as well as financial consequences. Knight must think about people who depend on him, while Penny experiences uncertainty she cannot fully control. Sharing the risk can produce solidarity and practical support, but it can also spread anxiety and resentment. Family loyalty does not make the burden cost-free or remove the founder’s responsibility for it."
+        },
+        {
+          "id": "l5-guide-1",
+          "source": "guide",
+          "text": "Connect an event in 1969 with an event in 1970 to explain why the company remains vulnerable.",
+          "reference_answer": "The growth of the business brings greater responsibilities, while the family’s needs increase with Matthew’s birth. By 1970, financing pressure and doubts about Onitsuka make the company’s position especially fragile. Connecting these developments shows that growth has not created a financial cushion. Instead, more people and larger obligations now depend on a business whose cash and supplier relationship remain uncertain."
+        },
+        {
+          "id": "l5-guide-2",
+          "source": "guide",
+          "text": "How does the contrast between growing sales and scarce cash shape the reader’s expectations?",
+          "reference_answer": "Rising sales usually suggest progress, so their contrast with a shortage of cash surprises the reader. It directs attention away from impressive totals and toward the company’s ability to survive the next payment. This contrast creates anxiety about what growth will demand next. It also challenges the assumption that a successful-looking company must be secure."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-06",
+      "number": 6,
+      "title": "Nike 诞生与商业伦理",
+      "chapter_titles": [
+        "1971"
+      ],
+      "reading_label": "1971",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Kitami 访美，提出收购 Blue Ribbon 被拒绝；银行终止授信， Phil Knight 对接 Nissho Iwai ； Carolyn Davidson 设计 The Nike Swoosh ， Jeff Johnson 梦想出 \"Nike\" ；考察海外工厂，参观广岛纪念馆； Penny 在日本遭遇精神恐慌； Bowerman 用家用器具研发华夫鞋底； Fujimoto 透露 Onitsuka 断联计划。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 在生存压力与商业伦理之间挣扎； Kitami 强势谋求掌控 Blue Ribbon ； Penny Knight 承受创业带来的精神压力； Carolyn Davidson 、 Jeff Johnson 完成品牌关键创作； Bowerman 执着于产品改良； Fujimoto 继续提供内部情报。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，外部背叛倒逼自主品牌与产品创新； \"Leadership\" ，重大决策来自团队妥协与集体智慧； \"Global Economies\" ，跨国合作随时破裂，战争记忆持续影响商业参与者； \"Balancing Family and Work\" ，商业危机给伴侣带来巨大精神负担。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐Bowerman 晚宴本是用来拉拢 Kitami 的社交场合，结果演变成一场荒诞失控的闹剧，社交目的完全落空 2. 伦理两难叙事 ‐Phil Knight 偷看 Kitami 文件夹，作者不美化自身行为，直白记录内心愧疚，体现回忆录自省特质 3. 象征 ‐The Nike Swoosh ，代表全新自主品牌的诞生，挣脱 Onitsuka 依附关系的具象符号；广岛纪念馆的烧焦鞋子，象征战争创伤；华夫模具，象征业余出身的创新。 4. 双线并行叙事 ‐ 主线：商业危机、寻找新供应链、创立 Nike 品牌；副线： Penny 的精神压力、夫妻之间互相支撑，事业危机与家庭心理危机交织 5. 预示伏笔 ‐Bowerman 研发华夫鞋底，为后续 Nike 产品核心竞争力埋下关键线索； Onitsuka 收购企图，预示双方合作彻底终结即将到来 6. 第一人称回顾性叙事 ‐ 回望偷看文件夹、仓促选定 Swoosh 与 \"Nike\" 品牌名等事件，带着事后的反思与自嘲。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Phil Knight 偷看 Kitami 文件夹后的内心道德挣扎段落； Carolyn Davidson 产出 logo ，团队勉强接纳 Swoosh 的对话； Bowerman 利用熨斗试制鞋底的段落，分析文本如何体现危机之中创新诞生的偶然性与必然性。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l6-teacher-1",
+          "source": "teacher",
+          "text": "评价 Phil Knight 偷看 Kitami 文件夹这一行为，创业生存压力是否可以突破常规商业伦理的边界",
+          "text_en": "Evaluate Phil Knight’s decision to look through Kitami’s folder without permission. Can the pressure to keep a business alive justify crossing the usual boundaries of business ethics?",
+          "reference_answer": "Looking through a partner’s private folder without permission crosses an ethical boundary, even if Knight fears for his company’s survival. The information may help him prepare for danger, but usefulness does not automatically justify the method. His discomfort matters because the memoir allows us to see both his fear and his responsibility. A defensible response should distinguish understanding the pressure from excusing every action taken under it."
+        },
+        {
+          "id": "l6-teacher-2",
+          "source": "teacher",
+          "text": "The Nike Swoosh 、 \"Nike\" 品牌名都并非完美的理性产物，带有偶然甚至妥协，谈谈重大商业决策中运气与理性各自扮演什么角色",
+          "text_en": "Neither the Nike Swoosh nor the name ‘Nike’ emerged from a perfectly rational process; chance and compromise also played a part. What roles do luck and rational judgment each play in major business decisions?",
+          "reference_answer": "The logo and name emerge under practical pressure and are accepted without universal certainty. Chance supplies possibilities, while judgment determines which possibility the team will act on. Their imperfect beginnings show that major decisions are often made with limited time and incomplete information. Rational thought still matters, but success does not prove that the original decision followed a flawless plan."
+        },
+        {
+          "id": "l6-teacher-3",
+          "source": "teacher",
+          "text": "Bowerman 用家用熨斗、钢板等简陋工具研发华夫鞋底，分析业余环境下产品创新需要哪些特质；战争历史记忆如何影响书中人物看待跨国商业合作。",
+          "text_en": "Bowerman uses simple household tools, such as an iron and steel plates, to develop the waffle sole. What qualities does product innovation in such an improvised setting require? How do memories of war shape the characters’ views of international business cooperation?",
+          "reference_answer": "Bowerman’s experiments show the importance of curiosity, persistence, and a willingness to test ordinary materials in unfamiliar ways. Innovation can begin outside a fully equipped laboratory. At the same time, the visit to Hiroshima places commercial cooperation beside the lasting human costs of war. These experiences suggest that inventiveness can cross established boundaries, while international relationships still carry memories that business alone cannot erase."
+        },
+        {
+          "id": "l6-guide-1",
+          "source": "guide",
+          "text": "How do the people behind the name, logo, and waffle sole contribute to Nike’s new identity?",
+          "reference_answer": "Davidson gives the emerging brand a visual symbol through the Swoosh, while Johnson contributes the name Nike. Bowerman’s experiments pursue a distinctive product through the waffle sole. Together, these contributions create more than a replacement label: they help the company imagine an identity of its own as dependence on Onitsuka becomes increasingly dangerous."
+        },
+        {
+          "id": "l6-guide-2",
+          "source": "guide",
+          "text": "Choose the Swoosh or the waffle mold. Explain its symbolic meaning using an event in this chapter.",
+          "reference_answer": "The Swoosh can symbolize an identity separate from Onitsuka because it gives the team a mark that belongs to its own emerging brand. The waffle mold can symbolize practical inventiveness because an everyday object becomes a tool for rethinking shoe design. Either image links the company’s new independence with something concrete rather than leaving it as an abstract ambition."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-07",
+      "number": 7,
+      "title": "品牌独立与危机应对",
+      "chapter_titles": [
+        "1972",
+        "1973"
+      ],
+      "reading_label": "1972 + 1973",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Nike 在芝加哥体育展首次亮相，虽有做工缺陷依旧拿到订单； Onitsuka 撕毁合作，双方走向诉讼；团队确立摆脱代理身份的 “ 独立日 ” 认知； Steve Prefontaine 展现竞技实力，慕尼黑奥运会发生恐怖袭击；签下 Ilie Nastase ； Johnson 与 Woodell 互换岗位；公司营收上涨却出现净亏损； Rob Strasser 加入处理法务；码头罢工加剧供应链危机； Penny 生下 Travis 。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 周旋于多重危机，兼顾团队士气与家庭责任； Kitami 强硬打压昔日合作伙伴； Jeff Johnson 、 Bob Woodell 各司其职； Bill Bowerman 承受奥运悲剧冲击； Steve Prefontaine 才华横溢却受时代体制束缚； Rob Strasser 思维锐利，成为法务核心； Penny Knight 持续承受事业附带的压力。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，危机可以成为转型契机，要区分营收与盈利； \"Leadership\" ，危机下鼓舞士气、灵活调配人才至关重要； \"Global Economies\" ，合作破裂引发法律、供应链连锁风险； \"Balancing Family and Work\" ，家庭成为创业者重要的精神救赎。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐ 芝加哥展会： Nike 新品做工瑕疵重重，却依靠团队真诚的沟通拿下订单；公司营收节节走高， 账面却出现净亏损 2. 象征 ‐The Nike Swoosh 象征挣脱代理身份； Prefontaine 的奔跑隐喻企业拼搏精神； “ 独立日 ” 比喻代表精神转折点。 3. 双线并行叙事 ‐ 主线：商业危机、展会亮相、合约决裂、诉讼备战、现金流自救；副线：体育赛场 Prefontaine 的故事、慕尼黑奥运悲剧、家庭生育与亲子生活，商业世界与时代社会现实互相映照 4. 时代背景铺垫 ‐ 融入慕尼黑奥运会恐怖袭击、越战征兵、 70 年代美国业余体育制度 5. 预示伏笔 ‐Rob Strasser 登场，为后续公司法律、商业重大决策埋下关键线索； Prefontaine 与 Nike 深度绑定，铺垫运动员代言的未来机遇与风险 6. 第一人称回顾性叙事 ‐ 晚年回望，坦诚记录自己的恐慌、侥幸、对投资人的愧疚，不回避自身的窘迫与无力，具备回忆录自省特质。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Phil Knight 对员工的 “ 独立日 ” 动员演说；芝加哥展会上经销商说出 “you guys always shoot straight” 的对话； Prefontaine 关于 “a race is a work of art” 的语录，分析文本如何体会危机之中真诚、信念与拼搏的力量。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l7-teacher-1",
+          "source": "teacher",
+          "text": "芝加哥展会 Nike 鞋子做工很差，依然拿到订单，谈谈商业中 “ 真诚 ” 可以弥补哪些产品短板，又有哪些短板无法靠真诚弥补",
+          "text_en": "Nike receives orders at the Chicago trade show despite the shoes’ poor workmanship. Which product shortcomings can honesty make up for in business, and which cannot be overcome by honesty alone?",
+          "reference_answer": "Honesty can persuade buyers to trust a team’s intentions and believe that it will address problems. The Chicago show suggests that an existing relationship can support a product launch despite obvious imperfections. However, sincerity cannot make an unsafe, unusable, or consistently unreliable shoe acceptable. Trust gives a company an opportunity to improve; it does not remove its obligation to produce something that works."
+        },
+        {
+          "id": "l7-teacher-2",
+          "source": "teacher",
+          "text": "Phil Knight 把 Onitsuka 终止合作解读成 “ 解放 / 独立日 ” ，分析危机转化为机遇需要哪些内外条件",
+          "text_en": "Phil Knight interprets Onitsuka’s termination of the partnership as ‘liberation’ or ‘Independence Day.’ What internal and external conditions are needed to turn a crisis into an opportunity?",
+          "reference_answer": "Knight’s language changes the end of a partnership from a story of loss into a story of possibility. Yet a crisis becomes an opportunity only if the company has alternatives: its own brand, a committed team, customers, and ways to obtain products and financing. The ‘Independence Day’ idea helps sustain morale, but the practical problems of independence still have to be solved."
+        },
+        {
+          "id": "l7-teacher-3",
+          "source": "teacher",
+          "text": "企业销售额持续上涨却发生亏损，请思考营收和现金流的区别；结合文本谈谈为什么家庭关系在高压创业中扮演重要的精神角色。",
+          "text_en": "The company’s sales keep rising, yet it makes a loss. Consider the difference between revenue and cash flow. Drawing on the text, why do family relationships provide important emotional support under the pressure of entrepreneurship?",
+          "reference_answer": "Revenue measures sales, cash flow concerns money moving in and out, and profit also depends on costs. None alone guarantees that the others are healthy. The losses and supply problems make this distinction concrete. Family relationships provide a different kind of support: belonging and care that are not measured by sales. They help Knight endure uncertainty, although the business also places pressure on those relationships."
+        },
+        {
+          "id": "l7-guide-1",
+          "source": "guide",
+          "text": "How does the company’s situation change from the 1972 trade show to the challenges of 1973?",
+          "reference_answer": "At the 1972 trade show, Nike gains orders despite imperfect products, giving the new brand a foothold. By 1973, independence also means facing legal conflict, supply difficulties, staffing decisions, and financial strain. The movement between the years shows that a promising launch is a beginning rather than a solution. Winning customers creates responsibilities that the young company must still learn to meet."
+        },
+        {
+          "id": "l7-guide-2",
+          "source": "guide",
+          "text": "How does describing the break with Onitsuka as independence change the meaning of the crisis?",
+          "reference_answer": "Calling the break ‘independence’ shifts attention from what Onitsuka has taken away to what the team can now build for itself. The language helps Knight turn fear into a shared purpose. At the same time, the financial and legal difficulties prevent the metaphor from becoming a simple triumph. Freedom is presented as both an opportunity and a new burden."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-08",
+      "number": 8,
+      "title": "扩张风险与生命价值",
+      "chapter_titles": [
+        "1974",
+        "1975",
+        "1975"
+      ],
+      "reading_label": "Part One: 1974, 1975 + Part Two: 1975",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Blue Ribbon 与 Onitsuka 法庭对峙，赢得商标权，达成和解；团队招揽 Rob Strasser 入职；向海外转移制造， Exeter 工厂建立；公司激进扩张造成现金流崩盘，遭遇 FBI 调查风险； Nissho Iwai 的 Ito 、 Sumeragi 出手化解危机； Steve Prefontaine 车祸离世， Bowerman 发表悼词缅怀。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 信奉 “Grow or die” ，激进策略数次把公司推向毁灭； Kitami 在法庭刻意虚伪； Bob Woodell 抗压可靠； Jeff Johnson 接管工厂； Rob Strasser 完成身份转型； Ito 冷酷但顾全大局； Sumeragi 重情义暗中相助； Steve Prefontaine 的死亡带给集体巨大精神打击； Penny Knight 共同承担破产与调查带来的心理重压。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，创业要直面诉讼、资金崩溃，扩张是双刃剑，盟友与运气决定生死； \"Leadership\" ，危机吸纳关键人才，要权衡冒险扩张与风险管控； \"Global Economies\" ，汇率、海外人事变动决定企业命运，制造业向外迁移成为大势； \"Balancing Family and Work\" ，破产、刑事风险传导整个家庭，促使团队思考商业之外生命的价值。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐ 庭审与商业危机： Blue Ribbon 赢得商标官司，转眼便深陷现金流绝境；销售额节节攀升，企业却游走在破产、刑事举报的边缘； Ito 前期被塑造成冷酷无情的 “The Ice Man” ，最后反倒成为拯救企业的关键人物。 2. 象征 ‐The Nike Swoosh ，出现在 Prefontaine 遇难的纪念现场，品牌符号与人的生命、理想深度绑定； Prefontaine 不屈的抗争精神，成为 Nike 精神内核的具象载体； Exeter 老旧破败工厂，象征挣脱日本代工， 寻求自主制造的艰难求索。 3. 双线并行叙事 ‐ 主线推进法庭诉讼、新工厂搭建、 Nissho 信贷危机，企业数次濒临覆灭；副线书写 Prefontaine 竞技高光与意外离世，商业叙事与生命悲剧相互交织对照。 4. 时代背景铺垫 ‐ 交代 70 年代日元汇率改革、美国业余体育制度、跨国制造业向外迁移的时代大环境。 5. 预示伏笔 ‐Exeter 自主工厂落地，为 Nike 后续全球化多产地供应链埋下线索； Prefontaine 的死亡，为品牌后续运动员文化叙事埋下长久的精神底色。 6. 第一人称回顾性叙事 ‐ 晚年回望过往，毫不回避自身鲁莽扩张带来近乎毁灭性的后果，坦诚自己恐惧牢狱之灾的脆弱内心，充满自省色彩。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "法官 “Blue Ribbon’s is the more convincing” 裁决段落； Sumeragi 坦白隐瞒发票的对话片段； Bowerman 悼念 Prefontaine 的悼词片段，分析文本如何体现商业博弈的残酷，以及体育理想超越商品本身的力量。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l8-teacher-1",
+          "source": "teacher",
+          "text": "Phil Knight 坚持 “Grow or die” 激进扩张，结合本章内容，谈谈激进扩张模式带来的收益与潜藏的致命风险。",
+          "text_en": "Drawing on this reading, discuss the benefits and potentially fatal risks of Phil Knight’s aggressive ‘Grow or die’ approach to expansion.",
+          "reference_answer": "Aggressive expansion can build sales, extend market reach, and prevent a young company from losing momentum to competitors. However, it also requires money before the returns are secure. In this reading, financial pressure nearly overwhelms the business despite its legal success. ‘Grow or die’ is therefore both an expression of determination and a dangerous assumption: the pursuit of survival can itself create a threat to survival."
+        },
+        {
+          "id": "l8-teacher-2",
+          "source": "teacher",
+          "text": "Ito 作为态度强硬的商业对手，最终出手拯救 Blue Ribbon ，请分析商业利益与人情道义二者之间的边界。",
+          "text_en": "Ito is a tough business counterpart, yet ultimately helps save Blue Ribbon. Where is the boundary between commercial interests and personal loyalty or moral obligation?",
+          "reference_answer": "Ito’s intervention shows that commercial calculation and personal obligation need not be opposites. Helping Blue Ribbon can protect a business relationship while also responding to the trust and loyalty built between people. His earlier toughness makes the rescue unexpected. The episode invites a nuanced judgment: human relationships can influence business decisions without making those decisions free of commercial interests."
+        },
+        {
+          "id": "l8-teacher-3",
+          "source": "teacher",
+          "text": "Prefontaine 的死亡，迫使团队重新审视商业成功之外生命的价值；思考运动员可以如何塑造一个品牌的精神内核。",
+          "text_en": "Prefontaine’s death forces the team to reconsider the value of life beyond business success. How can an athlete shape the spirit at the heart of a brand?",
+          "reference_answer": "Prefontaine’s death interrupts a story driven by legal victories, sales, and financial danger with an irreversible human loss. His competitive spirit gives the brand an ideal that cannot be reduced to a product or balance sheet. An athlete can shape a brand through the values people associate with the person, but the loss also reminds the team that a human life matters beyond its usefulness to a business."
+        },
+        {
+          "id": "l8-guide-1",
+          "source": "guide",
+          "text": "Trace the shift from the 1974 court case through both 1975 sections. Why does a legal victory fail to guarantee survival?",
+          "reference_answer": "The court victory in 1974 strengthens Blue Ribbon’s position in its conflict with Onitsuka, but it does not supply the cash needed for continued expansion. Across the two 1975 sections, financing and banking difficulties threaten the company until its trading partners intervene. The sequence separates two kinds of success: winning a dispute and having the resources to keep operating."
+        },
+        {
+          "id": "l8-guide-2",
+          "source": "guide",
+          "text": "How does the account of Prefontaine’s death change the tone and meaning of the business story?",
+          "reference_answer": "Prefontaine’s death changes the tone from commercial urgency to grief and remembrance. Financial danger may be escaped, but this loss cannot be reversed by a clever negotiation or another sale. Placing the tragedy beside the company’s struggles enlarges the meaning of the story. It asks readers to consider the people and ideals behind the business rather than treating survival and growth as sufficient goals."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-09",
+      "number": 9,
+      "title": "技术、文化与家庭代价",
+      "chapter_titles": [
+        "1976",
+        "1977"
+      ],
+      "reading_label": "1976 + 1977",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "团队讨论上市利弊，暂时搁置上市计划； Bill Bowerman 出让大部分股权；开拓中国台湾供应链； Sonny Vaccaro 助力拿下大学篮球市场； M. Frank Rudy 带来气垫技术； LD 1000 跑鞋召回；好莱坞带动鞋款爆卖；韩国仿冒工厂转为合作方；推出广告标语 “There is no line” ；海关追缴 2500 万美元关税； Phil Knight 反思作为父亲的失职； Matthew 叛逆。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 企业规模扩大，持续被生存危机裹挟，对父亲身份心怀愧疚； Bill Bowerman 受 Pre 离世打击，对气垫技术存疑； Jeff Johnson 、 Rob Strasser 各司其职； M. Frank Rudy 带来划时代技术； Sonny Vaccaro 熟稔大学教练圈层； Penny Knight 承受丈夫危机下的情绪消耗； Matthew Knight 性格叛逆。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，规模增长后仍会遭遇对手刻意制造的生存危机；每一次突破都会迎来全新挑战； \"Leadership\" ， Buttface 代表非正式团队文化，要权衡资本红利与企业文化风险；发掘外部天才可以拓展企业边界； \"Global Economies\" ，汇率波动、知识产权风险、贸易保护主义威胁跨国企业； \"Balancing Family and Work\" ，事业辉煌难以弥补陪伴缺失，创业者高压情绪会传导至家人。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐ 企业销售额高速增长、品牌知名度爆发式提升，却突然遭遇海关 2500 万美元巨额账单； Frank Shorter 选拔赛穿着 Nike 大放异彩，奥运会临阵换回竞品。 2. 象征 ‐The Nike Swoosh 变成家族认可、大众流行文化符号； \"Crazy Idea\" 得到新的延伸， Frank Rudy 的气垫构想又是一个一开始不被看好的创意； Buttface 会议象征 Nike 反传统企业文化。 3. 双线并行叙事 ‐ 主线描写业务扩张、供应链布局、人才吸纳、上市讨论、海关危机；副线书写 Phil Knight 的亲子困境、父子关系，商业成功与家庭遗憾两条线索互相映照。 4. 时代背景铺垫 ‐ 融入美国 70 年代贸易保护主义、好莱坞流行文化、大学体育商业崛起的时代环境。 5. 预示伏笔 ‐Frank Rudy 空气气垫技术的落地，为后续 Air 系列爆款产品埋下关键线索；台湾供应链体系搭建；海关关税危机预示企业必须走向公开上市。 6. 第一人称回顾性叙事 ‐ 晚年回望，坦诚自己在重压之下情绪失控摔砸电话，毫不回避自己作为父亲的失败，充满自省，不刻意美化创业者形象。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "“There is no line” 广告文案段落； Chuck Robinson 评价公司 “compositionally, you are a Japanese trading company—90 percent debt!” ； Phil Knight 反思父子关系的内心独白，分析文本如何体会规模扩张背后的代价与两难。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l9-teacher-1",
+          "source": "teacher",
+          "text": "Nike 拥有增长的营收与品牌热度，为什么依旧要面对政府关税带来的生存危机，谈谈商业竞争除市场之外还有哪些战场。",
+          "text_en": "Despite growing revenue and brand popularity, why does Nike still face a threat to its survival from government tariffs? What other battlegrounds of business competition exist beyond the marketplace?",
+          "reference_answer": "A company operates within legal and political systems as well as markets. Nike’s growing popularity cannot protect it from a tariff demand large enough to threaten its finances. Competition can therefore involve regulation, government decisions, legal arguments, and control of supply chains, not only winning customers. The episode shows that strong demand for a product does not place a business outside institutional power."
+        },
+        {
+          "id": "l9-teacher-2",
+          "source": "teacher",
+          "text": "分析 “Buttface” 这种非正式、高度坦诚互怼的团队文化，它的优势与潜在隐患分别是什么。",
+          "text_en": "Analyze the informal ‘Buttface’ team culture, with its unusually frank exchanges and teasing. What are its strengths and potential risks?",
+          "reference_answer": "The Buttface culture encourages frank disagreement, familiarity, and quick exchanges of ideas. People may challenge a proposal without maintaining a formal corporate appearance. Yet the same informality can exclude people who do not share its style, blur responsibilities, or make harsh behavior seem acceptable. Its strengths depend on trust; as the company expands, it also needs ways to protect clarity and respect."
+        },
+        {
+          "id": "l9-teacher-3",
+          "source": "teacher",
+          "text": "结合本章内容讨论：创业成功是否可以弥补对家庭陪伴的缺失； Frank Rudy 的气垫创意再一次印证 \"Crazy Idea\" ，谈谈疯狂构想落地需要哪些现实条件。",
+          "text_en": "Drawing on this reading, discuss whether entrepreneurial success can make up for a lack of time with family. Frank Rudy’s air-cushioning idea offers another example of a ‘Crazy Idea.’ What practical conditions are needed to bring such ideas to life?",
+          "reference_answer": "Business success cannot restore time that was not spent with family. Knight’s reflections on fatherhood expose a cost that rising sales do not cancel. Rudy’s air-cushioning idea also shows that an ambitious concept needs expertise, testing, resources, and organizational support to become useful. In both cases, enthusiasm alone is insufficient: meaningful intentions have to be supported by practical choices and sustained attention."
+        },
+        {
+          "id": "l9-guide-1",
+          "source": "guide",
+          "text": "Connect a development in 1976 with a challenge in 1977. What does this reveal about growth?",
+          "reference_answer": "The growing reach of the brand and new product possibilities create optimism, but the tariff demand exposes a vulnerability that market success cannot solve. Connecting these developments shows that growth changes the scale of the risks as well as the opportunities. The company gains influence while becoming entangled in wider financial, regulatory, and international systems."
+        },
+        {
+          "id": "l9-guide-2",
+          "source": "guide",
+          "text": "How does Knight’s account of fatherhood complicate the story of Nike’s success?",
+          "reference_answer": "Knight’s account of fatherhood prevents Nike’s rise from being read as an uncomplicated personal victory. The attention given to the business has consequences at home, and his regret makes those consequences part of the memoir rather than a detail outside it. The parallel stories suggest that achievement in one role does not automatically compensate for failure or absence in another."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-10",
+      "number": 10,
+      "title": "创新失败与职业耗竭",
+      "chapter_titles": [
+        "1978",
+        "1979"
+      ],
+      "reading_label": "1978 + 1979",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "聘请 Richard Werschkul 处理海关法律游说； Hayes 冲动买下废弃 Saco 工厂；总部搬迁，推行着装制度引发团队抗议； Ron Nelson 负责服装线遭遇审美灾难； Tailwind 气垫鞋盛大发布后工艺缺陷大规模召回； Werschkul 精神濒临崩溃； Phil Knight 赴华盛顿和海关官僚对峙；团队探讨开拓中国市场； David Chang 加入，待人处事鲁莽；销售额走高，全员陷入 burnout 职业耗竭。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 处在事业规模与精神压力的顶峰，深受职业倦怠困扰； Rob Strasser 受 Tailwind 失败打击陷入消沉； Richard Werschkul 才华出众却近乎病态执着； Hayes 行事冲动随性； Bob Woodell 处事稳重务实； Ron Nelson 业务强但缺乏时尚审美； David Chang 懂中国市场但社交笨拙； Bill Bowerman 对 Tailwind 失败持嘲讽态度。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，高营收不能免疫产品灾难，失败是创新不可回避的部分； \"Leadership\" ，草根文化和规范化制度激烈冲突，接纳人才性格缺陷； \"Global Economies\" ，本国政府政策可以重创企业，驱动企业开拓新兴市场； \"Balancing Family and Work\" ，高强度压力造成管理层集体职业耗竭。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐Tailwind 气垫鞋，被寄予极高期待、盛大营销发布，却因工艺缺陷大规模召回；公司创下 1.4 亿销售预期，却依旧游走在破产边缘；巨型棒球手套座椅讽刺世俗成功无法抹平过往挫折。 2. 象征 ‐The Nike Swoosh 成为政界谈判筹码； \"Crazy Idea\" 得到新诠释： Tailwind 代表又一项大胆的创新构想，证明疯狂创意本身也会伴随失败代价； Buttface 会议象征草根文化与制度规范的冲突对照。 3. 双线并行叙事 ‐ 主线：海关法律抗争、游说政客、开拓中国市场等外部危机博弈；副线：内部团队闹剧、 重大产品翻车、全员职业倦怠，外部商业困境与内部团队精神困境互相交织。 4. 时代背景铺垫 ‐ 展现 70 年代末期美国贸易保护主义、企业游说政治、全球制造业持续转移的时代大环境。 5. 预示伏笔 ‐David Chang 加入，为后续 Nike 进入中国市场埋下关键人物线索； Tailwind 的失败，为后续气垫产品吸取教训、迭代成熟埋下伏笔。 6. 第一人称回顾性叙事 ‐ 晚年回望，毫不避讳描写团队集体倦怠、内部闹剧、产品重大失误，不美化创业光鲜的一面，坦诚创业道路上充满难堪、挫败与疲惫。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "Werschkul 写出 \"Werschkul on American Selling Price, Volume I\" 的相关段落； Tailwind 产品发布到召回失败的描写； Phil Knight 面对巨型棒球手套座椅的内心独白，分析文本如何体会繁荣表象之下创业者与团队承受的精神代价。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l10-teacher-1",
+          "source": "teacher",
+          "text": "Tailwind 拥有划时代气垫创新理念，依旧遭遇毁灭性失败，谈谈创新构想和工艺落地之间的鸿沟。",
+          "text_en": "Despite its groundbreaking air-cushioning concept, Tailwind suffers a devastating failure. Discuss the gap between an innovative idea and successful manufacturing.",
+          "reference_answer": "A promising technology still has to work reliably in a finished product. Tailwind’s launch shows how excitement about air cushioning can outpace manufacturing quality and testing. A major recall then turns a celebrated innovation into a damaging failure. The lesson is not that ambitious ideas should be avoided, but that engineering, production, and quality control are essential parts of making an idea real."
+        },
+        {
+          "id": "l10-teacher-2",
+          "source": "teacher",
+          "text": "公司从小团队发展成大企业，随性的 Buttface 文化和规范化管理制度发生冲突，分析两种文化各自的利弊。",
+          "text_en": "As the company grows from a small team into a large business, the freewheeling Buttface culture clashes with formal management systems. What are the advantages and disadvantages of each?",
+          "reference_answer": "An informal culture can support loyalty, creativity, and honest debate, while formal systems can clarify expectations and coordinate a larger organization. Conflict arises when new rules seem to reject the identity that helped the company grow. Neither approach solves every problem. Nike needs enough structure to manage its scale without assuming that all the habits of a conventional corporation will improve its work."
+        },
+        {
+          "id": "l10-teacher-3",
+          "source": "teacher",
+          "text": "结合本章内容思考：为什么企业销售额屡创新高，整个团队却普遍陷入 burnout 职业耗竭；开拓全新海外市场会伴随哪些机遇与潜在风险。",
+          "text_en": "Drawing on this reading, why does the whole team experience burnout even as sales reach new highs? What opportunities and potential risks come with entering entirely new overseas markets?",
+          "reference_answer": "High sales do not remove the strain of legal disputes, product failures, and constant responsibility. The team’s exhaustion shows how prolonged emergency can become a way of working even during expansion. A new overseas market offers customers and manufacturing possibilities, but it also brings unfamiliar institutions, cultural expectations, and coordination problems. Pursuing that opportunity can add pressure unless the organization develops the capacity to handle it."
+        },
+        {
+          "id": "l10-guide-1",
+          "source": "guide",
+          "text": "Trace the promise and failure of Tailwind across the reading. Which gap between idea and production matters most?",
+          "reference_answer": "Tailwind promises to turn air cushioning into a major product advance, and the launch invests that promise with excitement. Manufacturing defects and the recall then expose the distance between the concept and a dependable shoe. The crucial gap is not simply a lack of imagination: it is the ability to make the technology perform consistently in products that customers actually use."
+        },
+        {
+          "id": "l10-guide-2",
+          "source": "guide",
+          "text": "How does the contrast between rising sales and team exhaustion challenge a simple success story?",
+          "reference_answer": "The contrast makes business growth look costly rather than automatically rewarding. Increasing sales coexist with legal pressure, a failed product launch, and emotional exhaustion. Readers therefore see that a larger company can still feel trapped in crisis. By showing the team’s internal condition beside its outward results, the memoir questions whether commercial measures alone adequately describe success."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-11",
+      "number": 11,
+      "title": "上市与财富的意义",
+      "chapter_titles": [
+        "1980"
+      ],
+      "reading_label": "1980",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "Buttface 会议构思对抗海关法案的全套策略； Chuck Robinson 提出 A/B 双层股权方案，保证上市同时保留创始人控制权； Nike 和政府达成 900 万美元和解；收到访华官方邀请，团队出访中国，经历大量文化碰撞，签下中国工厂与体育部门合作；完成 IPO 路演，在定价谈判坚持 22 美元发行价，成功上市；账面财富暴涨， Phil Knight 内心生出遗憾，给儿子讲述 Valley Forge 历史故事。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 迎来事业重大里程碑，打赢官司、打开中国市场、完成上市，但对财富保持清醒认知； David Chang 熟悉中美两国； Chuck Robinson 见识广博，提出 A/B 双层股权架构； Hayes 性情随性不羁； Rob Strasser 、 Jeff Johnson 各司其职； Penny Knight 安稳守候家庭； Bill Bowerman 将因上市获得巨额财富。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，阶段性胜利不等于终点，创业追求创造价值而非单纯金钱；绝境之中可以依靠大胆博弈破局。 \"Leadership\" ，利用制度抵御资本对企业文化的侵蚀，包容跨文化场景下团队成员的个性； \"Global Economies\" ，跨国商业充满制度博弈、文化冲突； \"Balancing Family and Work\" ，即便事业取得里程碑成就，依旧看重亲子陪伴。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 戏剧反讽 ‐ 上市之后所有人账面身家暴涨， Phil Knight 体会到的却不是喜悦，反而是遗憾；耗费巨大代价打赢政府官司，换来巨额纸面财富，主角却认为金钱只是附属产物。 2. 象征 ‐\"Crazy Idea\" 完成闭环叙事； The Nike Swoosh 代表美国品牌跨越大洋走向全新市场； Valley Forge 的故事象征创业一路的磨难与坚守，完成精神代际传递。 3. 双线并行叙事 ‐ 主线书写海关诉讼博弈、访华开拓海外市场、 IPO 上市等宏大商业事件；副线穿插个人内心反思、父子家庭场景，宏大商业叙事与私人精神世界彼此对照。 4. 时代背景铺垫 ‐ 展现 70 年代末 80 年代初中美关系缓和、外资开始进入中国、美国资本市场上市制度。 5. 预示伏笔 ‐ 与中国工厂、体育部门签约，为 Nike 后续庞大的中国业务埋下长远线索； A/B 双层股权结构， 保障创始团队控制权。 6. 第一人称回顾性叙事 ‐ 全书临近尾声， Phil Knight 回望十八年创业历程，褪去商业光环，坦诚内心的遗憾与思考，回忆录自省特质达到顶峰。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "“business was no more about making money than being human is about making blood” 段落；路演结尾 \"The cowards never started and the weak died along the way. That leaves us, ladies and gentlemen. Us.\" ； 上市当夜给儿子讲述 Valley Forge 故事的片段，分析文本如何体会创业理想与财富之间的关系。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l11-teacher-1",
+          "source": "teacher",
+          "text": "为什么 Nike 上市获得巨大财富之后， Phil Knight 内心没有纯粹的喜悦，反而生出遗憾，谈谈财富对于创业者的意义。",
+          "text_en": "Why does Phil Knight feel regret rather than pure joy after Nike’s IPO brings enormous wealth? Discuss what wealth means to an entrepreneur.",
+          "reference_answer": "The IPO changes the team’s financial position, but it cannot recreate the years of struggle or resolve every personal regret. Knight values the shared effort and the thing they have built, so the milestone also feels like the end of a particular phase of life. Wealth matters as a resource and a result, but it does not fully explain the purpose that drove the work."
+        },
+        {
+          "id": "l11-teacher-2",
+          "source": "teacher",
+          "text": "A/B 双层股权制度解决了上市募资和保留控制权的矛盾，思考资本介入会对初创企业文化带来哪些潜在威胁。",
+          "text_en": "The dual-class A/B share structure reconciles raising money through an IPO with retaining control. What potential threats can outside capital pose to a young company’s culture?",
+          "reference_answer": "The A/B structure separates access to investment from the same degree of voting control, allowing the company to raise public capital while the founders retain authority. This addresses a fear that outside investors might reshape its priorities or culture. However, retaining control also places responsibility on the controlling group. The arrangement protects their ability to choose; it does not guarantee that every choice will be good."
+        },
+        {
+          "id": "l11-teacher-3",
+          "source": "teacher",
+          "text": "\"Crazy Idea\" 从 1962 走到 1980 完成阶段性成功，结合全书，谈谈一个疯狂构想能够存活壮大，需要哪些个人、外部时代条件。",
+          "text_en": "The ‘Crazy Idea’ achieves a major milestone between 1962 and 1980. Drawing on the book as a whole, what personal qualities and external historical conditions allow a seemingly wild idea to survive and grow?",
+          "reference_answer": "The idea survives through Knight’s persistence, collaborators with complementary skills, and a willingness to adapt when partnerships and plans fail. It also depends on opportunities in international manufacturing, the growth of running, access to financing, and a team capable of developing a brand. Looking across the book, success appears as the interaction of individual action with other people and historical conditions, not as the achievement of one person alone."
+        },
+        {
+          "id": "l11-teacher-4",
+          "source": "teacher",
+          "text": "从访华的种种文化碰撞事例，思考跨国做生意时，文化差异会带来怎样的机遇与阻碍。",
+          "text_en": "Drawing on the cultural clashes during the visit to China, what opportunities and obstacles can cultural differences create in international business?",
+          "reference_answer": "The China visit shows that entering a market requires more than a commercial plan. Differences in language, social expectations, institutions, and business practices can produce misunderstanding or awkward encounters. They also create opportunities for learning and new relationships when people bridge those differences. Local knowledge and patience help turn contact into cooperation, while assuming that familiar methods will work everywhere creates obstacles."
+        },
+        {
+          "id": "l11-guide-1",
+          "source": "guide",
+          "text": "What problems does the A/B share structure address, and why does control matter to Knight?",
+          "reference_answer": "The share structure addresses two goals that might otherwise conflict: raising money through a public listing and retaining the founders’ decision-making power. Control matters to Knight because investment could alter the culture and priorities the team has developed. The arrangement therefore concerns the company’s future direction as well as its immediate financing needs."
+        },
+        {
+          "id": "l11-guide-2",
+          "source": "guide",
+          "text": "How does the family scene near the end of 1980 affect the meaning of the IPO story?",
+          "reference_answer": "The family scene moves the ending away from financial totals and toward memory, endurance, and what a parent passes to a child. Knight’s account of Valley Forge connects the public milestone with a story about hardship and persistence. This shift suggests that the IPO’s meaning cannot be contained in the share price: it also belongs to a private life and a longer understanding of struggle."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-12",
+      "number": 12,
+      "title": "遗憾、使命与成功",
+      "chapter_titles": [
+        "Night"
+      ],
+      "reading_label": "Night",
+      "notes": [
+        {
+          "heading": "阅读内容",
+          "text": "2007 年 Phil Knight 与 Penny 看完 \"The Bucket List\" ，偶遇 Bill Gates ， Warren Buffett ，开启晚年回望；追忆祖父塑造自己冒险底色；卸任 CEO ， Nike 规模庞大，园区保存创业记忆；长子 Matthew 在萨尔瓦多潜水事故意外离世，全家陷入悲痛；追忆 Bill Bowerman 、 Rob Strasser 等逝去老友； Nike 遭遇血汗工厂舆论危机，改良工艺、无偿共享水基黏合技术，发起 \"Girl Effect\" 公益；越南之行会见 Võ Nguyên Giáp ，感悟贸易是和平纽带； Masuro Hayami 借竹子传递长期主义智慧；描写初代伙伴晚年生活；夫妻投身慈善，修建 Matthew Knight Arena ；晚年直面大量人生遗憾，提出寻找 \"calling （使命） \" 而非普通工作；全书结尾，新的 \"Crazy Idea\" 在深夜浮现。"
+        },
+        {
+          "heading": "人物分析",
+          "text": "Phil Knight 步入晚年，坐拥巨大商业成功，承受丧子之痛，直面一生的遗憾，重新定义成功； Penny Knight 共同承受丧子创伤； Matthew Knight 心怀善意却不幸早逝； Bill Bowerman 回归故土走完人生； Rob Strasser 才华出众，人际裂痕至死无法弥补； Jeff Johnson ， Bob Woodell ， Del Hayes 走向各自晚年归宿； Masuro Hayami 拥有东方处世智慧。"
+        },
+        {
+          "heading": "主题分析",
+          "text": "\"Entrepreneurship, Experience, and Perseverance\" ，商业成功无法消弭生命伤痛；危机倒逼企业反思革新，要接纳人生遗憾。 \"Leadership\" ，领导者使命包含文化传承、行业推动与公益，人才成长需要耐心。 \"Global Economies\" ，跨国商业可以成为和平纽带，企业必须直面供应链伦理拷问。 \"Balancing Family and Work\" ，财富无法换回逝去的陪伴与亲人生命。"
+        },
+        {
+          "heading": "文学手法运用分析",
+          "text": "1. 首尾闭环象征 ‐\"Crazy Idea\" 全书首尾呼应，开篇青年的疯狂构想，结尾晚年诞生新构想。 2. 多重象征 ‐The Nike Swoosh 承载记忆、友谊、伤痛、公益多重人文重量；竹子意象象征长期主义； \"The Bucket List\" 象征对生命有限性的思考； Matthew Knight Arena 代表把个人悲剧转化为公共善意。 3. 戏剧反讽 ‐ 企业世俗层面无比成功，主角却深陷悲伤遗憾；财富可以购置诸多事物，却换不回时间与逝去亲人。 4. 双线并行叙事 ‐ 主线回顾 Nike 后期发展、舆论危机、公益事业；副线交织家庭悲剧、老友离世、晚年自我反思，商业叙事和私人生命体验深度融合。 5. 时代背景铺垫 ‐ 还原 90 年代全球化工厂伦理争议， 2000 年代美国企业家慈善浪潮，越南战后对外交往。 6. 第一人称回顾性叙事 ‐ 全书尾声，晚年第一人称叙事，毫不掩饰伤痛、悔恨、脆弱，褪去创业英雄光环。"
+        },
+        {
+          "heading": "Quotes 分析",
+          "text": "“It’s just business. It never will be.” ； \"Seek a calling. Even if you don’t know what that means, seek it.\" ； 结尾深夜浮现又一个 \"Crazy Idea\" 的段落，分析文本如何体会晚年对事业、财富、生命的思考。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "l12-teacher-1",
+          "source": "teacher",
+          "text": "结合本章内容思考：世俗层面的商业成功为什么无法消解生命的悲伤与遗憾，财富的真正边界是什么。",
+          "text_en": "Drawing on this chapter, why can conventional business success fail to resolve grief and regret? What are the true limits of wealth?",
+          "reference_answer": "Business success can create resources and opportunities, but it cannot undo death, recover lost time, or repair every relationship. Knight’s grief for Matthew gives this limit a painful personal form. The chapter does not claim that wealth has no value. Instead, it shows that commercial achievement and emotional fulfillment answer different human needs, so one cannot guarantee the other."
+        },
+        {
+          "id": "l12-teacher-2",
+          "source": "teacher",
+          "text": "Nike 遭遇血汗工厂舆论危机，谈谈企业面对公众批评时，反思、行动、回馈社会的价值。",
+          "text_en": "Nike faces a public outcry over sweatshop conditions. What is the value of reflection, action, and giving back to society when a company faces public criticism?",
+          "reference_answer": "Public criticism requires more than defending a successful brand’s reputation. The factory controversy pushes Nike to examine the effects of its supply chain and make practical changes. Improvements in materials and the sharing of water-based adhesive technology show how action can extend beyond an apology. Giving back has greater meaning when it accompanies responsibility for the harm being criticized rather than serving as a substitute for change."
+        },
+        {
+          "id": "l12-teacher-3",
+          "source": "teacher",
+          "text": "全书以新的 \"Crazy Idea\" 收尾，分析这个结尾的寓意；对比开篇 1962 的 Crazy Idea ，谈谈几十年岁月带来了哪些改变，哪些内核始终不变。",
+          "text_en": "Analyze the significance of ending the book with a new ‘Crazy Idea.’ Compare it with the Crazy Idea at the beginning in 1962: what has changed over the decades, and what essential qualities remain the same?",
+          "reference_answer": "The new Crazy Idea returns the ending to the energy of the opening, creating a circular structure. Yet the older Knight carries experiences of loss, friendship, responsibility, and regret that the young traveler did not have. Curiosity and the desire to create persist, while the meaning of achievement has grown more complicated. The ending therefore suggests renewal without pretending that a lifetime of experience can be erased."
+        },
+        {
+          "id": "l12-teacher-4",
+          "source": "teacher",
+          "text": "探讨 “calling （使命） ” 和普通工作的区别，结合 Phil Knight 一生经历，思考普通人如何寻找属于自己的使命。",
+          "text_en": "Explore the difference between a ‘calling’ and an ordinary job. Drawing on Phil Knight’s life, how might ordinary people find a calling of their own?",
+          "reference_answer": "A calling offers a sense of purpose that goes beyond completing tasks or earning an income, although ordinary work can also become meaningful. Knight’s story connects purpose with sustained commitment, relationships, and creating something he believes matters. It also shows that devotion has costs. Finding a calling involves paying attention to what consistently matters to us while considering the responsibilities that come with pursuing it."
+        },
+        {
+          "id": "l12-guide-1",
+          "source": "guide",
+          "text": "How do personal loss and Nike’s responsibilities change Knight’s understanding of success in Night?",
+          "reference_answer": "Loss reveals that achievement cannot protect Knight from the same vulnerability that affects other people. At the same time, the company’s influence creates responsibilities toward workers and communities beyond its own employees and customers. His view of success therefore extends beyond survival and growth to include the people affected by the business and the relationships that wealth cannot replace."
+        },
+        {
+          "id": "l12-guide-2",
+          "source": "guide",
+          "text": "Compare the Crazy Idea at the end with the opening. What does this circular structure suggest?",
+          "reference_answer": "Repeating the Crazy Idea at the end connects the older narrator with the young man at the beginning. The circular structure suggests that curiosity and creative restlessness endure. However, the return is not an exact repetition: grief, experience, and reflection have changed the person having the idea. The book ends with possibility while allowing the weight of the intervening life to remain."
+        }
+      ]
+    }
+  ]
+}

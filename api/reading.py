@@ -6,6 +6,10 @@ from fastapi.responses import FileResponse
 from config import config
 from models.reading_schemas import (
     ReadingAnswerRequest,
+    ReadingPreparationAnswer,
+    ReadingPreparationCreate,
+    ReadingPreparationDraft,
+    ReadingPreparationSubmit,
     ReadingBookStatusUpdate,
     ReadingBookUpdate,
     ReadingChaptersUpdate,
@@ -202,5 +206,40 @@ async def list_admin_sessions():
 async def get_admin_session(session_id: str):
     try:
         return get_reading_service().get_admin_session(session_id)
+    except Exception as exc:
+        _raise_reading_error(exc)
+
+
+@public_router.post("/preparations", status_code=status.HTTP_201_CREATED)
+async def start_preparation(payload: ReadingPreparationCreate):
+    try:
+        return get_reading_service().start_preparation(payload.book_id, payload.lesson_id)
+    except Exception as exc:
+        _raise_reading_error(exc)
+
+
+@public_router.put("/preparations/{session_id}/draft")
+async def save_preparation_draft(session_id: str, payload: ReadingPreparationDraft):
+    try:
+        return get_reading_service().save_preparation_draft(
+            session_id, payload.access_token, payload.answers, payload.revision)
+    except Exception as exc:
+        _raise_reading_error(exc)
+
+
+@public_router.post("/preparations/{session_id}/submit")
+async def submit_preparation(session_id: str, payload: ReadingPreparationSubmit):
+    try:
+        return await get_reading_service().submit_preparation(
+            session_id, payload.access_token, payload.revision)
+    except Exception as exc:
+        _raise_reading_error(exc)
+
+
+@public_router.post("/preparations/{session_id}/answers")
+async def submit_preparation_answer(session_id: str, payload: ReadingPreparationAnswer):
+    try:
+        return await get_reading_service().submit_preparation_answer(
+            session_id, payload.access_token, payload.revision, payload.question_id, payload.answer)
     except Exception as exc:
         _raise_reading_error(exc)

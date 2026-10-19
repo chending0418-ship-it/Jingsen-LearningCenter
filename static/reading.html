@@ -30,12 +30,14 @@
         .loading{display:grid;place-items:center;min-height:300px;border:1px solid var(--ink);background:var(--blue);color:white;text-align:center}.loading strong{font-size:30px}.loading p{opacity:.8}.pulse{width:55px;height:55px;border:7px solid rgba(255,255,255,.3);border-top-color:var(--acid);border-radius:50%;animation:spin 1s linear infinite;margin:auto auto 18px}@keyframes spin{to{transform:rotate(360deg)}}
         @media(max-width:820px){header{grid-template-columns:1fr}.books{grid-template-columns:1fr 1fr}.setup,.session-grid,.result{grid-template-columns:1fr}.chapters,.session-side{border-right:0;border-bottom:1px solid var(--ink)}.session-side ol{display:none}}
         @media(max-width:560px){.shell{width:min(100% - 24px,1180px)}nav span:nth-child(2){display:none}nav{grid-template-columns:1fr 1fr}.books,.chapter-grid,.result-lists{grid-template-columns:1fr}h1{font-size:58px}.answer-actions .button{flex:1}}
+        .prep-header{padding:28px;background:var(--blue);color:white}.prep-header h2{font-size:clamp(24px,4vw,42px);margin:12px 0;text-wrap:balance}.prep-header .kicker{color:var(--acid)}
+        .prep-content{padding:clamp(18px,4vw,40px);border:1px solid var(--ink);background:white}.prep-note{border-bottom:1px solid var(--line);padding:12px 0}.prep-note h3{font-size:16px;color:var(--blue)}.prep-note p{white-space:pre-line;line-height:1.9;overflow-wrap:anywhere}.prep-question{padding:25px 0;border-top:1px solid var(--line)}.prep-reference{background:#f1edff;border-left:4px solid var(--purple);padding:20px;margin-top:18px}.prep-reference h4,.feedback h4{margin:0 0 10px}.prep-reference p{line-height:1.8;white-space:pre-line;margin:0 0 12px}.prep-reference small{color:var(--muted);line-height:1.6}.prep-answer-label{display:block;font-weight:700;font-size:14px;margin:18px 0 8px}.prep-question textarea[readonly]{background:#f0f0ea}.prep-question h3{line-height:1.7;font-size:19px}.prep-question-translation{font-size:17px;line-height:1.7;margin:0 0 18px;color:var(--muted)}.prep-help{color:var(--muted);line-height:1.7}.prep-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px 0}.prep-recovery{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff3cf;padding:20px}.prep-summary{background:var(--acid);padding:24px;margin-bottom:20px}.prep-summary p{line-height:1.8}
     </style>
 </head>
 <body>
     <div class="shell">
         <nav><a id="back-link" href="/english">← Back to English</a><span>05 / READ</span><span>BOOK READING</span></nav>
-        <header><div><span class="kicker">READ / THINK / EXPLAIN</span><h1>Book<br>Reading.</h1></div><p>Choose what you have just read. Your reading coach will ask a few thoughtful questions, listen to your ideas, and help you notice more in the story.</p></header>
+        <header><div><span class="kicker">READ / THINK / EXPLAIN</span><h1>Book<br>Reading.</h1></div><p>Choose a lesson, read the teacher’s notes, and take the questions into your reading. Save your ideas and return when you are ready for feedback.</p></header>
         <div id="notice" class="notice" hidden></div>
 
         <main id="library-view">
@@ -47,6 +49,18 @@
             </section>
         </main>
 
+        <section id="preparation-view" hidden>
+            <div class="prep-header"><span class="kicker">Shoe Dog / Read with questions</span><h2 id="prep-heading"></h2><p id="prep-range"></p><p id="prep-session-meta"></p><p>先看 Note 和全部问题，再带着问题阅读。读完后用英文写下想法，保存草稿或提交反馈。</p></div>
+            <div class="prep-content">
+                <div class="prep-toolbar"><button class="button" onclick="leavePreparation()">← 返回课程</button><button class="button blue" onclick="document.getElementById('prep-questions').scrollIntoView({behavior:'smooth'})">查看全部预习问题 ↓</button></div>
+                <h2>Teacher’s Note · 老师课堂重点</h2><div id="prep-notes"></div><p id="prep-source" class="prep-help"></p>
+                <h2>带着这些问题阅读</h2><p class="prep-help">老师讨论题显示中文原文和英文译文，英文引导题为补充。所有问题固定展示，可按自己的顺序填写。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估，已提交回答只读。全部题目完成后，本次预习会自动完成，可反复回来查看。</p>
+                <div id="prep-summary" class="prep-summary" hidden></div><div id="prep-questions"></div>
+                <pre id="prep-recovery" class="prep-recovery" hidden></pre>
+                <p id="prep-state" role="status" aria-live="polite"></p>
+                <div id="prep-actions" class="prep-toolbar"><button id="prep-save" class="button" onclick="savePreparation().catch(()=>{})">保存草稿</button><button id="prep-submit" class="button primary" onclick="submitPreparation()">提交剩余题目 · 完成本次预习 →</button></div>
+            </div>
+        </section>
         <section id="loading-view" class="loading" hidden><div><div class="pulse"></div><strong>Your coach is reading…</strong><p>Building fresh questions from your selected chapter.</p></div></section>
         <section id="session-view" class="session" hidden><div class="progress"><span id="progress-bar"></span></div><div class="session-grid"><aside class="session-side"><span class="kicker">Current reading</span><strong id="session-book"></strong><div class="meta" id="session-chapters"></div><ol id="question-list"></ol></aside><article class="question"><div class="question-number" id="question-number"></div><h2 id="question-text"></h2><div id="answer-wrap"><textarea id="answer" maxlength="1500" placeholder="Tell me what you think."></textarea><div class="answer-actions"><button id="submit-button" class="button primary" type="button" onclick="submitAnswer()">Share my answer →</button></div></div><div id="feedback" class="feedback" hidden><h3 id="feedback-title">Good thinking.</h3><p id="feedback-copy"></p><button id="continue-button" class="button blue" type="button" onclick="continueSession()" style="margin-top:15px">Next question →</button></div></article></div></section>
         <section id="result-view" class="result" hidden><div class="result-level"><span>Understanding today</span><strong id="result-level"></strong></div><div class="result-copy"><h2 id="result-title">Nice reading.</h2><p id="student-summary"></p><div class="result-lists"><div><h3 id="strengths-title">What you understood well</h3><ul id="strengths"></ul></div><div><h3>Try next</h3><ul id="next-steps"></ul></div></div><button class="button primary" onclick="newReading()">Choose another chapter</button></div></section>
@@ -63,9 +77,9 @@
         function bookCard(book){const cover=book.has_cover?`<img src="${apiPath(`/api/reading/books/${book.id}/cover`)}" alt="Cover of ${escapeHtml(book.title)}">`:`<span>${escapeHtml(book.title.slice(0,1).toUpperCase())}</span>`;return `<button class="book ${selectedBook?.id===book.id?'selected':''}" onclick="chooseBook('${book.id}')"><div class="cover">${cover}</div><div class="book-copy"><h3>${escapeHtml(book.title)}</h3><div class="meta">${escapeHtml(book.author||'Author not listed')} · ${book.page_count} pages</div><p>${escapeHtml(book.description||'Choose a chapter and explore what you understood.')}</p></div></button>`}
         async function loadBooks(){try{const data=await api('/api/reading/books');books=data.books||[];document.getElementById('book-count').textContent=`${books.length} book${books.length===1?'':'s'}`;document.getElementById('books').innerHTML=books.length?books.map(bookCard).join(''):'<div class="empty">No books are ready yet. Ask a parent to publish one in Admin.</div>';await resumeSession()}catch(error){document.getElementById('books').innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}
         function chooseBook(id){selectedBook=books.find(book=>book.id===id);selectedChapters.clear();document.getElementById('books').innerHTML=books.map(bookCard).join('');document.getElementById('setup').hidden=false;renderChapters();document.getElementById('setup').scrollIntoView({behavior:'smooth',block:'center'})}
-        function renderChapters(){document.getElementById('chapters').innerHTML=selectedBook.chapters.map(ch=>`<button type="button" class="chapter ${selectedChapters.has(ch.id)?'selected':''}" onclick="toggleChapter('${ch.id}')"><strong>${escapeHtml(ch.title)}</strong><small>PDF pages ${ch.start_page}–${ch.end_page}</small></button>`).join('')}
+        function renderChapters(){if(renderLessonChoices())return;document.getElementById('chapters').innerHTML=selectedBook.chapters.map(ch=>`<button type="button" class="chapter ${selectedChapters.has(ch.id)?'selected':''}" onclick="toggleChapter('${ch.id}')"><strong>${escapeHtml(ch.title)}</strong><small>PDF pages ${ch.start_page}–${ch.end_page}</small></button>`).join('')}
         function toggleChapter(id){if(selectedChapters.has(id))selectedChapters.delete(id);else if(selectedChapters.size<3)selectedChapters.add(id);else return notice('Choose no more than 3 chapters.',true);renderChapters()}
-        function show(id){['library-view','loading-view','session-view','result-view'].forEach(name=>document.getElementById(name).hidden=name!==id)}
+        function show(id){['library-view','loading-view','session-view','result-view','preparation-view'].forEach(name=>document.getElementById(name).hidden=name!==id)}
         async function startSession(){if(!selectedBook||!selectedChapters.size)return notice('Choose at least one chapter first.',true);show('loading-view');try{session=await api('/api/reading/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_id:selectedBook.id,chapter_ids:[...selectedChapters],question_count:Number(document.getElementById('question-count').value),question_focus:document.getElementById('question-focus').value})});localStorage.setItem(sessionKey,JSON.stringify({id:session.id,token:session.access_token}));renderSession()}catch(error){show('library-view');notice(error.message,true)}}
         async function resumeSession(){const saved=JSON.parse(localStorage.getItem(sessionKey)||'null');if(!saved)return;try{session=await api(`/api/reading/sessions/${saved.id}?access_token=${encodeURIComponent(saved.token)}`);session.access_token=saved.token;if(session.status==='completed'){renderResult();return}renderSession()}catch(_){localStorage.removeItem(sessionKey)}}
         function currentQuestion(){return session.questions.find(q=>!q.answered_at)||null}
@@ -77,6 +91,131 @@
         function label(level){return {clear:'Clear & thoughtful',mostly_clear:'Mostly clear',needs_support:'Keep exploring'}[level]||'Completed'}
         function renderResult(){show('result-view');document.getElementById('result-level').textContent=label(session.overall_level);document.getElementById('result-title').textContent={clear:'Nice reading.',mostly_clear:'Good start.',needs_support:'Let’s try that again.'}[session.overall_level]||'Reading check complete.';document.getElementById('student-summary').textContent=session.student_summary||'I do not have enough information to summarize your understanding yet.';const evaluation=session.evaluation||{},strengths=evaluation.strengths||[],hasStrengths=strengths.length>0;document.getElementById('strengths-title').textContent=hasStrengths?'What you understood well':'What your answers showed';document.getElementById('strengths').innerHTML=(hasStrengths?strengths:['There is not enough information yet to confirm a reading strength.']).map(x=>`<li>${escapeHtml(x)}</li>`).join('');document.getElementById('next-steps').innerHTML=(evaluation.next_steps?.length?evaluation.next_steps:evaluation.review_next?.length?evaluation.review_next:['Try again and explain one idea from the chapter in your own words.']).map(x=>`<li>${escapeHtml(x)}</li>`).join('');localStorage.removeItem(sessionKey)}
         function newReading(){session=null;selectedBook=null;selectedChapters.clear();show('library-view');document.getElementById('setup').hidden=true;document.getElementById('books').innerHTML=books.map(bookCard).join('');window.scrollTo({top:0,behavior:'smooth'})}
+        let prepSession=null,prepTimer=null,prepSaving=null,prepBusy=false,prepConflict=false;
+        const prepKey=(bookId,lessonId)=>`jlc-prep-v1:${bookId}:${lessonId}`;
+        const draftKey=id=>`jlc-prep-draft-v1:${id}`;
+        function readStored(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}}
+        function storePrep(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){notice('本机存储不可用，请使用「保存草稿」同步到服务器。',true)}}
+        function renderLessonChoices(){
+            const lessons=selectedBook.lessons||[];
+            document.querySelector('.chapters h3').textContent=lessons.length?'选择预习课 · 12 Lessons':'Which chapter did you read?';
+            document.querySelector('.start-panel').hidden=Boolean(lessons.length);
+            document.getElementById('setup').style.gridTemplateColumns=lessons.length?'1fr':'';
+            if(!lessons.length)return false;
+            document.getElementById('chapters').innerHTML=lessons.map(l=>{const saved=readStored(prepKey(selectedBook.id,l.id));return `<button class="chapter" onclick="openPreparation('${l.id}')"><span class="kicker">Lesson ${l.number}</span><strong style="display:block;margin-top:8px">${escapeHtml(l.title)}</strong><small>${escapeHtml(l.reading_label)} · PDF ${l.start_page}–${l.end_page}</small><small>${saved?.completed?'回看回答、标答和评估':saved?.answered?`继续预习 · 已提交 ${saved.answered} 题`:saved?'继续预习草稿':'查看老师 Note 和固定问题'} →</small></button>`}).join('');
+            return true;
+        }
+        async function openPreparation(lessonId){
+            if(prepBusy)return;
+            prepBusy=true;
+            try{
+                const key=prepKey(selectedBook.id,lessonId),saved=readStored(key);
+                let opened;
+                if(saved){opened=await api(`/api/reading/sessions/${saved.id}?access_token=${encodeURIComponent(saved.token)}`);opened.access_token=saved.token}
+                else{opened=await api('/api/reading/preparations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_id:selectedBook.id,lesson_id:lessonId})});storePrep(key,{id:opened.id,token:opened.access_token})}
+                prepSession=opened;prepConflict=false;
+                renderPreparation();
+                window.scrollTo({top:0,behavior:'smooth'});
+            }catch(error){notice(error.message,true)}finally{prepBusy=false}
+        }
+        function renderPreparation(){
+            show('preparation-view');
+            const s=prepSession,p=s.preparation,l=p.lesson,completed=s.status==='completed';
+            const submitted=s.questions.filter(q=>q.answered_at).length;
+            storePrep(prepKey(s.book_id,l.id),{id:s.id,token:s.access_token,completed,answered:submitted});
+            document.getElementById('prep-session-meta').textContent=`独立预习记录 · 开始于 ${new Date(s.created_at).toLocaleString()} · 已提交 ${submitted}/${s.questions.length} 题${s.completed_at?` · 完成于 ${new Date(s.completed_at).toLocaleString()}`:''}`;
+            const local=readStored(draftKey(s.id));
+            const answers=completed?{}:local?.revision===p.revision?local.answers:p.drafts;
+            if(!completed&&local&&local.revision!==p.revision){notice('服务器有更新版本，当前显示服务器草稿。本机未同步文字保留在下方，可复制后重新填写。',true)}
+            document.getElementById('prep-heading').textContent=`Lesson ${l.number} · ${l.title}`;
+            document.getElementById('prep-range').textContent=`${l.reading_label} · PDF pages ${l.start_page}–${l.end_page}`;
+            document.getElementById('prep-notes').innerHTML=l.notes.map(n=>`<section class="prep-note"><h3>${escapeHtml(n.heading)}</h3><p>${escapeHtml(n.text).replace(/ (?=\d+\.\s)/g,'\n')}</p></section>`).join('');
+            document.getElementById('prep-source').textContent=`来源：${l.source} · ${l.version}。中文为老师原文；英文为补充译文；引导题为补充。`;
+            document.getElementById('prep-questions').innerHTML=s.questions.map((q,i)=>preparationQuestion(q,i,answers,completed)).join('');
+            document.getElementById('prep-actions').hidden=completed;
+            document.getElementById('prep-state').textContent=completed?'本次预习已完成 · 回答、参考标答和评估已保存，可随时回来查看':local?.revision===p.revision?'本机草稿已恢复，可保存到服务器':`服务器草稿 · 版本 ${p.revision}`;
+            document.getElementById('prep-summary').hidden=!completed;
+            if(completed){document.getElementById('prep-summary').innerHTML=`<h2>${escapeHtml(label(s.overall_level))}</h2><p>${escapeHtml(s.student_summary)}</p><h3>Try next</h3><ul>${(s.evaluation?.next_steps||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`;const key=prepKey(s.book_id,l.id);storePrep(key,{id:s.id,token:s.access_token,completed:true,answered:submitted});localStorage.removeItem(draftKey(s.id))}
+            const recovery=document.getElementById('prep-recovery');recovery.hidden=!(local&&local.revision!==p.revision&&!completed);
+            recovery.textContent=recovery.hidden?'':`本机未同步草稿（请复制需要的内容）：\n${Object.values(local.answers||{}).join('\n\n')}`;
+        }
+        function preparationQuestion(q,i,answers,completed){
+            const submitted=Boolean(q.answered_at)||completed;
+            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'老师讨论题 · Teacher':'预习引导题 · Guide'} ${i+1}${submitted?' · 已提交':''}</div><h3${q.question_type==='teacher_discussion'?' lang="zh-CN"':' lang="en"'}>${escapeHtml(q.question_text)}</h3>${q.question_text_en?`<p class="prep-question-translation" lang="en">${escapeHtml(q.question_text_en)}</p>`:''}<label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section><section class="feedback"><h4>本次评估 · ${escapeHtml(label(q.understanding_level))}</h4><p>${escapeHtml(q.feedback||'此历史记录未保存逐题点评。')}</p></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
+        }
+        function setPreparationResponse(updated,token){
+            prepSession={...updated,access_token:token};
+            storePrep(draftKey(updated.id),{revision:updated.preparation.revision,answers:updated.preparation.drafts});
+        }
+        function preparationBusy(value){
+            prepBusy=value;
+            document.querySelectorAll('.prep-question-submit,#prep-submit,#prep-save').forEach(el=>el.disabled=value);
+            document.querySelectorAll('#prep-questions textarea').forEach(el=>{
+                const q=prepSession.questions.find(q=>q.id===el.dataset.question);
+                el.readOnly=value||Boolean(q?.answered_at)||prepSession.status==='completed';
+            });
+        }
+        async function submitPreparationQuestion(questionId){
+            if(prepBusy)return;
+            const answer=document.getElementById(`prep-answer-${questionId}`).value.trim();
+            if(!answer)return notice('请先写下本题的想法，再提交。',true);
+            preparationBusy(true);
+            try{
+                await savePreparation();
+                document.getElementById('prep-state').textContent='正在评估本题回答，请稍候…';
+                const s=prepSession;
+                const updated=await api(`/api/reading/preparations/${s.id}/answers`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:s.access_token,revision:s.preparation.revision,question_id:questionId,answer})});
+                setPreparationResponse(updated,s.access_token);renderPreparation();
+                document.getElementById(`prep-question-${questionId}`).scrollIntoView({behavior:'smooth',block:'start'});
+            }catch(error){document.getElementById('prep-state').textContent=`提交未完成 · ${error.message}。草稿已保留，可重试。`;notice(error.message,true)}
+            finally{preparationBusy(false)}
+        }
+        function preparationAnswers(){return Object.fromEntries([...document.querySelectorAll('#prep-questions textarea')].map(el=>[el.dataset.question,el.value]))}
+        function preparationInput(){
+            const s=prepSession;if(!s||s.status==='completed')return;
+            storePrep(draftKey(s.id),{revision:s.preparation.revision,answers:preparationAnswers()});
+            document.getElementById('prep-state').textContent='有未同步修改 · 已保留本机草稿';
+            clearTimeout(prepTimer);
+            if(!prepConflict&&!prepBusy)prepTimer=setTimeout(()=>savePreparation().catch(()=>{}),1000);
+        }
+        async function savePreparation(){
+            clearTimeout(prepTimer);
+            if(prepSaving){await prepSaving;return savePreparation()}
+            if(!prepSession||prepSession.status==='completed')return;
+            const s=prepSession,answers=preparationAnswers();
+            prepSaving=(async()=>{
+                try{
+                    const updated=await api(`/api/reading/preparations/${s.id}/draft`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:s.access_token,answers,revision:s.preparation.revision})});
+                    prepSession={...updated,access_token:s.access_token};
+                    const current=preparationAnswers(),changed=JSON.stringify(current)!==JSON.stringify(answers);
+                    storePrep(draftKey(s.id),{revision:updated.preparation.revision,answers:current});
+                    document.getElementById('prep-state').textContent=changed?'有未同步修改 · 已保留本机草稿':'草稿已保存到服务器';
+                    if(changed&&!prepBusy&&!prepConflict)prepTimer=setTimeout(()=>savePreparation().catch(()=>{}),1000);
+                }catch(error){prepConflict=error.message.includes('其他窗口');document.getElementById('prep-state').textContent=`保存失败 · ${error.message}。本机输入已保留。`;notice(error.message,true);throw error}
+                finally{prepSaving=null}
+            })();
+            return prepSaving;
+        }
+        async function submitPreparation(){
+            if(prepBusy)return;
+            const answers=preparationAnswers();
+            if(prepSession.questions.some(q=>!q.answered_at&&!answers[q.id]?.trim()))return notice('请先完成剩余预习题；也可以单独提交已写完的题目。',true);
+            preparationBusy(true);
+            try{
+                await savePreparation();
+                document.getElementById('prep-state').textContent='正在生成逐题反馈，请稍候…';
+                const s=prepSession;
+                const updated=await api(`/api/reading/preparations/${s.id}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:s.access_token,revision:s.preparation.revision})});
+                setPreparationResponse(updated,s.access_token);renderPreparation();
+                document.getElementById('prep-summary').scrollIntoView({behavior:'smooth'});
+            }catch(error){document.getElementById('prep-state').textContent=`提交未完成 · ${error.message}。草稿已保留，可重试。`;notice(error.message,true)}
+            finally{preparationBusy(false)}
+        }
+        async function leavePreparation(){
+            if(prepBusy)return;
+            try{if(prepSession.status!=='completed')await savePreparation();clearTimeout(prepTimer);prepSession=null;show('library-view');renderChapters()}catch(_){}
+        }
+
         loadBooks();
     </script>
 </body>

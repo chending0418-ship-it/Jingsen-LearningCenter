@@ -52,3 +52,29 @@ class ReadingAnswerRequest(BaseModel):
 
 class ReadingFinishRequest(BaseModel):
     access_token: str = Field(..., min_length=20, max_length=200)
+
+
+class ReadingPreparationCreate(BaseModel):
+    book_id: str = Field(..., min_length=1, max_length=64)
+    lesson_id: str = Field(..., min_length=1, max_length=64)
+
+
+class ReadingPreparationDraft(ReadingFinishRequest):
+    answers: dict[str, str] = Field(default_factory=dict, max_length=10)
+    revision: int = Field(..., ge=0)
+
+    @field_validator("answers")
+    @classmethod
+    def limit_answers(cls, values):
+        if any(len(k) > 64 or len(v) > 1500 for k, v in values.items()):
+            raise ValueError("每题回答不能超过1500字")
+        return values
+
+
+class ReadingPreparationSubmit(ReadingFinishRequest):
+    revision: int = Field(..., ge=0)
+
+
+class ReadingPreparationAnswer(ReadingPreparationSubmit):
+    question_id: str = Field(..., min_length=1, max_length=64)
+    answer: str = Field(..., min_length=1, max_length=1500)

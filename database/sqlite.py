@@ -275,6 +275,7 @@ CREATE TABLE IF NOT EXISTS reading_sessions (
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     completed_at TEXT,
+    preparation_json TEXT NOT NULL DEFAULT '{}',
     FOREIGN KEY(book_id) REFERENCES reading_books(id)
 );
 CREATE INDEX IF NOT EXISTS idx_reading_sessions_history
@@ -412,6 +413,15 @@ class SQLiteDatabase:
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(5, ?)",
                             (_now(),),
+                        )
+                        if "preparation_json" not in reading_session_columns:
+                            try:
+                                connection.execute("ALTER TABLE reading_sessions ADD COLUMN preparation_json TEXT NOT NULL DEFAULT '{}'")
+                            except sqlite3.OperationalError as exc:
+                                if "duplicate column name" not in str(exc).lower():
+                                    raise
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(6, ?)", (_now(),)
                         )
                     break
                 except sqlite3.OperationalError as exc:
@@ -1153,6 +1163,9 @@ class ReadingRepository:
             "follow_up_answer": row["follow_up_answer"],
             "follow_up_feedback": row["follow_up_feedback"], "answered_at": row["answered_at"],
         }
+        translation = _load(row["extra_json"], {}).get("question_text_en")
+        if translation:
+            payload["question_text_en"] = translation
         if include_private:
             payload.update({
                 "reference_answer": row["reference_answer"],
@@ -1171,7 +1184,11 @@ class ReadingRepository:
             "student_summary": row["student_summary"], "created_at": row["created_at"],
             "updated_at": row["updated_at"], "completed_at": row["completed_at"],
             "questions": [cls._question_payload(question, include_private) for question in questions],
+            "preparation": _load(row["preparation_json"], {}),
         }
+        if payload["preparation"] and not include_private:
+            evaluation = _load(row["evaluation_json"], {})
+            payload["evaluation"] = {key: evaluation.get(key, []) for key in ("strengths", "review_next", "next_steps")}
         if include_private:
             payload["parent_summary"] = row["parent_summary"]
             payload["evaluation"] = _load(row["evaluation_json"], {})
@@ -1182,13 +1199,13 @@ class ReadingRepository:
             connection.execute(
                 """INSERT INTO reading_sessions(
                        id,access_token_hash,book_id,chapter_ids_json,status,question_count,question_focus,
-                       created_at,updated_at,evaluation_json
-                   ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                       created_at,updated_at,evaluation_json,preparation_json
+                   ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     session["id"], session["access_token_hash"], session["book_id"],
                     _dump(session["chapter_ids"]), "active", len(questions),
                     session.get("question_focus", "mixed"),
-                    session["created_at"], session["updated_at"], "{}",
+                    session["created_at"], session["updated_at"], "{}", _dump(session.get("preparation", {})),
                 ),
             )
             for position, question in enumerate(questions):
@@ -1216,6 +1233,39 @@ class ReadingRepository:
                 (session_id,),
             ).fetchall()
         return self._session_payload(row, questions, include_private)
+
+    def save_preparation(self, session_id, preparation, expected_revision, results=None, evaluation=None):
+        """Compare-and-swap protects drafts and makes batch submission atomic."""
+        with self.database.transaction() as connection:
+            row = connection.execute("SELECT preparation_json,status FROM reading_sessions WHERE id=?", (session_id,)).fetchone()
+            current = _load(row["preparation_json"], {}) if row else {}
+            if not row or row["status"] != "active" or current.get("revision") != expected_revision:
+                raise ValueError("草稿已在其他窗口更新或已提交，请重新打开课程后重试")
+            preparation = dict(preparation, revision=expected_revision + 1)
+            connection.execute("UPDATE reading_sessions SET preparation_json=?,updated_at=? WHERE id=?",
+                               (_dump(preparation), _now(), session_id))
+            if results is not None:
+                for question in results:
+                    connection.execute("""UPDATE reading_session_questions SET child_answer=?,input_mode='text',
+                        feedback=?,understanding_level=?,parent_note=?,answered_at=? WHERE id=? AND session_id=?""",
+                        (question["child_answer"], question["feedback"], question["understanding_level"],
+                         question["parent_note"], _now(), question["id"], session_id))
+            if evaluation is not None:
+                connection.execute("""UPDATE reading_sessions SET status='completed',overall_level=?,student_summary=?,
+                    parent_summary=?,evaluation_json=?,completed_at=? WHERE id=?""",
+                    (evaluation["overall_level"], evaluation["student_summary"], evaluation["parent_summary"],
+                     _dump(evaluation), _now(), session_id))
+        return self.get_session(session_id, include_private=True)
+
+    def backfill_preparation_references(self, session_id, answers):
+        """Fill only missing legacy rubrics; retain every existing answer and grade."""
+        placeholder = 'Use the lesson text and teacher notes as context; accept supported alternative interpretations.'
+        with self.database.transaction() as connection:
+            for question_id, answer in answers.items():
+                connection.execute("""UPDATE reading_session_questions SET reference_answer=?
+                    WHERE session_id=? AND id=? AND reference_answer IN ('', ?)""",
+                    (answer, session_id, question_id, placeholder))
+        return self.get_session(session_id, include_private=True)
 
     def get_session_token_hash(self, session_id: str) -> Optional[str]:
         with self.database.read() as connection:

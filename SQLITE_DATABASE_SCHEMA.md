@@ -5,7 +5,7 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`5`
+- 当前 Schema 版本：`6`
 - 表总数：`27`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
@@ -39,7 +39,7 @@
 | 21 | `points_ledger` | Todo | 保存积分收支流水 | 7 |
 | 22 | `reading_books` | Book Reading | 保存上传书籍、资源路径和发布状态 | 15 |
 | 23 | `reading_chapters` | Book Reading | 保存识别或人工修正后的章节及页内文字 | 10 |
-| 24 | `reading_sessions` | Book Reading | 保存每次引导阅读及整体评估 | 14 |
+| 24 | `reading_sessions` | Book Reading | 保存每次引导阅读、预习草稿及整体评估 | 16 |
 | 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
 | 26 | `math_sessions` | Math | 保存固定 10 题的因式分解训练与正确率统计 | 8 |
 | 27 | `math_session_questions` | Math | 保存原题、首次答案、草稿、提示与判题结果 | 9 |
@@ -491,6 +491,7 @@
 | `created_at` | `TEXT` | 否 | 无 |  | 开始时间 |
 | `updated_at` | `TEXT` | 否 | 无 |  | 最近互动时间 |
 | `completed_at` | `TEXT` | 是 | `NULL` |  | 完成时间 |
+| `preparation_json` | `TEXT` | 否 | `'{}'` |  | 预习课版本与 Note/固定问题快照、草稿、并发版本和私有原文；旧记录为空对象 |
 
 ### 9.4 `reading_session_questions`
 
@@ -504,7 +505,7 @@
 | `question_text` | `TEXT` | 否 | 无 |  | 给孩子的问题 |
 | `question_type` | `TEXT` | 否 | 无 |  | 回忆、推理、因果、联系或预测等 |
 | `purpose` | `TEXT` | 否 | `''` |  | 评估目的 |
-| `reference_answer` | `TEXT` | 否 | `''` |  | 仅 Admin/模型使用的参考理解 |
+| `reference_answer` | `TEXT` | 否 | `''` |  | 参考理解；普通章节问答仅 Admin/模型使用，预习课每题提交后向孩子展示当次保存的参考标答 |
 | `evidence_json` | `TEXT` | 否 | `'[]'` |  | PDF 页码与短证据 |
 | `child_answer` | `TEXT` | 是 | `NULL` |  | 孩子的原始答案文字 |
 | `input_mode` | `TEXT` | 是 | `NULL` |  | 当前固定为 `text`；保留字段便于以后扩展输入方式 |
