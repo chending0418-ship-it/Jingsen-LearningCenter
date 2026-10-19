@@ -159,6 +159,9 @@ def test_routes_require_admin_for_creation_and_never_expose_unlock_hash(meeting,
         assert "secret" not in response.json()
         assert client.get("/baseball/familymeeting/assets/other.txt").status_code == 404
         assert client.get("/baseball/familymeeting/assets/questions.json").json()["paths"][-1]["id"] == "finish"
+        assert client.get("/static/familymeeting/app.js").status_code == 200
+        assert client.get("/static/familymeeting/styles.css").status_code == 200
+        assert client.get("/static/familymeeting/questions.json").json()["paths"][-1]["id"] == "finish"
 
 
 def test_nonempty_submission_and_reopening_persist_on_disk(meeting):

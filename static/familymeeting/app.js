@@ -262,7 +262,7 @@
   window.addEventListener('online',()=>{if(S.dirty)enqueueDraft().catch(()=>{});if(S.notesDirty)enqueueNotes().catch(()=>{});});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
   async function boot(){
-    try{S.schema=await request('/baseball/familymeeting/assets/questions.json');const params=new URLSearchParams(location.hash.slice(1));if(params.get('m')&&params.get('k'))await openContext(params.get('m'),params.get('k'));else await landing();}
+    try{S.schema=await request('/static/familymeeting/questions.json');const params=new URLSearchParams(location.hash.slice(1));if(params.get('m')&&params.get('k'))await openContext(params.get('m'),params.get('k'));else await landing();}
     catch(error){$('#main').innerHTML=`<div class="fatal"><div class="eyebrow">FAMILY MEETING</div><h1 style="font-size:31px">暂时没有打开这份会议</h1><p>${esc(error.message||'请检查网络，或重新使用专属链接。')}</p><a class="button" href="${ROOT}">返回会议入口</a></div>`;}
   }
   boot();

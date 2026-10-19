@@ -62,6 +62,7 @@ def page():
 
 
 @router.get("/baseball/familymeeting/assets/{filename}", include_in_schema=False)
+@router.get("/static/familymeeting/{filename}", include_in_schema=False)
 def asset(filename: str):
     if filename not in {"app.js", "styles.css", "questions.json"}:
         raise HTTPException(404)
