@@ -95,7 +95,7 @@
                 </a>
                 <a class="card" href="/admin/baseball">
                     <div class="card-top"><span class="number">04 / BASEBALL</span><span class="arrow">↗</span></div><span class="orb"></span>
-                    <h2>Baseball</h2><p>管理空间已预留，暂不放置功能。</p>
+                    <h2>Baseball</h2><p>准备棒球家庭会议，分别收集想法并记录共同方向。</p>
                 </a>
             </div>
         </main>
@@ -107,7 +107,7 @@
         const hub = document.getElementById('hub');
         const footer = document.getElementById('footer');
         const nextPath = new URLSearchParams(location.search).get('next');
-        const safeNext = nextPath && nextPath.startsWith('/admin/') && !nextPath.startsWith('//') ? nextPath : '';
+        const safeNext = nextPath && !nextPath.startsWith('//') && (nextPath.startsWith('/admin/') || nextPath === '/baseball/familymeeting/query' || nextPath === '/baseball/familymeeting/query/') ? nextPath : '';
 
         function showHub() {
             login.hidden = true; loading.hidden = true; hub.hidden = false; footer.hidden = false;

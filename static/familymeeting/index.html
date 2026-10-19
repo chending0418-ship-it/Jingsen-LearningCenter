@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f2f0e8">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="分别记录想法，共同理解期待、分歧与家庭承受范围，选择下一阶段的棒球安排。">
+  <title>家庭会议 · 棒球与下一段路 — Jingsen</title>
+  <link rel="stylesheet" href="/baseball/familymeeting/assets/styles.css?v=20261019-1">
+  <script src="/baseball/familymeeting/assets/app.js?v=20261019-1" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+  <header class="topbar">
+    <a class="brand" href="/">Jingsen<span>↗</span></a>
+    <span class="top-label">BASEBALL / FAMILY MEETING</span>
+    <span class="private-label"><span class="small-dot"></span> 家庭专属</span>
+  </header>
+  <main id="main" tabindex="-1"><div class="loading">正在准备会议页面…</div></main>
+  <footer class="site-footer"><span>留出表达的空间，也保留调整的余地。</span><span>JINGSEN.CC / 2026</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="unlock-dialog" aria-labelledby="unlock-title">
+    <form id="unlock-form">
+      <div class="eyebrow">OPEN THE CONVERSATION</div>
+      <h2 id="unlock-title">开始共同查看</h2>
+      <p>双方都已提交。输入会议密码后，可以并排查看答案，并记录今晚的共识。</p>
+      <label for="meeting-password">会议密码</label>
+      <input id="meeting-password" name="password" type="password" inputmode="numeric" autocomplete="off" maxlength="128" required>
+      <p class="help">每个浏览器首次进入共同查看都需要密码。专属链接不会附带密码。</p>
+      <p id="unlock-error" class="error" role="alert" hidden></p>
+      <div class="button-row"><button type="button" class="button secondary" data-action="close-unlock">稍后再看</button><button class="button" type="submit">输入密码并查看 ↗</button></div>
+    </form>
+  </dialog>
+  <dialog id="submit-dialog" aria-labelledby="submit-title">
+    <div class="eyebrow">READY TO SHARE</div>
+    <h2 id="submit-title">把这份想法带到桌上</h2>
+    <p id="submit-message"></p>
+    <p>提交后仍可修改。双方都提交，并点击「开始共同查看」输入密码后，才会展示彼此已提交的答案。</p>
+    <div class="button-row"><button class="button secondary" data-action="close-submit">再看一下</button><button id="confirm-submit" class="button" data-action="confirm-submit">确认提交</button></div>
+  </dialog>
+  <noscript><p class="noscript">这个填写页面需要启用 JavaScript。你的答案不会展示在公开页面。</p></noscript>
+</body>
+</html>

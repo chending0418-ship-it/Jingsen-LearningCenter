@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, reading, report_history, skills, vocabulary_skills, todo
+from api import familymeeting
 from config import config
 from services.admin_session_service import is_admin_authenticated
 from services.model_settings_service import get_model_settings_service
@@ -61,6 +62,7 @@ app.include_router(gallery.public_router)
 app.include_router(gallery.admin_router)
 app.include_router(reading.public_router)
 app.include_router(reading.admin_router)
+app.include_router(familymeeting.router)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)

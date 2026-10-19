@@ -284,6 +284,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/portal`：兼容保留的学科门户地址
 - `/gallery`：Gallery 公开瀑布流，展示从后台发布的拍摄内容
 - `/baseball`：Baseball 首版空白栏目页
+- `/baseball/familymeeting/query`：棒球家庭会议；父母分别填写、双方提交后输入会议密码共同查看，记录阶段性方向与行动
 - `/english`：英语模块首页
 - `/english/reading`：孩子使用的 Book Reading 选书、选章节、问答与阅读总结
 - `/admin`：统一 Admin 管理中枢与登录入口
@@ -297,7 +298,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/admin/learningcenter/models`：全站 AI 模型管理
 - `/admin/learningcenter/reading`：上传 PDF、核对章节、发布书籍及查看完整阅读记录
 - `/admin/gallery`：Gallery 图片上传与内容资料管理
-- `/admin/baseball`：预留的 Baseball 管理页面
+- `/admin/baseball`：Baseball 管理入口，包含家庭会议入口
 - `/chinese`：语文练习
 - `/math`：数学页面
 
