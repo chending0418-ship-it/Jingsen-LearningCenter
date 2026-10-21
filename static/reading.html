@@ -32,6 +32,37 @@
         @media(max-width:560px){.shell{width:min(100% - 24px,1180px)}nav span:nth-child(2){display:none}nav{grid-template-columns:1fr 1fr}.books,.chapter-grid,.result-lists{grid-template-columns:1fr}h1{font-size:58px}.answer-actions .button{flex:1}}
         .prep-header{padding:28px;background:var(--blue);color:white}.prep-header h2{font-size:clamp(24px,4vw,42px);margin:12px 0;text-wrap:balance}.prep-header .kicker{color:var(--acid)}
         .prep-content{padding:clamp(18px,4vw,40px);border:1px solid var(--ink);background:white}.prep-note{border-bottom:1px solid var(--line);padding:12px 0}.prep-note h3{font-size:16px;color:var(--blue)}.prep-note p{white-space:pre-line;line-height:1.9;overflow-wrap:anywhere}.prep-question{padding:25px 0;border-top:1px solid var(--line)}.prep-reference{background:#f1edff;border-left:4px solid var(--purple);padding:20px;margin-top:18px}.prep-reference h4,.feedback h4{margin:0 0 10px}.prep-reference p{line-height:1.8;white-space:pre-line;margin:0 0 12px}.prep-reference small{color:var(--muted);line-height:1.6}.prep-answer-label{display:block;font-weight:700;font-size:14px;margin:18px 0 8px}.prep-question textarea[readonly]{background:#f0f0ea}.prep-question h3{line-height:1.7;font-size:19px}.prep-question-translation{font-size:17px;line-height:1.7;margin:0 0 18px;color:var(--muted)}.prep-help{color:var(--muted);line-height:1.7}.prep-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px 0}.prep-recovery{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff3cf;padding:20px}.prep-summary{background:var(--acid);padding:24px;margin-bottom:20px}.prep-summary p{line-height:1.8}
+        /* Reading assessment: approved three-card layout; historical feedback stays intact. */
+        #preparation-view .prep-assessment{margin-top:28px}
+        #preparation-view .assessment-heading{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px}
+        #preparation-view .assessment-heading h4{font-size:24px;line-height:1.4;margin:0;font-weight:700}
+        #preparation-view .assessment-level{font-size:13px;font-weight:600;color:var(--ink);background:var(--acid);padding:7px 12px;border:1px solid var(--ink);border-radius:0}
+        #preparation-view .assessment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+        #preparation-view .assessment-card{padding:24px 22px 26px;border:1px solid var(--line);border-radius:0;min-width:0;background:white;color:var(--ink)}
+        #preparation-view .assessment-good{background:#f1f8f2;border-top:4px solid #226342}
+        #preparation-view .assessment-gap{background:#fff8ec;border-top:4px solid #8f5c18}
+        #preparation-view .assessment-next{background:#f0f3ff;border-top:4px solid var(--blue)}
+        #preparation-view .assessment-original{border-top:4px solid var(--blue)}
+        #preparation-view .assessment-card h5{margin:0 0 6px;font-size:21px;font-weight:700;line-height:1.4}
+        #preparation-view .assessment-good h5{color:#226342}
+        #preparation-view .assessment-gap h5{color:#8f5c18}
+        #preparation-view .assessment-next h5{color:var(--blue)}
+        #preparation-view .assessment-label{font-size:13px;font-weight:600;letter-spacing:.025em;color:#555e6c;margin:0 0 22px}
+        #preparation-view .assessment-copy{font-size:20px;line-height:1.75;overflow-wrap:anywhere}
+        #preparation-view .assessment-copy p{margin:0 0 18px}
+        #preparation-view .assessment-copy p:last-child{margin-bottom:0}
+        #preparation-view .assessment-steps{padding-left:26px;margin:0}
+        #preparation-view .assessment-steps li{padding:0 0 18px 7px;margin:0 0 18px;border-bottom:1px solid #d9dce1}
+        #preparation-view .assessment-steps li:last-child{padding-bottom:0;margin-bottom:0;border:0}
+        #preparation-view details.assessment-original{margin-top:14px;border:0;font-size:14px;line-height:1.7;color:#555e6c}
+        #preparation-view details.assessment-original summary{cursor:pointer;min-height:30px}
+        #preparation-view details.assessment-original p{font-size:20px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+        #preparation-view .prep-reference{padding:28px 30px 26px;margin-top:28px;border-left:5px solid var(--purple);border-radius:0}
+        #preparation-view .prep-reference h4{font-size:22px;line-height:1.4;margin:0 0 18px}
+        #preparation-view .prep-reference p{font-size:22px;line-height:1.85;margin:0 0 18px}
+        #preparation-view .prep-reference small{display:block;font-size:13px;line-height:1.65}
+        @media(max-width:900px){#preparation-view .assessment-grid{grid-template-columns:1fr}}
+        @media(max-width:560px){#preparation-view .assessment-card{padding:22px}#preparation-view .assessment-label{margin-bottom:16px}#preparation-view .prep-reference{padding:24px 20px}}
     </style>
 </head>
 <body>
@@ -65,6 +96,52 @@
         <section id="session-view" class="session" hidden><div class="progress"><span id="progress-bar"></span></div><div class="session-grid"><aside class="session-side"><span class="kicker">Current reading</span><strong id="session-book"></strong><div class="meta" id="session-chapters"></div><ol id="question-list"></ol></aside><article class="question"><div class="question-number" id="question-number"></div><h2 id="question-text"></h2><div id="answer-wrap"><textarea id="answer" maxlength="1500" placeholder="Tell me what you think."></textarea><div class="answer-actions"><button id="submit-button" class="button primary" type="button" onclick="submitAnswer()">Share my answer →</button></div></div><div id="feedback" class="feedback" hidden><h3 id="feedback-title">Good thinking.</h3><p id="feedback-copy"></p><button id="continue-button" class="button blue" type="button" onclick="continueSession()" style="margin-top:15px">Next question →</button></div></article></div></section>
         <section id="result-view" class="result" hidden><div class="result-level"><span>Understanding today</span><strong id="result-level"></strong></div><div class="result-copy"><h2 id="result-title">Nice reading.</h2><p id="student-summary"></p><div class="result-lists"><div><h3 id="strengths-title">What you understood well</h3><ul id="strengths"></ul></div><div><h3>Try next</h3><ul id="next-steps"></ul></div></div><button class="button primary" onclick="newReading()">Choose another chapter</button></div></section>
     </div>
+    <script id="reading-feedback-ui">
+        (() => {
+            const escape = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+            function splitFeedback(value) {
+                const text = typeof value === 'string' ? value : '';
+                const markers = [...text.matchAll(/(?:^|\s)(?:#{1,4}[ \t]*)?(?:\*\*|__)?(Accurate|Gap\s*\/\s*misconception|Next\s+steps?)(?:\*\*|__)?\s*[:：](?:\*\*|__)?\s*/gi)];
+                if (markers.length !== 3 || text.slice(0, markers[0].index).trim()) return null;
+                const keys = markers.map(m => m[1].toLowerCase().replace(/\s/g, ''));
+                if (keys[0] !== 'accurate' || keys[1] !== 'gap/misconception' || !/^nextsteps?$/.test(keys[2])) return null;
+                const parts = markers.map((m, i) => text.slice(m.index + m[0].length, i < 2 ? markers[i + 1].index : text.length).trim());
+                if (parts.some(part => !part)) return null;
+                return {accurate: parts[0], gap: parts[1], next_step: parts[2]};
+            }
+            function inlineCopy(text) {
+                return escape(text.replace(/\\([*_])/g, '$1'))
+                    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>');
+            }
+            function copy(text, numbered = false) {
+                if (numbered) {
+                    const steps = [...text.matchAll(/(?:^|\s)(?:\((\d+)\)\s*|(\d+)[.)]\s+)/g)];
+                    if (steps.length >= 2 && steps.every((step, i) => Number(step[1] || step[2]) === i + 1)) {
+                        const lead = text.slice(0, steps[0].index).trim();
+                        const items = steps.map((step, i) => text.slice(step.index + step[0].length, i + 1 < steps.length ? steps[i + 1].index : text.length).trim());
+                        if (items.every(Boolean)) return (lead ? `<p>${inlineCopy(lead)}</p>` : '') + `<ol class="assessment-steps">${items.map(item => `<li>${inlineCopy(item)}</li>`).join('')}</ol>`;
+                    }
+                }
+                return text.split(/\n\s*\n/).filter(Boolean).map(p => `<p>${inlineCopy(p).replace(/\n/g, '<br>')}</p>`).join('');
+            }
+            function renderAssessment(feedback, level) {
+                const raw = typeof feedback === 'string' && feedback ? feedback : '此历史记录未保存逐题点评。';
+                const parts = splitFeedback(raw);
+                const cards = parts ? [
+                    {kind:'good', title:'理解到的内容', english:'What you understood', text:parts.accurate},
+                    {kind:'gap', title:'需要补充的内容', english:'What to add', text:parts.gap},
+                    {kind:'next', title:'下一步怎么写', english:'Your next step', text:parts.next_step}
+                ] : [
+                    {kind:'original', title:'评估原文', english:'Original assessment', text:raw},
+                    {kind:'gap', title:'需要补充的内容', english:'What to add', text:'这条评估没有单独保存分项内容，请查看原评估全文。', language:'zh-CN'},
+                    {kind:'next', title:'下一步怎么写', english:'Your next step', text:'这条评估没有单独保存下一步建议，请查看原评估全文。', language:'zh-CN'}
+                ];
+                return `<section class="prep-assessment" aria-label="本次评估"><div class="assessment-heading"><h4>本次评估</h4><span class="assessment-level">${escape(level)}</span></div><div class="assessment-grid">${cards.map(card => `<article class="assessment-card assessment-${card.kind}"><h5>${escape(card.title)}</h5><p class="assessment-label">${escape(card.english)}</p><div class="assessment-copy" lang="${card.language || 'en'}">${copy(card.text, card.kind === 'next' && Boolean(parts))}</div></article>`).join('')}</div>${parts ? `<details class="assessment-original"><summary>查看原始评估</summary><p>${escape(raw)}</p></details>` : ''}</section>`;
+            }
+            globalThis.ReadingFeedback = {splitFeedback, renderAssessment};
+        })();
+    </script>
     <script>
         const BASE_PATH=location.pathname.startsWith('/learningcenter')?'/learningcenter':'';
         const apiPath=path=>`${BASE_PATH}${path}`;
@@ -141,7 +218,7 @@
         }
         function preparationQuestion(q,i,answers,completed){
             const submitted=Boolean(q.answered_at)||completed;
-            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'Teacher discussion':'Reading guide'} ${i+1}${submitted?' · 已提交':''}</div><h3 lang="en">${escapeHtml(q.question_type==='teacher_discussion'?(q.question_text_en||'English translation unavailable for this question.'):q.question_text)}</h3><label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section><section class="feedback"><h4>本次评估 · ${escapeHtml(label(q.understanding_level))}</h4><p>${escapeHtml(q.feedback||'此历史记录未保存逐题点评。')}</p></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
+            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'Teacher discussion':'Reading guide'} ${i+1}${submitted?' · 已提交':''}</div><h3 lang="en">${escapeHtml(q.question_type==='teacher_discussion'?(q.question_text_en||'English translation unavailable for this question.'):q.question_text)}</h3><label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`${ReadingFeedback.renderAssessment(q.feedback,label(q.understanding_level))}<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
         }
         function setPreparationResponse(updated,token){
             prepSession={...updated,access_token:token};
