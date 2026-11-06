@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jingsen 的棒球空间。了解自主开发品牌 BaseballMaster，下载棒球比赛记录大师，探索比赛表现与训练记录的未来规划。">
+    <meta name="theme-color" content="#f2f0e8">
+    <title>Baseball — Jingsen · BaseballMaster 与场上成长</title>
+    <link rel="canonical" href="https://jingsen.cc/baseball">
+    <style>
+        :root { --paper:#f2f0e8; --ink:#121212; --line:rgba(18,18,18,.22); --orange:#ff4c2f; --navy:#0B1933; --green:#092A2A; --wine:#722F37; --pad:clamp(20px,4vw,64px); }
+        * { box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; background:var(--paper); color:var(--ink); font-family:Arial,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; }
+        a { color:inherit; text-underline-offset:5px; }
+        a:focus-visible { outline:3px solid #1646d8; outline-offset:5px; }
+        .skip { position:absolute; left:20px; top:-80px; padding:12px; background:var(--ink); color:white; z-index:10; }
+        .skip:focus { top:12px; }
+        .shell { max-width:1600px; margin:auto; }
+        .mono { font:500 11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:.08em; text-transform:uppercase; }
+        .nav { min-height:78px; padding:18px var(--pad); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:20px; }
+        .nav a { text-decoration:none; }
+        .nav a:hover { text-decoration:underline; }
+        .hero { display:grid; grid-template-columns:1.1fr 1fr; border-bottom:1px solid var(--line); }
+        .hero-copy { padding:48px var(--pad) 42px; }
+        .eyebrow { margin:0 0 34px; display:flex; gap:12px; align-items:center; }
+        .eyebrow::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--orange); }
+        h1 { margin:0 0 30px; font-size:clamp(62px,7.6vw,118px); letter-spacing:-.07em; line-height:.91; font-weight:800; }
+        h1 em { font-style:normal; color:var(--orange); }
+        .intro { max-width:470px; font-size:17px; line-height:1.9; margin:0 0 30px; }
+        .jump { display:inline-flex; align-items:center; gap:30px; font-size:13px; font-weight:700; text-decoration:none; padding:12px 0; border-bottom:1px solid; }
+        .field { background:var(--orange); position:relative; display:flex; flex-direction:column; justify-content:space-between; padding:30px; overflow:hidden; min-height:460px; }
+        .field svg { width:100%; max-height:410px; margin:auto; }
+        .field-caption { display:flex; justify-content:space-between; gap:16px; margin:0; }
+        .section { padding:55px var(--pad) 60px; border-bottom:1px solid var(--line); }
+        .section-head { display:flex; justify-content:space-between; gap:24px; align-items:baseline; margin-bottom:30px; }
+        h2 { margin:8px 0 0; font-size:clamp(30px,3.5vw,48px); letter-spacing:-.045em; line-height:1.2; }
+        .section-head p { margin:0; }
+        .brand-intro { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:45px; margin-bottom:35px; }
+        .brand-logo { display:block; width:min(100%,380px); height:auto; }
+        .brand-intro p { margin:0; font-size:16px; line-height:1.9; }
+        .brand-intro a { display:inline-block; margin-top:14px; font-size:14px; font-weight:700; }
+        .products { display:grid; grid-template-columns:1.25fr 1fr; gap:18px; }
+        .product { padding:clamp(24px,3vw,42px); display:flex; flex-direction:column; align-items:flex-start; }
+        .scorekeeper { background:var(--green); color:#f4f5ef; }
+        .coach { border:1px solid var(--line); color:var(--navy); }
+        .lockup { display:flex; gap:14px; align-items:center; margin-bottom:36px; }
+        .lockup img { width:54px; height:54px; border-radius:12px; }
+        .wordmark { font:800 clamp(17px,1.7vw,24px)/1.2 Arial,sans-serif; letter-spacing:-.045em; }
+        .wordmark span { font-weight:400; }
+        .wordmark small { display:block; font:400 11px/1.5 Arial,"PingFang SC",sans-serif; letter-spacing:.16em; margin-top:6px; }
+        h3 { margin:0 0 18px; font-size:clamp(26px,2.6vw,38px); line-height:1.3; letter-spacing:-.035em; }
+        .product p { font-size:15px; line-height:1.9; margin:0 0 24px; max-width:490px; }
+        .tags { display:flex; flex-wrap:wrap; gap:8px 18px; margin-bottom:28px; font-size:12px; }
+        .tags span { border-bottom:1px solid currentColor; padding-bottom:5px; }
+        .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:auto; }
+        .button { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:12px 18px; border:1px solid currentColor; text-decoration:none; font-size:13px; font-weight:700; }
+        .primary { background:#dfff00; color:var(--green); border-color:#dfff00; }
+        .button:hover { box-shadow:3px 3px 0 currentColor; }
+        .product .note { font-size:12px; line-height:1.7; margin:16px 0 0; }
+        .status { display:inline-flex; gap:8px; align-items:center; border:1px solid currentColor; border-radius:20px; padding:6px 12px; font-size:11px; white-space:nowrap; }
+        .status::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--orange); }
+        .coach .status { color:var(--wine); margin-bottom:18px; }
+        .performance { background:#e8e6dc; }
+        .performance-intro { display:grid; grid-template-columns:1fr 1fr; gap:45px; align-items:start; }
+        .performance-intro p { margin:0; font-size:16px; line-height:1.9; }
+        .flow { display:grid; grid-template-columns:repeat(3,1fr); margin:36px 0 22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+        .step { padding:25px 24px 25px 0; }
+        .step + .step { border-left:1px solid var(--line); padding-left:24px; }
+        .step .mono { color:#58564f; }
+        .step h3 { font-size:20px; margin:16px 0 10px; }
+        .step p { font-size:14px; line-height:1.8; margin:0; }
+        .planning-note { font-size:13px; line-height:1.8; margin:0; }
+        .on-deck { display:grid; grid-template-columns:1fr 1fr; gap:35px; }
+        .on-deck article { border-top:1px solid var(--line); padding-top:24px; }
+        .on-deck h3 { font-size:23px; margin-top:14px; }
+        .on-deck p { font-size:14px; line-height:1.8; margin:0; }
+        footer { padding:26px var(--pad); display:flex; justify-content:space-between; gap:20px; }
+        @media(max-width:760px) {
+            .hero,.brand-intro,.performance-intro,.products { grid-template-columns:1fr; }
+            .hero-copy { padding-top:35px; }
+            h1 { font-size:clamp(62px,12vw,90px); }
+            .field { min-height:310px; max-height:390px; padding:22px; }
+            .field svg { max-height:275px; }
+            .section { padding-top:38px; padding-bottom:40px; }
+            .section-head { align-items:flex-start; flex-wrap:wrap; gap:16px; }
+            .brand-intro,.performance-intro { gap:25px; }
+            .brand-logo { width:min(100%,330px); }
+            .flow { grid-template-columns:1fr; margin-top:26px; }
+            .step,.step + .step { padding:22px 0; border-left:0; }
+            .step + .step { border-top:1px solid var(--line); }
+            .step h3 { margin-top:8px; }
+            .on-deck { grid-template-columns:1fr; gap:25px; }
+            footer { flex-direction:column; gap:8px; }
+        }
+        @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    </style>
+</head>
+<body>
+    <a class="skip" href="#main">跳到主要内容</a>
+    <div class="shell">
+        <nav class="nav mono" aria-label="栏目导航"><a href="/">BACK2INDEX ↗</a><span>03 / PLAY</span><a href="#products">BASEBALL</a></nav>
+        <main id="main">
+            <header class="hero">
+                <div class="hero-copy">
+                    <p class="eyebrow mono">JINGSEN / BASEBALL</p>
+                    <h1 lang="en">For the love<br>of the <em>game.</em></h1>
+                    <p class="intro">认真打球，也认真记录。<br>这里放我们自己做的棒球工具，也为每一次比赛、训练与成长，留一个位置。</p>
+                    <a class="jump" href="#products">认识 BaseballMaster <span aria-hidden="true">↓</span></a>
+                </div>
+                <div class="field">
+                    <div class="field-caption mono"><span>THE FIELD IS OUR CLASSROOM</span><span>01 — 09</span></div>
+                    <svg viewBox="0 0 500 390" fill="none" aria-hidden="true">
+                        <path d="M250 350 48 148Q250-53 452 148Z" fill="#092A2A"/>
+                        <path d="M250 350 48 148M250 350 452 148" stroke="#f2f0e8" stroke-width="1.5"/>
+                        <path d="m250 326-108-108L250 110l108 108Z" stroke="#c7b895" stroke-width="25"/>
+                        <path d="m250 326-108-108L250 110l108 108Z" stroke="#f2f0e8" stroke-width="1.5"/>
+                        <circle cx="250" cy="235" r="15" fill="#c7b895"/>
+                        <path d="M244 235h12" stroke="#f2f0e8" stroke-width="3"/>
+                        <g fill="#f2f0e8"><path d="M243 322h14v9l-7 6-7-6Z"/><path d="m142 211 7 7-7 7-7-7ZM250 103l7 7-7 7-7-7ZM358 211l7 7-7 7-7-7Z"/></g>
+                        <path d="M250 326Q270 180 357 98" stroke="#dfff00" stroke-width="1.5" stroke-dasharray="5 7"/>
+                        <circle cx="357" cy="98" r="6" fill="#dfff00"/>
+                        <circle cx="357" cy="98" r="16" stroke="#dfff00"/>
+                    </svg>
+                    <p class="field-caption mono"><span>每一次上场 都有所收获</span><span>球场示意</span></p>
+                </div>
+            </header>
+            <section class="section" id="products" aria-labelledby="products-title">
+                <div class="section-head"><div><p class="mono">01 / BUILT BY US</p><h2 id="products-title">从场边需要，到自己的产品</h2></div><span class="mono">BASEBALLMASTER.CC ↗</span></div>
+                <div class="brand-intro">
+                    <a href="https://baseballmaster.cc/" target="_blank" rel="noopener noreferrer" aria-label="访问 BaseballMaster 品牌官网（新窗口）"><img class="brand-logo" src="/static/baseball/baseballmaster-horizontal.svg" width="711" height="132" alt="BaseballMaster 品牌标识"></a>
+                    <div><p>BaseballMaster 是我们自主开发的棒球工具品牌。围绕比赛记录与训练观察，把真实的场边需要做成顺手的工具：为比赛留下过程，为训练找到方向。</p><a href="https://baseballmaster.cc/" target="_blank" rel="noopener noreferrer">访问品牌官网 ↗</a></div>
+                </div>
+                <div class="products">
+                    <article class="product scorekeeper">
+                        <div class="lockup"><img src="/static/baseball/scorekeeper-icon.png" width="54" height="54" alt=""><div class="wordmark">BASEBALL<span>MASTER.cc</span><small>棒球比赛记录大师</small></div></div>
+                        <h3>每一球有经过<br>每一场可回看</h3>
+                        <p>从现场逐球记分，到赛后统计与球队协作，把场上的过程留在记录里。支持离线记分，也能按需共享比赛、观看文字直播。</p>
+                        <div class="tags" aria-label="产品功能"><span>逐球记分</span><span>比赛统计</span><span>球队协作</span><span>文字直播</span></div>
+                        <div class="actions">
+                            <a class="button primary" href="https://apps.apple.com/cn/app/id6802063886" target="_blank" rel="noopener noreferrer">App Store 下载 ↗</a>
+                            <a class="button" href="https://baseballmaster.cc/scorekeeper#download" target="_blank" rel="noopener noreferrer">Android 测试版 ↗</a>
+                        </div>
+                        <p class="note"><a href="https://baseballmaster.cc/scorekeeper" target="_blank" rel="noopener noreferrer">查看完整产品介绍 ↗</a> · Android 安装说明与最新测试包见官网。</p>
+                    </article>
+                    <article class="product coach">
+                        <div class="lockup"><img src="/static/baseball/coach-icon.png" width="54" height="54" alt=""><div class="wordmark">Baseball<span>Master.cc</span><small>棒球训练助手</small></div></div>
+                        <span class="status">产品预告 · 敬请期待</span>
+                        <h3>把动作看仔细<br>把细节讲明白</h3>
+                        <p>Baseball Drill Buddy 围绕视频慢放、逐帧查看、画面标注与双视频对比，帮助教练、家长和球员观察训练细节。</p>
+                        <div class="actions"><a class="button" href="https://baseballmaster.cc/coach-insights" target="_blank" rel="noopener noreferrer">了解棒球训练助手 ↗</a></div>
+                        <p class="note">当前为产品介绍，下载与发布状态以品牌官网为准。</p>
+                    </article>
+                </div>
+            </section>
+            <section class="section performance" id="performance" aria-labelledby="performance-title">
+                <div class="section-head"><div><p class="mono">02 / GAME PERFORMANCE</p><h2 id="performance-title">比赛结束，成长继续</h2></div><span class="status">建设中 · 规划阶段</span></div>
+                <div class="performance-intro"><h3>让比赛记录<br>成为成长的线索</h3><p>计划支持从「棒球比赛记录大师」上传比赛记录，在这里回看单场表现、积累赛季变化，并写下值得带回训练场的问题。</p></div>
+                <div class="flow" aria-label="比赛表现功能规划">
+                    <article class="step"><span class="mono">01 / IMPORT · 规划中</span><h3>从 App 带来记录</h3><p>规划从棒球比赛记录大师导出并上传比赛资料，核对比赛、球员与记录范围。</p></article>
+                    <article class="step"><span class="mono">02 / REVIEW · 规划中</span><h3>回看本场表现</h3><p>按已有记录整理打击、投球与守备表现，结合比赛片段和自己的赛后复盘。</p></article>
+                    <article class="step"><span class="mono">03 / GROW · 规划中</span><h3>连接下一次训练</h3><p>逐步积累比赛与赛季记录，从表现变化中找到下一阶段的练习方向。</p></article>
+                </div>
+                <p class="planning-note">以上为建设方向，目前尚未开放上传、App 同步或数据展示。后续将先确认导出格式、球员归属与公开范围，再开放使用。</p>
+            </section>
+            <section class="section" aria-labelledby="next-title">
+                <div class="section-head"><div><p class="mono">03 / ON DECK</p><h2 id="next-title">场上之外，也值得记录</h2></div><span class="mono">MORE TO COME</span></div>
+                <div class="on-deck">
+                    <article><span class="status">内容规划 · 建设中</span><h3>训练观察</h3><p>记录训练目标、动作观察和练习体会，让每次练习都有可以回看的线索。</p></article>
+                    <article><span class="status">内容规划 · 建设中</span><h3>球场手记</h3><p>留住比赛里的小事、场边的感受，以及一路打球、一起成长的故事。</p></article>
+                </div>
+            </section>
+        </main>
+        <footer class="mono"><span>JINGSEN / LEARN. SEE. PLAY.</span><a href="/">BACK TO THE INDEX ↗</a></footer>
+    </div>
+</body>
+</html>

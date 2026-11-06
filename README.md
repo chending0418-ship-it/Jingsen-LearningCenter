@@ -283,7 +283,7 @@ SQLite Schema 由 `database/sqlite.py` 定义；应用启动和 `scripts/migrate
 - `/learningcenter`：Learning Center 入口，继续跳转到现有学科门户
 - `/portal`：兼容保留的学科门户地址
 - `/gallery`：Gallery 公开瀑布流，展示从后台发布的拍摄内容
-- `/baseball`：Baseball 首版空白栏目页
+- `/baseball`：BaseballMaster 自主品牌介绍、棒球比赛记录大师下载与棒球训练助手预告；比赛表现、训练观察和球场手记标为建设中
 - `/baseball/familymeeting/query`：棒球家庭会议；父母分别填写、双方提交后输入会议密码共同查看，记录阶段性方向与行动
 - `/english`：英语模块首页
 - `/english/reading`：孩子使用的 Book Reading 选书、选章节、问答与阅读总结
