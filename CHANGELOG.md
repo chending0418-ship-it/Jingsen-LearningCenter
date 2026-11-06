@@ -9,6 +9,14 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-06：Baseball PR #12 已合并，生产部署受 SSH 连接阻塞（未部署）
+
+- 授权与合并：用户确认检查 Reading PR #13 后合并 Baseball 并部署。确认 #13 已合并且 Reading 四题／独立阅读器已在香港上线；组合测试代码 `1cb7b918eb5f7bd2fd786137f0712614f9004f65` 的 44 项回归及 6 项反馈渲染检查通过，保留两部分 CHANGELOG 内容解决冲突。通过 GitHub 合并 https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/12 ，结果为 `4f10da7fff5e820a5e818f53b26da985f6b584c6`。后续 Reading 发布记录 PR #14 合并为 `e50ad83`，只增加 CHANGELOG 记录，不改变业务代码。
+- 服务器核对：SSH 最近一次成功读取确认 jingsen-prod 云元数据为 ap-hongkong，应用版本 `d22c0ac196550061ea17e81a8d6b530455c2ab82`，learningcenter.service 为 active；未连接上海。后续 SSH 持续在 banner exchange 阶段超时／断连，经本机已配置 HTTP 代理重试也未完成握手，部署脚本未传入服务器执行，未停止服务或修改生产文件。
+- 公网验证：故障排查期间 HTTPS 偶有握手失败，随后 `/health` 返回 healthy；`/baseball` 确认仍是原占位页，不能视为 Baseball 已上线。Reading 的生产功能与已有记录保留；本次无生产数据／Schema／环境变更，无新的备份目录或迁移结果，不能将预备部署脚本写成已执行。
+- 后续执行：恢复香港 SSH 访问后，先重新核对云元数据、服务器当前提交与 release 分支最新合并结果，确认业务差异，再按 updateNew.md 备份代码、完整 data/ 和 .env、暂停写入、安全更新、恢复服务与验证。禁止上传本地 data/ 或 .env；Baseball 发布完成后须补充实际提交、备份路径、数据一致性与公网验收记录。
+- 回退：当前生产未被本次发布修改，无需回滚。若后续成功更新但验收失败，恢复更新前代码并重启，保留线上新增记录与 Reading v3 快照，不以整库恢复覆盖新数据。
+
 ## 2026-11-06：每课四题与可朗读独立阅读器发布到香港（已上线）
 
 - 发布依据：按用户授权，经 GitHub 合并 PR https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/13 ，测试功能提交 `c99458f8fbe2918d260fdd6de69d06d9bf970cfe`，已部署发布分支合并结果 `d22c0ac196550061ea17e81a8d6b530455c2ab82`。部署前再次核对 jingsen-prod 的云区域为 ap-hongkong，未连接上海服务器，main 未变更。
