@@ -335,8 +335,8 @@ def test_new_course_scope_reading_privacy_and_frozen_snapshot(tmp_path, monkeypa
     assert len({l['id'] for l in lessons + public['archived_lessons']}) == 29
     assert not any(word in json.dumps(public) for word in ('READING_ONLY_MARKER', '_reading_passages', 'reference_answer'))
     for lesson in lessons:
-        assert len(lesson['grammar']['examples']) == 2
-        assert len(lesson['grammar']['exercises']) == 2
+        assert 4 <= len(lesson['grammar']['examples']) <= 6
+        assert 3 <= len(lesson['grammar']['exercises']) <= 4
         assert all(q['explanation'] and 0 <= q['answer'] < len(q['options']) for q in lesson['grammar']['exercises'])
         assert all(q['source'] == 'guide' for q in lesson['questions'])
     monkeypatch.setattr(reading_api, 'get_reading_service', lambda: service)

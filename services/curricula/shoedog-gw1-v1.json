@@ -1,5 +1,5 @@
 {
-  "version": "shoedog-gw1-2026-11-06-v1",
+  "version": "shoedog-gw1-2026-11-06-v2",
   "source": "Great Writing 1 & Shoe Dog – Course Outline - Jingsen.pdf",
   "lessons": [
     {
@@ -23,7 +23,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "Knight is a runner. → 主语 + be + 名词。",
-          "The shoes are light. → 主语 + be + 形容词。"
+          "The shoes are light. → 主语 + be + 形容词。",
+          "I am ready. / He is ready. / They are ready. → be 随主语变化。",
+          "The shoes are in the box. → 主语 + be + 地点介词短语。",
+          "It is cold. / It is nine o’clock. → 天气或时间用 It 作主语。",
+          "× A new company. → ✓ It is a new company. → 片段补上主语与动词；He runs. 表动作，He knows the answer. 表状态。"
         ],
         "exercises": [
           {
@@ -47,6 +51,28 @@
             ],
             "answer": 1,
             "explanation": "完整句需要主语、动词和完整意思。"
+          },
+          {
+            "id": "g1-3",
+            "prompt": "The shoes ___ in the box.",
+            "options": [
+              "am",
+              "is",
+              "are"
+            ],
+            "answer": 2,
+            "explanation": "shoes 是复数，使用 are；in the box 表示地点。"
+          },
+          {
+            "id": "g1-4",
+            "prompt": "Choose the sentence about the weather.",
+            "options": [
+              "It is cold.",
+              "Is cold.",
+              "The cold."
+            ],
+            "answer": 0,
+            "explanation": "天气句需要主语 It 和动词 is，后接形容词 cold。"
           }
         ]
       },
@@ -91,7 +117,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "There are two shoes in the box. → There are + 复数名词。",
-          "In 1964, he works in Oregon. → 句首时间短语后加逗号。"
+          "In the morning, he works in Oregon. → 句首时间短语后加逗号。",
+          "There is a shoe in the box. / There are two shoes in the box. → 单数 is，复数 are。",
+          "He works in the office every morning. → 地点在前，时间在后。",
+          "He works in Oregon. He sells shoes in Oregon. → He works and sells shoes in Oregon. → 合并重复信息。",
+          "× on monday, he works. → ✓ On Monday, he works. → 句首与星期名首字母大写；句末用句号。"
         ],
         "exercises": [
           {
@@ -115,6 +145,28 @@
             ],
             "answer": 2,
             "explanation": "句首与星期名称首字母大写，句首时间短语后按本课规则加逗号。"
+          },
+          {
+            "id": "g2-3",
+            "prompt": "Choose the sentence with the usual place–time order.",
+            "options": [
+              "She works in every morning the office.",
+              "She works in the office every morning.",
+              "She works the office in every morning."
+            ],
+            "answer": 1,
+            "explanation": "动词后先放地点 in the office，再放时间 every morning；地点介词 in 要紧接 the office。"
+          },
+          {
+            "id": "g2-4",
+            "prompt": "Choose the correctly combined sentence.",
+            "options": [
+              "He works and sells shoes in Oregon.",
+              "He works and selling shoes in Oregon.",
+              "He work and sells shoes in Oregon."
+            ],
+            "answer": 0,
+            "explanation": "同一主语 he 后并列动词保持一致：works 和 sells。"
           }
         ]
       },
@@ -156,7 +208,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "The shoes look comfortable. → 感官动词后用形容词。",
-          "First, describe the problem. → 句首顺序词后加逗号。"
+          "First, describe the problem. → 句首顺序词后加逗号。",
+          "The shoe feels soft. / The runner runs quickly. → feels 后用形容词 soft；修饰动作 runs 用副词 quickly。",
+          "× Two reds shoes. → ✓ Two red shoes. → 形容词放在名词前，本身不加复数 s。",
+          "First, describe the shoe. Next, explain your opinion. Finally, check your sentences. → 顺序词帮助组织表达。"
         ],
         "exercises": [
           {
@@ -180,6 +235,17 @@
             ],
             "answer": 1,
             "explanation": "形容词修饰名词，本身不因名词复数而加 s。"
+          },
+          {
+            "id": "g3-3",
+            "prompt": "The runner runs ___.",
+            "options": [
+              "quick",
+              "quickly",
+              "quicks"
+            ],
+            "answer": 1,
+            "explanation": "修饰动作 runs 使用方式副词 quickly；look/feel 等感官动词后描述性质则用形容词。"
           }
         ]
       },
@@ -221,7 +287,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "He sends a letter to her. → He 是主格，her 是宾格。",
-          "Their shoes are in the office. → their 放在名词前表示所属。"
+          "Their shoes are in the office. → their 放在名词前表示所属。",
+          "She knows him. / He knows her. → 主格做主语，宾格做宾语。",
+          "This is my shoe. / These are our shoes. → 物主形容词放在名词前。",
+          "× Johnson spoke to Knight. He was worried. → ✓ Johnson spoke to Knight. Johnson was worried. → 两个人都可能是 He 时，用姓名说明指代。"
         ],
         "exercises": [
           {
@@ -245,6 +314,17 @@
             ],
             "answer": 0,
             "explanation": "名词 shoes 前使用形容词性物主代词 their。"
+          },
+          {
+            "id": "g4-3",
+            "prompt": "Which sentence clearly says Johnson was worried?",
+            "options": [
+              "Johnson spoke to Knight. He was worried.",
+              "Johnson spoke to Knight. Johnson was worried.",
+              "Johnson spoke to Knight. His was worried."
+            ],
+            "answer": 1,
+            "explanation": "重复姓名可消除 He 的指代歧义；His 不能在这里代替主语。"
           }
         ]
       },
@@ -287,7 +367,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "She sells shoes every day. → 第三人称单数加 s。",
-          "He does not work here. → does not 后接动词原形。"
+          "He does not work here. → does not 后接动词原形。",
+          "She watches races. / He studies shoes. → watch 加 es；study 变 y 为 i 再加 es。",
+          "He is not ready. / He does not work here. → be 的否定直接加 not；实义动词借助 does not。",
+          "There are two shoes on the table. They are new. → There are 引出事物；They are 指前面提到的鞋。",
+          "He trains every morning. / Water freezes at 0°C. / First, open the box. → 一般现在时可用于习惯、事实或步骤说明。"
         ],
         "exercises": [
           {
@@ -311,6 +395,28 @@
             ],
             "answer": 2,
             "explanation": "does not 后使用动词原形 work。"
+          },
+          {
+            "id": "g5-3",
+            "prompt": "She ___ the shoes every day.",
+            "options": [
+              "study",
+              "studies",
+              "studys"
+            ],
+            "answer": 1,
+            "explanation": "主语 she，study 以辅音字母 + y 结尾，变 y 为 i 再加 es。"
+          },
+          {
+            "id": "g5-4",
+            "prompt": "There are two shoes on the table. ___ are new.",
+            "options": [
+              "There",
+              "Their",
+              "They"
+            ],
+            "answer": 2,
+            "explanation": "已提到的两只鞋用 They 回指；There are 用来引出事物存在。"
           }
         ]
       },
@@ -353,7 +459,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "The shop is small, but the team is ambitious. → 逗号 + but 连接完整句。",
-          "They need a box. The box is empty. → 首次泛指用 a，再次特指用 the。"
+          "They need a box. The box is empty. → 首次泛指用 a，再次特指用 the。",
+          "She designs and tests shoes. → 一个主语带两个动词，仍是简单句。",
+          "The shoe is light, so the runner likes it. → 两个完整句用逗号 + so 连接，说明结果。",
+          "They sell shoes, socks, and bags. → 列表项目保持名词形式，并用逗号分隔。",
+          "A runner needs shoes. The runner checks the fit. Water is essential. → a 泛指单个；the 特指；一般意义的复数或不可数名词常用零冠词。"
         ],
         "exercises": [
           {
@@ -377,6 +487,28 @@
             ],
             "answer": 1,
             "explanation": "umbrella 是可数单数，以元音音素开头，泛指用 an。"
+          },
+          {
+            "id": "g6-3",
+            "prompt": "Which is a simple sentence?",
+            "options": [
+              "She designs and tests shoes.",
+              "She designs shoes, and he tests them.",
+              "She designs shoes because he needs them."
+            ],
+            "answer": 0,
+            "explanation": "A 只有一个主语 she 与并列谓语；B 是并列句；C 含 because 从句。"
+          },
+          {
+            "id": "g6-4",
+            "prompt": "Choose the parallel list.",
+            "options": [
+              "They sell shoes, socks, and bags.",
+              "They sell shoes, running, and to swim.",
+              "They sell shoe, sock, and a bags."
+            ],
+            "answer": 0,
+            "explanation": "同一列表中的项目保持相同语法形式；这里都用复数名词。"
           }
         ]
       },
@@ -419,7 +551,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "They opened a shop. → 规则动词过去式 opened。",
-          "He went to Japan. → go 的过去式是 went。"
+          "He went to Japan. → go 的过去式是 went。",
+          "They tried a new design. / They liked the result. → try 变 y 为 i 加 ed；like 直接加 d。",
+          "He became a runner. / He had an idea. / He saw a race. → become、have、see 的过去式分别是 became、had、saw。",
+          "I was tired. / They were excited. → I/he/she/it 用 was；you/we/they 用 were。"
         ],
         "exercises": [
           {
@@ -443,6 +578,17 @@
             ],
             "answer": 2,
             "explanation": "过去时中主语 we 对应 were。"
+          },
+          {
+            "id": "g7-3",
+            "prompt": "Yesterday, she ___ a new design.",
+            "options": [
+              "try",
+              "tryed",
+              "tried"
+            ],
+            "answer": 2,
+            "explanation": "try 以辅音字母 + y 结尾，过去式变 y 为 i 再加 ed。"
           }
         ]
       },
@@ -485,7 +631,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "He did not sell the shoes. → did not 后接原形。",
-          "After the meeting ended, they worked carefully. → 时间从句在前加逗号；carefully 表示方式。"
+          "After the meeting ended, they worked carefully. → 时间从句在前加逗号；carefully 表示方式。",
+          "He was not ready. / They were not late. → be 的过去否定使用 was not / were not。",
+          "She works carefully. / He runs fast. / They work hard. / She performs well. → 方式副词回答“怎样”；fast、hard、well 不加 ly。",
+          "Before they left, they checked the shoes. / They checked the shoes before they left. → 时间从句在前加逗号，在后通常不加。",
+          "× After the meeting ended. → ✓ After the meeting ended, they went home. → 时间从句必须配上主句。"
         ],
         "exercises": [
           {
@@ -509,6 +659,28 @@
             ],
             "answer": 2,
             "explanation": "When 引导的时间从句不能独立成句，需要主句。"
+          },
+          {
+            "id": "g8-3",
+            "prompt": "She runs ___ and works ___.",
+            "options": [
+              "fastly / hardly",
+              "fast / hard",
+              "fast / hardly"
+            ],
+            "answer": 1,
+            "explanation": "fast 和 hard 本身可作方式副词；hardly 意为“几乎不”，不等于努力。"
+          },
+          {
+            "id": "g8-4",
+            "prompt": "Choose the usual punctuation.",
+            "options": [
+              "Before they left, they checked the shoes.",
+              "Before they left they, checked the shoes.",
+              "Before, they left they checked the shoes."
+            ],
+            "answer": 0,
+            "explanation": "完整的时间从句 Before they left 放句首，后接逗号再接主句。"
           }
         ]
       },
@@ -550,7 +722,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "We are going to open a shop next month. → 已有计划。",
-          "I will help you. → 当下作出的承诺或决定。"
+          "I will help you. → 当下作出的承诺或决定。",
+          "Look at those clouds. It is going to rain. → 根据眼前证据预测。",
+          "I will not quit. / I won’t quit. → will not 可缩写为 won’t。",
+          "She is not going to travel. / She isn’t going to travel. → going to 结构的否定放在 be 后。"
         ],
         "exercises": [
           {
@@ -574,6 +749,17 @@
             ],
             "answer": 1,
             "explanation": "will + 原形可表达承诺。"
+          },
+          {
+            "id": "g9-3",
+            "prompt": "Look at those dark clouds. It ___ rain.",
+            "options": [
+              "is going to",
+              "went to",
+              "is"
+            ],
+            "answer": 0,
+            "explanation": "根据眼前的云作预测，可用 is going to + 动词原形。"
           }
         ]
       },
@@ -616,7 +802,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "If sales grow, we will hire another person. → if 从句现在时，主句将来时。",
-          "Because the shop is busy, we need help. → because 从句不能独立成句。"
+          "Because the shop is busy, we need help. → because 从句不能独立成句。",
+          "When the shoes arrive, we will test them. → 时间从句用 arrive，不用 will arrive。",
+          "We will test the shoes if they arrive today. → if 从句在后，通常不在前面加逗号。",
+          "Because the shoes are wet, we will wait. / We will wait because the shoes are wet. → because 从句的位置影响逗号。",
+          "× Because the shoes are wet, so we will wait. → ✓ Because the shoes are wet, we will wait. → 不同时使用 because 和 so 连接同一因果关系。"
         ],
         "exercises": [
           {
@@ -640,6 +830,28 @@
             ],
             "answer": 1,
             "explanation": "because 与 so 不按这个结构同时使用；because 从句需要主句。"
+          },
+          {
+            "id": "g10-3",
+            "prompt": "When the shoes ___, we will test them.",
+            "options": [
+              "arrive",
+              "will arrive",
+              "arrived"
+            ],
+            "answer": 0,
+            "explanation": "表达将来的时间从句用一般现在时 arrive。"
+          },
+          {
+            "id": "g10-4",
+            "prompt": "Choose the standard sentence.",
+            "options": [
+              "We wait because the shoes are wet.",
+              "We wait because so the shoes are wet.",
+              "Because the shoes are wet."
+            ],
+            "answer": 0,
+            "explanation": "because 从句在主句后能构成完整因果句；B 多了 so；C 缺少主句。"
           }
         ]
       },
@@ -681,7 +893,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "The runner who tests the shoes is helpful. → who 是从句主语，不能省略。",
-          "The shoe that feels light is popular. → 定语从句紧跟被修饰名词。"
+          "The shoe that feels light is popular. → 定语从句紧跟被修饰名词。",
+          "The designer who works here is helpful. → who 代替 designer，在从句中作主语。",
+          "The shoes that feel light are popular. → that 指代复数 shoes，所以从句动词用 feel。",
+          "× The runner tests the shoes is here. → ✓ The runner who tests the shoes is here. → 作主语的关系代词不能省略。"
         ],
         "exercises": [
           {
@@ -704,6 +919,17 @@
             ],
             "answer": 1,
             "explanation": "who 是 tests 的主语，主语关系代词不能省略。"
+          },
+          {
+            "id": "g11-3",
+            "prompt": "The shoes that ___ light are popular.",
+            "options": [
+              "feels",
+              "feel",
+              "feeling"
+            ],
+            "answer": 1,
+            "explanation": "that 指代复数 shoes，在从句中作主语，因此谓语用 feel。"
           }
         ]
       },
@@ -745,7 +971,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "The shoes that he designed are light. → that 作宾语，可以省略。",
-          "We should test the shoes. → 情态动词后直接接原形。"
+          "We should test the shoes. → 情态动词后直接接原形。",
+          "The runner whom we met is friendly. / The runner we met is friendly. → whom 是 met 的宾语；正式表达可用 whom，也可省略宾语关系代词。",
+          "The shoes that he designed are light. / The shoes he designed are light. → 从句已有主语 he，可省略宾语 that。",
+          "She can run. / He might join us. → 不同情态动词后都直接接动词原形。",
+          "× He must to leave. / × She should checks it. → ✓ He must leave. / ✓ She should check it. → 情态动词后不加 to，动词不加 s。"
         ],
         "exercises": [
           {
@@ -768,6 +998,28 @@
             ],
             "answer": 0,
             "explanation": "从句已有主语 he，that 作 designed 的宾语，可以省略。"
+          },
+          {
+            "id": "g12-3",
+            "prompt": "Which relation word is the object and can be omitted?",
+            "options": [
+              "who in “the runner who tests shoes”",
+              "that in “the shoes that he tested”",
+              "that in “the shoe that feels light”"
+            ],
+            "answer": 1,
+            "explanation": "B 中 he 是主语，that 是 tested 的宾语，能够省略；A、C 中关系代词作主语。"
+          },
+          {
+            "id": "g12-4",
+            "prompt": "He might ___ us tomorrow.",
+            "options": [
+              "joins",
+              "to join",
+              "join"
+            ],
+            "answer": 2,
+            "explanation": "might 是情态动词，后面直接接动词原形 join。"
           }
         ]
       },
@@ -810,7 +1062,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "First, identify the problem. Next, explain the choice. → 顺序词组织思路。",
-          "I think that the team should wait. → think + that 从句表达观点。"
+          "I think that the team should wait. → think + that 从句表达观点。",
+          "I believe that the plan will work. / I believe the plan will work. → that 从句有自己的主语和谓语；that 可省略。",
+          "I feel that we should test the shoes. → 在观点从句内用 should + 原形提出建议。",
+          "First, check the fit. Then, try walking. In addition, ask a runner. Finally, compare the results. → 顺序词和补充词连接各个步骤。"
         ],
         "exercises": [
           {
@@ -834,6 +1089,17 @@
             ],
             "answer": 1,
             "explanation": "First 放在句首后加逗号；主语 we 后用 test。"
+          },
+          {
+            "id": "g13-3",
+            "prompt": "Which sentence still has a complete opinion clause?",
+            "options": [
+              "I believe the plan will work.",
+              "I believe that will work the plan.",
+              "I believe the plan working."
+            ],
+            "answer": 0,
+            "explanation": "省略 that 后，从句仍保留主语 the plan 和谓语 will work。"
           }
         ]
       },
@@ -874,7 +1140,10 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "I believe that the idea can work. → 用 that 从句表达完整观点。",
-          "In addition, she must check the order. → In addition 分开写，must 后用原形。"
+          "In addition, she must check the order. → In addition 分开写，must 后用原形。",
+          "The shoe is light. This is useful. → I think that the shoe is useful because it is light. → 用观点从句组织完整想法。",
+          "× I thinks that he should waits. → ✓ I think that he should wait. → 检查主谓一致和情态动词后的原形。",
+          "× Inaddition, she must to check it. → ✓ In addition, she must check it. → In addition 分成两词，must 后不加 to。"
         ],
         "exercises": [
           {
@@ -898,6 +1167,17 @@
             ],
             "answer": 1,
             "explanation": "In addition 是两个词，位于句首时后加逗号。"
+          },
+          {
+            "id": "g14-3",
+            "prompt": "Choose the correctly edited opinion.",
+            "options": [
+              "I believes that we must wait.",
+              "I believe that we must to wait.",
+              "I believe that we must wait."
+            ],
+            "answer": 2,
+            "explanation": "主语 I 配 believe；must 后直接接 wait，不加 to。"
           }
         ]
       },
@@ -939,7 +1219,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "Yesterday, they sold shoes; tomorrow, they will test a new design. → 时间标志帮助选择时态。",
-          "They have an idea, and the idea is promising. → an 泛指；the 特指；and 连接完整句。"
+          "They have an idea, and the idea is promising. → an 泛指；the 特指；and 连接完整句。",
+          "Every day, she checks orders. Yesterday, she checked an order. Tomorrow, she will check another order. → 先找时间标志，再选择时态。",
+          "He sells a shoe. The shoe is light. Shoes need careful testing. → 单数泛指 a；已提到的对象用 the；复数泛指不加冠词。",
+          "She has an idea, but she needs more time. → but 连接两个完整句，前面加逗号。",
+          "× She check orders yesterday. → ✓ She checked orders yesterday. → 主语与时态都检查，不能只看第三人称 s。"
         ],
         "exercises": [
           {
@@ -963,6 +1247,28 @@
             ],
             "answer": 0,
             "explanation": "idea 以元音音素开头，使用 an；第二次提及用 the；and 前加逗号。"
+          },
+          {
+            "id": "g15-3",
+            "prompt": "Every day, she ___ orders; yesterday, she ___ one.",
+            "options": [
+              "checks / checked",
+              "checked / checks",
+              "check / checked"
+            ],
+            "answer": 0,
+            "explanation": "Every day 提示习惯，用第三人称 checks；yesterday 提示过去，用 checked。"
+          },
+          {
+            "id": "g15-4",
+            "prompt": "They have a shoe. ___ shoe is light.",
+            "options": [
+              "A",
+              "The",
+              "No article"
+            ],
+            "answer": 1,
+            "explanation": "第二次提到同一只鞋，使用定冠词 The。"
           }
         ]
       },
@@ -1005,7 +1311,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "When the test ends, we will review the results. → 将来时间从句用现在时。",
-          "The shoes we tested are ready. → 宾语关系代词可以省略。"
+          "The shoes we tested are ready. → 宾语关系代词可以省略。",
+          "If the design works, we will use it. → 条件从句用现在时，主句表达将来。",
+          "The runner who tests the shoes is here. / The shoes that we tested are ready. → who 作主语，不能省略；that 作宾语，可以省略。",
+          "The test ended. We checked the results. → After the test ended, we checked the results. → 合并短句，表达时间关系。",
+          "× Their team are ready, and it need shoes. → ✓ Their team is ready, and it needs shoes. → 此处 team 作为一个整体，用单数谓语，并检查代词指向。"
         ],
         "exercises": [
           {
@@ -1029,6 +1339,28 @@
             ],
             "answer": 2,
             "explanation": "名词 team 前用 their，单数 team 配 works；they 配 are；连接完整句在 and 前加逗号。"
+          },
+          {
+            "id": "g16-3",
+            "prompt": "Which version correctly combines the events?",
+            "options": [
+              "After the test ended. We checked the results.",
+              "After the test ended, we checked the results.",
+              "After the test will end, we checked the results."
+            ],
+            "answer": 1,
+            "explanation": "时间从句与主句合成完整句；这里叙述过去，两个动作都用过去时。"
+          },
+          {
+            "id": "g16-4",
+            "prompt": "Can who be omitted in “The runner who tests the shoes is here”?",
+            "options": [
+              "Yes, because runner is a person.",
+              "No, because who is the subject of tests.",
+              "Yes, because every relation word can be omitted."
+            ],
+            "answer": 1,
+            "explanation": "判断是否可省略要看从句成分；who 在此作主语，不能省略。"
           }
         ]
       },
@@ -1073,7 +1405,11 @@
         "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
         "examples": [
           "He did not give up, and he will try again. → 过去否定用 did not + 原形；将来用 will + 原形。",
-          "If the plan works, the team that built it will celebrate. → if 从句现在时，that 在定语从句中作主语。"
+          "If the plan works, the team that built it will celebrate. → if 从句现在时，that 在定语从句中作主语。",
+          "He does not give up easily. / He did not give up yesterday. → 现在否定 does not、过去否定 did not 后都接原形。",
+          "She is not ready. / She was not ready yesterday. → be 的否定不用 do/does/did。",
+          "A runner tries a shoe. The shoe feels light. Runners need comfortable shoes. → 回顾 a/an、the 与零冠词。",
+          "× If he will arrive, we will starts. → ✓ If he arrives, we will start. → 修正从句时态、第三人称和 will 后的原形。"
         ],
         "exercises": [
           {
@@ -1097,6 +1433,28 @@
             ],
             "answer": 1,
             "explanation": "did not 后用 give；because 从句在后无需额外逗号；idea 前泛指用 an。"
+          },
+          {
+            "id": "g17-3",
+            "prompt": "Choose the correct past negative.",
+            "options": [
+              "She did not was ready.",
+              "She was not ready.",
+              "She did not ready."
+            ],
+            "answer": 1,
+            "explanation": "ready 前需要 be，过去否定直接用 was not。"
+          },
+          {
+            "id": "g17-4",
+            "prompt": "Choose the correct present/past contrast.",
+            "options": [
+              "He does not gives up. / He did not gave up.",
+              "He does not give up. / He did not give up.",
+              "He is not give up. / He was not give up."
+            ],
+            "answer": 1,
+            "explanation": "实义动词的否定借助 does not 或 did not，后面都用 give 的原形。"
           }
         ]
       },
