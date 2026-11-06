@@ -18,7 +18,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 from pypdf import PdfReader
 
-from services.reading_curriculum import add_teacher_translations, lessons_for, public_lesson, reference_answers_for
+from services.reading_curriculum import add_teacher_translations, legacy_lessons_for, lessons_for, public_lesson, reference_answers_for
 from config import config
 from core.ai_generator import get_ai_generator
 from database import ReadingRepository, database_for_data_root
@@ -312,6 +312,7 @@ FOCUSED EXCERPTS:
             "language": book["language"], "page_count": book["page_count"],
             "has_cover": bool(book.get("cover_asset")),
             "lessons": [public_lesson(lesson) for lesson in lessons_for(book)],
+            "archived_lessons": [public_lesson(lesson) for lesson in legacy_lessons_for(book)],
             "chapters": [{
                 "id": chapter["id"], "title": chapter["title"],
                 "start_page": chapter["start_page"], "end_page": chapter["end_page"],
@@ -868,7 +869,7 @@ SESSION:
         book = self.repository.get_book(book_id)
         if not book or book['status'] != 'published':
             raise ValueError('这本书尚未发布')
-        lesson = next((l for l in lessons_for(book) if l['id'] == lesson_id), None)
+        lesson = next((l for l in lessons_for(book) + legacy_lessons_for(book) if l['id'] == lesson_id), None)
         if not lesson:
             raise ValueError('预习课程不存在，请检查书籍章节配置')
         token, now = secrets.token_urlsafe(32), _now()
@@ -884,11 +885,20 @@ SESSION:
             'book_id': book_id, 'chapter_ids': lesson['chapter_ids'],
             'created_at': now, 'updated_at': now,
             'preparation': {'lesson': public_lesson(lesson), 'revision': 0, 'drafts': {},
-                            '_reading_text': lesson['_reading_text']},
+                            '_reading_text': lesson['_reading_text'],
+                            '_reading_passages': lesson.get('_reading_passages', [])},
         }, questions)
         safe = self._safe_session(created, book)
         safe['access_token'] = token
         return safe
+
+    def get_preparation_reading(self, session_id: str, token: str) -> Dict[str, Any]:
+        """Only the holder of this session token can read its frozen lesson text."""
+        session = self._authorized_session(session_id, token)
+        preparation = session.get('preparation') or {}
+        if not preparation.get('lesson', {}).get('grammar'):
+            raise ValueError('这份记录不存在新版分课原文')
+        return {'passages': copy.deepcopy(preparation.get('_reading_passages', []))}
 
     def save_preparation_draft(self, session_id, token, answers, revision):
         session = self._authorized_session(session_id, token)

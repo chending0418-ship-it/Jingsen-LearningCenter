@@ -1,0 +1,1123 @@
+{
+  "version": "shoedog-gw1-2026-11-06-v1",
+  "source": "Great Writing 1 & Shoe Dog – Course Outline - Jingsen.pdf",
+  "lessons": [
+    {
+      "id": "shoedog-course-01",
+      "number": 1,
+      "title": "Simple Sentences & be Verbs",
+      "reading_label": "Part 1 1962",
+      "narrative_indexes": [
+        1
+      ],
+      "grammar": {
+        "title": "Simple Sentences & be Verbs",
+        "goals": [
+          "Understand what makes a complete sentence: it must have a subject and a verb and express a full idea.",
+          "Learn to find and fix sentence fragments.",
+          "Tell action verbs apart from state verbs.",
+          "Use “It” to talk about weather and time, e.g., It snows a lot.",
+          "Master the present forms of be: am, is, are.",
+          "Write three be‐verb sentence patterns: Subject + be + adjective; Subject + be + noun; Subject + be + prepositional phrase of place."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "Knight is a runner. → 主语 + be + 名词。",
+          "The shoes are light. → 主语 + be + 形容词。"
+        ],
+        "exercises": [
+          {
+            "id": "g1-1",
+            "prompt": "The shoes ___ light.",
+            "options": [
+              "is",
+              "are",
+              "am"
+            ],
+            "answer": 1,
+            "explanation": "shoes 是复数，使用 are。"
+          },
+          {
+            "id": "g1-2",
+            "prompt": "Choose the complete sentence.",
+            "options": [
+              "A new company.",
+              "Knight is ready.",
+              "In Japan."
+            ],
+            "answer": 1,
+            "explanation": "完整句需要主语、动词和完整意思。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1962"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-1-guide",
+          "source": "guide",
+          "text": "In Part 1 1962, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1962: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-02",
+      "number": 2,
+      "title": "Prepositional Phrases, There be & Punctuation Rules",
+      "reading_label": "Part 1 1964 + Part 1 1963",
+      "narrative_indexes": [
+        3,
+        2
+      ],
+      "grammar": {
+        "title": "Prepositional Phrases, There be & Punctuation Rules",
+        "goals": [
+          "Understand prepositional phrases and tell place phrases from time phrases.",
+          "When a sentence has both place and time, put the place phrase before the time phrase.",
+          "Add a comma after a time phrase at the beginning of a sentence.",
+          "Use There is and There are to show that something exists in a place.",
+          "Capitalize the first word of every sentence, proper nouns, days, months, names, and book titles; end sentences with a period.",
+          "Practice combining two short sentences into one smoother sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "There are two shoes in the box. → There are + 复数名词。",
+          "In 1964, he works in Oregon. → 句首时间短语后加逗号。"
+        ],
+        "exercises": [
+          {
+            "id": "g2-1",
+            "prompt": "There ___ a box in the office.",
+            "options": [
+              "are",
+              "is",
+              "am"
+            ],
+            "answer": 1,
+            "explanation": "a box 是单数，使用 There is。"
+          },
+          {
+            "id": "g2-2",
+            "prompt": "Choose the sentence with standard punctuation.",
+            "options": [
+              "on Monday he works.",
+              "On monday he works.",
+              "On Monday, he works."
+            ],
+            "answer": 2,
+            "explanation": "句首与星期名称首字母大写，句首时间短语后按本课规则加逗号。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1964 + Part 1 1963"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-2-guide",
+          "source": "guide",
+          "text": "In Part 1 1964 + Part 1 1963, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1964 + Part 1 1963: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-03",
+      "number": 3,
+      "title": "Adjectives & Sense Verbs",
+      "reading_label": "Part 1 1965",
+      "narrative_indexes": [
+        4
+      ],
+      "grammar": {
+        "title": "Adjectives & Sense Verbs",
+        "goals": [
+          "Put adjectives before nouns to describe them.",
+          "Adjectives do not have a plural form and never take “‐s”.",
+          "After be verbs and sense verbs (look, taste, feel, smell, sound, seem), use adjectives—not adverbs.",
+          "Use sequence words like First, Next, In addition, and Finally to organize ideas; add a comma after most of them at the start of a sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "The shoes look comfortable. → 感官动词后用形容词。",
+          "First, describe the problem. → 句首顺序词后加逗号。"
+        ],
+        "exercises": [
+          {
+            "id": "g3-1",
+            "prompt": "The idea sounds ___.",
+            "options": [
+              "carefully",
+              "interesting",
+              "interestingly"
+            ],
+            "answer": 1,
+            "explanation": "sounds 后描述 idea 的性质，使用形容词 interesting。"
+          },
+          {
+            "id": "g3-2",
+            "prompt": "They sell ___ shoes.",
+            "options": [
+              "reds",
+              "red",
+              "redly"
+            ],
+            "answer": 1,
+            "explanation": "形容词修饰名词，本身不因名词复数而加 s。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1965"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-3-guide",
+          "source": "guide",
+          "text": "In Part 1 1965, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1965: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-04",
+      "number": 4,
+      "title": "Personal Pronouns & Possessive Adjectives",
+      "reading_label": "Part 1 1966",
+      "narrative_indexes": [
+        5
+      ],
+      "grammar": {
+        "title": "Personal Pronouns & Possessive Adjectives",
+        "goals": [
+          "Subject pronouns (I, you, he, she, it, we, they) go before verbs as the subject.",
+          "Object pronouns (me, you, him, her, it, us, them) go after verbs or prepositions as the object.",
+          "Make sure every pronoun clearly refers to a specific person or thing.",
+          "Possessive adjectives (my, your, his, her, its, our, their) go before nouns to show ownership."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "He sends a letter to her. → He 是主格，her 是宾格。",
+          "Their shoes are in the office. → their 放在名词前表示所属。"
+        ],
+        "exercises": [
+          {
+            "id": "g4-1",
+            "prompt": "Johnson writes to Knight. He sends ___ a letter.",
+            "options": [
+              "he",
+              "his",
+              "him"
+            ],
+            "answer": 2,
+            "explanation": "sends 的宾语使用宾格 him，指 Knight。"
+          },
+          {
+            "id": "g4-2",
+            "prompt": "They show us ___ new shoes.",
+            "options": [
+              "their",
+              "them",
+              "they"
+            ],
+            "answer": 0,
+            "explanation": "名词 shoes 前使用形容词性物主代词 their。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1966"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-4-guide",
+          "source": "guide",
+          "text": "In Part 1 1966, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1966: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-05",
+      "number": 5,
+      "title": "Simple Present Tense",
+      "reading_label": "Part 1 1967",
+      "narrative_indexes": [
+        6
+      ],
+      "grammar": {
+        "title": "Simple Present Tense",
+        "goals": [
+          "Use the simple present for daily habits, general truths, and step‐by‐step instructions.",
+          "Add “‐s” or “‐es” to verbs for he/she/it, and learn the spelling rules.",
+          "Review present be verbs: am, is, are.",
+          "Write negative sentences: use do not/does not + base verb for action verbs; use am not/is not/are not for be verbs.",
+          "Tell “There are” (shows existence) apart from “They are” (refers to things already mentioned)."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "She sells shoes every day. → 第三人称单数加 s。",
+          "He does not work here. → does not 后接动词原形。"
+        ],
+        "exercises": [
+          {
+            "id": "g5-1",
+            "prompt": "He ___ shoes every weekend.",
+            "options": [
+              "sell",
+              "sells",
+              "selling"
+            ],
+            "answer": 1,
+            "explanation": "一般现在时，主语 he，谓语使用 sells。"
+          },
+          {
+            "id": "g5-2",
+            "prompt": "She does not ___ in this office.",
+            "options": [
+              "works",
+              "worked",
+              "work"
+            ],
+            "answer": 2,
+            "explanation": "does not 后使用动词原形 work。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1967"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-5-guide",
+          "source": "guide",
+          "text": "In Part 1 1967, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1967: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-06",
+      "number": 6,
+      "title": "Simple Sentences, Compound Sentences, Articles",
+      "reading_label": "Part 1 1968",
+      "narrative_indexes": [
+        7
+      ],
+      "grammar": {
+        "title": "Simple Sentences, Compound Sentences, Articles",
+        "goals": [
+          "A simple sentence has at least one subject–verb pair.",
+          "A compound sentence joins two complete sentences with and, but, so, or or; place a comma before the conjunction.",
+          "Use commas to separate three or more items in a list, and keep all items in the same grammatical form.",
+          "Use “a/an” for singular countable nouns in general meaning; “the” for specific nouns; no article for plural countable and non‐count nouns in general meaning.",
+          "Read a Shoe Dog passage, find articles, compound sentences, and lists in the text, then imitate the style in writing."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "The shop is small, but the team is ambitious. → 逗号 + but 连接完整句。",
+          "They need a box. The box is empty. → 首次泛指用 a，再次特指用 the。"
+        ],
+        "exercises": [
+          {
+            "id": "g6-1",
+            "prompt": "Choose the compound sentence.",
+            "options": [
+              "The team works hard, and sales grow.",
+              "The team working hard.",
+              "Because sales grow."
+            ],
+            "answer": 0,
+            "explanation": "and 两边都是完整句，连接时在 and 前加逗号。"
+          },
+          {
+            "id": "g6-2",
+            "prompt": "She needs ___ umbrella.",
+            "options": [
+              "a",
+              "an",
+              "no article"
+            ],
+            "answer": 1,
+            "explanation": "umbrella 是可数单数，以元音音素开头，泛指用 an。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1968"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-6-guide",
+          "source": "guide",
+          "text": "In Part 1 1968, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1968: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-07",
+      "number": 7,
+      "title": "Simple Past Tense (Affirmative)",
+      "reading_label": "Part 1 1969",
+      "narrative_indexes": [
+        8
+      ],
+      "grammar": {
+        "title": "Simple Past Tense (Affirmative)",
+        "goals": [
+          "Use the simple past for past events, storytelling, biographies, and lab reports.",
+          "Add “‐ed” or “‐d” to regular verbs, and learn the spelling rules (e.g., change y to i before ‐ed).",
+          "Memorize common irregular verbs: become–became, go–went, have–had, see–saw.",
+          "Past be verbs: was for I/he/she/it; were for you/we/they.",
+          "Add a comma after past time words (yesterday, last, ago) at the beginning of a sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "They opened a shop. → 规则动词过去式 opened。",
+          "He went to Japan. → go 的过去式是 went。"
+        ],
+        "exercises": [
+          {
+            "id": "g7-1",
+            "prompt": "Last year, they ___ a shop.",
+            "options": [
+              "open",
+              "opened",
+              "opening"
+            ],
+            "answer": 1,
+            "explanation": "Last year 表示过去，使用 opened。"
+          },
+          {
+            "id": "g7-2",
+            "prompt": "Yesterday, we ___ busy.",
+            "options": [
+              "was",
+              "are",
+              "were"
+            ],
+            "answer": 2,
+            "explanation": "过去时中主语 we 对应 were。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1969"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-7-guide",
+          "source": "guide",
+          "text": "In Part 1 1969, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1969: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-08",
+      "number": 8,
+      "title": "Simple Past Tense (Negative), Adverbs of Manner & Time Clauses",
+      "reading_label": "Part 1 1970",
+      "narrative_indexes": [
+        9
+      ],
+      "grammar": {
+        "title": "Simple Past Tense (Negative), Adverbs of Manner & Time Clauses",
+        "goals": [
+          "Negative past: did not + base verb for action verbs; was not/were not for be verbs.",
+          "Most adverbs of manner end in “‐ly” and answer “How?”, e.g., quickly, carefully.",
+          "Note: well, hard, and fast are adverbs of manner without “‐ly”.",
+          "Use before, after, when, and as soon as to introduce time clauses.",
+          "A time clause cannot stand alone. Add a comma if it starts the sentence; no comma if it ends the sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "He did not sell the shoes. → did not 后接原形。",
+          "After the meeting ended, they worked carefully. → 时间从句在前加逗号；carefully 表示方式。"
+        ],
+        "exercises": [
+          {
+            "id": "g8-1",
+            "prompt": "He did not ___ the letter.",
+            "options": [
+              "sent",
+              "send",
+              "sends"
+            ],
+            "answer": 1,
+            "explanation": "did 已表示过去时，后面使用原形 send。"
+          },
+          {
+            "id": "g8-2",
+            "prompt": "Choose the complete sentence.",
+            "options": [
+              "When the meeting ended.",
+              "After the meeting.",
+              "When the meeting ended, they left."
+            ],
+            "answer": 2,
+            "explanation": "When 引导的时间从句不能独立成句，需要主句。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1970"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-8-guide",
+          "source": "guide",
+          "text": "In Part 1 1970, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1970: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-09",
+      "number": 9,
+      "title": "Simple Future Tense",
+      "reading_label": "Part 1 1971",
+      "narrative_indexes": [
+        10
+      ],
+      "grammar": {
+        "title": "Simple Future Tense",
+        "goals": [
+          "“be going to” is for plans already made or predictions based on present evidence.",
+          "“will” is for spontaneous decisions, predictions, promises, and offers.",
+          "Learn negative forms and common contractions for both structures.",
+          "Use future time phrases like tomorrow, next, and in + time period; add a comma when they start a sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "We are going to open a shop next month. → 已有计划。",
+          "I will help you. → 当下作出的承诺或决定。"
+        ],
+        "exercises": [
+          {
+            "id": "g9-1",
+            "prompt": "We have a plan. We ___ open a shop next month.",
+            "options": [
+              "are going to",
+              "went to",
+              "goes to"
+            ],
+            "answer": 0,
+            "explanation": "已经作出的计划适合用 be going to。"
+          },
+          {
+            "id": "g9-2",
+            "prompt": "I promise I ___ help you.",
+            "options": [
+              "helped",
+              "will",
+              "am"
+            ],
+            "answer": 1,
+            "explanation": "will + 原形可表达承诺。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1971"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-9-guide",
+          "source": "guide",
+          "text": "In Part 1 1971, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1971: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-10",
+      "number": 10,
+      "title": "Future Time Clauses, First Conditional & because Clauses",
+      "reading_label": "Part 1 1972",
+      "narrative_indexes": [
+        11
+      ],
+      "grammar": {
+        "title": "Future Time Clauses, First Conditional & because Clauses",
+        "goals": [
+          "In future time clauses, use the present tense (not future) in the time clause, and future in the main clause.",
+          "First conditional: main clause in future, if‐clause in present simple.",
+          "Add a comma after an if‐clause at the start of a sentence.",
+          "A because‐clause is dependent and cannot stand alone; add a comma if it starts the sentence.",
+          "Do not use “because” and “so” together in the same sentence."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "If sales grow, we will hire another person. → if 从句现在时，主句将来时。",
+          "Because the shop is busy, we need help. → because 从句不能独立成句。"
+        ],
+        "exercises": [
+          {
+            "id": "g10-1",
+            "prompt": "If sales ___, we will hire help.",
+            "options": [
+              "will grow",
+              "grew",
+              "grow"
+            ],
+            "answer": 2,
+            "explanation": "第一条件句中 if 从句用一般现在时表达将来条件。"
+          },
+          {
+            "id": "g10-2",
+            "prompt": "Choose the complete standard sentence.",
+            "options": [
+              "Because we need help, so we call her.",
+              "Because we need help, we call her.",
+              "Because we need help."
+            ],
+            "answer": 1,
+            "explanation": "because 与 so 不按这个结构同时使用；because 从句需要主句。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1972"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-10-guide",
+          "source": "guide",
+          "text": "In Part 1 1972, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1972: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-11",
+      "number": 11,
+      "title": "Adjective Clauses (Subject Type)",
+      "reading_label": "Part 1 1973",
+      "narrative_indexes": [
+        12
+      ],
+      "grammar": {
+        "title": "Adjective Clauses (Subject Type)",
+        "goals": [
+          "Mix simple, compound, and complex sentences to make writing more interesting.",
+          "An adjective clause modifies a noun and follows that noun directly.",
+          "Use “who” for people; “that” for people or things.",
+          "In subject adjective clauses, who/that/which act as the subject of the clause and cannot be omitted."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "The runner who tests the shoes is helpful. → who 是从句主语，不能省略。",
+          "The shoe that feels light is popular. → 定语从句紧跟被修饰名词。"
+        ],
+        "exercises": [
+          {
+            "id": "g11-1",
+            "prompt": "The runner ___ tests our shoes is helpful.",
+            "options": [
+              "who",
+              "him",
+              "he"
+            ],
+            "answer": 0,
+            "explanation": "先行词 runner 指人，who 在从句中作主语。"
+          },
+          {
+            "id": "g11-2",
+            "prompt": "Can we omit who in “The runner who tests the shoes is here”?",
+            "options": [
+              "Yes",
+              "No"
+            ],
+            "answer": 1,
+            "explanation": "who 是 tests 的主语，主语关系代词不能省略。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1973"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-11-guide",
+          "source": "guide",
+          "text": "In Part 1 1973, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1973: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-12",
+      "number": 12,
+      "title": "Adjective Clauses (Object Type) & Modal Verbs",
+      "reading_label": "Part 1 1974",
+      "narrative_indexes": [
+        13
+      ],
+      "grammar": {
+        "title": "Adjective Clauses (Object Type) & Modal Verbs",
+        "goals": [
+          "In object adjective clauses, who/whom/that act as the object; use “whom” for people in formal writing.",
+          "Object relative pronouns can be omitted.",
+          "Modal verbs (should, must, might, can) are followed directly by the base verb.",
+          "Modals do not take “‐s” and are not followed by “to”."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "The shoes that he designed are light. → that 作宾语，可以省略。",
+          "We should test the shoes. → 情态动词后直接接原形。"
+        ],
+        "exercises": [
+          {
+            "id": "g12-1",
+            "prompt": "We should ___ the shoes.",
+            "options": [
+              "to test",
+              "tests",
+              "test"
+            ],
+            "answer": 2,
+            "explanation": "情态动词 should 后接动词原形，不加 to。"
+          },
+          {
+            "id": "g12-2",
+            "prompt": "Can we omit that in “The shoes that he designed are light”?",
+            "options": [
+              "Yes",
+              "No"
+            ],
+            "answer": 0,
+            "explanation": "从句已有主语 he，that 作 designed 的宾语，可以省略。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1974"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-12-guide",
+          "source": "guide",
+          "text": "In Part 1 1974, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1974: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-13",
+      "number": 13,
+      "title": "Sequence Words & Opinion that‐Clauses",
+      "reading_label": "Part 1 1975 + Part 2 1975",
+      "narrative_indexes": [
+        14,
+        15
+      ],
+      "grammar": {
+        "title": "Sequence Words & Opinion that‐Clauses",
+        "goals": [
+          "Use First, Next, Then, Last, Finally, In addition to organize paragraphs; follow comma rules at sentence start.",
+          "Express opinions with verbs like think, believe, feel, agree, disagree + a that‐clause.",
+          "A that‐clause has its own subject and verb; “that” can be left out.",
+          "Use “should + base verb” inside the that‐clause to give suggestions."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "First, identify the problem. Next, explain the choice. → 顺序词组织思路。",
+          "I think that the team should wait. → think + that 从句表达观点。"
+        ],
+        "exercises": [
+          {
+            "id": "g13-1",
+            "prompt": "I think that the team should ___.",
+            "options": [
+              "wait",
+              "waits",
+              "to wait"
+            ],
+            "answer": 0,
+            "explanation": "that 从句中 should 后仍需使用动词原形 wait。"
+          },
+          {
+            "id": "g13-2",
+            "prompt": "Choose the standard opening.",
+            "options": [
+              "First we, test the shoes.",
+              "First, we test the shoes.",
+              "First, tests the shoes."
+            ],
+            "answer": 1,
+            "explanation": "First 放在句首后加逗号；主语 we 后用 test。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 1 1975 + Part 2 1975"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-13-guide",
+          "source": "guide",
+          "text": "In Part 1 1975 + Part 2 1975, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 1 1975 + Part 2 1975: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-14",
+      "number": 14,
+      "title": "Writing with that‐Clauses & Common Error Correction",
+      "reading_label": "Part 2 1976",
+      "narrative_indexes": [
+        16
+      ],
+      "grammar": {
+        "title": "Writing with that‐Clauses & Common Error Correction",
+        "goals": [
+          "Write clear opinions using “I think that…” and similar patterns.",
+          "Avoid common mistakes: use base verb after should/must; write “In addition” as two words; keep subject and verb in agreement.",
+          "Practice rewriting short sentences into complex sentences with that‐clauses."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "I believe that the idea can work. → 用 that 从句表达完整观点。",
+          "In addition, she must check the order. → In addition 分开写，must 后用原形。"
+        ],
+        "exercises": [
+          {
+            "id": "g14-1",
+            "prompt": "Choose the correct sentence.",
+            "options": [
+              "I think that he should tests it.",
+              "I think that he should to test it.",
+              "I think that he should test it."
+            ],
+            "answer": 2,
+            "explanation": "should 后直接接动词原形 test。"
+          },
+          {
+            "id": "g14-2",
+            "prompt": "Choose the correct expression.",
+            "options": [
+              "Inaddition, we need time.",
+              "In addition, we need time.",
+              "In addition we, need time."
+            ],
+            "answer": 1,
+            "explanation": "In addition 是两个词，位于句首时后加逗号。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 2 1976"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-14-guide",
+          "source": "guide",
+          "text": "In Part 2 1976, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 2 1976: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-15",
+      "number": 15,
+      "title": "Unit 8 Review 1 (Tenses, Articles, Compound Sentences)",
+      "reading_label": "Part 2 1977",
+      "narrative_indexes": [
+        17
+      ],
+      "grammar": {
+        "title": "Unit 8 Review 1 (Tenses, Articles, Compound Sentences)",
+        "goals": [
+          "Quickly choose simple present, past, or future by looking at time markers.",
+          "Review correct verb forms: base, third‐person ‐s, past, and future.",
+          "Review articles a/an (general singular), the (specific), and zero article (general plural/non‐count).",
+          "Review compound sentences and comma placement."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "Yesterday, they sold shoes; tomorrow, they will test a new design. → 时间标志帮助选择时态。",
+          "They have an idea, and the idea is promising. → an 泛指；the 特指；and 连接完整句。"
+        ],
+        "exercises": [
+          {
+            "id": "g15-1",
+            "prompt": "Yesterday, she ___ the order.",
+            "options": [
+              "checks",
+              "will check",
+              "checked"
+            ],
+            "answer": 2,
+            "explanation": "Yesterday 指向过去，使用 checked。"
+          },
+          {
+            "id": "g15-2",
+            "prompt": "Choose the correct sentence.",
+            "options": [
+              "They need an idea, and the idea must work.",
+              "They need a idea and, the idea must work.",
+              "They needs an idea, and idea must work."
+            ],
+            "answer": 0,
+            "explanation": "idea 以元音音素开头，使用 an；第二次提及用 the；and 前加逗号。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 2 1977"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-15-guide",
+          "source": "guide",
+          "text": "In Part 2 1977, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 2 1977: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-16",
+      "number": 16,
+      "title": "Unit 8 Review 2 (Complex Sentences & Comprehensive Editing)",
+      "reading_label": "Part 2 1978 + Part 2 1979",
+      "narrative_indexes": [
+        18,
+        19
+      ],
+      "grammar": {
+        "title": "Unit 8 Review 2 (Complex Sentences & Comprehensive Editing)",
+        "goals": [
+          "Review time clauses, first conditional, and adjective clauses.",
+          "Tell subject‐type and object‐type adjective clauses apart.",
+          "Comprehensive editing practice: commas, conjunctions, possessive adjectives, subject‐verb agreement, verb forms, and word order.",
+          "Rewrite choppy sentences into simple, compound, or complex sentences for better variety."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "When the test ends, we will review the results. → 将来时间从句用现在时。",
+          "The shoes we tested are ready. → 宾语关系代词可以省略。"
+        ],
+        "exercises": [
+          {
+            "id": "g16-1",
+            "prompt": "When the test ___, we will review it.",
+            "options": [
+              "will end",
+              "ends",
+              "ending"
+            ],
+            "answer": 1,
+            "explanation": "表达将来的时间从句用一般现在时 ends。"
+          },
+          {
+            "id": "g16-2",
+            "prompt": "Choose the correct edited sentence.",
+            "options": [
+              "Their team work hard, and they is ready.",
+              "Them team works hard and, they are ready.",
+              "Their team works hard, and they are ready."
+            ],
+            "answer": 2,
+            "explanation": "名词 team 前用 their，单数 team 配 works；they 配 are；连接完整句在 and 前加逗号。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 2 1978 + Part 2 1979"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-16-guide",
+          "source": "guide",
+          "text": "In Part 2 1978 + Part 2 1979, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 2 1978 + Part 2 1979: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    },
+    {
+      "id": "shoedog-course-17",
+      "number": 17,
+      "title": "Full‐Book Comprehensive Review",
+      "reading_label": "Part 2 1980",
+      "narrative_indexes": [
+        20
+      ],
+      "grammar": {
+        "title": "Full‐Book Comprehensive Review",
+        "goals": [
+          "Quickly review the three main tenses and their time markers.",
+          "Tell negative structures for action verbs and be verbs apart.",
+          "Remember the conditional rule: future in the main clause, present in the if/time clause.",
+          "Review who and that in adjective clauses.",
+          "Review article and zero‐article rules.",
+          "Review comma rules for compound and complex sentences.",
+          "Summarize the most common writing mistakes and complete a full editing practice set."
+        ],
+        "pacing": "老师根据掌握情况调整语法进度；阅读范围按本课大纲执行。",
+        "examples": [
+          "He did not give up, and he will try again. → 过去否定用 did not + 原形；将来用 will + 原形。",
+          "If the plan works, the team that built it will celebrate. → if 从句现在时，that 在定语从句中作主语。"
+        ],
+        "exercises": [
+          {
+            "id": "g17-1",
+            "prompt": "Choose the correct sentence.",
+            "options": [
+              "If it will work, we celebrate.",
+              "If it works, we will celebrate.",
+              "If it work, we will celebrates."
+            ],
+            "answer": 1,
+            "explanation": "第一条件句中 if 从句用现在时，主句用 will + 动词原形。"
+          },
+          {
+            "id": "g17-2",
+            "prompt": "Choose the correctly edited sentence.",
+            "options": [
+              "He did not gave up, because he believes in a idea.",
+              "He did not give up because he believes in an idea.",
+              "He does not gave up because believes in an idea."
+            ],
+            "answer": 1,
+            "explanation": "did not 后用 give；because 从句在后无需额外逗号；idea 前泛指用 an。"
+          }
+        ]
+      },
+      "notes": [
+        {
+          "heading": "精读范围 · 按老师大纲",
+          "text": "Part 2 1980"
+        },
+        {
+          "heading": "课前准备 · 系统学习建议",
+          "text": "读完本课指定章节，用自己的话整理主要事件、人物的选择及其原因。补充问题仅用于帮助理解，不代表老师布置的作业。"
+        }
+      ],
+      "questions": [
+        {
+          "id": "course-17-guide",
+          "source": "guide",
+          "text": "In Part 2 1980, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
+          "reference_answer": "Reference criteria for Part 2 1980: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+        }
+      ]
+    }
+  ]
+}
