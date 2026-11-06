@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-06：Baseball 与 Reading 联合版本发布准备（PR #12）
+
+- 按用户本轮授权，检查 Reading PR #13 已由 GitHub 合并并在香港上线；将其合并结果 `d22c0ac` 同步到 Baseball 工作分支，保留两项更新日志并解决同位置新增记录的冲突。main.py 两部分路由正常合并，Reading 课程／独立阅读器与家庭会议功能保持。
+- 组合验证以 `1cb7b918eb5f7bd2fd786137f0712614f9004f65` 为代码依据，44 项首页、家庭会议、Reading、预习、SQLite 回归与 6 项反馈渲染检查通过；git diff --check 通过。无新增业务代码、数据迁移或依赖变化。
+- 发布计划：本次仅经 GitHub 合并 PR #12 后部署发布分支结果，先核对香港 ap-hongkong、备份代码及完整 data/.env、暂停写入并执行 update_safe.sh，再恢复服务与验证数据、Baseball 与 Reading 公网。已上线 Reading 不重复创建／清理测试会话，不连接上海服务器。
+- 回退：保留本次部署前源码和数据快照，故障时恢复发布前代码并重启，保留后续生产数据及 Reading v3 快照，不通过整库恢复覆盖新记录。发布前备份目录、实际合并提交与验收结果在完成后另行记录。
+
 ## 2026-11-06：Baseball 栏目加入 BaseballMaster 品牌、下载与成长内容规划（PR #12 待审，未部署）
 
 - 动机与结果：将 Baseball 占位页更新为正式栏目，介绍自主开发品牌 BaseballMaster，提供品牌官网、棒球比赛记录大师产品页与 App Store 下载；Android 明确为测试版并跳转官网最新下载区，棒球训练助手 / Baseball Drill Buddy 显示产品预告。
