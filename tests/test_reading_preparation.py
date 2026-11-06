@@ -431,3 +431,36 @@ def test_reader_routes_serve_shell_without_source_or_credentials(tmp_path, monke
         assert result['lesson']['id'] == 'shoedog-course-v3-13'
         assert set(result['lesson']) == {'id','number','title','reading_label','version'}
         assert len(result['passages']) == 2
+
+
+def test_summary_picker_and_compact_sessions_keep_current_lesson_complete(tmp_path, monkeypatch):
+    service, book = make_preparation_service(tmp_path)
+    monkeypatch.setattr(reading_api, 'get_reading_service', lambda: service)
+    with TestClient(app) as client:
+        full = client.get('/api/reading/books').json()
+        summary = client.get('/api/reading/books?summary=true').json()
+        complete, brief = full['books'][0], summary['books'][0]
+        for group in ('lessons', 'previous_lessons', 'archived_lessons'):
+            assert [l['id'] for l in brief[group]] == [l['id'] for l in complete[group]]
+            for small, large in zip(brief[group], complete[group]):
+                assert small['reading_label'] == large['reading_label']
+                assert small['start_page'] == large['start_page']
+                assert small['end_page'] == large['end_page']
+                assert small['has_grammar'] == bool(large.get('grammar'))
+                assert not {'questions','notes','grammar','_reading_text'} & small.keys()
+        assert len(json.dumps(summary)) < len(json.dumps(full)) / 4
+        session = client.post('/api/reading/preparations', json={
+            'book_id': book['id'], 'lesson_id': brief['lessons'][0]['id']}).json()
+        assert session['book']['chapters'] == complete['chapters']
+        assert not {'lessons','previous_lessons','archived_lessons'} & session['book'].keys()
+        assert len(session['questions']) == 4
+        assert session['preparation']['lesson']['grammar'] == complete['lessons'][0]['grammar']
+        assert session['preparation']['lesson']['notes'] == complete['lessons'][0]['notes']
+        assert len(json.dumps(session)) < len(json.dumps(full)) / 4
+        saved = client.put(f"/api/reading/preparations/{session['id']}/draft", json={
+            'access_token':session['access_token'], 'revision':0,
+            'answers':{session['questions'][0]['id']:'A saved answer.'}}).json()
+        restored = client.get(f"/api/reading/sessions/{session['id']}", params={
+            'access_token':session['access_token']}).json()
+        assert restored == saved
+        assert not {'lessons','previous_lessons','archived_lessons'} & restored['book'].keys()

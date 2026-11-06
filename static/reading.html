@@ -95,7 +95,7 @@
                 <div id="prep-actions" class="prep-toolbar"><button id="prep-save" class="button" onclick="savePreparation().catch(()=>{})">保存草稿</button><button id="prep-submit" class="button primary" onclick="submitPreparation()">提交剩余题目 · 完成本次预习 →</button></div>
             </div>
         </section>
-        <section id="loading-view" class="loading" hidden><div><div class="pulse"></div><strong>Your coach is reading…</strong><p>Building fresh questions from your selected chapter.</p></div></section>
+        <section id="loading-view" class="loading" role="status" aria-live="polite" hidden><div><div class="pulse"></div><strong>Your coach is reading…</strong><p>Building fresh questions from your selected chapter.</p></div></section>
         <section id="session-view" class="session" hidden><div class="progress"><span id="progress-bar"></span></div><div class="session-grid"><aside class="session-side"><span class="kicker">Current reading</span><strong id="session-book"></strong><div class="meta" id="session-chapters"></div><ol id="question-list"></ol></aside><article class="question"><div class="question-number" id="question-number"></div><h2 id="question-text"></h2><div id="answer-wrap"><textarea id="answer" maxlength="1500" placeholder="Tell me what you think."></textarea><div class="answer-actions"><button id="submit-button" class="button primary" type="button" onclick="submitAnswer()">Share my answer →</button></div></div><div id="feedback" class="feedback" hidden><h3 id="feedback-title">Good thinking.</h3><p id="feedback-copy"></p><button id="continue-button" class="button blue" type="button" onclick="continueSession()" style="margin-top:15px">Next question →</button></div></article></div></section>
         <section id="result-view" class="result" hidden><div class="result-level"><span>Understanding today</span><strong id="result-level"></strong></div><div class="result-copy"><h2 id="result-title">Nice reading.</h2><p id="student-summary"></p><div class="result-lists"><div><h3 id="strengths-title">What you understood well</h3><ul id="strengths"></ul></div><div><h3>Try next</h3><ul id="next-steps"></ul></div></div><button class="button primary" onclick="newReading()">Choose another chapter</button></div></section>
     </div>
@@ -155,12 +155,13 @@
         function notice(message,error=false){const el=document.getElementById('notice');el.textContent=message;el.className=`notice${error?' error':''}`;el.hidden=!message;if(message)setTimeout(()=>{el.hidden=true},5000)}
         async function api(path,options={}){const response=await fetch(apiPath(path),{cache:'no-store',...options});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||`Something went wrong (${response.status})`);return data}
         function bookCard(book){const cover=book.has_cover?`<img src="${apiPath(`/api/reading/books/${book.id}/cover`)}" alt="Cover of ${escapeHtml(book.title)}">`:`<span>${escapeHtml(book.title.slice(0,1).toUpperCase())}</span>`;return `<button class="book ${selectedBook?.id===book.id?'selected':''}" onclick="chooseBook('${book.id}')"><div class="cover">${cover}</div><div class="book-copy"><h3>${escapeHtml(book.title)}</h3><div class="meta">${escapeHtml(book.author||'Author not listed')} · ${book.page_count} pages</div><p>${escapeHtml(book.description||'Choose a chapter and explore what you understood.')}</p></div></button>`}
-        async function loadBooks(){try{const data=await api('/api/reading/books');books=data.books||[];document.getElementById('book-count').textContent=`${books.length} book${books.length===1?'':'s'}`;document.getElementById('books').innerHTML=books.length?books.map(bookCard).join(''):'<div class="empty">No books are ready yet. Ask a parent to publish one in Admin.</div>';await resumeSession()}catch(error){document.getElementById('books').innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}
+        async function loadBooks(){try{const data=await api('/api/reading/books?summary=true');books=data.books||[];document.getElementById('book-count').textContent=`${books.length} book${books.length===1?'':'s'}`;document.getElementById('books').innerHTML=books.length?books.map(bookCard).join(''):'<div class="empty">No books are ready yet. Ask a parent to publish one in Admin.</div>';await resumeSession()}catch(error){document.getElementById('books').innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}
         function chooseBook(id){selectedBook=books.find(book=>book.id===id);selectedChapters.clear();document.getElementById('books').innerHTML=books.map(bookCard).join('');document.getElementById('setup').hidden=false;renderChapters();document.getElementById('setup').scrollIntoView({behavior:'smooth',block:'center'})}
         function renderChapters(){if(renderLessonChoices())return;document.getElementById('chapters').innerHTML=selectedBook.chapters.map(ch=>`<button type="button" class="chapter ${selectedChapters.has(ch.id)?'selected':''}" onclick="toggleChapter('${ch.id}')"><strong>${escapeHtml(ch.title)}</strong><small>PDF pages ${ch.start_page}–${ch.end_page}</small></button>`).join('')}
         function toggleChapter(id){if(selectedChapters.has(id))selectedChapters.delete(id);else if(selectedChapters.size<3)selectedChapters.add(id);else return notice('Choose no more than 3 chapters.',true);renderChapters()}
         function show(id){['library-view','loading-view','session-view','result-view','preparation-view'].forEach(name=>document.getElementById(name).hidden=name!==id)}
-        async function startSession(){if(!selectedBook||!selectedChapters.size)return notice('Choose at least one chapter first.',true);show('loading-view');try{session=await api('/api/reading/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_id:selectedBook.id,chapter_ids:[...selectedChapters],question_count:Number(document.getElementById('question-count').value),question_focus:document.getElementById('question-focus').value})});localStorage.setItem(sessionKey,JSON.stringify({id:session.id,token:session.access_token}));renderSession()}catch(error){show('library-view');notice(error.message,true)}}
+        function setLoadingCopy(title,description){document.querySelector('#loading-view strong').textContent=title;document.querySelector('#loading-view p').textContent=description}
+        async function startSession(){if(!selectedBook||!selectedChapters.size)return notice('Choose at least one chapter first.',true);show('loading-view');setLoadingCopy('Your coach is reading…','Building fresh questions from your selected chapter.');try{session=await api('/api/reading/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_id:selectedBook.id,chapter_ids:[...selectedChapters],question_count:Number(document.getElementById('question-count').value),question_focus:document.getElementById('question-focus').value})});localStorage.setItem(sessionKey,JSON.stringify({id:session.id,token:session.access_token}));renderSession()}catch(error){show('library-view');notice(error.message,true)}}
         async function resumeSession(){const saved=JSON.parse(localStorage.getItem(sessionKey)||'null');if(!saved)return;try{session=await api(`/api/reading/sessions/${saved.id}?access_token=${encodeURIComponent(saved.token)}`);session.access_token=saved.token;if(session.status==='completed'){renderResult();return}renderSession()}catch(_){localStorage.removeItem(sessionKey)}}
         function currentQuestion(){return session.questions.find(q=>!q.answered_at)||null}
         function focusLabel(value){return {main_idea:'Main Idea',detail:'Detail',mixed:'Mixed'}[value]||'Mixed'}
@@ -182,7 +183,7 @@
             return `<button class="chapter" onclick="openPreparation('${l.id}')"><span class="kicker">${archived?'Archive / ':''}Lesson ${String(l.number).padStart(2,'0')}</span><strong class="course-reading">${escapeHtml(l.reading_label)}</strong><span class="course-title">${escapeHtml(l.title)}</span><small>电子书 PDF ${l.start_page}–${l.end_page}</small><small class="course-action">${saved?.completed?'回看回答与评估':saved?.answered?`继续预习 · 已提交 ${saved.answered} 题`:saved?'继续预习草稿':archived?'查看旧版老师 Note 和问题':'查看本课大纲与预习'} →</small></button>`;
         }
         function renderLessonChoices(){
-            const lessons=selectedBook.lessons||[],hasCourse=lessons.some(l=>l.grammar);
+            const lessons=selectedBook.lessons||[],hasCourse=lessons.some(l=>l.has_grammar||l.grammar);
             document.querySelector('.chapters h3').textContent=lessons.length?`课程路线 · ${lessons.length} Lessons`:'Which chapter did you read?';
             document.querySelector('.start-panel').hidden=Boolean(lessons.length);
             document.getElementById('setup').style.gridTemplateColumns=lessons.length?'1fr':'';
@@ -203,6 +204,10 @@
         async function openPreparation(lessonId){
             if(prepBusy)return;
             prepBusy=true;
+            const lesson=[...(selectedBook.lessons||[]),...(selectedBook.previous_lessons||[]),...(selectedBook.archived_lessons||[])].find(l=>l.id===lessonId);
+            setLoadingCopy(`正在打开 Lesson ${lesson?.number||''}…`,'正在读取本课预习与已保存进度。');
+            show('loading-view');
+            document.getElementById('loading-view').scrollIntoView({block:'center'});
             try{
                 const key=prepKey(selectedBook.id,lessonId),saved=readStored(key);
                 let opened;
@@ -212,7 +217,7 @@
                 prepReading=null;
                 renderPreparation();
                 window.scrollTo({top:0,behavior:'smooth'});
-            }catch(error){notice(error.message,true)}finally{prepBusy=false}
+            }catch(error){show('library-view');notice(error.message,true)}finally{prepBusy=false}
         }
         function renderPreparation(){
             show('preparation-view');
