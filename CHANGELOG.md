@@ -9,6 +9,15 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-06：Shoe Dog 17 课精读与语法预习发布到香港服务器（已上线）
+
+- 发布依据：按用户明确授权，经 GitHub 合并 PR https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/10 ，功能测试提交为 `480c77c2d91d3b36ee441de7aa136108cf5578a8`，部署的发布分支合并结果为 `aa0c920dd9c20e05964fdad1438a4a2151ca08df`。SSH 目标 jingsen-prod 的云元数据确认为 ap-hongkong；未连接上海服务器，main 未变更。
+- 用户可见结果：正式入口 https://jingsen.cc/learningcenter/english/reading 提供 17 个 Lesson、95 个例句、61 道语法自查题与解析，以及按课分好的 Shoe Dog 原文。旧版 12 课及原有回答、评估继续保留。语法本机保存，阅读草稿仍由服务器保存。
+- 发布操作：先备份原代码至 `/www/wwwroot/learningcenter/backups/releases/reading17-code-20261106-104200`；短暂停止 learningcenter.service 以冻结写入，按 updateNew.md 执行 update_safe.sh。完整持久数据、SQLite 一致性快照及环境备份位于 `/www/wwwroot/learningcenter/backups/releases/20261106-104233-1508561`。服务恢复后内部与公网健康检查通过；无依赖变更，跳过依赖安装，无新增 Schema 迁移。未用本地 data/ 或 .env 覆盖线上。
+- 数据核对：139 个原非数据库文件与环境设置逐字节一致；原书籍、24 章、3 次阅读会话、13 道问答及其字段保持不变，数学、Todo、报告、词库元数据和家庭会议记录均保留。启动同步仅重建 library_items 的内部行 ID/时间元数据，4,806 条词条的内容、所属词库与顺序逐项一致。两个数据库完整性与外键检查通过。
+- 验收：23 项功能/回归测试和 6 项反馈渲染检查已在功能提交验证通过；公网确认 17 课、95 例句、61 题及 v2 课程版本，发布 HTML 与合并文件逐字节一致。真实公网浏览器验证桌面与 390px 手机无脚本错误和横向溢出；首页、Reading、Math、家庭会议入口健康。公网创建专用临时预习检查两部 1975 分章原文、语法内容、草稿保存/恢复和错误 token 拒绝；只清理本次创建的临时记录，核对原阅读会话/问答逐行不变。未调用真实 AI 评分模型。
+- 回退与后续：需要回退时恢复原代码版本 `9181e9f8c7bd3d8939b71a43dbca5e39f6f12c5a` 并重启服务，保留发布后学习记录与新增 JSON 快照，不通过整库恢复覆盖新数据。旧代码无法完整展示新版语法与分章原文，恢复本功能代码后可继续查看。历史预习仍采用创建时快照；语法练习恢复依赖对应浏览器。
+
 ## 2026-11-06：扩充每课语法预习的例句与理解检查（PR #10 待审，未部署）
 
 - 动机：每课仅 2 个例句无法覆盖多知识点课程，孩子难以从规则迁移到具体句子。按每课主题补充不同句型、主语与时态变化，以及标明正误的对照与修正理由。
