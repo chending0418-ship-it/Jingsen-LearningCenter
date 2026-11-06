@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<title>Shoe Dog · 阅读器</title>
+<style>
+:root{--paper:#f5f1e7;--ink:#242521;--muted:#686961;--line:#d5d0c4;--blue:#1646d8;--card:#fffcf5;--size:21px}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"PingFang SC",sans-serif}body.dark{--paper:#20231f;--ink:#edece2;--muted:#b5baad;--line:#4d5446;--blue:#b7caff;--card:#2b3029}button,select{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);min-height:44px;padding:9px 13px;border-radius:6px;max-width:100%}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}button.primary{background:#1646d8;color:white;border-color:#1646d8}a{color:var(--blue)}.shell{width:min(900px,calc(100% - 36px));margin:auto}header{padding:28px 0 24px;border-bottom:1px solid var(--line)}.eyebrow{font-size:11px;letter-spacing:.15em;color:var(--blue);text-transform:uppercase}h1{font:600 clamp(29px,4vw,44px)/1.2 Georgia,serif;letter-spacing:-.03em;margin:18px 0 12px}#lesson-label{color:var(--muted);line-height:1.7}nav{display:flex;justify-content:space-between;gap:14px;align-items:center}nav a{font-size:13px}#toolbar{position:sticky;top:0;z-index:2;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 0;box-shadow:0 6px 12px #00000008}.controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.controls+.controls{margin-top:10px}.controls label{white-space:nowrap;display:flex;align-items:center;gap:7px;font-size:13px}.controls select{min-width:0}.voice-label{flex:1;min-width:180px}.voice-label select{flex:1;width:0;min-width:120px;max-width:330px}#chapter{max-width:100%}#speech-status{font-size:13px;line-height:1.7;color:var(--muted);margin:12px 0 0}.reading-section{padding:40px 0 20px;scroll-margin-top:235px}.reading-section h2{font:600 28px/1.5 Georgia,serif;margin:0 0 24px}.reading-page{margin:38px 0 20px;border-top:1px solid var(--line);padding-top:15px;scroll-margin-top:235px}.page-label{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:12px}.page-label button{font-size:12px}.prose{font:var(--size)/1.95 Georgia,"Times New Roman",serif;overflow-wrap:anywhere}.prose p{margin:24px 0;padding:4px 10px;border-left:3px solid transparent;scroll-margin-top:235px}.prose p.speaking{border-color:var(--blue);background:#dfff002c}.help{font-size:13px;color:var(--muted);line-height:1.8}#error{padding:24px;background:var(--card);border:1px solid var(--line);line-height:1.8;margin-top:28px}#error[hidden],[hidden]{display:none!important}footer{padding:50px 0;color:var(--muted);font-size:13px;line-height:1.8}input{accent-color:var(--blue)}@media(max-width:560px){.shell{width:calc(100% - 28px)}header{padding-top:20px}.controls{gap:7px}button,select{font-size:13px;padding:9px 10px}.controls label{font-size:12px}.voice-label{min-width:170px}.prose p{padding-left:7px}.reading-section,.reading-page,.prose p{scroll-margin-top:280px}}
+</style>
+</head>
+<body><div class="shell">
+<header><nav><a id="back" href="/english/reading">← 课程与预习</a><span class="eyebrow">Shoe Dog / Reader</span></nav><h1 id="title">本课阅读器</h1><p id="lesson-label">正在准备原文…</p><p class="help">预习答题页仍在原标签页，可随时切换回去。</p></header>
+<section id="toolbar" hidden aria-label="阅读与朗读设置">
+<div class="controls"><button id="play" class="primary" type="button">▶ 朗读</button><button id="pause" type="button" disabled>暂停</button><button id="stop" type="button" disabled>停止</button><label>语速 <select id="rate"><option value="0.7">0.7×</option><option value="0.85">0.85×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option></select></label><button id="smaller" type="button" aria-label="缩小字号">A−</button><button id="larger" type="button" aria-label="放大字号">A＋</button><button id="theme" type="button" aria-pressed="false">夜间</button></div>
+<div class="controls"><label class="voice-label">语音 <select id="voice"><option value="">浏览器默认英文</option></select></label><label><input id="follow" type="checkbox" checked>跟随朗读</label><label>章节 <select id="chapter"></select></label></div>
+<p id="speech-status" role="status" aria-live="polite">点击朗读开始。可用声音由当前浏览器和设备提供。</p>
+</section>
+<div id="error" role="alert" hidden></div><main id="content"></main><footer>原文来自本课上传的电子书，仅整理换行与阅读段落。朗读不会提交预习答案。</footer>
+</div>
+<script id="reader-core">
+(() => {
+ const $=id=>document.getElementById(id), base=location.pathname.startsWith('/learningcenter')?'/learningcenter':'',synth=window.speechSynthesis;
+ $('back').href=base+'/english/reading';
+ const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function chunks(text,limit=220){
+  const words=String(text).replace(/\s+/g,' ').trim().split(' '),result=[];let current='';
+  for(const word of words){if(current&&current.length+word.length+1>limit){result.push(current);current=''}current+=(current?' ':'')+word}
+  if(current)result.push(current);return result;
+ }
+ function paragraphs(text,limit=750){
+  let remaining=String(text).replace(/\s+/g,' ').trim();const result=[];
+  while(remaining.length>limit){
+   const window=remaining.slice(0,limit),ends=[...window.matchAll(/[.!?][”’"')]*\s+/g)];
+   const last=ends.at(-1),sentenceEnd=last?last.index+last[0].length:0;
+   const cut=sentenceEnd>limit*.4?sentenceEnd:window.lastIndexOf(' ');
+   const boundary=cut>0?cut:limit;result.push(remaining.slice(0,boundary).trim());remaining=remaining.slice(boundary).trim();
+  }
+  if(remaining)result.push(remaining);return result;
+ }
+ function pages(text,fallback){
+  const pieces=String(text).split(/\[PDF page (\d+)\]/),out=[];
+  if(pieces[0].trim())out.push({number:fallback,text:pieces[0]});
+  for(let i=1;i<pieces.length;i+=2)out.push({number:Number(pieces[i]),text:(pieces[i+1]||'').replace(/\n\s*\d+\s*$/,'')});
+  return out.filter(page=>page.text.trim());
+ }
+ // Credentials stay in the existing same-origin browser storage, never in reader URLs.
+ function credential(id){
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key?.startsWith('jlc-prep-v1:'))continue;try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.id===id&&typeof saved.token==='string')return saved.token}catch(_){}}}catch(_){}
+  return null;
+ }
+ const supported=Boolean(synth&&window.SpeechSynthesisUtterance);
+ let blocks=[],queue=[],cursor=0,state='idle',generation=0,active=null,voices=[],currentChapter=0,sessionId='',size=21,scrollTimer;
+ const settingsKey='jlc-reader-settings-v1';
+ function readJSON(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}}
+ function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){}}
+ function preferences(){writeJSON(settingsKey,{size,dark:document.body.classList.contains('dark'),rate:$('rate').value,voice:$('voice').value,follow:$('follow').checked})}
+ function highlight(index){document.querySelectorAll('.speaking').forEach(e=>e.classList.remove('speaking'));const el=$('read-block-'+index);if(el){el.classList.add('speaking');if($('follow').checked)el.scrollIntoView({behavior:'smooth',block:'center'})}}
+ function controls(message){$('play').textContent=state==='paused'?'▶ 继续':'▶ 朗读';$('play').disabled=!supported||state==='playing'||!queue.length;$('pause').disabled=state!=='playing';$('stop').disabled=state==='idle';if(message)$('speech-status').textContent=message}
+ function cancel(reset=true,message='朗读已停止。'){
+  generation++;active=null;state='idle';if(supported)synth.cancel();
+  if(reset)cursor=0;document.querySelectorAll('.speaking').forEach(e=>e.classList.remove('speaking'));controls(message);
+ }
+ function next(){
+  if(state!=='playing')return;
+  if(cursor>=queue.length){cancel(true,'本章朗读完成。');return}
+  const item=queue[cursor],run=generation,u=new SpeechSynthesisUtterance(item.text);active=u;
+  u.lang='en-US';u.rate=Number($('rate').value);const voice=voices.find(v=>v.voiceURI===$('voice').value);if(voice){u.voice=voice;u.lang=voice.lang}
+  u.onstart=()=>{if(run!==generation)return;highlight(item.block);controls(`正在朗读 · ${cursor+1} / ${queue.length} 段`)};
+  u.onend=()=>{if(run!==generation)return;active=null;cursor++;if(state==='playing')next()};
+  u.onerror=e=>{if(run!==generation)return;cancel(false,e.error==='not-allowed'?'请点击朗读按钮，并允许浏览器播放声音。':'当前语音暂时无法朗读，请选择其他英文声音后重试。原文仍可正常阅读。')};
+  synth.speak(u);
+ }
+ function play(){
+  if(!supported||!queue.length)return;
+  if(state==='paused'){state='playing';synth.resume();if(!active)next();controls('继续朗读…');return}
+  generation++;synth.cancel();synth.resume();state='playing';controls('正在准备英文朗读…');next();
+ }
+ function pause(){if(state!=='playing')return;synth.pause();state='paused';controls('朗读已暂停，点击继续。')}
+ function useChapter(index){
+  cancel(true,'已切换章节，点击朗读从本章开始。');currentChapter=index;
+  queue=blocks.flatMap((b,i)=>b.chapter===index?chunks(b.text).map(text=>({text,block:i})):[]);
+  $('chapter').value=String(index);controls();
+ }
+ function loadVoices(){
+  if(!supported)return;const saved=$('voice').value||readJSON(settingsKey)?.voice;
+  voices=synth.getVoices().filter(v=>/^en(?:-|_)/i.test(v.lang));
+  $('voice').innerHTML='<option value="">浏览器默认英文</option>'+voices.map(v=>`<option value="${escape(v.voiceURI)}">${escape(v.name)} · ${escape(v.lang)}</option>`).join('');
+  if(voices.some(v=>v.voiceURI===saved))$('voice').value=saved;
+ }
+ async function load(){
+  const id=decodeURIComponent(location.hash.slice(1));if(!/^[a-zA-Z0-9_-]{1,64}$/.test(id))throw Error('请从 Lesson 的「在新页面阅读 / 朗读」按钮打开本课阅读器。');
+  sessionId=id;const token=credential(id);if(!token)throw Error('当前浏览器找不到本课访问凭证。请返回原预习页，再点击阅读器按钮。');
+  const response=await fetch(`${base}/api/reading/preparations/${encodeURIComponent(id)}/reading?access_token=${encodeURIComponent(token)}`,{cache:'no-store'});
+  const data=await response.json();if(!response.ok)throw Error(data.detail||'原文暂时无法载入，请稍后重试。');if(!data.passages?.length)throw Error('这份预习记录没有分课原文，请返回课程选择新版 Lesson。');
+  $('title').textContent=`Lesson ${data.lesson.number} · Shoe Dog`;$('lesson-label').textContent=`${data.lesson.reading_label} · ${data.lesson.title}`;document.title=$('title').textContent+' · 阅读器';
+  $('chapter').innerHTML=data.passages.map((p,i)=>`<option value="${i}">${escape(p.title)}</option>`).join('');
+  $('content').innerHTML=data.passages.map((p,chapter)=>`<section class="reading-section" id="reading-section-${chapter}"><h2>${escape(p.title)}</h2>${pages(p.text,p.start_page).map(page=>{
+   const first=blocks.length;const paras=paragraphs(page.text,750);const copy=paras.map(text=>{const index=blocks.length;blocks.push({text,chapter});return `<p id="read-block-${index}" lang="en">${escape(text)}</p>`}).join('');
+   return `<section class="reading-page"><div class="page-label"><span>PDF ${page.number}</span><button type="button" class="from-page" data-start="${first}" ${supported?'':'disabled'}>从此页朗读</button></div><div class="prose">${copy}</div></section>`;
+  }).join('')}</section>`).join('');
+  document.querySelectorAll('.from-page').forEach(button=>button.addEventListener('click',()=>{const block=Number(button.dataset.start);useChapter(blocks[block].chapter);cursor=queue.findIndex(item=>item.block===block);if(cursor<0)cursor=0;play()}));
+  $('toolbar').hidden=false;useChapter(0);loadVoices();
+  if(!supported){controls('当前浏览器没有可用的朗读功能。原文仍可阅读，可尝试设备上的其他浏览器。');$('voice').disabled=true;$('rate').disabled=true}
+  else controls('点击朗读开始。可用声音由当前浏览器和设备提供。');
+  const position=readJSON('jlc-reader-position-v1:'+id);if(Number.isFinite(position?.y))requestAnimationFrame(()=>window.scrollTo(0,position.y));
+ }
+ const saved=readJSON(settingsKey)||{};size=Math.min(30,Math.max(17,Number(saved.size)||21));document.documentElement.style.setProperty('--size',size+'px');
+ if(saved.dark)document.body.classList.add('dark');$('theme').setAttribute('aria-pressed',String(Boolean(saved.dark)));$('theme').textContent=saved.dark?'日间':'夜间';
+ if(['0.7','0.85','1','1.15'].includes(saved.rate))$('rate').value=saved.rate;if(saved.follow===false)$('follow').checked=false;
+ $('play').addEventListener('click',play);$('pause').addEventListener('click',pause);$('stop').addEventListener('click',()=>cancel());
+ $('chapter').addEventListener('change',()=>{useChapter(Number($('chapter').value));$('reading-section-'+currentChapter).scrollIntoView({behavior:'smooth'})});
+ for(const id of ['rate','voice'])$(id).addEventListener('change',()=>{cancel(false,'设置已更新，点击朗读从当前段落继续。');preferences()});
+ $('follow').addEventListener('change',preferences);
+ for(const [id,delta] of [['smaller',-2],['larger',2]])$(id).addEventListener('click',()=>{size=Math.min(30,Math.max(17,size+delta));document.documentElement.style.setProperty('--size',size+'px');preferences()});
+ $('theme').addEventListener('click',()=>{const dark=document.body.classList.toggle('dark');$('theme').textContent=dark?'日间':'夜间';$('theme').setAttribute('aria-pressed',String(dark));preferences()});
+ if(supported)synth.addEventListener('voiceschanged',loadVoices);
+ window.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{if(sessionId)writeJSON('jlc-reader-position-v1:'+sessionId,{y:window.scrollY})},200)},{passive:true});
+ window.addEventListener('pagehide',()=>{cancel(false);if(sessionId)writeJSON('jlc-reader-position-v1:'+sessionId,{y:window.scrollY})});
+ globalThis.ReadingReader={chunks,pages,paragraphs};
+ load().catch(error=>{$('error').hidden=false;$('error').textContent=error.message;$('lesson-label').textContent='原文尚未载入';});
+})();
+</script></body></html>

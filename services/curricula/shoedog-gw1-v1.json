@@ -1,9 +1,9 @@
 {
-  "version": "shoedog-gw1-2026-11-06-v2",
+  "version": "shoedog-gw1-2026-11-06-v3",
   "source": "Great Writing 1 & Shoe Dog – Course Outline - Jingsen.pdf",
   "lessons": [
     {
-      "id": "shoedog-course-01",
+      "id": "shoedog-course-v3-01",
       "number": 1,
       "title": "Simple Sentences & be Verbs",
       "reading_label": "Part 1 1962",
@@ -88,15 +88,37 @@
       ],
       "questions": [
         {
-          "id": "course-1-guide",
+          "id": "course-v3-1-1",
           "source": "guide",
-          "text": "In Part 1 1962, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1962: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "How does Knight turn his shoe-importing idea into an agreement with Onitsuka in 1962? Explain two steps he takes before any shoes arrive.",
+          "reference_answer": "Knight first obtains his father’s support and travels to Japan. He presents his idea to Onitsuka, describes an opportunity in the American running-shoe market, and seeks samples. The agreement grows from preparation and an actual meeting, even though he has not yet built a functioning company. Explain how the steps turn an idea into a possible business; do not describe later sales as if they have already happened."
+        },
+        {
+          "id": "course-v3-1-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "Why does asking his father for support feel difficult for Knight? What does the conversation reveal about both men?",
+          "reference_answer": "Knight wants his father’s practical and financial support but anticipates doubts about an uncertain venture. His father values a respectable, secure future, while Knight is drawn to travel and an untested opportunity. Their conversation reveals both the influence of family approval and Knight’s effort to act despite uncertainty. Other interpretations are valid when grounded in the conversation."
+        },
+        {
+          "id": "course-v3-1-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "When Onitsuka asks for his company’s name, Knight invents Blue Ribbon. How does the difference between the company name and his actual situation create tension?",
+          "reference_answer": "The name sounds like an established organization, although Knight has no such operating company. The reader knows how improvised the answer is, so the successful presentation carries both excitement and uncertainty. This gap highlights quick thinking as well as the risk of making a promise he must later turn into reality."
+        },
+        {
+          "id": "course-v3-1-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Was Knight prepared enough to approach Onitsuka, or did he take too large a risk? Give your view using one preparation and one uncertainty from 1962.",
+          "reference_answer": "A supported answer can argue either side. His business-school work and knowledge of running give the proposal some foundation, while his lack of an established company, distribution network, or delivered samples leaves major uncertainty. Weigh a concrete preparation against a specific risk rather than claiming later success proves every early choice was sound."
         }
       ]
     },
     {
-      "id": "shoedog-course-02",
+      "id": "shoedog-course-v3-02",
       "number": 2,
       "title": "Prepositional Phrases, There be & Punctuation Rules",
       "reading_label": "Part 1 1964 + Part 1 1963",
@@ -182,15 +204,37 @@
       ],
       "questions": [
         {
-          "id": "course-2-guide",
+          "id": "course-v3-2-1",
           "source": "guide",
-          "text": "In Part 1 1964 + Part 1 1963, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1964 + Part 1 1963: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Across 1963 and 1964, what changes after the sample shoes finally arrive? Explain how Bowerman’s involvement helps turn waiting into a business.",
+          "reference_answer": "In 1963 Knight waits for samples while earning a living as an accountant and writing to Japan. When the shoes arrive in 1964, he can show and sell a real product. Bowerman’s interest leads to a partnership, adding coaching experience, product knowledge, credibility, and shared commitment. Explain the change using both years, even though the course lists 1964 before 1963."
+        },
+        {
+          "id": "course-v3-2-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "Why is Bowerman a particularly valuable partner for Knight? Explain how their strengths complement each other.",
+          "reference_answer": "Knight brings the importing idea and the drive to build distribution; Bowerman understands runners, coaching, and shoe performance. His participation offers more than money because he can judge and improve what runners need. A good explanation connects one of these strengths to a concrete action in the reading."
+        },
+        {
+          "id": "course-v3-2-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does the contrast between Knight’s accounting work and his enthusiasm for selling shoes help us understand him?",
+          "reference_answer": "Accounting provides income and a recognizable career, while the shoe venture gives Knight a much stronger sense of purpose. The contrast shows the distance between financial security and personal commitment. Explain the effect through his waiting, work, or early selling rather than treating all paid work as unimportant."
+        },
+        {
+          "id": "course-v3-2-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "If you advised Knight during the long wait in 1963, what practical next step would you suggest? Use what happens by 1964 to explain your advice.",
+          "reference_answer": "Reasonable advice might combine continued paid work with persistent contact, careful preparation, and testing demand when samples arrive. The eventual samples and Bowerman partnership show why maintaining readiness matters, but the delay also supports caution. Make clear which part is your advice and which event in the reading supports it."
         }
       ]
     },
     {
-      "id": "shoedog-course-03",
+      "id": "shoedog-course-v3-03",
       "number": 3,
       "title": "Adjectives & Sense Verbs",
       "reading_label": "Part 1 1965",
@@ -261,15 +305,37 @@
       ],
       "questions": [
         {
-          "id": "course-3-guide",
+          "id": "course-v3-3-1",
           "source": "guide",
-          "text": "In Part 1 1965, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1965: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "How does Johnson become involved in selling Tigers in 1965, and why does Knight hesitate about employing him full-time?",
+          "reference_answer": "After trying the shoes and seeing other runners’ interest, Johnson seeks an opportunity to sell them and accepts commission work. His enthusiasm grows toward a full-time commitment, but Knight is worried about debt and negative cash flow. Strong sales interest does not by itself mean the company can safely support another full-time employee."
+        },
+        {
+          "id": "course-v3-3-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "What do Johnson’s frequent, detailed letters reveal about him? How does Knight’s limited response affect their working relationship?",
+          "reference_answer": "The letters show Johnson’s energy, emotional investment, and desire for connection or guidance. Knight’s sparse replies leave him considerable freedom but can also leave his need for recognition unanswered. Explain both sides with the correspondence rather than assuming that silence means Knight does not value his work."
+        },
+        {
+          "id": "course-v3-3-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "The letters become longer and arrive more often. What effect does describing this growing stream of mail have on the reader?",
+          "reference_answer": "The increasing length and frequency make Johnson’s commitment vivid and create humor around Knight’s discomfort with constant communication. The repeated mail also exposes a mismatch between an eager employee and a reserved manager. Discuss how the narrative detail creates this effect, not just how many letters arrive."
+        },
+        {
+          "id": "course-v3-3-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Should Knight give Johnson more guidance, more freedom, or a mixture? Support your recommendation with a problem shown in 1965.",
+          "reference_answer": "A balanced answer might retain Johnson’s initiative while adding predictable replies and clearer priorities. Greater guidance could reduce uncertainty, while too much control could weaken the energy driving his sales. Any recommendation should address a specific problem in the letters or employment discussion and acknowledge a possible tradeoff."
         }
       ]
     },
     {
-      "id": "shoedog-course-04",
+      "id": "shoedog-course-v3-04",
       "number": 4,
       "title": "Personal Pronouns & Possessive Adjectives",
       "reading_label": "Part 1 1966",
@@ -340,15 +406,37 @@
       ],
       "questions": [
         {
-          "id": "course-4-guide",
+          "id": "course-v3-4-1",
           "source": "guide",
-          "text": "In Part 1 1966, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1966: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "How do Johnson’s expanding sales and retail store change Blue Ribbon’s position as its Onitsuka contract approaches renewal?",
+          "reference_answer": "Johnson builds customers across a wider territory and creates a retail space where runners gather. These efforts strengthen Blue Ribbon’s claim to be a serious distributor, but distribution rights remain uncertain and another distributor threatens its position. Connect the store and sales work to the contract problem without assuming growth removes that dependence."
+        },
+        {
+          "id": "course-v3-4-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "Why does Johnson make his store a gathering place for runners rather than merely a place to buy shoes? What does this reveal about his priorities?",
+          "reference_answer": "Comfortable chairs, books, and opportunities to talk make the store a community for runners. This fits Johnson’s deep identification with the sport and his wish to serve people whose interests he shares. The store can build trust and repeat relationships as well as immediate sales; distinguish this interpretation from a guaranteed financial result."
+        },
+        {
+          "id": "course-v3-4-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "What do the chairs and running books in Johnson’s store add to the description? Explain why these details matter.",
+          "reference_answer": "These objects make the store feel welcoming and personal, giving concrete form to the idea of a runners’ community. Books from Johnson’s own collection show personal commitment. The details help readers see his values through actions and surroundings rather than through a label such as “dedicated.”"
+        },
+        {
+          "id": "course-v3-4-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "By the end of 1966, Knight needs someone to build an East Coast operation. Is relying on Johnson a sensible choice? Use a strength and a concern from this chapter.",
+          "reference_answer": "Johnson’s energy, initiative, customer knowledge, and commitment make him a plausible choice for a difficult new operation. Yet the demand is large, communication is weak, and relocation places a personal burden on him. Weigh evidence available in 1966 rather than using the later outcome to make the decision seem inevitable."
         }
       ]
     },
     {
-      "id": "shoedog-course-05",
+      "id": "shoedog-course-v3-05",
       "number": 5,
       "title": "Simple Present Tense",
       "reading_label": "Part 1 1967",
@@ -432,15 +520,37 @@
       ],
       "questions": [
         {
-          "id": "course-5-guide",
+          "id": "course-v3-5-1",
           "source": "guide",
-          "text": "In Part 1 1967, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1967: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What happens when Johnson is asked to move east in 1967? Explain his demands and how Knight handles the disagreement.",
+          "reference_answer": "Johnson objects to another major demand on his life and seeks greater financial reward and a stronger position in the company. Knight initially delays the difficult conversation, and the disagreement forces negotiation over expectations and compensation. Explain how the eventual arrangement keeps the relationship going without reducing the conflict to simple disloyalty."
+        },
+        {
+          "id": "course-v3-5-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does Woodell’s arrival broaden Knight’s understanding of what makes someone valuable to Blue Ribbon?",
+          "reference_answer": "Woodell brings determination, practical ability, and commitment that Knight comes to rely on. His wheelchair does not define the limit of what he contributes. Use a concrete workplace action or interaction to explain how Knight learns to value his capabilities, rather than making unsupported general claims about disability."
+        },
+        {
+          "id": "course-v3-5-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does Knight’s admission that he delayed telling Johnson the whole plan affect the way we judge him as a narrator and manager?",
+          "reference_answer": "By acknowledging his avoidance, Knight exposes a weakness rather than presenting himself as consistently decisive. This can create a self-critical, sometimes humorous narrative voice and help explain why the conflict becomes harder. The admission may increase trust in his willingness to criticize himself without making his management choice automatically wise."
+        },
+        {
+          "id": "course-v3-5-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Does dedication give an employee a fair claim to more pay or partnership? Discuss Johnson’s case using his contribution and the company’s limits.",
+          "reference_answer": "Johnson’s sales work and willingness to relocate support his desire for recognition and better compensation. The young company also faces limited resources and questions about ownership. A strong answer weighs these interests and proposes a fair principle or compromise; either conclusion can be supported by the chapter."
         }
       ]
     },
     {
-      "id": "shoedog-course-06",
+      "id": "shoedog-course-v3-06",
       "number": 6,
       "title": "Simple Sentences, Compound Sentences, Articles",
       "reading_label": "Part 1 1968",
@@ -524,15 +634,37 @@
       ],
       "questions": [
         {
-          "id": "course-6-guide",
+          "id": "course-v3-6-1",
           "source": "guide",
-          "text": "In Part 1 1968, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1968: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Why does Knight leave Price Waterhouse for teaching in 1968? How does this decision support his work on Blue Ribbon?",
+          "reference_answer": "Teaching offers a salary with a schedule that leaves more time for Blue Ribbon than the demanding accounting job. The move allows Knight to redirect time toward the venture while still earning income. Explain the balance he is trying to achieve rather than saying he immediately abandons every source of security."
+        },
+        {
+          "id": "course-v3-6-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "What does Knight’s growing relationship with Penny reveal about a side of his life beyond the business?",
+          "reference_answer": "The courtship and marriage reveal affection, vulnerability, and the possibility of a shared personal life alongside his business focus. Penny is a person with her own responses and choices, not merely a resource for the company. Use an interaction from the chapter to show how the relationship expands our view of Knight."
+        },
+        {
+          "id": "course-v3-6-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does placing personal events such as Knight’s wedding alongside business events change the tone of the chapter?",
+          "reference_answer": "The personal events provide warmth and a different measure of progress from contracts, work hours, and sales. The mixture reminds the reader that the venture develops within a life that includes relationships and family. Explain the effect of one scene rather than just listing business and personal events."
+        },
+        {
+          "id": "course-v3-6-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Is Knight’s change of job a careful compromise or another step toward an unbalanced life? Support your view with two details from 1968.",
+          "reference_answer": "The salary and available time support the argument that teaching is a practical compromise. His desire to devote more and more attention to Blue Ribbon supports concern about imbalance. A thoughtful response can recognize both and explain which details carry more weight in its judgment."
         }
       ]
     },
     {
-      "id": "shoedog-course-07",
+      "id": "shoedog-course-v3-07",
       "number": 7,
       "title": "Simple Past Tense (Affirmative)",
       "reading_label": "Part 1 1969",
@@ -604,15 +736,37 @@
       ],
       "questions": [
         {
-          "id": "course-7-guide",
+          "id": "course-v3-7-1",
           "source": "guide",
-          "text": "In Part 1 1969, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1969: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "How does Blue Ribbon’s growing sales team help the company expand in 1969? What problem remains despite the increase in sales?",
+          "reference_answer": "Committed representatives, many with running backgrounds, travel to meets and sell on commission. Their efforts expand reach and revenue, but the business still faces pressure from financing, organizational demands, and its dependence on suppliers. Explain a remaining problem actually shown in 1969 rather than importing the later bank crisis."
+        },
+        {
+          "id": "course-v3-7-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does the birth of Matthew change the responsibilities Knight must balance?",
+          "reference_answer": "Knight now has obligations to Penny and a new child as well as employees and the business. His gratitude and concern about the company sit alongside a growing responsibility to his family. A supported answer explains why a business decision can now have consequences beyond Knight personally."
+        },
+        {
+          "id": "course-v3-7-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "The chapter puts moments of gratitude beside difficult messages and business problems. How does this contrast shape the mood?",
+          "reference_answer": "The movement from family gratitude and rising sales to troubling correspondence or management demands prevents a simple celebration of growth. It shows how quickly reassurance can give way to pressure. Explain the effect through one change of mood in the chapter."
+        },
+        {
+          "id": "course-v3-7-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "What should Knight prioritize as the team grows: more sales, clearer communication, or stronger organization? Use a specific 1969 event to defend your choice.",
+          "reference_answer": "Any choice can work if it addresses a demonstrated need. Commission sales show the value of reach; employee disagreement shows the cost of unclear expectations; a larger operation requires coordination. Explain how your priority would help and identify a limitation instead of treating it as a solution to every problem."
         }
       ]
     },
     {
-      "id": "shoedog-course-08",
+      "id": "shoedog-course-v3-08",
       "number": 8,
       "title": "Simple Past Tense (Negative), Adverbs of Manner & Time Clauses",
       "reading_label": "Part 1 1970",
@@ -696,15 +850,37 @@
       ],
       "questions": [
         {
-          "id": "course-8-guide",
+          "id": "course-v3-8-1",
           "source": "guide",
-          "text": "In Part 1 1970, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1970: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Why does rising demand fail to solve Blue Ribbon’s cash problem in 1970? Explain the financing options Knight explores.",
+          "reference_answer": "The company must pay for inventory and growth before enough cash returns, so higher demand can increase the money it needs. Knight considers raising equity through a small public offering and explores support from a trading company such as Nissho Iwai. Explain the timing of cash rather than equating sales with cash already available."
+        },
+        {
+          "id": "course-v3-8-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does Knight respond to uncertainty about Onitsuka’s intentions? What does his response reveal about dependence on a powerful partner?",
+          "reference_answer": "He seeks information, tries to secure a renewed relationship, and looks for ways to keep the business financed. News that other American distributors are being considered makes him anxious because Onitsuka can affect Blue Ribbon’s survival. His efforts show both determination and the limits of control in a dependent partnership."
+        },
+        {
+          "id": "course-v3-8-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does the chapter’s movement between financing efforts and worries about Onitsuka create suspense?",
+          "reference_answer": "Each possibility of financial support is set against uncertainty about whether the company will retain the shoes it needs to sell. This pairing makes a solution in one area feel incomplete. Discuss how the alternating pressures make the reader anticipate the next decision, using an example from 1970."
+        },
+        {
+          "id": "course-v3-8-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Would you recommend accepting outside financial support even if it creates new obligations? Explain using one need and one risk shown in 1970.",
+          "reference_answer": "Support could fund inventory and allow the company to keep operating, but investors or financing partners also bring expectations and dependence. The weak response to the public offering and the search for trading-company support show that choices are constrained. A strong response names a need, a possible obligation, and the reason for its recommendation."
         }
       ]
     },
     {
-      "id": "shoedog-course-09",
+      "id": "shoedog-course-v3-09",
       "number": 9,
       "title": "Simple Future Tense",
       "reading_label": "Part 1 1971",
@@ -775,15 +951,37 @@
       ],
       "questions": [
         {
-          "id": "course-9-guide",
+          "id": "course-v3-9-1",
           "source": "guide",
-          "text": "In Part 1 1971, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1971: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "How do the name Nike, the Swoosh, and a new sole design contribute to the company’s next direction in 1971?",
+          "reference_answer": "Johnson proposes Nike, Carolyn Davidson designs the Swoosh, and Bowerman experiments with a waffle-pattern sole. The developments combine brand identity and product innovation while Knight looks beyond an insecure distributor relationship. Explain each contribution without claiming the name, logo, or manufacturing process is instantly perfect."
+        },
+        {
+          "id": "course-v3-9-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "Why does Knight refuse Kitami’s proposal to acquire a controlling stake in Blue Ribbon? What does this reveal about what he values?",
+          "reference_answer": "Knight sees the proposal as a threat to control and to the independent company he and his colleagues have built. Refusing it protects autonomy but leaves serious business risk. A supported interpretation can emphasize independence, loyalty, or ambition while recognizing the cost of the decision."
+        },
+        {
+          "id": "course-v3-9-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "Knight is not immediately enthusiastic about the Swoosh. How does including his initial doubt complicate a simple story about a famous brand?",
+          "reference_answer": "The hesitation shows that a symbol later treated as inevitable began as an uncertain choice. Readers can see the distance between a decision as experienced and its later reputation. Explain that narrative gap without assuming the young Knight already knows the brand’s future."
+        },
+        {
+          "id": "course-v3-9-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Was rejecting Kitami’s offer worth the risk? Use evidence from 1971 to weigh independence against security.",
+          "reference_answer": "Acceptance might offer financial or supplier security but would compromise control. Rejection preserves the possibility of an independent identity while making the financing and supply problem more urgent. Either judgment is reasonable if it compares those specific consequences and stays within what is known in 1971."
         }
       ]
     },
     {
-      "id": "shoedog-course-10",
+      "id": "shoedog-course-v3-10",
       "number": 10,
       "title": "Future Time Clauses, First Conditional & because Clauses",
       "reading_label": "Part 1 1972",
@@ -867,15 +1065,37 @@
       ],
       "questions": [
         {
-          "id": "course-10-guide",
+          "id": "course-v3-10-1",
           "source": "guide",
-          "text": "In Part 1 1972, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1972: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What makes the 1972 Chicago trade show a critical test for Nike? Explain both the shoes’ problems and the response from buyers.",
+          "reference_answer": "The show tests whether buyers will order the new Nike products at a moment when the company needs an independent future. The shoes have visible quality problems, yet buyers place orders, helped by existing relationships and belief in the people selling them. Explain why the orders matter without suggesting that trust permanently solves poor manufacturing."
+        },
+        {
+          "id": "course-v3-10-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does Knight try to lead the team after the break with Onitsuka? What emotions or priorities does his speech address?",
+          "reference_answer": "He reframes the break as a chance to control the company’s future rather than only as a loss. He acknowledges difficulty while emphasizing the team’s knowledge, effort, and ability to survive. The speech seeks to replace fear with shared purpose, though the underlying risks remain real."
+        },
+        {
+          "id": "course-v3-10-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "What changes when Knight describes the break as an Independence Day? Explain the effect of this metaphor.",
+          "reference_answer": "The metaphor transforms dependence on a supplier into a story of liberation and collective action. It gives the team a more hopeful role in events and connects risk with the possibility of self-direction. A careful answer also notes that the language does not remove legal, financial, or production problems."
+        },
+        {
+          "id": "course-v3-10-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "How far can trust compensate for a flawed product? Use the trade-show response to explain both the value and the limits of personal relationships.",
+          "reference_answer": "Relationships can persuade buyers to give a new product a chance despite early defects, as the orders show. But runners still need reliable shoes, and continued failures could damage that trust. A strong answer explains why relationships help at the show and why quality still needs to improve."
         }
       ]
     },
     {
-      "id": "shoedog-course-11",
+      "id": "shoedog-course-v3-11",
       "number": 11,
       "title": "Adjective Clauses (Subject Type)",
       "reading_label": "Part 1 1973",
@@ -945,15 +1165,37 @@
       ],
       "questions": [
         {
-          "id": "course-11-guide",
+          "id": "course-v3-11-1",
           "source": "guide",
-          "text": "In Part 1 1973, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1973: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Why does the dockworkers’ strike create such serious trouble in 1973, and how does the company respond?",
+          "reference_answer": "Shoes are physically close but inaccessible, interrupting the flow of products and the cash that sales would bring. The team arranges an alternative shipment by air at substantial cost. Explain the link between a supply interruption and the company’s finances rather than treating the strike as an isolated inconvenience."
+        },
+        {
+          "id": "course-v3-11-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "What makes Strasser seem like a useful addition to the legal team? Explain how Knight’s description connects personality with the company’s needs.",
+          "reference_answer": "The company needs legal skill and someone emotionally committed to defending it. Strasser’s intense response to the dispute and fit with the team suggest both promise and shared purpose. Explain an actual detail about his introduction rather than relying on later accomplishments not yet shown."
+        },
+        {
+          "id": "course-v3-11-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does placing rising sales beside a reported net loss challenge the reader’s idea of business success?",
+          "reference_answer": "The contrast shows that a larger sales figure does not ensure profit or relieve immediate pressure. Costs, financing, and disruptions can grow at the same time. It complicates the optimistic language of expansion and explains why investors focus on the troubling bottom line."
+        },
+        {
+          "id": "course-v3-11-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "If you were an investor listening to Knight in 1973, what would you ask before deciding to support the company? Ground your question in a specific event.",
+          "reference_answer": "A grounded question might ask how air-freight costs will be controlled, how losses will be reduced, or how cash will be secured during interruptions. Identify the event that creates the concern and explain what information would help a decision. Interest in brand visibility is reasonable, but it should not substitute for addressing the financial problem."
         }
       ]
     },
     {
-      "id": "shoedog-course-12",
+      "id": "shoedog-course-v3-12",
       "number": 12,
       "title": "Adjective Clauses (Object Type) & Modal Verbs",
       "reading_label": "Part 1 1974",
@@ -1035,15 +1277,37 @@
       ],
       "questions": [
         {
-          "id": "course-12-guide",
+          "id": "course-v3-12-1",
           "source": "guide",
-          "text": "In Part 1 1974, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1974: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What does the judge decide in the Onitsuka dispute in 1974, and why does that result matter to Blue Ribbon?",
+          "reference_answer": "The judge focuses on trademark issues and finds Blue Ribbon’s account more convincing, with truthfulness and the evidence important to the reasoning. The result strengthens the company’s position in a costly dispute and helps settle an uncertain part of its future. Explain the limited legal issue rather than claiming the ruling solves every business problem."
+        },
+        {
+          "id": "course-v3-12-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does Johnson’s involvement during the trial show a form of loyalty different from ordinary sales work?",
+          "reference_answer": "He follows the proceedings closely and helps the company through notes, knowledge, and support while remaining attentive to business. These details show commitment beyond a narrow job description. A strong response connects a specific action during the case to what the team needs."
+        },
+        {
+          "id": "course-v3-12-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "The chapter ends with confidence that the team will always have Pre. What does this confident ending make the reader expect at this point?",
+          "reference_answer": "At the end of this assigned chapter, the assurance offers comfort and a sense of continuity after disappointments elsewhere. It shows how strongly the team depends on Pre as a person and symbol. Discuss the expectation created here without using later events the reader has not yet reached in this lesson."
+        },
+        {
+          "id": "course-v3-12-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Does winning the trademark dispute mean Knight can afford to relax? Use one benefit of the decision and one remaining challenge from 1974.",
+          "reference_answer": "The decision reduces a major legal uncertainty and validates the team’s position. Yet financing, manufacturing, expansion, and athlete relationships still require work. A supported answer distinguishes a significant victory from lasting security and cites a challenge actually present in 1974."
         }
       ]
     },
     {
-      "id": "shoedog-course-13",
+      "id": "shoedog-course-v3-13",
       "number": 13,
       "title": "Sequence Words & Opinion that‐Clauses",
       "reading_label": "Part 1 1975 + Part 2 1975",
@@ -1115,15 +1379,37 @@
       ],
       "questions": [
         {
-          "id": "course-13-guide",
+          "id": "course-v3-13-1",
           "source": "guide",
-          "text": "In Part 1 1975 + Part 2 1975, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 1 1975 + Part 2 1975: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Across both 1975 sections, how does the banking crisis develop, and what role does Nissho play in resolving the immediate threat?",
+          "reference_answer": "The company’s aggressive cash movements and dependence on financing create a crisis with its bank and the threat of investigation. Nissho examines the situation and backs the business, helping it survive the immediate confrontation. The second section shows that finding a workable banking relationship still matters after the rescue; survival is not a complete solution."
+        },
+        {
+          "id": "course-v3-13-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "Why is Ito’s support important emotionally as well as financially? Explain what it reveals about the relationship between the companies.",
+          "reference_answer": "His intervention shows that someone with commercial power is willing to understand the operation and defend it rather than judge it solely through the bank’s alarm. That support gives Knight reassurance as well as practical protection. Explain the combination of commercial reasoning and personal commitment without claiming the relationship has no conditions."
+        },
+        {
+          "id": "course-v3-13-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does the movement from the banking crisis to Prefontaine’s death change the tone and the meaning of success?",
+          "reference_answer": "The banking story creates anxiety about business survival and relief at rescue. Prefontaine’s death then introduces grief that financial solutions cannot remove. The abrupt change puts profit and survival in a wider human context and reveals that keeping a company alive is not the only measure of what matters."
+        },
+        {
+          "id": "course-v3-13-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Why might preserving Pre’s memorial be worth doing when money is still tight? Explain your view using the team’s response in the second 1975 section.",
+          "reference_answer": "Preserving the memorial recognizes a friend and athlete whose spirit matters to the community and the brand. Knight, Johnson, and Woodell choose to find resources despite financial pressure. A response can support the decision through loyalty and shared values or raise practical concerns, provided it takes the grief and financial limits seriously."
         }
       ]
     },
     {
-      "id": "shoedog-course-14",
+      "id": "shoedog-course-v3-14",
       "number": 14,
       "title": "Writing with that‐Clauses & Common Error Correction",
       "reading_label": "Part 2 1976",
@@ -1193,15 +1479,37 @@
       ],
       "questions": [
         {
-          "id": "course-14-guide",
+          "id": "course-v3-14-1",
           "source": "guide",
-          "text": "In Part 2 1976, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 2 1976: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "Why does the team debate going public in 1976, and what makes the choice difficult?",
+          "reference_answer": "An offering could provide money to support growth and ease recurring financing pressure. But it could also reduce control and make the company answerable to outside shareholders. Explain why the most obvious financial solution creates an emotional and organizational problem for this particular team."
+        },
+        {
+          "id": "course-v3-14-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does the informal Buttface retreat culture help the team work together? What weakness might it also have?",
+          "reference_answer": "Frank exchanges, teasing, and the freedom to challenge leaders can encourage trust and quick discussion. The same style can be uncomfortable, exclusionary, or hard to preserve as the company grows. Anchor the analysis in the retreat description rather than assuming every informal workplace has identical results."
+        },
+        {
+          "id": "course-v3-14-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "Knight compares Nike with another son, alongside his two actual sons. What does this comparison reveal about his priorities and guilt?",
+          "reference_answer": "The comparison gives the company an emotionally demanding place within his family life. It shows that he experiences responsibility to the business intensely while recognizing that his children need attention he does not consistently give. The image makes the cost of commitment personal rather than merely a problem of scheduling."
+        },
+        {
+          "id": "course-v3-14-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "What would responsible growth look like for this team in 1976? Use one financing issue and one human cost from the chapter.",
+          "reference_answer": "A thoughtful proposal might connect the need for capital with protecting effective decision-making and making time for people. The offering debate supplies the financial tension; family strain or the team’s working culture supplies a human cost. Explain a practical priority and its tradeoff rather than offering a general slogan about balance."
         }
       ]
     },
     {
-      "id": "shoedog-course-15",
+      "id": "shoedog-course-v3-15",
       "number": 15,
       "title": "Unit 8 Review 1 (Tenses, Articles, Compound Sentences)",
       "reading_label": "Part 2 1977",
@@ -1284,15 +1592,37 @@
       ],
       "questions": [
         {
-          "id": "course-15-guide",
+          "id": "course-v3-15-1",
           "source": "guide",
-          "text": "In Part 2 1977, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 2 1977: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What does Frank Rudy propose in 1977, and why does Knight’s response matter to the company’s approach to innovation?",
+          "reference_answer": "Rudy proposes cushioning shoes with air rather than relying only on existing materials. Knight’s willingness to examine and test an unusual outside idea keeps a possible innovation alive despite initial uncertainty. Explain the movement from an unfamiliar proposal toward consideration; do not treat the later Tailwind outcome as part of this chapter."
+        },
+        {
+          "id": "course-v3-15-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How does Sonny Vaccaro’s knowledge of basketball offer something different from the team’s running background?",
+          "reference_answer": "Vaccaro brings connections and understanding of basketball, particularly the route through coaches and college teams. This opens possibilities beyond a company rooted in running. Explain why unfamiliar expertise can matter without assuming the original team lacks useful knowledge of its own sport."
+        },
+        {
+          "id": "course-v3-15-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "How does placing the customs demand beside growing visibility and new products change the story’s sense of progress?",
+          "reference_answer": "The combination makes success feel vulnerable: attention, ideas, and sales do not protect the company from a large government claim. The contrast widens the source of danger beyond ordinary competition. Explain the relationship between one sign of progress and the financial threat."
+        },
+        {
+          "id": "course-v3-15-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "Which deserves more attention in 1977: developing new products or defending the business against the customs claim? Use evidence to explain a priority and what it leaves at risk.",
+          "reference_answer": "Product development can support a future competitive advantage, while the customs demand threatens the resources needed to continue at all. A strong answer can prioritize either or propose allocating responsibility, but must explain a concrete risk of neglecting the other. Use the chapter’s events rather than later success as proof."
         }
       ]
     },
     {
-      "id": "shoedog-course-16",
+      "id": "shoedog-course-v3-16",
       "number": 16,
       "title": "Unit 8 Review 2 (Complex Sentences & Comprehensive Editing)",
       "reading_label": "Part 2 1978 + Part 2 1979",
@@ -1376,15 +1706,37 @@
       ],
       "questions": [
         {
-          "id": "course-16-guide",
+          "id": "course-v3-16-1",
           "source": "guide",
-          "text": "In Part 2 1978 + Part 2 1979, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 2 1978 + Part 2 1979: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What happens to the Tailwind project across the 1978–1979 reading? Explain the gap between the launch promises and product performance.",
+          "reference_answer": "The shoe is promoted as a major innovation with air cushioning and other new features, but production and material problems undermine the launch. The project illustrates how a promising concept can fail in execution when too many elements are not reliably tested together. Connect expectations with actual product difficulties rather than concluding that air cushioning itself is impossible."
+        },
+        {
+          "id": "course-v3-16-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "How do Knight and the team show signs of burnout? Why might success in sales fail to make them feel secure?",
+          "reference_answer": "The reading shows exhaustion, strained responses, and Knight’s sense of approaching burnout while legal and operational demands continue. Higher sales bring larger responsibilities rather than an automatic end to pressure. Use a concrete reaction or behavior to explain the strain instead of diagnosing a character."
+        },
+        {
+          "id": "course-v3-16-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "Knight wonders whether working harder might cure burnout. How does this thought reveal tension or irony?",
+          "reference_answer": "The proposed cure resembles the behavior helping create the exhaustion. It exposes how deeply Knight relies on work even when that response may worsen his problem. A response can recognize his determination while explaining why the idea is troubling or ironic in context."
+        },
+        {
+          "id": "course-v3-16-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "What lesson should the team take from Tailwind before its next launch? Recommend one change and support it with a specific failure from this reading.",
+          "reference_answer": "A reasonable change could be testing materials together, narrowing the number of unproven features, or staging a release before extensive promotion. Explain which observed problem the change addresses and how it could reduce risk. Avoid claiming that testing can remove every uncertainty or that a more cautious launch guarantees success."
         }
       ]
     },
     {
-      "id": "shoedog-course-17",
+      "id": "shoedog-course-v3-17",
       "number": 17,
       "title": "Full‐Book Comprehensive Review",
       "reading_label": "Part 2 1980",
@@ -1470,10 +1822,32 @@
       ],
       "questions": [
         {
-          "id": "course-17-guide",
+          "id": "course-v3-17-1",
           "source": "guide",
-          "text": "In Part 2 1980, choose one important decision. What problem does it address, and what happens as a result? Explain in your own words using an event from these chapters.",
-          "reference_answer": "Reference criteria for Part 2 1980: identify a decision actually made within the assigned chapters, explain the problem behind it, and connect it to an outcome shown there. Support the explanation with a specific event. Different choices and interpretations are valid when supported by this reading; there is no single model paragraph."
+          "category": "情节理解 · Events",
+          "text": "What problems does the A/B share structure address as Nike prepares to go public in 1980?",
+          "reference_answer": "The structure separates the ability to raise money through shares from the distribution of voting control. It gives the team a way to pursue public financing while retaining a stronger voice over the company’s direction. Explain both sides of the problem rather than describing the structure only as a way to make the founders wealthy."
+        },
+        {
+          "id": "course-v3-17-2",
+          "source": "guide",
+          "category": "人物分析 · Character",
+          "text": "What does the visit to China reveal about the team’s ability to operate across cultures? Use one interaction or misunderstanding from 1980.",
+          "reference_answer": "A supported response should identify an actual encounter on the trip and explain what the team needs to learn or adapt. Connections and opportunities matter, but assumptions formed elsewhere do not automatically transfer. The focus is on interpreting the interaction, not making generalizations about all people in either country."
+        },
+        {
+          "id": "course-v3-17-3",
+          "source": "guide",
+          "category": "文本细读 · Close reading",
+          "text": "Why end the 1980 chapter with ordinary weather, breakfast, and Knight arriving at work after the IPO? Explain the contrast.",
+          "reference_answer": "The ordinary routine contrasts with the dramatic change in his paper wealth. It suggests that financial success does not instantly transform his identity, habits, or sense of purpose. The understated ending complicates the idea that an offering is a final, uncomplicated moment of happiness."
+        },
+        {
+          "id": "course-v3-17-4",
+          "source": "guide",
+          "category": "思考讨论 · Discussion",
+          "text": "By the end of 1980, what does success mean for Knight besides money? Defend an interpretation using both a business event and a personal detail from this chapter.",
+          "reference_answer": "An interpretation might emphasize control, work, responsibility to colleagues, or an unresolved need for purpose. The offering and share structure provide business evidence, while the family scenes or ordinary return to work offer personal evidence. A thoughtful answer recognizes that wealth is significant but does not settle every emotional question."
         }
       ]
     }

@@ -47,16 +47,17 @@ def legacy_lessons_for(book):
 
 
 COURSE_PATH = Path(__file__).resolve().parent / 'curricula/shoedog-gw1-v1.json'
+PREVIOUS_COURSE_PATH = Path(__file__).resolve().parent / 'curricula/shoedog-gw1-v2.json'
 
 
-def lessons_for(book):
+def lessons_for(book, curriculum_path=COURSE_PATH):
     """Resolve the 17-course outline against the verified original edition."""
     legacy = legacy_lessons_for(book)
     if not legacy:
         return []
     chapters = [c for c in book['chapters']
                 if c['title'].strip().lower() not in {'part one', 'part two'}]
-    curriculum = json.loads(COURSE_PATH.read_text(encoding='utf-8'))
+    curriculum = json.loads(curriculum_path.read_text(encoding='utf-8'))
     result = []
     for template in curriculum['lessons']:
         lesson = copy.deepcopy(template)
@@ -74,6 +75,10 @@ def lessons_for(book):
             for index, chapter in zip(template['narrative_indexes'], selected)]
         result.append(lesson)
     return result
+
+
+def previous_lessons_for(book):
+    return lessons_for(book, PREVIOUS_COURSE_PATH)
 
 
 def public_lesson(lesson):

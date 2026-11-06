@@ -1166,6 +1166,9 @@ class ReadingRepository:
         translation = _load(row["extra_json"], {}).get("question_text_en")
         if translation:
             payload["question_text_en"] = translation
+        category = _load(row["extra_json"], {}).get("reading_category")
+        if category:
+            payload["reading_category"] = category
         if include_private:
             payload.update({
                 "reference_answer": row["reference_answer"],
