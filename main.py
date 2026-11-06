@@ -146,8 +146,15 @@ async def serve_gallery():
 
 @app.get("/baseball")
 async def serve_baseball():
-    """提供 Baseball 首版空白栏目页。"""
-    return serve_static_file("static/personal_section.html", "Baseball page not found")
+    """提供 Baseball 品牌产品与比赛表现规划栏目。"""
+    return serve_static_file("static/baseball.html", "Baseball page not found")
+
+
+@app.get("/static/baseball/{filename}", include_in_schema=False)
+async def serve_baseball_asset(filename: str):
+    if filename not in {"baseballmaster-horizontal.svg", "scorekeeper-icon.png", "coach-icon.png"}:
+        return JSONResponse(status_code=404, content={"error": "Asset not found"})
+    return serve_static_file(f"static/baseball/{filename}", "Baseball asset not found")
 
 
 @app.get("/english")

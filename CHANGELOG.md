@@ -9,6 +9,14 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-06：Baseball 栏目加入 BaseballMaster 品牌、下载与成长内容规划（PR 待审，未部署）
+
+- 动机与结果：将 Baseball 占位页更新为正式栏目，介绍自主开发品牌 BaseballMaster，提供品牌官网、棒球比赛记录大师产品页与 App Store 下载；Android 明确为测试版并跳转官网最新下载区，棒球训练助手 / Baseball Drill Buddy 显示产品预告。
+- 内容规划：比赛表现显示“建设中 · 规划阶段”，规划从记录大师导出上传、单场回看和赛季／训练衔接；训练观察与球场手记预留内容位置。未开放上传、同步或统计接口，不放示例成绩冒充真实记录。后续数据契约、球员映射、重复更正、权限与公开范围见 docs/baseball-2026-11-06.md。
+- 实现与数据影响：基于最新发布分支 `55e5bc1` 建立独立 `codex/baseball-brand-hub-20261106` 工作区；新增独立静态页及三项白名单品牌资源，原样复制官方标识／图标并记录 SHA-256，沿用藏青、深绿、酒红品牌色。原家庭会议与 Gallery 逻辑保持；无数据、Schema、环境、依赖变更，无 AI 调用，未触碰主工作区未提交内容。
+- 验证：21 项首页与家庭会议回归通过；三项 HTTP 资源与品牌源文件逐字节一致，非白名单及路径穿越请求返回 404；桌面 1440px、手机 390px／320px 无横向溢出，三图加载正常，无浏览器脚本错误。公网下载与产品目标核验、语法检查和 git diff --check 结果随 PR 登记。
+- 发布与回退：本次仅提交 PR，不合并或部署。获授权并经 GitHub 合并后才可发布，须按 updateNew.md 执行备份、数据验证与健康检查；回退本次功能代码可恢复占位页，不覆盖 data/ 或 .env，无需整库恢复。外链下载与训练助手状态由品牌官网维护，后续上线比赛数据前需另行确认导入契约及展示授权。
+
 ## 2026-11-06：Shoe Dog 17 课精读与语法预习发布到香港服务器（已上线）
 
 - 发布依据：按用户明确授权，经 GitHub 合并 PR https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/10 ，功能测试提交为 `480c77c2d91d3b36ee441de7aa136108cf5578a8`，部署的发布分支合并结果为 `aa0c920dd9c20e05964fdad1438a4a2151ca08df`。SSH 目标 jingsen-prod 的云元数据确认为 ap-hongkong；未连接上海服务器，main 未变更。
