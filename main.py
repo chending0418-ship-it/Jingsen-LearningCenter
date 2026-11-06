@@ -164,6 +164,12 @@ async def serve_english_portal():
     return serve_static_file("static/english.html", "English page not found")
 
 
+@app.get("/english/reading/reader")
+@app.get(f"{BASE_PATH}/english/reading/reader")
+async def serve_reading_reader():
+    return serve_static_file("static/reading_reader.html", "Reading reader page not found")
+
+
 @app.get("/english/reading")
 @app.get(f"{BASE_PATH}/english/reading")
 async def serve_book_reading():

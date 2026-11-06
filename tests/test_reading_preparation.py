@@ -380,3 +380,54 @@ def test_new_course_boundary_and_second_lesson_order(tmp_path):
         'The team made a difficult decision because they had little time. This changed the plan.'))
     assert result['status'] == 'completed'
     assert service.get_public_session(s['id'], s['access_token'])['questions'][0]['reference_answer']
+
+
+def test_four_question_curriculum_and_previous_sessions_are_isolated(tmp_path):
+    service, book = make_preparation_service(tmp_path)
+    public = service.list_public_books()[0]
+    assert len(public['previous_lessons']) == 17
+    all_lessons = public['lessons'] + public['previous_lessons'] + public['archived_lessons']
+    assert len({l['id'] for l in all_lessons}) == 46
+    questions = [q for l in public['lessons'] for q in l['questions']]
+    assert len(questions) == len({q['text'] for q in questions}) == 68
+    for lesson in public['lessons']:
+        assert len(lesson['questions']) == 4
+        assert [q['category'].split(' · ')[0] for q in lesson['questions']] == ['情节理解', '人物分析', '文本细读', '思考讨论']
+        assert all('reference_answer' not in q for q in lesson['questions'])
+    old = service.start_preparation(book['id'], 'shoedog-course-01')
+    assert len(old['questions']) == 1
+    saved = service.save_preparation_draft(old['id'], old['access_token'], {old['questions'][0]['id']:'My old draft'}, 0)
+    original = copy.deepcopy(service.repository.get_session(old['id'], True))
+    new = service.start_preparation(book['id'], public['lessons'][0]['id'])
+    assert len(new['questions']) == 4
+    assert all(q['reading_category'] for q in new['questions'])
+    assert service.get_public_session(old['id'], old['access_token'])['preparation']['drafts'] == saved['preparation']['drafts']
+    assert service.repository.get_session(old['id'], True) == original
+    answer = 'The team made a difficult decision because they had little time. This changed the plan.'
+    current = new
+    for index in [2, 0, 3, 1]:
+        question = new['questions'][index]
+        current = asyncio.run(service.submit_preparation_answer(new['id'], new['access_token'],
+            current['preparation']['revision'], question['id'], answer))
+        done = [q for q in current['questions'] if q.get('answered_at')]
+        assert sum('reference_answer' in q for q in current['questions']) == len(done)
+        assert current['status'] == ('completed' if len(done) == 4 else 'active')
+    assert service.get_public_session(new['id'], new['access_token'])['status'] == 'completed'
+    assert service.repository.get_session(old['id'], True) == original
+
+
+def test_reader_routes_serve_shell_without_source_or_credentials(tmp_path, monkeypatch):
+    service, book = make_preparation_service(tmp_path)
+    monkeypatch.setattr(reading_api, 'get_reading_service', lambda: service)
+    with TestClient(app) as client:
+        for path in ('/english/reading/reader', '/learningcenter/english/reading/reader'):
+            result = client.get(path)
+            assert result.status_code == 200
+            assert 'speechSynthesis' in result.text
+            assert 'READING_ONLY_MARKER' not in result.text
+        session = service.start_preparation(book['id'], 'shoedog-course-v3-13')
+        result = client.get(f"/api/reading/preparations/{session['id']}/reading", params={'access_token':session['access_token']}).json()
+        assert result['lesson']['number'] == 13
+        assert result['lesson']['id'] == 'shoedog-course-v3-13'
+        assert set(result['lesson']) == {'id','number','title','reading_label','version'}
+        assert len(result['passages']) == 2
