@@ -57,8 +57,8 @@ def _check_length(request: Request, maximum: int, label: str) -> None:
 
 
 @public_router.get("/books")
-async def list_public_books():
-    books = get_reading_service().list_public_books()
+async def list_public_books(summary: bool = Query(False)):
+    books = get_reading_service().list_public_books(summary=summary)
     return {"books": books, "total": len(books)}
 
 

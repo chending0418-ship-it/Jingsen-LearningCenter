@@ -18,7 +18,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 from pypdf import PdfReader
 
-from services.reading_curriculum import add_teacher_translations, legacy_lessons_for, lessons_for, previous_lessons_for, public_lesson, reference_answers_for
+from services.reading_curriculum import add_teacher_translations, legacy_lessons_for, lessons_for, previous_lessons_for, public_lesson, public_lesson_summary, reference_answers_for
 from config import config
 from core.ai_generator import get_ai_generator
 from database import ReadingRepository, database_for_data_root
@@ -305,26 +305,34 @@ FOCUSED EXCERPTS:
         return payload
 
     @staticmethod
-    def _public_book(book: Dict[str, Any]) -> Dict[str, Any]:
+    def _public_book_metadata(book: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "id": book["id"], "title": book["title"], "author": book["author"],
             "description": book["description"], "age_level": book["age_level"],
             "language": book["language"], "page_count": book["page_count"],
             "has_cover": bool(book.get("cover_asset")),
-            "lessons": [public_lesson(lesson) for lesson in lessons_for(book)],
-            "archived_lessons": [public_lesson(lesson) for lesson in legacy_lessons_for(book)],
-            "previous_lessons": [public_lesson(lesson) for lesson in previous_lessons_for(book)],
             "chapters": [{
                 "id": chapter["id"], "title": chapter["title"],
                 "start_page": chapter["start_page"], "end_page": chapter["end_page"],
             } for chapter in book.get("chapters", [])],
         }
 
+    @staticmethod
+    def _public_book(book: Dict[str, Any], summary: bool = False) -> Dict[str, Any]:
+        payload = ReadingService._public_book_metadata(book)
+        serialize = public_lesson_summary if summary else public_lesson
+        payload.update({
+            "lessons": [serialize(lesson) for lesson in lessons_for(book)],
+            "archived_lessons": [serialize(lesson) for lesson in legacy_lessons_for(book)],
+            "previous_lessons": [serialize(lesson) for lesson in previous_lessons_for(book)],
+        })
+        return payload
+
     def list_admin_books(self) -> List[Dict[str, Any]]:
         return [self._admin_book(book) for book in self.repository.list_books()]
 
-    def list_public_books(self) -> List[Dict[str, Any]]:
-        return [self._public_book(book) for book in self.repository.list_books("published")]
+    def list_public_books(self, summary: bool = False) -> List[Dict[str, Any]]:
+        return [self._public_book(book, summary=summary) for book in self.repository.list_books("published")]
 
     def get_admin_book(self, book_id: str) -> Dict[str, Any]:
         book = self.repository.get_book(book_id)
@@ -522,7 +530,7 @@ READING:
         safe = add_teacher_translations(copy.deepcopy(session))
         if safe.get("preparation"):
             safe["preparation"] = {k: v for k, v in safe["preparation"].items() if not k.startswith("_")}
-        safe["book"] = ReadingService._public_book(book)
+        safe["book"] = ReadingService._public_book_metadata(book)
         evaluation = safe.get("evaluation") or {}
         if evaluation:
             safe["evaluation"] = {
@@ -870,7 +878,11 @@ SESSION:
         book = self.repository.get_book(book_id)
         if not book or book['status'] != 'published':
             raise ValueError('这本书尚未发布')
-        lesson = next((l for l in lessons_for(book) + previous_lessons_for(book) + legacy_lessons_for(book) if l['id'] == lesson_id), None)
+        lesson = None
+        for resolve in (lessons_for, previous_lessons_for, legacy_lessons_for):
+            lesson = next((item for item in resolve(book) if item['id'] == lesson_id), None)
+            if lesson is not None:
+                break
         if not lesson:
             raise ValueError('预习课程不存在，请检查书籍章节配置')
         token, now = secrets.token_urlsafe(32), _now()

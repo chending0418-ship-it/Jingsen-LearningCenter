@@ -88,6 +88,14 @@ def public_lesson(lesson):
     return public
 
 
+def public_lesson_summary(lesson):
+    """Only the fields needed for the lesson picker; snapshots supply details."""
+    summary = {key: lesson[key] for key in ('id', 'number', 'title', 'reading_label',
+                                           'start_page', 'end_page', 'version')}
+    summary['has_grammar'] = bool(lesson.get('grammar'))
+    return summary
+
+
 def add_teacher_translations(session):
     """Enrich old snapshots for display without rewriting questions or answers."""
     if not session.get('preparation'):
