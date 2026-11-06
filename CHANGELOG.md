@@ -9,6 +9,15 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-06：Baseball 正式上线香港，Reading 回归与生产数据核对通过
+
+- 发布依据：用户再次明确授权重试 SSH、连通后继续部署。本轮成功连接 jingsen-prod，云元数据核对为 ap-hongkong；通过 update_safe.sh 发布 `deploy/tencent-learningcenter-path` 的 GitHub 合并结果 `00e5281ec7a116e994c31374a14148754da01c1e`，包含 Baseball PR #12 与 Reading PR #13，未部署未合并分支或本地文件。前次 SSH 阻塞已解除，未连接上海，main 未变更。
+- 用户可见结果：https://jingsen.cc/baseball 已提供 BaseballMaster 品牌介绍、官网／App Store／Android 测试下载入口和训练助手预告；比赛表现、训练观察、球场手记保持建设中，无上传或同步能力。家庭会议原流程保留。
+- 备份与发布：发布前代码归档及完整 pre-data/.env 位于 `/www/wwwroot/learningcenter/backups/releases/baseball-code-20261106-112546`；短暂停止 learningcenter.service 冻结写入，按 updateNew.md 执行安全更新，完整持久数据、一致性 SQLite 与配置快照位于 `/www/wwwroot/learningcenter/backups/releases/20261106-112547-1519671`。无依赖变化，跳过依赖安装；幂等迁移 migrated=false，无新增 Schema。服务重启后 active，内部及公网 health 均正常；未以本地 data/ 或 .env 覆盖生产。
+- 数据核对：139 个原非数据库文件及环境配置逐字节一致，两个数据库完整性／外键检查正常。原有 8 次阅读记录、27 道问答、书籍与 24 章、数学、Todo、报告及家庭会议逐行保持不变。启动同步只重建 library_items 的内部 ID／时间元数据，4,806 条词条的内容、词库归属及顺序逐项一致。
+- 公网验收：Baseball HTML、三项品牌资源、Reading HTML 及独立阅读器均返回 200 且与合并文件逐字节一致；课程接口确认 17 课、68 道阅读题、95 个语法例句和 61 道自查题。真实浏览器验证 Baseball 品牌／下载／建设中内容与三图加载、1440px／390px 无横向溢出；Reading 书架与 17 课列表加载正常，390px 无溢出、无脚本错误。首页、Gallery、Math、家庭会议入口均为 200。本次未创建线上测试学习记录或调用 AI；朗读实现沿用 Reading 已验收版本，未重新做音频播放测试。
+- 代码验证与回退：组合代码 `1cb7b918eb5f7bd2fd786137f0712614f9004f65` 已通过 44 项回归及 6 项反馈渲染检查，本次部署应用文件与该测试版本一致。故障时恢复发布前 `d22c0ac196550061ea17e81a8d6b530455c2ab82` 代码并重启，可保留已上线 Reading 并恢复原 Baseball 占位页；保留所有新增生产数据，不通过整库恢复覆盖新记录。比赛数据接入另行实现与验收。
+
 ## 2026-11-06：Baseball PR #12 已合并，生产部署受 SSH 连接阻塞（未部署）
 
 - 授权与合并：用户确认检查 Reading PR #13 后合并 Baseball 并部署。确认 #13 已合并且 Reading 四题／独立阅读器已在香港上线；组合测试代码 `1cb7b918eb5f7bd2fd786137f0712614f9004f65` 的 44 项回归及 6 项反馈渲染检查通过，保留两部分 CHANGELOG 内容解决冲突。通过 GitHub 合并 https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/12 ，结果为 `4f10da7fff5e820a5e818f53b26da985f6b584c6`。后续 Reading 发布记录 PR #14 合并为 `e50ad83`，只增加 CHANGELOG 记录，不改变业务代码。
