@@ -7,7 +7,7 @@ from pathlib import Path
 CURRICULUM_PATH = Path(__file__).resolve().parent / 'curricula/shoedog-v1.json'
 
 
-def lessons_for(book):
+def legacy_lessons_for(book):
     if not re.search(r'\bshoe\s*dog\b', book['title'], re.I):
         return []
     curriculum = json.loads(CURRICULUM_PATH.read_text(encoding='utf-8'))
@@ -42,6 +42,36 @@ def lessons_for(book):
                     if markers:
                         lesson['end_page'] = int(markers[-1].group(1))
         lesson['_reading_text'] = text
+        result.append(lesson)
+    return result
+
+
+COURSE_PATH = Path(__file__).resolve().parent / 'curricula/shoedog-gw1-v1.json'
+
+
+def lessons_for(book):
+    """Resolve the 17-course outline against the verified original edition."""
+    legacy = legacy_lessons_for(book)
+    if not legacy:
+        return []
+    chapters = [c for c in book['chapters']
+                if c['title'].strip().lower() not in {'part one', 'part two'}]
+    curriculum = json.loads(COURSE_PATH.read_text(encoding='utf-8'))
+    result = []
+    for template in curriculum['lessons']:
+        lesson = copy.deepcopy(template)
+        selected = [chapters[i] for i in lesson.pop('narrative_indexes')]
+        lesson.update(version=curriculum['version'], source=curriculum['source'],
+                      chapter_titles=[c['title'] for c in selected],
+                      chapter_ids=[c['id'] for c in selected],
+                      start_page=min(c['start_page'] for c in selected),
+                      end_page=max(c['end_page'] for c in selected))
+        lesson['_reading_text'] = '\n\n'.join(c['content_text'] for c in selected)
+        lesson['_reading_passages'] = [
+            {'title': f"Part {1 if index <= 14 else 2} · {chapter['title']}",
+             'start_page': chapter['start_page'], 'end_page': chapter['end_page'],
+             'text': chapter['content_text']}
+            for index, chapter in zip(template['narrative_indexes'], selected)]
         result.append(lesson)
     return result
 

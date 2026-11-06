@@ -243,3 +243,11 @@ async def submit_preparation_answer(session_id: str, payload: ReadingPreparation
             session_id, payload.access_token, payload.revision, payload.question_id, payload.answer)
     except Exception as exc:
         _raise_reading_error(exc)
+
+
+@public_router.get("/preparations/{session_id}/reading")
+async def get_preparation_reading(session_id: str, access_token: str = Query(..., min_length=20, max_length=200)):
+    try:
+        return get_reading_service().get_preparation_reading(session_id, access_token)
+    except Exception as exc:
+        _raise_reading_error(exc)

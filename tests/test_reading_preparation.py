@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 import api.reading as reading_api
 from main import app
-from services.reading_curriculum import CURRICULUM_PATH, lessons_for
+from services.reading_curriculum import CURRICULUM_PATH, legacy_lessons_for as lessons_for
 from services.reading_service import ReadingService
 
 
@@ -122,7 +122,8 @@ def test_preparation_routes_and_legacy_route_guard(tmp_path,monkeypatch):
     monkeypatch.setattr(reading_api,'get_reading_service',lambda:service)
     with TestClient(app) as client:
         public=client.get('/api/reading/books').json()['books'][0]
-        assert len(public['lessons'])==12
+        assert len(public['lessons'])==17
+        assert len(public['archived_lessons'])==12
         assert '_reading_text' not in json.dumps(public)
         s=client.post('/api/reading/preparations',json={'book_id':book['id'],'lesson_id':'shoedog-01'}).json()
         sid,token=s['id'],s['access_token']
@@ -189,7 +190,7 @@ def test_edit_during_grading_rejects_stale_result_and_keeps_new_draft(tmp_path):
 
 def test_teacher_questions_bilingual_and_old_snapshots_unchanged(tmp_path):
     service,book=make_preparation_service(tmp_path)
-    lessons=service.list_public_books()[0]['lessons']
+    lessons=service.list_public_books()[0]['archived_lessons']
     teachers=[q for lesson in lessons for q in lesson['questions'] if q['source']=='teacher']
     assert len(teachers)==38
     assert all(q['text'] and q['text_en'] and q['text']!=q['text_en'] for q in teachers)
@@ -320,3 +321,62 @@ def test_single_question_api_failures_leave_drafts_and_other_grades_unchanged(tm
         assert completed['questions'][0]==first_grade
         assert all(q['reference_answer'] and q['feedback'] for q in completed['questions'])
 
+
+
+def test_new_course_scope_reading_privacy_and_frozen_snapshot(tmp_path, monkeypatch):
+    service, book = make_preparation_service(tmp_path)
+    original = copy.deepcopy(book['chapters'])
+    public = service.list_public_books()[0]
+    lessons = public['lessons']
+    assert len(lessons) == 17
+    expected = [['1962'], ['1964', '1963']] + [[str(y)] for y in range(1965, 1975)] + [
+        ['1975', '1975'], ['1976'], ['1977'], ['1978', '1979'], ['1980']]
+    assert [l['chapter_titles'] for l in lessons] == expected
+    assert len({l['id'] for l in lessons + public['archived_lessons']}) == 29
+    assert not any(word in json.dumps(public) for word in ('READING_ONLY_MARKER', '_reading_passages', 'reference_answer'))
+    for lesson in lessons:
+        assert 4 <= len(lesson['grammar']['examples']) <= 6
+        assert 3 <= len(lesson['grammar']['exercises']) <= 4
+        assert all(q['explanation'] and 0 <= q['answer'] < len(q['options']) for q in lesson['grammar']['exercises'])
+        assert all(q['source'] == 'guide' for q in lesson['questions'])
+    monkeypatch.setattr(reading_api, 'get_reading_service', lambda: service)
+    with TestClient(app) as client:
+        session = client.post('/api/reading/preparations', json={
+            'book_id': book['id'], 'lesson_id': lessons[12]['id']}).json()
+        url = f"/api/reading/preparations/{session['id']}/reading"
+        assert client.get(url).status_code == 422
+        assert client.get(url, params={'access_token': 'x'*32}).status_code == 404
+        token = session['access_token']
+        reading = client.get(url, params={'access_token': token}).json()
+        assert [p['title'] for p in reading['passages']] == ['Part 1 · 1975', 'Part 2 · 1975']
+        assert len(reading['passages']) == 2
+        assert all('READING_ONLY_MARKER' in p['text'] for p in reading['passages'])
+        assert 'BACK_MATTER_ONLY_MARKER' not in json.dumps(reading)
+        assert '_reading_passages' not in json.dumps(session)
+        with service.repository.database.transaction() as conn:
+            conn.execute("UPDATE reading_chapters SET content_text='changed' WHERE book_id=?", (book['id'],))
+        assert client.get(url, params={'access_token': token}).json() == reading
+        resumed = client.get(f"/api/reading/sessions/{session['id']}", params={'access_token': token}).json()
+        assert resumed['preparation']['lesson']['grammar'] == session['preparation']['lesson']['grammar']
+    # Mapping and session creation do not rewrite chapter records.
+    assert [c['id'] for c in original] == [c['id'] for c in service.repository.get_book(book['id'])['chapters']]
+
+
+def test_new_course_boundary_and_second_lesson_order(tmp_path):
+    service, book = make_preparation_service(tmp_path)
+    for number in (1, 2, 16, 17):
+        session = service.start_preparation(book['id'], f'shoedog-course-{number:02}')
+        reading = service.get_preparation_reading(session['id'], session['access_token'])
+        titles = [p['title'] for p in reading['passages']]
+        expected = {1:['Part 1 · 1962'], 2:['Part 1 · 1964','Part 1 · 1963'],
+                    16:['Part 2 · 1978','Part 2 · 1979'], 17:['Part 2 · 1980']}
+        assert titles == expected[number]
+        text = '\n'.join(p['text'] for p in reading['passages'])
+        assert 'BACK_MATTER_ONLY_MARKER' not in text
+    # The new first lesson can still save, submit and reload through the existing engine.
+    s = service.start_preparation(book['id'], 'shoedog-course-01')
+    q = s['questions'][0]
+    result = asyncio.run(service.submit_preparation_answer(s['id'], s['access_token'], 0, q['id'],
+        'The team made a difficult decision because they had little time. This changed the plan.'))
+    assert result['status'] == 'completed'
+    assert service.get_public_session(s['id'], s['access_token'])['questions'][0]['reference_answer']

@@ -63,29 +63,31 @@
         #preparation-view .prep-reference small{display:block;font-size:13px;line-height:1.65}
         @media(max-width:900px){#preparation-view .assessment-grid{grid-template-columns:1fr}}
         @media(max-width:560px){#preparation-view .assessment-card{padding:22px}#preparation-view .assessment-label{margin-bottom:16px}#preparation-view .prep-reference{padding:24px 20px}}
+        .course-banner{background:var(--blue);color:white;padding:clamp(22px,4vw,42px);margin:20px 0}.course-banner .kicker{color:var(--acid)}.course-banner h2{font-size:clamp(30px,5vw,56px);line-height:1.08;letter-spacing:-.04em;margin:18px 0}.course-banner p{line-height:1.8}.course-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.course-pills span{border:1px solid #ffffff66;padding:8px 12px;font-size:12px}.course-reading{display:block;font-size:21px;margin:14px 0 10px}.course-title{display:block;line-height:1.6;font-size:14px}.chapter{padding:20px;overflow-wrap:anywhere}.chapter:hover{border-color:var(--blue);background:#f0f3ff}.course-action{padding-top:14px;color:var(--blue)!important}.grammar-panel{padding:24px;background:#f1edff;border-left:4px solid var(--purple);margin:24px 0}.grammar-panel h3{font-size:22px;line-height:1.5}.grammar-panel p,.grammar-panel li{line-height:1.8}.grammar-panel li{margin-bottom:10px}.grammar-panel ul{padding-left:22px}.grammar-panel small{color:var(--muted)}#course-archive{border-top:1px solid var(--line);margin-top:28px;padding-top:22px}#course-archive summary{cursor:pointer;min-height:44px;font-weight:700}
+        #prep-reading{margin:20px 0 40px}.reading-passage{border:1px solid var(--line);margin:16px 0}.reading-passage summary{padding:18px;cursor:pointer;font-weight:700;line-height:1.6}.reading-text{max-height:70vh;overflow:auto;padding:clamp(18px,4vw,40px);border-top:1px solid var(--line);background:#fbfaf6;font:19px/1.95 Georgia,serif;overflow-wrap:anywhere}.reading-text p{white-space:pre-wrap;margin:0 0 24px}.reading-page{font:12px/1.6 Manrope,sans-serif;color:var(--blue);border-top:1px solid var(--line);margin:24px 0 12px;padding-top:10px}.grammar-example{background:white;padding:18px;border:1px solid var(--line)}.grammar-exercise{min-width:0;margin:22px 0;padding:18px;border:1px solid var(--line)}.grammar-exercise legend{font-weight:700;line-height:1.7;overflow-wrap:anywhere}.grammar-exercise label{display:block;padding:12px 0;cursor:pointer;line-height:1.6}.grammar-exercise input{accent-color:var(--blue)}.grammar-correct{color:#226342;font-weight:700}.grammar-retry{color:#734900;font-weight:700}.grammar-panel summary{cursor:pointer;line-height:1.6;padding:12px 0}
     </style>
 </head>
 <body>
     <div class="shell">
         <nav><a id="back-link" href="/english">← Back to English</a><span>05 / READ</span><span>BOOK READING</span></nav>
-        <header><div><span class="kicker">READ / THINK / EXPLAIN</span><h1>Book<br>Reading.</h1></div><p>Choose a lesson, read the teacher’s notes, and take the questions into your reading. Save your ideas and return when you are ready for feedback.</p></header>
+        <header><div><span class="kicker">READ / THINK / EXPLAIN</span><h1>Book<br>Reading.</h1></div><p>Follow your reading plan, explore each chapter, and keep your ideas. Great Writing 1 grammar goals follow your teacher’s pace.</p></header>
         <div id="notice" class="notice" hidden></div>
 
         <main id="library-view">
             <div class="section-head"><div><span class="kicker">Your shelf</span><h2>Choose a book</h2></div><p id="book-count">Loading…</p></div>
             <section id="books" class="books"><div class="empty">Looking for books…</div></section>
             <section id="setup" class="setup" hidden>
-                <div class="chapters"><h3>Which chapter did you read?</h3><div id="chapters" class="chapter-grid"></div></div>
+                <div class="chapters"><h3>Which chapter did you read?</h3><div id="course-intro" hidden></div><div id="chapters" class="chapter-grid"></div><details id="course-archive" hidden><summary>旧版 12 课 · 历史预习与评估</summary><p class="prep-help">保留原有草稿、回答和评估。记录恢复依赖当前浏览器保存的凭证；新版 17 课独立保存。</p><div id="archive-lessons" class="chapter-grid"></div></details></div>
                 <div class="start-panel"><h3>Ready to think?</h3><p>Select up to 3 chapters. The questions stay inside those pages, so there are no spoilers.</p><div class="choice-fields"><div class="choice-field"><label for="question-count">Questions</label><select id="question-count"><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select></div><div class="choice-field"><label for="question-focus">Question focus</label><select id="question-focus"><option value="main_idea">Main Idea</option><option value="detail">Detail</option><option value="mixed" selected>Mixed</option></select></div></div><button id="start-button" class="button acid" type="button" onclick="startSession()">Start reading check →</button></div>
             </section>
         </main>
 
         <section id="preparation-view" hidden>
-            <div class="prep-header"><span class="kicker">Shoe Dog / Read with questions</span><h2 id="prep-heading"></h2><p id="prep-range"></p><p id="prep-session-meta"></p><p>先看 Note 和全部问题，再带着问题阅读。读完后用英文写下想法，保存草稿或提交反馈。</p></div>
+            <div class="prep-header"><span class="kicker">Shoe Dog / Read with questions</span><h2 id="prep-heading"></h2><p id="prep-range"></p><p id="prep-session-meta"></p><p>先确认阅读范围和本课目标，再带着问题阅读。读完后用英文写下想法，保存草稿或提交反馈。</p></div>
             <div class="prep-content">
                 <div class="prep-toolbar"><button class="button" onclick="leavePreparation()">← 返回课程</button><button class="button blue" onclick="document.getElementById('prep-questions').scrollIntoView({behavior:'smooth'})">查看全部预习问题 ↓</button></div>
-                <h2>Teacher’s Note · 老师课堂重点</h2><div id="prep-notes"></div><p id="prep-source" class="prep-help"></p>
-                <h2>带着这些问题阅读</h2><p class="prep-help">老师讨论题仅显示英文，英文引导题为补充。所有问题固定展示，可按自己的顺序填写。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估，已提交回答只读。全部题目完成后，本次预习会自动完成，可反复回来查看。</p>
+                <section id="prep-reading" hidden></section><h2 id="prep-note-heading">Teacher’s Note · 老师课堂重点</h2><section id="prep-grammar" class="grammar-panel" hidden></section><div id="prep-notes"></div><p id="prep-source" class="prep-help"></p>
+                <h2>带着这些问题阅读</h2><p id="prep-question-help" class="prep-help">老师讨论题仅显示英文，英文引导题为补充。所有问题固定展示，可按自己的顺序填写。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估，已提交回答只读。全部题目完成后，本次预习会自动完成，可反复回来查看。</p>
                 <div id="prep-summary" class="prep-summary" hidden></div><div id="prep-questions"></div>
                 <pre id="prep-recovery" class="prep-recovery" hidden></pre>
                 <p id="prep-state" role="status" aria-live="polite"></p>
@@ -168,18 +170,30 @@
         function label(level){return {clear:'Clear & thoughtful',mostly_clear:'Mostly clear',needs_support:'Keep exploring'}[level]||'Completed'}
         function renderResult(){show('result-view');document.getElementById('result-level').textContent=label(session.overall_level);document.getElementById('result-title').textContent={clear:'Nice reading.',mostly_clear:'Good start.',needs_support:'Let’s try that again.'}[session.overall_level]||'Reading check complete.';document.getElementById('student-summary').textContent=session.student_summary||'I do not have enough information to summarize your understanding yet.';const evaluation=session.evaluation||{},strengths=evaluation.strengths||[],hasStrengths=strengths.length>0;document.getElementById('strengths-title').textContent=hasStrengths?'What you understood well':'What your answers showed';document.getElementById('strengths').innerHTML=(hasStrengths?strengths:['There is not enough information yet to confirm a reading strength.']).map(x=>`<li>${escapeHtml(x)}</li>`).join('');document.getElementById('next-steps').innerHTML=(evaluation.next_steps?.length?evaluation.next_steps:evaluation.review_next?.length?evaluation.review_next:['Try again and explain one idea from the chapter in your own words.']).map(x=>`<li>${escapeHtml(x)}</li>`).join('');localStorage.removeItem(sessionKey)}
         function newReading(){session=null;selectedBook=null;selectedChapters.clear();show('library-view');document.getElementById('setup').hidden=true;document.getElementById('books').innerHTML=books.map(bookCard).join('');window.scrollTo({top:0,behavior:'smooth'})}
+        let prepReading=null;
         let prepSession=null,prepTimer=null,prepSaving=null,prepBusy=false,prepConflict=false;
         const prepKey=(bookId,lessonId)=>`jlc-prep-v1:${bookId}:${lessonId}`;
         const draftKey=id=>`jlc-prep-draft-v1:${id}`;
         function readStored(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}}
         function storePrep(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){notice('本机存储不可用，请使用「保存草稿」同步到服务器。',true)}}
+        function lessonCard(l, archived=false){
+            const saved=readStored(prepKey(selectedBook.id,l.id));
+            return `<button class="chapter" onclick="openPreparation('${l.id}')"><span class="kicker">${archived?'Archive / ':''}Lesson ${String(l.number).padStart(2,'0')}</span><strong class="course-reading">${escapeHtml(l.reading_label)}</strong><span class="course-title">${escapeHtml(l.title)}</span><small>电子书 PDF ${l.start_page}–${l.end_page}</small><small class="course-action">${saved?.completed?'回看回答与评估':saved?.answered?`继续预习 · 已提交 ${saved.answered} 题`:saved?'继续预习草稿':archived?'查看旧版老师 Note 和问题':'查看本课大纲与预习'} →</small></button>`;
+        }
         function renderLessonChoices(){
-            const lessons=selectedBook.lessons||[];
-            document.querySelector('.chapters h3').textContent=lessons.length?'选择预习课 · 12 Lessons':'Which chapter did you read?';
+            const lessons=selectedBook.lessons||[],hasCourse=lessons.some(l=>l.grammar);
+            document.querySelector('.chapters h3').textContent=lessons.length?`课程路线 · ${lessons.length} Lessons`:'Which chapter did you read?';
             document.querySelector('.start-panel').hidden=Boolean(lessons.length);
             document.getElementById('setup').style.gridTemplateColumns=lessons.length?'1fr':'';
+            document.getElementById('course-intro').hidden=!hasCourse;
+            document.getElementById('course-archive').hidden=!hasCourse;
             if(!lessons.length)return false;
-            document.getElementById('chapters').innerHTML=lessons.map(l=>{const saved=readStored(prepKey(selectedBook.id,l.id));return `<button class="chapter" onclick="openPreparation('${l.id}')"><span class="kicker">Lesson ${l.number}</span><strong style="display:block;margin-top:8px">${escapeHtml(l.title)}</strong><small>${escapeHtml(l.reading_label)} · PDF ${l.start_page}–${l.end_page}</small><small>${saved?.completed?'回看回答、标答和评估':saved?.answered?`继续预习 · 已提交 ${saved.answered} 题`:saved?'继续预习草稿':'查看老师 Note 和固定问题'} →</small></button>`}).join('');
+            if(hasCourse){
+                const complete=lessons.filter(l=>readStored(prepKey(selectedBook.id,l.id))?.completed).length;
+                document.getElementById('course-intro').innerHTML=`<div class="course-banner"><span class="kicker">Great Writing 1 × Shoe Dog</span><h2>Read deeply.<br>Build your sentences.</h2><p>精读按老师的 17 课大纲推进；语法按实际掌握情况调整。</p><div class="course-pills"><span>精读 · 1962–1980</span><span>语法 · 从句子到综合复习</span><span>本机预习完成 ${complete} / ${lessons.length}</span></div></div><p class="prep-help">每课先确认精读范围，再查看 Great Writing 1 目标和补充预习。预习完成不代表课堂进度或语法已掌握。第 2 课保留大纲顺序 1964 + 1963；第 13 课包含两部的 1975。Dawn / Night 不在新课表内，可在旧版课程查看。</p>`;
+                document.getElementById('archive-lessons').innerHTML=(selectedBook.archived_lessons||[]).map(l=>lessonCard(l,true)).join('');
+            }
+            document.getElementById('chapters').innerHTML=lessons.map(l=>lessonCard(l)).join('');
             return true;
         }
         async function openPreparation(lessonId){
@@ -191,6 +205,7 @@
                 if(saved){opened=await api(`/api/reading/sessions/${saved.id}?access_token=${encodeURIComponent(saved.token)}`);opened.access_token=saved.token}
                 else{opened=await api('/api/reading/preparations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({book_id:selectedBook.id,lesson_id:lessonId})});storePrep(key,{id:opened.id,token:opened.access_token})}
                 prepSession=opened;prepConflict=false;
+                prepReading=null;
                 renderPreparation();
                 window.scrollTo({top:0,behavior:'smooth'});
             }catch(error){notice(error.message,true)}finally{prepBusy=false}
@@ -207,7 +222,14 @@
             document.getElementById('prep-heading').textContent=`Lesson ${l.number} · ${l.title}`;
             document.getElementById('prep-range').textContent=`${l.reading_label} · PDF pages ${l.start_page}–${l.end_page}`;
             document.getElementById('prep-notes').innerHTML=l.notes.map(n=>`<section class="prep-note"><h3>${escapeHtml(n.heading)}</h3><p>${escapeHtml(n.text).replace(/ (?=\d+\.\s)/g,'\n')}</p></section>`).join('');
-            document.getElementById('prep-source').textContent=`来源：${l.source} · ${l.version}。老师讨论题按英文译文展示；引导题为补充。`;
+            document.getElementById('prep-note-heading').textContent=l.grammar?'本课学习安排':'Teacher’s Note · 老师课堂重点';
+            const grammar=document.getElementById('prep-grammar');
+            grammar.hidden=!l.grammar;
+            grammar.innerHTML=l.grammar?`<span class="kicker">02 / Grammar preview</span><h3>${escapeHtml(l.grammar.title)}</h3><p>${escapeHtml(l.grammar.pacing)}</p><h4>先看例句</h4><p class="prep-help">例句与练习由系统编写，用来预习，不是书中引文或老师作业。</p>${(l.grammar.examples||[]).map(e=>`<p class="grammar-example">${escapeHtml(e)}</p>`).join('')}<h4>做 ${(l.grammar.exercises||[]).length} 道小题，检查理解</h4><p class="prep-help">选择后查看解析，可重新尝试。练习记录保存在本机，不计入阅读评分。</p>${(l.grammar.exercises||[]).map((q,i)=>`<fieldset class="grammar-exercise"><legend>${i+1}. ${escapeHtml(q.prompt)}</legend>${q.options.map((option,j)=>`<label><input type="radio" name="${q.id}" value="${j}" onchange="checkGrammar('${q.id}',${j})"> ${escapeHtml(option)}</label>`).join('')}<p id="grammar-result-${q.id}" role="status" aria-live="polite"></p></fieldset>`).join('')}<details><summary>查看老师大纲中的完整学习目标</summary><ul lang="en">${l.grammar.goals.map(g=>`<li>${escapeHtml(g)}</li>`).join('')}</ul></details>`:'';
+            if(l.grammar)restoreGrammar();
+            renderLessonReading();
+            document.getElementById('prep-source').textContent=`来源：${l.source} · ${l.version}。${l.grammar?'精读范围、语法目标来自老师大纲；课前建议与阅读问题为系统补充。':'老师讨论题按英文译文展示；引导题为补充。'}`;
+            document.getElementById('prep-question-help').textContent=l.grammar?'以下为系统补充阅读问题，PDF 未列讨论题。用本课事件解释自己的想法，提交后查看参考思路和理解反馈。语法目标仅供对照，不纳入阅读完成条件。每题最多 1500 字符，可保存草稿并反复回看。':'老师讨论题仅显示英文，英文引导题为补充。每题最多 1500 字符；可逐题提交，提交后显示自己的回答、参考标答和本次评估。';
             document.getElementById('prep-questions').innerHTML=s.questions.map((q,i)=>preparationQuestion(q,i,answers,completed)).join('');
             document.getElementById('prep-actions').hidden=completed;
             document.getElementById('prep-state').textContent=completed?'本次预习已完成 · 回答、参考标答和评估已保存，可随时回来查看':local?.revision===p.revision?'本机草稿已恢复，可保存到服务器':`服务器草稿 · 版本 ${p.revision}`;
@@ -216,9 +238,46 @@
             const recovery=document.getElementById('prep-recovery');recovery.hidden=!(local&&local.revision!==p.revision&&!completed);
             recovery.textContent=recovery.hidden?'':`本机未同步草稿（请复制需要的内容）：\n${Object.values(local.answers||{}).join('\n\n')}`;
         }
+        const grammarKey=()=>`jlc-grammar-v1:${prepSession.id}`;
+        function checkGrammar(id,value,remember=true){
+            const q=prepSession.preparation.lesson.grammar.exercises.find(q=>q.id===id);
+            if(!q||!Number.isInteger(value)||value<0||value>=q.options.length)return;
+            const result=document.getElementById(`grammar-result-${id}`);
+            result.textContent=`${q.answer===value?'✓ 答对了':'再想一想'} · ${q.explanation}`;
+            result.className=q.answer===value?'grammar-correct':'grammar-retry';
+            if(remember){const saved=readStored(grammarKey())||{};saved[id]=value;storePrep(grammarKey(),saved)}
+        }
+        function restoreGrammar(){
+            const saved=readStored(grammarKey())||{};
+            for(const q of prepSession.preparation.lesson.grammar.exercises||[]){
+                const value=saved[q.id];
+                if(!Number.isInteger(value)||value<0||value>=q.options.length)continue;
+                document.querySelector(`input[name="${q.id}"][value="${value}"]`).checked=true;
+                checkGrammar(q.id,value,false);
+            }
+        }
+        function renderLessonReading(){
+            const el=document.getElementById('prep-reading');
+            el.hidden=!prepSession.preparation.lesson.grammar;
+            if(el.hidden)return;
+            el.innerHTML='<span class="kicker">01 / Shoe Dog reading</span><h2>本课精读原文</h2><p class="prep-help">按课程分好章节，保留上传电子书的原文与换行。阅读页码对应电子书 PDF。可展开章节阅读。</p><div id="prep-reading-body"><button class="button blue" onclick="loadLessonReading()">展开本课原文 ↓</button></div>';
+            if(prepReading)paintLessonReading();
+        }
+        function paintLessonReading(){
+            document.getElementById('prep-reading-body').innerHTML=prepReading.passages.length?prepReading.passages.map((p,i)=>`<details class="reading-passage" ${i===0?'open':''}><summary>${escapeHtml(p.title)} · PDF ${p.start_page}–${p.end_page}</summary><div class="reading-text" lang="en">${p.text.split(/(\[PDF page \d+\])/).filter(Boolean).map(t=>/^\[PDF page \d+\]$/.test(t)?`<div class="reading-page">${escapeHtml(t)}</div>`:`<p>${escapeHtml(t)}</p>`).join('')}</div></details>`).join(''):'<p>这份旧快照未保存分课原文，请返回课程重新打开新版预习。</p>';
+        }
+        async function loadLessonReading(){
+            const id=prepSession.id,el=document.getElementById('prep-reading-body');
+            el.textContent='正在载入本课原文…';
+            try{
+                const data=await api(`/api/reading/preparations/${id}/reading?access_token=${encodeURIComponent(prepSession.access_token)}`);
+                if(prepSession?.id!==id)return;
+                prepReading=data;paintLessonReading();
+            }catch(error){if(prepSession?.id===id){el.innerHTML='<button class="button" onclick="loadLessonReading()">重新载入原文</button>';notice(error.message,true)}}
+        }
         function preparationQuestion(q,i,answers,completed){
             const submitted=Boolean(q.answered_at)||completed;
-            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'Teacher discussion':'Reading guide'} ${i+1}${submitted?' · 已提交':''}</div><h3 lang="en">${escapeHtml(q.question_type==='teacher_discussion'?(q.question_text_en||'English translation unavailable for this question.'):q.question_text)}</h3><label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`${ReadingFeedback.renderAssessment(q.feedback,label(q.understanding_level))}<section class="prep-reference"><h4>参考标答 · Model answer</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。</small></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
+            return `<article id="prep-question-${q.id}" class="prep-question"><div class="kicker">${q.question_type==='teacher_discussion'?'Teacher discussion':'Reading guide'} ${i+1}${submitted?' · 已提交':''}</div><h3 lang="en">${escapeHtml(q.question_type==='teacher_discussion'?(q.question_text_en||'English translation unavailable for this question.'):q.question_text)}</h3><label class="prep-answer-label" for="prep-answer-${q.id}">我的回答 · My answer</label><textarea id="prep-answer-${q.id}" data-question="${q.id}" maxlength="1500" placeholder="Write your thoughts in English. Use an event or story clue to explain your idea." ${submitted?'readonly':''} oninput="preparationInput()">${escapeHtml(submitted?q.child_answer:answers?.[q.id]||'')}</textarea>${submitted?`${ReadingFeedback.renderAssessment(q.feedback,label(q.understanding_level))}<section class="prep-reference"><h4>${prepSession?.preparation?.lesson?.grammar?'参考思路 · Reference criteria':'参考标答 · Model answer'}</h4><p lang="en">${escapeHtml(q.reference_answer||'该历史题目暂未配置参考标答。')}</p><small>${prepSession?.preparation?.lesson?.grammar?'系统补充的答题参考；以本课文本为依据，支持有证据的不同解释。':'系统根据本课材料整理的示范答案；合理且有文本证据的其他观点也成立。'}</small></section>`:`<div class="prep-toolbar"><button class="button blue prep-question-submit" onclick="submitPreparationQuestion('${q.id}')">提交本题 · 查看标答和评估 →</button></div>`}</article>`;
         }
         function setPreparationResponse(updated,token){
             prepSession={...updated,access_token:token};
