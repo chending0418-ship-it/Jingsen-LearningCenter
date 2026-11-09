@@ -1,13 +1,13 @@
 """Family-meeting pages and capability-scoped, password-gated collection APIs."""
 
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
-from services.admin_session_service import require_admin_session
+from services.admin_session_service import is_admin_authenticated, require_admin_session
 from services.familymeeting_service import MeetingError, get_familymeeting_service
 
 
@@ -61,11 +61,25 @@ def page():
     return FileResponse(ASSETS / "index.html", headers=PRIVATE_HEADERS)
 
 
+@router.get("/admin/baseball/familymeeting/2026-11-10", include_in_schema=False)
+def father_son_conversation(request: Request):
+    if not is_admin_authenticated(request):
+        target = quote(request.url.path, safe="")
+        return RedirectResponse(f"/admin?next={target}", status_code=303, headers=PRIVATE_HEADERS)
+    return FileResponse(ASSETS / "conversation-20261110.html", headers=PRIVATE_HEADERS)
+
+
 @router.get("/baseball/familymeeting/assets/{filename}", include_in_schema=False)
 @router.get("/static/familymeeting/{filename}", include_in_schema=False)
-def asset(filename: str):
-    if filename not in {"app.js", "styles.css", "questions.json"}:
+def asset(filename: str, request: Request):
+    if filename not in {
+        "app.js", "styles.css", "questions.json",
+        "conversation-20261110.css", "conversation-20261110.js",
+    }:
         raise HTTPException(404)
+    if filename == "conversation-20261110.js":
+        require_admin_session(request)
+        return FileResponse(ASSETS / filename, headers=PRIVATE_HEADERS)
     return FileResponse(ASSETS / filename, headers={**PRIVATE_HEADERS, "Cache-Control": "no-cache"})
 
 
