@@ -50,6 +50,9 @@
 .guide-note summary::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); margin-bottom: 4px; }
 .guide-note[open] summary::after { transform: rotate(225deg); margin-bottom: 0; }
 .guide-note p { color: var(--copy-muted); margin: 2px 0 10px; }
+.host-guide { margin: -14px 0 22px; }
+.host-guide ol { margin: 2px 0 12px; padding-inline-start: 1.5rem; line-height: 1.75; }
+.host-guide li + li { margin-top: 8px; }
 .record-group { border-top: 1px solid var(--line); padding: 20px 0; }
 .record-group h3 { font-size: 1.0625rem; margin-bottom: 5px; }
 .key-label { font-size: .75rem; font-weight: 700; color: var(--green); margin: 0 0 6px; }
@@ -73,6 +76,7 @@
 @media (max-width: 600px) {
   .meeting-overview { display: grid; gap: 16px; padding-bottom: 18px; margin-bottom: 18px; }
   .meeting-overview h1 { font-size: 2.375rem; }
+  .host-guide { margin-top: -6px; }
   .meeting-window { min-width: 0; border-left: 0; padding: 12px 0 0 10px; border-top: 1px solid var(--line); }
   .meeting-window strong { font-size: 1.0625rem; }
   .conversation .step-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
