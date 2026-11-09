@@ -1,10 +1,12 @@
 import json
+from http.cookies import SimpleCookie
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.testclient import TestClient
 
 import api.familymeeting as api
+from services.admin_session_service import COOKIE_NAME, create_admin_session
 from services.familymeeting_service import FamilyMeetingService, MeetingError, make_password_hash
 
 
@@ -171,3 +173,33 @@ def test_nonempty_submission_and_reopening_persist_on_disk(meeting):
     publish(service, room, tokens["dad"], "重启后保留")
     reopened = FamilyMeetingService(service.path, service.unlock_hash)
     assert reopened.state(room, tokens["dad"])["own"]["answers"]["worries"] == "重启后保留"
+
+
+def test_father_son_page_and_script_require_admin():
+    path = "/admin/baseball/familymeeting/2026-11-10"
+    script_paths = [
+        "/static/familymeeting/conversation-20261110.js",
+        "/baseball/familymeeting/assets/conversation-20261110.js",
+    ]
+    app = FastAPI()
+    app.include_router(api.router)
+    with TestClient(app, follow_redirects=False) as client:
+        response = client.get(path)
+        assert response.status_code == 303
+        assert response.headers["location"] == "/admin?next=%2Fadmin%2Fbaseball%2Ffamilymeeting%2F2026-11-10"
+        for script_path in script_paths:
+            assert client.get(script_path).status_code == 401
+        assert client.get("/static/familymeeting/conversation-20261110.html").status_code == 404
+
+        login = Response()
+        create_admin_session(login)
+        cookie = SimpleCookie(login.headers["set-cookie"])
+        client.cookies.set(COOKIE_NAME, cookie[COOKIE_NAME].value)
+        page = client.get(path)
+        assert page.status_code == 200
+        assert page.headers["cache-control"] == "no-store"
+        for script_path in script_paths:
+            script = client.get(script_path)
+            assert script.status_code == 200
+            assert script.headers["cache-control"] == "no-store"
+        assert client.get("/static/familymeeting/conversation-20261110.css").status_code == 200

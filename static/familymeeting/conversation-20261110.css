@@ -1,0 +1,86 @@
+.conversation {
+  --copy-muted: #526257;
+  padding-bottom: 6px;
+}
+.meeting-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 30px;
+  padding-bottom: 26px;
+}
+.meeting-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 14px;
+  color: var(--copy-muted);
+  font-size: .875rem;
+  margin-bottom: 7px;
+}
+.meeting-overview h1 { font-size: 3rem; margin-bottom: 8px; }
+.meeting-overview .lead { margin: 0; }
+.meeting-window { border-left: 1px solid var(--line); padding-left: 22px; min-width: 245px; }
+.meeting-window span, .meeting-window p { font-size: .8125rem; color: var(--copy-muted); }
+.meeting-window strong { display: block; font-size: 1.25rem; margin: 5px 0; }
+.meeting-window p { margin: 0; }
+.progress-label { display: grid; gap: 5px; margin: 0 0 14px; }
+.progress-label span, .phase-time { color: var(--copy-muted); font-size: .8125rem; }
+.conversation .step-nav { overflow: visible; }
+.conversation .step-button { color: var(--copy-muted); border: 1px solid transparent; width: 100%; min-height: 46px; }
+.conversation .step-button:hover { background: var(--light); }
+.conversation .step-button[aria-current="step"] { border-color: var(--green); background: var(--light); color: var(--green); font-weight: 700; }
+.stage-number { font-variant-numeric: tabular-nums; color: var(--green); }
+.storage-note { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
+.conversation .help, .conversation .hint { color: var(--copy-muted); }
+.conversation .section-head { margin-bottom: 20px; }
+.conversation .section-head h2 { font-size: 1.625rem; margin: 4px 0 8px; }
+.conversation .section-head p { margin-bottom: 0; }
+.conversation .section-head .confirmation {
+  background: var(--light);
+  border-radius: 8px;
+  color: var(--green);
+  padding: 12px 15px;
+  margin: 12px 0 0;
+  font-size: .875rem;
+}
+.guide-note { font-size: .875rem; margin: 0 0 16px; }
+.guide-note summary { display: flex; align-items: center; cursor: pointer; min-height: 44px; color: var(--green); font-weight: 650; gap: 8px; }
+.guide-note summary::after { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); margin-bottom: 4px; }
+.guide-note[open] summary::after { transform: rotate(225deg); margin-bottom: 0; }
+.guide-note p { color: var(--copy-muted); margin: 2px 0 10px; }
+.record-group { border-top: 1px solid var(--line); padding: 20px 0; }
+.record-group h3 { font-size: 1.0625rem; margin-bottom: 5px; }
+.key-label { font-size: .75rem; font-weight: 700; color: var(--green); margin: 0 0 6px; }
+.record-group .hint { font-size: .875rem; margin: 0 0 12px; }
+.record-fields label { font-size: .8125rem; margin-bottom: 5px; }
+.record-fields textarea { min-height: 92px; font-size: 1rem; display: block; }
+.record-fields textarea::placeholder { color: var(--copy-muted); font-size: .875rem; opacity: 1; }
+.conversation textarea, .conversation button { caret-color: var(--green); }
+.conversation ::selection { background: var(--lime); color: var(--ink); }
+.stage-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+.conversation-export { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 18px; align-items: center; }
+.conversation-export h2 { font-size: 1.125rem; margin-bottom: 0; }
+.conversation-export .help { margin-top: 5px; }
+.site-footer { color: #526257; }
+#export-feedback:empty { display: none; }
+.save-tools { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.save-tools .button { min-height: 44px; padding: 8px 16px; white-space: nowrap; }
+#save-state { color: #526257; font-size: .8125rem; max-width: 250px; line-height: 1.5; text-align: right; }
+#save-state[data-warning] { color: #923519; }
+#stage-title { scroll-margin-top: 16px; }
+@media (max-width: 600px) {
+  .meeting-overview { display: grid; gap: 16px; padding-bottom: 18px; margin-bottom: 18px; }
+  .meeting-overview h1 { font-size: 2.375rem; }
+  .meeting-window { min-width: 0; border-left: 0; padding: 12px 0 0 10px; border-top: 1px solid var(--line); }
+  .meeting-window strong { font-size: 1.0625rem; }
+  .conversation .step-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .conversation .step-button { white-space: normal; gap: 7px; padding: 8px; background: var(--white); }
+  .conversation .storage-note { display: block; margin: 10px 0 0; padding-top: 8px; }
+  .conversation .form-panel { padding: 16px; }
+  .stage-actions .button { padding: 8px 10px; min-height: 44px; }
+  .conversation-export { flex-direction: column; align-items: start; }
+  .save-tools { gap: 8px; }
+  #save-state { max-width: 125px; }
+}
