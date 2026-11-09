@@ -73,7 +73,7 @@ def father_son_conversation(request: Request):
 @router.get("/static/familymeeting/{filename}", include_in_schema=False)
 def asset(filename: str, request: Request):
     if filename not in {
-        "app.js", "styles.css", "questions.json",
+        "app.js", "styles.css", "questions.json", "opening-three-routes.webp",
         "conversation-20261110.css", "conversation-20261110.js",
     }:
         raise HTTPException(404)
