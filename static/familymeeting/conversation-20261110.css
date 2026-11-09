@@ -32,6 +32,16 @@
 .route-comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .route-comparison article { border-top: 1px solid var(--line); padding-top: 16px; }
 .route-comparison h3 { font-size: 1.0625rem; margin-bottom: 7px; }
+.route-art {
+  aspect-ratio: 3 / 2;
+  margin: 10px 0 12px;
+  border-radius: 7px;
+  background: var(--light) url("/static/familymeeting/opening-three-routes.webp") no-repeat;
+  background-size: 300% auto;
+}
+.route-art-school { background-position: left center; }
+.route-art-training { background-position: center center; }
+.route-art-lighter { background-position: right center; }
 .route-comparison p, .route-comparison dl { font-size: .875rem; line-height: 1.75; }
 .route-comparison p { color: var(--copy-muted); }
 .route-comparison dl { margin: 0; }
