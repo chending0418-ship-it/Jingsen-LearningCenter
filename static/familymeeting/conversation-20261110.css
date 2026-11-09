@@ -25,6 +25,26 @@
 .meeting-window span, .meeting-window p { font-size: .8125rem; color: var(--copy-muted); }
 .meeting-window strong { display: block; font-size: 1.25rem; margin: 5px 0; }
 .meeting-window p { margin: 0; }
+/* The child-facing opening sits before the parent's guide and writing fields. */
+.opening-brief { margin-bottom: 32px; }
+.opening-brief h2 { margin-bottom: 8px; }
+.opening-lead { max-width: 42rem; color: var(--copy-muted); }
+.route-comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.route-comparison article { border-top: 1px solid var(--line); padding-top: 16px; }
+.route-comparison h3 { font-size: 1.0625rem; margin-bottom: 7px; }
+.route-comparison p, .route-comparison dl { font-size: .875rem; line-height: 1.75; }
+.route-comparison p { color: var(--copy-muted); }
+.route-comparison dl { margin: 0; }
+.route-comparison dt { font-weight: 700; color: var(--green); }
+.route-comparison dd { margin: 2px 0 10px; }
+.opening-next { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.opening-next p { margin: 0; }
+.opening-next .button { flex-shrink: 0; }
+#host-guide { scroll-margin-top: 12px; }
+@media (max-width: 800px) {
+  .route-comparison { grid-template-columns: 1fr; gap: 12px; }
+  .opening-next { align-items: start; flex-direction: column; }
+}
 .progress-label { display: grid; gap: 5px; margin: 0 0 14px; }
 .progress-label span, .phase-time { color: var(--copy-muted); font-size: .8125rem; }
 .conversation .step-nav { overflow: visible; }
