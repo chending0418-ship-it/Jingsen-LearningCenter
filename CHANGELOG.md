@@ -14,7 +14,7 @@
 - 后台新版页面搭配浏览器缓存的旧样式时，「合并英语词库」与「Word Matching 词库」会呈现白字透明底。词库操作栏的颜色和布局改为随页面提供，Word Matching 为蓝底主入口，其余操作为白底深字，手机以两列排列。
 - Word Matching 卡片增加与同组卡片一致的标签、标题、说明和底部信息布局。桌面三张卡片的标题和底部信息对齐。
 - 37 项 Word Matching 与词库合并测试通过。登录后的 Chrome 在 320、390、1440px 验证共享样式正常、陈旧和加载失败三种情况，检查对比度、键盘焦点及跳转。另在 768px 验证卡片对齐，手机验证无横向溢出。
-- 发布基线为 `439b907`，待建立 PR。无数据迁移，回退本次 HTML 和 CSS 即可。发布按 updateNew.md 备份并校验服务器数据。
+- 发布 [PR #31](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/31) 目标为 `deploy/tencent-learningcenter-path`，基线为 `439b907`，测试提交为 `bb6f55cacb279f12e6123919b3ef38b94f779f40`。无数据迁移，回退本次 HTML 和 CSS 即可。发布按 updateNew.md 备份并校验服务器数据。
 
 ## 2026-11-10：拼写练习与后台词库列表已发布至香港
 
