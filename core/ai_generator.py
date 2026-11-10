@@ -70,17 +70,15 @@ class AIGenerator:
 
     async def _create_chat_completion(self, *, prefer_no_reasoning: bool = False, **kwargs):
         model = str(kwargs.get("model") or "").strip().lower()
-        effort = None
-        if prefer_no_reasoning and model in self.NO_REASONING_MODELS:
-            effort = "none"
+        # Pass provider-specific options through the production OpenAI SDK 1.x.
+        extra_body = dict(kwargs.get("extra_body") or {})
+        if model == "deepseek-v4.1-flash":
+            extra_body["thinking"] = {"type": "disabled"}
+        elif prefer_no_reasoning and model in self.NO_REASONING_MODELS:
+            extra_body.setdefault("reasoning_effort", "none")
         elif self._uses_minimal_reasoning(model):
-            effort = "minimal"
-
-        if effort is not None:
-            # `extra_body` keeps this compatible with the production OpenAI
-            # Python SDK 1.x while still sending the standard API field.
-            extra_body = dict(kwargs.get("extra_body") or {})
-            extra_body.setdefault("reasoning_effort", effort)
+            extra_body.setdefault("reasoning_effort", "minimal")
+        if extra_body:
             kwargs["extra_body"] = extra_body
         try:
             return await asyncio.wait_for(

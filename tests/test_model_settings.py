@@ -162,6 +162,28 @@ def test_ai_generator_can_request_no_reasoning_for_compatible_models(monkeypatch
     assert "prefer_no_reasoning" not in observed[0]
 
 
+def test_deepseek_flash_disables_thinking_for_questions_and_cloze(monkeypatch):
+    observed = []
+
+    def create(**kwargs):
+        observed.append(kwargs)
+        content = '{"questions": [], "sentences": ["A complete sentence."]}'
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=content))])
+
+    monkeypatch.setattr(config, "OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(AIGenerator, "model", property(lambda _: "deepseek-v4.1-flash"))
+    generator = AIGenerator()
+    monkeypatch.setattr(generator.client.chat.completions, "create", create)
+
+    asyncio.run(generator.generate_questions("Daily Word", extra_body={"custom": "option"}))
+    asyncio.run(generator.generate_json("First-Letter Cloze", prefer_no_reasoning=True))
+
+    assert [call["extra_body"] for call in observed] == [
+        {"thinking": {"type": "disabled"}, "custom": "option"},
+        {"thinking": {"type": "disabled"}},
+    ]
+
+
 def test_admin_model_api_requires_session_and_saves_only_available_model(tmp_path, monkeypatch):
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
