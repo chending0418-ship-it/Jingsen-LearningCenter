@@ -142,6 +142,26 @@ def test_ai_generator_omits_minimal_reasoning_for_incompatible_models(monkeypatc
     assert "extra_body" not in observed[0]
 
 
+@pytest.mark.parametrize("model", ["gpt-5.4-nano", "gpt-5.4-nano-2026-03-17", "gpt-5.6-luna"])
+def test_ai_generator_can_request_no_reasoning_for_compatible_models(monkeypatch, model):
+    observed = []
+
+    def create(**kwargs):
+        observed.append(kwargs)
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='{"ok": true}'))])
+
+    monkeypatch.setattr(config, "OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(AIGenerator, "model", property(lambda _: model))
+    generator = AIGenerator()
+    generator.client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+
+    result = asyncio.run(generator.generate_json("Test", prefer_no_reasoning=True))
+
+    assert result == {"ok": True}
+    assert observed[0]["extra_body"]["reasoning_effort"] == "none"
+    assert "prefer_no_reasoning" not in observed[0]
+
+
 def test_admin_model_api_requires_session_and_saves_only_available_model(tmp_path, monkeypatch):
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
