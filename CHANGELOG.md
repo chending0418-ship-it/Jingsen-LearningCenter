@@ -9,6 +9,19 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：放大首字母完形填空的电脑和 iPad 布局
+
+- 原答题区在大屏上较窄，短文和空格偏小。答题区最大宽度从 832px 扩至 1152px，平板尺寸短文为 24px，1024px 及以上为 26px，输入框与设置控件至少高 56px 或 60px。平板竖屏并排显示词库和空数，较宽的横屏将生成按钮排在同一行。
+- Chrome 在 320–1440px 检查键盘、模拟触控、批改及 20 空布局。macOS WebKit 用 656–1194px 的平板横竖屏尺寸验证选库、作答和批改。188 项 Python 和 13 项 JavaScript 回归通过。实机 iPad 的软键盘与触控尚未验收。
+- 更新 [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33)，布局测试提交为 `0ff5cc6b381437246dcdcb9f29bbbb6afa99f282`。无需数据库迁移。单独回退本次布局提交可恢复原尺寸，保留首字母完形填空和已存报告。
+
+## 2026-11-10：Word Palace 新增首字母完形填空
+
+- 为练习从上下文推断词义并拼写单词，新增 English → Word Palace → First-Letter Cloze。先从现有已启用英语词库中选一组，再按可用词数选 1–20 个空。出题从词库随机抽取互不重复的纯字母单词，短文题材由模型选择。
+- 服务端从完整短文挖去目标词，检查词形、出现次数和空数。模型另行仅凭挖空后的短文和首字母试填，发现歧义或答案不一致时重试或提示重新出题。学生只看短文和每空首字母，输入剩余字母。提交后逐空核对，显示正确拼写并保存至 Daily Reports，重试提交只保存一份报告。
+- 188 项 Python 和 13 项 JavaScript 回归通过。Chrome 在 320、390、768 和 1440px 用隔离 SQLite 和模拟出题验证选库、取消、改设置、键盘作答、反馈和日报。真实模型对不同词库的生成速度和语义判定仍需发布验收。
+- 发布 [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 目标为 `deploy/tencent-learningcenter-path`，基线为 `5457b56`，测试提交为 `d8e2d5916d3c35768d95631e3892d20a4b0bbb76`。沿用现有词库、生成任务和报告表，无需数据库迁移。回退本功能 PR 并保留 SQLite 数据，已保存的日报继续保留，尚未提交的本题型练习需重新开题。
+
 ## 2026-11-10：后台按钮与 Word Palace 卡片修复已发布至香港
 
 - [PR #31](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/31) 经 GitHub 合并并发布。生产提交为 `ad4bd69a65c2c80e69cbf5aae9b03dd8ee7e7400`，与测试提交 `bb6f55cacb279f12e6123919b3ef38b94f779f40` 的应用文件一致。
