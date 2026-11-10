@@ -9,6 +9,12 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：为 DeepSeek V4.1 Flash 关闭推理
+
+- 网关默认会为 `deepseek-v4.1-flash` 返回推理内容。共用生成器在选中此模型时发送 `thinking.type=disabled`，涵盖 Daily Word 出题和批改总结，以及首字母完形填空出题。切换全站默认模型仍通过 Admin 设置。
+- 195 项 Python 测试通过。在隔离环境用线上词库和真实网关生成两套 5 空题，分别耗时 2.59 秒及 2.33 秒，均一次出题并正确判为 4/5。Daily Word 生成 3 题耗时 3.60 秒。这三次模型响应均未返回推理内容。
+- 变更见 [PR #40](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/40)，测试提交为 `2ae687272e924427961fc86af64a2786a0ef12fc`。无需数据迁移。若线上模型表现不稳定，可通过 Admin 恢复 `gpt-5.4-nano`。如需回退代码，通过发布 PR 撤回本变更并按标准备份流程重新部署。
+
 ## 2026-11-10：先用词库原词造句，再挖空
 
 - 修复首字母完形填空因模型试填给出同首字母替代词而反复退回短文的问题。从共用词库抽取指定数量的词，让模型逐词造句并串成一篇短文。服务端核对所有原词恰好出现一次后挖空，只有短文格式或用词不合格时才重写。前端只显示首字母，批改使用抽中的原词。
