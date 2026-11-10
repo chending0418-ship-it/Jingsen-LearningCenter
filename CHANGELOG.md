@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：上线无推理的 DeepSeek V4.1 Flash
+
+- 约 21:34（北京时间）将 [PR #40](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/40) 合并到发布分支并部署。生产与发布分支均为 `f9d7f0cddeac79ecaecd6b0a6234027a766af2ad`，测试提交为 `2ae687272e924427961fc86af64a2786a0ef12fc`。通过 Admin 将全站默认模型从 `gpt-5.4-nano` 切换为 `deepseek-v4.1-flash`，公网健康接口已确认。
+- 执行 `update_safe.sh` 并重启。140 个数据文件、两份 SQLite 的内容与完整性均通过发布前后比对，`.env` 与备份一致，无新增数据迁移。数据快照为 `20261110-213353-3056354`，旧代码快照为 `deepseek-flash-code-20261110-213352-3056282`。
+- 公网 Daily Word 从 `4000-4` 生成 3 题，耗时 4.23 秒。首字母完形填空从 `EE-The Prince and the Pauper` 生成 5 空，耗时 3.40 秒，公开响应只提供首字母。用同一批线上题目和已部署代码在隔离副本验证，故意各答错一题，分别得 2/3 和 4/5。首字母题重复提交只写一份报告。Daily Word 批改请求确认发送关闭推理参数，网关未返回推理内容。
+- 模型切换会影响使用全站默认模型的其他模块，本次实测范围为上述两种练习。如需恢复，可先在 Admin 选回 `gpt-5.4-nano`。如需回退代码，通过发布 PR 撤回 #40 并按现有备份流程重新部署。
+
 ## 2026-11-10：为 DeepSeek V4.1 Flash 关闭推理
 
 - 网关默认会为 `deepseek-v4.1-flash` 返回推理内容。共用生成器在选中此模型时发送 `thinking.type=disabled`，涵盖 Daily Word 出题和批改总结，以及首字母完形填空出题。切换全站默认模型仍通过 Admin 设置。
