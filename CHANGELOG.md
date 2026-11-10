@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：后台按钮与 Word Palace 卡片修复已发布至香港
+
+- [PR #31](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/31) 经 GitHub 合并并发布。生产提交为 `ad4bd69a65c2c80e69cbf5aae9b03dd8ee7e7400`，与测试提交 `bb6f55cacb279f12e6123919b3ef38b94f779f40` 的应用文件一致。
+- 按 updateNew.md 暂停写入、备份、同步合并提交并校验数据。数据和配置快照为 `backups/releases/20261110-164012-2982243`，代码快照为 `backups/releases/word-matching-toolbar-code-20261110-164010-2982191`。两库通过完整性和外键检查，发布前的 249 条报告、1 组配对词库、2 个未提交练习和其他业务记录通过前后核对，140 个非数据库文件及服务器配置一致。
+- 公网健康检查通过。登录后的线上 Chrome 在 320、390、1440px 验证共享样式正常、陈旧和加载失败时四个操作的对比度、键盘焦点与跳转。Word Palace 卡片在 768 和 1440px 对齐，并在 320 和 390px 验证无横向溢出。
+- 回退时按发布流程回退 PR #31，保留 SQLite 数据。此前生产提交为 `97128954dfebc18d3af63b6537dbe9a8a7c2cfde`。
+
 ## 2026-11-10：修复后台按钮对比度并统一 Word Palace 卡片
 
 - 后台新版页面搭配浏览器缓存的旧样式时，「合并英语词库」与「Word Matching 词库」会呈现白字透明底。词库操作栏的颜色和布局改为随页面提供，Word Matching 为蓝底主入口，其余操作为白底深字，手机以两列排列。
