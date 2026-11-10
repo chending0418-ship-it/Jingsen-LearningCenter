@@ -6,27 +6,25 @@ from fastapi.testclient import TestClient
 from config import config
 from database import GenerationJobRepository, SQLiteDatabase
 from services.generation_job_service import GenerationJobService
-from services.initial_cloze_service import InitialClozeService
+from services.initial_cloze_service import DRAFT_ERROR, TIMEOUT_ERROR, InitialClozeService
 from services.library_admin_service import LibraryAdminService
 from services.report_history_service import ReportHistoryService
 
 
 BASE = "/learningcenter/api/english/initial-cloze"
-PASSAGE = "An octopus can change its color to hide. It has eight arms and lives in the ocean."
+SENTENCES = ["An octopus can change its color to hide.", "It has eight arms and lives in the ocean."]
+PASSAGE = " ".join(SENTENCES)
 WORDS = ["octopus", "ocean"]
 
 
 class PassageGenerator:
     def __init__(self):
-        self.reviews = [["octopus"], ["ocean"]]
+        self.drafts = [SENTENCES]
         self.prompts = []
 
     async def generate_json(self, prompt, **options):
         self.prompts.append(prompt)
-        if prompt.startswith("Solve"):
-            assert all(word not in prompt for word in WORDS)
-            return {"answers": self.reviews}
-        return {"passage": PASSAGE}
+        return {"sentences": self.drafts.pop(0) if len(self.drafts) > 1 else self.drafts[0]}
 
 
 @pytest.fixture
@@ -83,7 +81,7 @@ def test_shared_library_to_passage_to_daily_report(practice):
     assert job["status"] == "completed"
     assert job["metadata"] == {"library": "Sea Life", "blank_count": 2}
     assert all(word not in response.text for word in WORDS)
-    assert len(generator.prompts) == 2
+    assert len(generator.prompts) == 1
     question, = job["questions"]
     assert question["segments"] == ["An ", " can change its color to hide. It has eight arms and lives in the ", "."]
     assert [set(blank) for blank in question["blanks"]] == [{"id", "initial"}] * 2
@@ -113,47 +111,44 @@ def test_shared_library_to_passage_to_daily_report(practice):
     assert client.post(url, json={"answers": answers}).json() == report
 
 
-def test_ambiguity_or_wrong_answer_never_publishes_passage(practice):
+def test_draft_missing_a_target_never_publishes_passage(practice):
     client, _, generator = practice
-    generator.reviews = [["octopus"], ["ocean", "outdoors"]]
+    generator.drafts = [["An octopus can change its color.", "It has eight arms."]]
     job_id = start(client).json()["job_id"]
     job = client.get(f"{BASE}/jobs/{job_id}").json()
     assert job["status"] == "failed"
+    assert job["error"] == DRAFT_ERROR
     assert job["questions"] == []
-    assert len(generator.prompts) == 6
-    assert "Blank 2 needs a stronger clue" in generator.prompts[2]
-    assert "outdoors" in generator.prompts[2]
+    assert len(generator.prompts) == 3
     assert client.post(f"{BASE}/jobs/{job_id}/grade", json={"answers": {}}).status_code == 404
     assert not client.get("/api/reports/history?module=initial_cloze").json()["reports"]
 
 
-def test_review_ignores_invalid_alternatives_and_duplicate_spellings(practice):
+def test_draft_with_repeated_target_is_rewritten_then_masked(practice):
     client, _, generator = practice
-    generator.reviews = [["octopus", " OCTOPUS ", "creature"], ["ocean", "open water", "water"]]
+    generator.drafts = [["An octopus lives in the ocean.", "The octopus has eight arms."], SENTENCES]
     job_id = start(client).json()["job_id"]
     job = client.get(f"{BASE}/jobs/{job_id}").json()
     assert job["status"] == "completed"
     assert len(generator.prompts) == 2
+    assert len(job["questions"][0]["blanks"]) == 2
 
 
-def test_review_feedback_can_recover_a_rejected_passage(practice, monkeypatch):
+def test_model_timeout_has_a_distinct_error(practice, monkeypatch):
     client, _, generator = practice
-    original = generator.generate_json
 
-    async def review_then_accept(prompt, **options):
-        if len(generator.prompts) == 1:
-            generator.reviews = [["octopus"], ["ocean", "outdoors"]]
-        elif len(generator.prompts) == 3:
-            generator.reviews = [["octopus"], ["ocean"]]
-        return await original(prompt, **options)
+    async def time_out(*args, **kwargs):
+        try:
+            raise TimeoutError("fixture timeout")
+        except TimeoutError:
+            raise RuntimeError("wrapped model error")
 
-    monkeypatch.setattr(generator, "generate_json", review_then_accept)
+    monkeypatch.setattr(generator, "generate_json", time_out)
     job_id = start(client).json()["job_id"]
     job = client.get(f"{BASE}/jobs/{job_id}").json()
-    assert job["status"] == "completed"
-    assert "Blank 2 needs a stronger clue" in generator.prompts[2]
-    assert "outdoors" in generator.prompts[2]
-    assert all(word not in generator.prompts[3] for word in WORDS)
+    assert job["status"] == "failed"
+    assert job["error"] == TIMEOUT_ERROR
+    assert job["questions"] == []
 
 
 @pytest.mark.parametrize("passage", [
