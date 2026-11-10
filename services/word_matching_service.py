@@ -1,4 +1,4 @@
-"""Word banks, server-side matching, and one Daily Report per completed attempt."""
+"""Word banks, server-side spelling checks, and one Daily Report per completed attempt."""
 
 import json
 import random
@@ -106,11 +106,11 @@ class WordMatchingService:
                 raise LookupError("This word bank is no longer available. Choose another bank.")
             pairs = json.loads(bank["pairs_json"])
             random.shuffle(pairs)
-            options = [{"id": str(index), "word": word} for index, (word, _) in enumerate(pairs, 1)]
-            meanings = [{"answer_id": str(index), "meaning": meaning} for index, (_, meaning) in enumerate(pairs, 1)]
-            random.shuffle(meanings)
-            questions = [{"id": str(index), **item} for index, item in enumerate(meanings, 1)]
-            snapshot = {"bank_name": bank["name"], "options": options, "questions": questions}
+            questions = [
+                {"id": str(index), "meaning": meaning, "answer": word}
+                for index, (word, meaning) in enumerate(pairs, 1)
+            ]
+            snapshot = {"bank_name": bank["name"], "questions": questions}
             connection.execute("DELETE FROM word_matching_attempts WHERE expires_at<=?", (now,))
             connection.execute(
                 "INSERT INTO word_matching_attempts(id,snapshot_json,expires_at) VALUES(?,?,?)",
@@ -119,7 +119,6 @@ class WordMatchingService:
         return {
             "id": attempt_id,
             "bank_name": snapshot["bank_name"],
-            "options": options,
             "questions": [{"id": item["id"], "meaning": item["meaning"]} for item in questions],
         }
 
@@ -136,19 +135,27 @@ class WordMatchingService:
                 raise LookupError("This practice has expired. Start a new round to try again.")
             snapshot = json.loads(attempt["snapshot_json"])
             questions = snapshot["questions"]
-            words = {item["id"]: item["word"] for item in snapshot["options"]}
-            if set(answers) != {item["id"] for item in questions} or set(answers.values()) != set(words):
-                raise ValueError("Match each meaning with a different word before submitting.")
+            if set(answers) != {item["id"] for item in questions} or not all(answer.strip() for answer in answers.values()):
+                raise ValueError("Write an answer for each meaning before submitting.")
+
+            # Attempts already open before the spelling rollout still submit option IDs.
+            if "options" in snapshot:
+                words = {item["id"]: item["word"] for item in snapshot["options"]}
+                if set(answers.values()) != set(words):
+                    raise ValueError("Match each meaning with a different word before submitting.")
+                answers = {question_id: words[option_id] for question_id, option_id in answers.items()}
+                for item in questions:
+                    item["answer"] = words[item["answer_id"]]
 
             results = []
             for item in questions:
-                answer = answers[item["id"]]
+                answer = answers[item["id"]].strip()
                 results.append({
                     "question_id": item["id"],
                     "meaning": item["meaning"],
-                    "user_answer": words[answer],
-                    "correct_answer": words[item["answer_id"]],
-                    "is_correct": answer == item["answer_id"],
+                    "user_answer": answer,
+                    "correct_answer": item["answer"],
+                    "is_correct": _normalized(answer) == _normalized(item["answer"]),
                 })
             correct = sum(item["is_correct"] for item in results)
             now = datetime.now()
