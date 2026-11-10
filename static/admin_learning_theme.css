@@ -154,9 +154,8 @@ body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
 .learning-admin-home .library-action-copy { display: flex; align-items: baseline; gap: 10px; }
 .learning-admin-home .library-action-copy span { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
 .learning-admin-home .library-action-copy strong { font-size: 17px; letter-spacing: -.025em; }
-.learning-admin-home .library-action-buttons { display: flex; gap: 8px; }
-.learning-admin-home .library-action-buttons button { min-height: 36px; padding: 0 13px !important; border: 1px solid var(--lc-ink); color: #fff; font-size: 12px; font-weight: 600; }
-.learning-admin-home .library-action-buttons button:first-child { background: var(--lc-ink) !important; }
+.learning-admin-home .library-action-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.learning-admin-home .library-action-buttons button { min-height: 36px; padding: 0 13px !important; border: 1px solid var(--lc-ink); background: var(--lc-ink); color: #fff; font-size: 12px; font-weight: 600; }
 .learning-admin-home .library-action-buttons button:last-child { background: var(--lc-blue) !important; }
 .learning-admin-home table th,
 .learning-admin-home table td,
@@ -315,7 +314,7 @@ body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
     .models-admin-page .loading-grid { grid-template-columns: 1fr; }
     .learning-admin-home .library-action-bar { align-items: flex-start; flex-direction: column; }
     .learning-admin-home .library-action-buttons { width: 100%; }
-    .learning-admin-home .library-action-buttons button { flex: 1; }
+    .learning-admin-home .library-action-buttons button { flex: 1 1 8rem; min-height: 44px; }
     .learning-admin.tailwind-admin header h1,
     .todo-admin-page .topbar h1,
     .models-admin-page .topbar h1 { font-size: 30px !important; }

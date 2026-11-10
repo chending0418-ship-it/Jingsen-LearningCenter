@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：后台词库列表展示 Word Matching
+
+- 「词库操作」栏的 Word Matching 按钮改为深色背景，手机窄屏允许按钮换行，便于找到配对词库入口。
+- 后台列表从独立接口读取已保存的配对词库，显示类型和词条数，排在普通词库之前。选择「语文」时隐藏配对词库，点击「编辑词库」可打开对应分组。同名的普通词库和配对词库可分别维护。
+- 37 项 Word Matching、词库合并和归档测试通过。Chrome 在 320px、390px、1280px 验证入口对比度、换行和跳转，另验证建库、同名隔离、筛选、直达编辑及刷新回读。
+- 发布基线为 `8a64501`，待建立 PR。无数据迁移，回退本次页面和样式改动即可。线上发布前后按 updateNew.md 备份并校验生产数据。
+
 ## 2026-11-10：Word Matching 已部署至香港生产
 
 - [PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 经 GitHub 合并。线上运行发布分支的合并提交 `9feb329b0e259c1b5b32df39b342fab26adfdd01`，应用代码与通过 177 项 Python 测试及 13 项 JavaScript 回归的 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75` 一致。

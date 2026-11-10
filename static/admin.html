@@ -64,7 +64,7 @@
             <div class="library-action-copy"><span>Library controls</span><strong>词库操作</strong></div>
             <div class="library-action-buttons">
                 <button onclick="location.href='/admin/learningcenter/new'">新增词库</button>
-                <button onclick="location.href=withBasePath('/admin/learningcenter/merge')" style="background: var(--lc-ink)">合并英语词库</button>
+                <button onclick="location.href=withBasePath('/admin/learningcenter/merge')">合并英语词库</button>
                 <button onclick="location.href='/admin/learningcenter/word-matching'">Word Matching 词库</button>
                 <button onclick="loadLibraries()">刷新词库</button>
             </div>
@@ -188,7 +188,17 @@
             }
         }
 
+        async function fetchLibraryRows(path, key) {
+            const response = await fetch(path, { cache: 'no-store' });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || '未知错误');
+            return data[key];
+        }
+
+        let libraryLoad = 0;
+
         async function loadLibraries() {
+            const currentLoad = ++libraryLoad;
             const subject = document.getElementById('filter-subject').value;
             const includeDisabled = document.getElementById('filter-include-disabled').checked;
             const includeArchived = document.getElementById('filter-include-archived').checked;
@@ -197,45 +207,55 @@
             query.set('include_disabled', includeDisabled ? 'true' : 'false');
             query.set('include_archived', includeArchived ? 'true' : 'false');
 
-            try {
-                const res = await fetch(`/api/admin/libraries?${query.toString()}`);
-                const data = await res.json();
-                if (!res.ok) {
-                    showNotice('error', `加载词库失败：${data.detail || '未知错误'}`);
-                    return;
-                }
+            const [regular, matching] = await Promise.allSettled([
+                fetchLibraryRows(`/api/admin/libraries?${query.toString()}`, 'libraries'),
+                subject === 'chinese' ? [] : fetchLibraryRows('/api/admin/word-matching/banks', 'banks')
+            ]);
+            if (currentLoad !== libraryLoad) return;
 
-                const libraries = data.libraries || [];
-                const tbody = document.getElementById('library-tbody');
+            const failed = [
+                ...(regular.status === 'rejected' ? ['普通词库'] : []),
+                ...(matching.status === 'rejected' ? ['Word Matching 词库'] : [])
+            ];
+            if (failed.length) showNotice('error', `加载失败：${failed.join('、')}。请重试。`);
 
-                if (!libraries.length) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-gray-400">暂无词库</td></tr>';
-                    return;
-                }
+            const matchingRows = (matching.value || []).map(bank => `
+                <tr>
+                    <td class="p-3 font-medium text-gray-800">${escapeHtml(bank.name)}</td>
+                    <td class="p-3 text-gray-600">英语</td>
+                    <td class="p-3 text-gray-600">Word Matching</td>
+                    <td class="p-3 text-gray-600">${escapeHtml(bank.pair_count)}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700">启用中</span></td>
+                    <td class="p-3">
+                        <a href="/admin/learningcenter/word-matching?id=${encodeURIComponent(bank.id)}" class="inline-block px-2.5 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50">编辑词库</a>
+                    </td>
+                </tr>
+            `);
+            const libraryRows = (regular.value || []).map(lib => {
+                const statusClass = lib.archived ? 'bg-amber-100 text-amber-800' : lib.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+                const statusText = lib.archived ? '已归档' : lib.enabled ? '启用中' : '已停用';
+                return `
+                    <tr>
+                        <td class="p-3 font-medium text-gray-800">${escapeHtml(lib.name)}</td>
+                        <td class="p-3 text-gray-600">${subjectLabel(lib.subject)}</td>
+                        <td class="p-3 text-gray-600">${typeLabel(lib.library_type, lib.subject)}</td>
+                        <td class="p-3 text-gray-600">${lib.total_items}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
+                        <td class="p-3">
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="location.href='/admin/learningcenter/library?id=${lib.id}'" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
+                                ${lib.archived ? '' : `<button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>`}
+                                <button onclick="toggleArchive('${lib.id}', ${!lib.archived})" class="px-2.5 py-1.5 rounded-lg ${lib.archived ? 'bg-indigo-600 text-white' : 'border border-amber-300 text-amber-700 hover:bg-amber-50'}">${lib.archived ? '取消归档' : '归档'}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
 
-                tbody.innerHTML = libraries.map(lib => {
-                    const statusClass = lib.archived ? 'bg-amber-100 text-amber-800' : lib.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
-                    const statusText = lib.archived ? '已归档' : lib.enabled ? '启用中' : '已停用';
-                    return `
-                        <tr>
-                            <td class="p-3 font-medium text-gray-800">${escapeHtml(lib.name)}</td>
-                            <td class="p-3 text-gray-600">${subjectLabel(lib.subject)}</td>
-                            <td class="p-3 text-gray-600">${typeLabel(lib.library_type, lib.subject)}</td>
-                            <td class="p-3 text-gray-600">${lib.total_items}</td>
-                            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
-                            <td class="p-3">
-                                <div class="flex flex-wrap gap-2">
-                                    <button onclick="location.href='/admin/learningcenter/library?id=${lib.id}'" class="px-2.5 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">查看详情</button>
-                                    ${lib.archived ? '' : `<button onclick="toggleStatus('${lib.id}', ${!lib.enabled})" class="px-2.5 py-1.5 rounded-lg ${lib.enabled ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">${lib.enabled ? '停用' : '启用'}</button>`}
-                                    <button onclick="toggleArchive('${lib.id}', ${!lib.archived})" class="px-2.5 py-1.5 rounded-lg ${lib.archived ? 'bg-indigo-600 text-white' : 'border border-amber-300 text-amber-700 hover:bg-amber-50'}">${lib.archived ? '取消归档' : '归档'}</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            } catch (e) {
-                showNotice('error', `加载词库失败：${e.message || '网络错误'}`);
-            }
+            const rows = [...matchingRows, ...libraryRows];
+            const message = failed.length ? '词库加载失败，请重试' : '暂无词库';
+            document.getElementById('library-tbody').innerHTML = rows.join('') ||
+                `<tr><td colspan="6" class="p-6 text-center text-gray-400">${message}</td></tr>`;
         }
 
         loadLibraries();
