@@ -6,12 +6,59 @@
     <title>Learning Center 管理</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
     <style>
         :root { --bg-main: #F8F9FB; --accent: #4F46E5; }
         body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif; background: var(--bg-main); }
         .card { border: 1px solid #E5E7EB; border-radius: 16px; background: #fff; }
+        .library-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: .875rem 1rem;
+            border: 1px solid #121212;
+            background: #fff;
+        }
+        .library-toolbar h2 { font-size: 1.125rem; font-weight: 800; }
+        .library-toolbar-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+        .library-toolbar-actions > :is(a, button) {
+            display: grid;
+            place-items: center;
+            min-height: 44px;
+            padding: .625rem .75rem;
+            border: 1px solid #121212;
+            background: #fff;
+            color: #121212;
+            font-size: .875rem;
+            font-weight: 700;
+            line-height: 1.3;
+            text-align: center;
+            text-decoration: none;
+        }
+        .library-toolbar-actions > .library-toolbar-primary {
+            border-color: #1646d8;
+            background: #1646d8;
+            color: #fff;
+        }
+        .library-toolbar-actions > :is(a, button):hover {
+            text-decoration: underline;
+            text-underline-offset: .2em;
+        }
+        .library-toolbar-actions > :is(a, button):focus-visible {
+            outline: 2px solid #1646d8;
+            outline-offset: 2px;
+        }
+        .library-toolbar-phrase { white-space: nowrap; }
+        @media (max-width: 680px) {
+            .library-toolbar { display: grid; gap: .75rem; }
+            .library-toolbar-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
     </style>
-    <link rel="stylesheet" href="/static/admin_learning_theme.css">
 </head>
 <body class="learning-admin tailwind-admin learning-admin-home min-h-screen p-4 md:p-8">
     <div id="notice" class="hidden fixed right-4 top-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg"></div>
@@ -60,15 +107,17 @@
             </button>
         </section>
 
-        <div class="library-action-bar" aria-label="词库操作">
-            <div class="library-action-copy"><span>Library controls</span><strong>词库操作</strong></div>
-            <div class="library-action-buttons">
-                <button onclick="location.href='/admin/learningcenter/new'">新增词库</button>
-                <button onclick="location.href=withBasePath('/admin/learningcenter/merge')">合并英语词库</button>
-                <button onclick="location.href='/admin/learningcenter/word-matching'">Word Matching <span class="whitespace-nowrap">词库</span></button>
-                <button onclick="loadLibraries()">刷新词库</button>
+        <section class="library-toolbar" aria-labelledby="library-toolbar-heading">
+            <h2 id="library-toolbar-heading">词库操作</h2>
+            <div class="library-toolbar-actions">
+                <a class="library-toolbar-primary" href="/admin/learningcenter/word-matching">
+                    <span><span class="library-toolbar-phrase">Word Matching</span> <span class="library-toolbar-phrase">词库</span></span>
+                </a>
+                <a href="/admin/learningcenter/new">新增词库</a>
+                <a href="/admin/learningcenter/merge">合并英语词库</a>
+                <button type="button" onclick="loadLibraries()">刷新词库</button>
             </div>
-        </div>
+        </section>
 
         <div class="card p-4 md:p-5">
             <div class="flex flex-col md:flex-row gap-3 md:items-end">

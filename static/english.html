@@ -39,6 +39,9 @@
     </style>
     <link rel="stylesheet" href="/static/learning_front_theme.css">
     <style>
+        .word-palace-pathway { display: flex; flex-direction: column; }
+        .word-palace-pathway > span { align-self: flex-start; }
+        .word-palace-pathway-details { margin-top: auto; padding-top: 1.5rem; }
         #word-matching-area { max-width: 64rem; margin-inline: auto; }
         #word-matching-area [hidden] { display: none; }
         .matching-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
@@ -227,27 +230,32 @@
                     <p class="text-gray-500 mt-3 max-w-3xl">Choose a library quiz, spell words from meanings in a word bank, or practice a vocabulary skill.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <button onclick="showWordPalaceArea('daily-word')" class="module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
+                    <button onclick="showWordPalaceArea('daily-word')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
                         <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Library Practice</span>
                         <h3 class="text-2xl font-bold mt-4">Daily Word</h3>
                         <p class="text-gray-500 mt-3 leading-relaxed">Use enabled word libraries for cloze and meaning-match practice, then review explanations and missed words.</p>
-                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                        <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Libraries</strong><br><span class="text-gray-500">enabled lists</span></div>
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Modes</strong><br><span class="text-gray-500">cloze/match</span></div>
                         </div>
                     </button>
-                    <button onclick="showWordPalaceArea('vocabulary-skills')" class="module-card text-left glass-card rounded-[2rem] p-6 border-blue-100">
+                    <button onclick="showWordPalaceArea('vocabulary-skills')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-blue-100">
                         <span class="inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">Skill Tree</span>
                         <h3 class="text-2xl font-bold mt-4">Vocabulary Skills</h3>
                         <p class="text-gray-500 mt-3 leading-relaxed">Select Grade, Topic, and Skill. Practice covers multiple Details and reports the exact weak knowledge points.</p>
-                        <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                        <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Grade-based</strong><br><span class="text-gray-500">skills tree</span></div>
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Diagnosis</strong><br><span class="text-gray-500">weak details</span></div>
                         </div>
                     </button>
-                    <button onclick="showWordPalaceArea('word-matching')" class="module-card text-left glass-card p-6">
-                        <h3 class="text-2xl font-bold">Word Matching</h3>
+                    <button onclick="showWordPalaceArea('word-matching')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
+                        <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Spelling Practice</span>
+                        <h3 class="text-2xl font-bold mt-4">Word Matching</h3>
                         <p class="text-gray-500 mt-3 leading-relaxed">Choose a word bank and spell the word for each meaning. Submit to see your score and review the answers.</p>
+                        <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Prompt</strong><br><span class="text-gray-500">word meanings</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Answer</strong><br><span class="text-gray-500">typed spelling</span></div>
+                        </div>
                     </button>
                 </div>
             </section>
