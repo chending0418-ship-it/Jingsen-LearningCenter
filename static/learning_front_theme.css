@@ -497,7 +497,7 @@
         justify-content: flex-start;
     }
 
-    .learning-english #module-overview {
+    .learning-english #module-overview:not(.hidden) {
         display: block;
     }
 

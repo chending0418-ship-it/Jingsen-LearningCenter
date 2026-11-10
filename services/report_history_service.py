@@ -2,9 +2,7 @@
 SQLite 报告历史服务
 保存 Word Palace 与 MAP Test 的每日练习记录。
 """
-import json
 import os
-import threading
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -22,7 +20,6 @@ class ReportHistoryService:
         self._database = database_for_data_root(self.data_dir)
         migrate_legacy_data(self.data_dir, self._database)
         self._repository = ReportRepository(self._database)
-        self._lock = threading.RLock()
         os.makedirs(self.data_dir, exist_ok=True)
 
     def add_report(self, report: Dict[str, Any]) -> Dict[str, Any]:
@@ -34,10 +31,7 @@ class ReportHistoryService:
             **report
         }
 
-        with self._lock:
-            data = self._read_unlocked()
-            data.setdefault("reports", []).append(row)
-            self._write_unlocked(data)
+        self._repository.append(row)
         return row
 
     def list_reports(
@@ -47,8 +41,7 @@ class ReportHistoryService:
         limit: int = 200
     ) -> List[Dict[str, Any]]:
         cutoff = datetime.now() - timedelta(days=max(days, 1))
-        with self._lock:
-            reports = self._read_unlocked().get("reports", [])
+        reports = self._read_reports().get("reports", [])
 
         filtered = []
         for report in reports:
@@ -118,7 +111,7 @@ class ReportHistoryService:
             return "0%"
         return f"{round(correct / total * 100)}%"
 
-    def _read_unlocked(self) -> Dict[str, Any]:
+    def _read_reports(self) -> Dict[str, Any]:
         try:
             data = self._repository.read_all()
             if not isinstance(data, dict):
@@ -127,9 +120,6 @@ class ReportHistoryService:
             return data
         except Exception:
             return {"version": 1, "reports": []}
-
-    def _write_unlocked(self, data: Dict[str, Any]) -> None:
-        self._repository.replace_all(data)
 
 
 _report_history_service: Optional[ReportHistoryService] = None
