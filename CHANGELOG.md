@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：首字母完形填空已发布至香港
+
+- [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 经 GitHub 合并并发布。生产提交为 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`，应用文件与通过 188 项 Python 和 13 项 JavaScript 回归的 `0ff5cc6b381437246dcdcb9f29bbbb6afa99f282` 一致。入口为 English → Word Palace → First-Letter Cloze，包含加宽后的电脑和 iPad 布局。
+- 按 updateNew.md 暂停写入、备份、同步合并提交并重启服务。数据和配置快照为 `backups/releases/20261110-194548-3027561`，旧代码快照为 `backups/releases/initial-cloze-code-20261110-194546-3027505`。迁移返回 `migrated=false`。两份 SQLite 的完整性、外键和逐表比对通过，249 条历史报告、4,816 条词条、140 个非数据库文件及服务器配置通过发布前后核对。
+- 内网与公网健康检查通过。公网返回的英语页面与合并提交逐字节一致，已启用词库和空数接口可用。Chrome 在 834×1194、1194×834 和 1440×900 用模拟题验证了作答和成绩界面。用同一生产代码及隔离 SQLite 验证了开题响应隐藏答案、五空批改和重复提交只记录一份报告。
+- 发布前使用现有生产模型网关试跑，新题型和原有 Daily Word 的生成调用均返回 `403 insufficient_user_quota`。真实出题需等待网关额度恢复后复验。若需回退功能，通过发布 PR 回退 PR #33 并按 updateNew.md 发布，保留 SQLite 数据。此前生产提交为 `ad4bd69a65c2c80e69cbf5aae9b03dd8ee7e7400`。
+
 ## 2026-11-10：放大首字母完形填空的电脑和 iPad 布局
 
 - 原答题区在大屏上较窄，短文和空格偏小。答题区最大宽度从 832px 扩至 1152px，平板尺寸短文为 24px，1024px 及以上为 26px，输入框与设置控件至少高 56px 或 60px。平板竖屏并排显示词库和空数，较宽的横屏将生成按钮排在同一行。
