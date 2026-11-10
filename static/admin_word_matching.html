@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Matching 词库管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
+    <style>
+        .matching-admin-button {
+            min-height: 44px;
+            padding: .5rem .875rem;
+            border: 1px solid var(--lc-ink);
+            background: var(--lc-ink);
+            color: white;
+            font-weight: 700;
+        }
+        .matching-admin-button:hover:not(:disabled) { background: var(--lc-blue); }
+        .matching-admin-button:focus-visible { outline: 2px solid var(--lc-blue); outline-offset: 2px; }
+        .matching-admin-button:disabled { opacity: .65; cursor: not-allowed; }
+        .learning-admin .admin-context-line { font-size: .75rem; }
+        .learning-admin main label { font-size: .8125rem !important; }
+        #bank-form ::placeholder { color: var(--lc-muted); }
+        #bank-status[data-error="true"] { color: #9b231c; }
+    </style>
+</head>
+<body class="learning-admin tailwind-admin">
+    <main class="max-w-3xl mx-auto space-y-5">
+        <header>
+            <nav class="admin-context-line" aria-label="后台导航">
+                <a href="/admin">BACK2ADMIN</a><span aria-hidden="true">|</span><a href="/admin/learningcenter">Learning Center</a>
+            </nav>
+            <h1 class="text-3xl font-bold mt-3">Word Matching 词库</h1>
+            <p class="text-gray-500 mt-2">配对词库单独管理。保存后，学生可在 English → Word Palace → Word Matching 选择这组词库。</p>
+        </header>
+
+        <div class="card border bg-white/75 p-5 md:p-6 space-y-5">
+            <div>
+                <label for="bank-picker" class="block mb-1">选择要编辑的词库</label>
+                <select id="bank-picker" class="w-full p-2.5" disabled>
+                    <option value="">新建词库</option>
+                </select>
+                <button id="bank-reload" type="button" class="matching-admin-button mt-3" hidden>重新加载词库</button>
+            </div>
+            <form id="bank-form" class="space-y-4">
+                <div>
+                    <label for="bank-name" class="block mb-1">词库名称</label>
+                    <input id="bank-name" class="w-full p-2.5" type="text" placeholder="例如 科学 Packet3" required maxlength="100" disabled>
+                </div>
+                <div>
+                    <label for="bank-pairs" class="block mb-1">单词和释义</label>
+                    <p id="bank-format" class="text-sm text-gray-600 mb-2">每行输入一对 <code>word,meaning</code>，用英文逗号分隔。一组可保存 2–50 对。</p>
+                    <textarea id="bank-pairs" class="w-full p-2.5" rows="9" aria-describedby="bank-format" placeholder="evaporation,蒸发&#10;condensation,凝结" required maxlength="25000" spellcheck="false" disabled></textarea>
+                </div>
+                <button id="bank-save" class="matching-admin-button" disabled>保存词库</button>
+            </form>
+            <p id="bank-status" class="text-sm break-words" role="status"></p>
+        </div>
+    </main>
+
+    <script>
+        const bankApi = '/api/admin/word-matching/banks';
+        const bankPicker = document.getElementById('bank-picker');
+        const bankName = document.getElementById('bank-name');
+        const bankPairs = document.getElementById('bank-pairs');
+        const bankSave = document.getElementById('bank-save');
+        const bankReload = document.getElementById('bank-reload');
+        let editingBank = '';
+
+        function setStatus(message, error = false) {
+            const status = document.getElementById('bank-status');
+            status.dataset.error = error;
+            status.textContent = message;
+        }
+
+        function disableEditor(disabled) {
+            bankName.disabled = bankPairs.disabled = bankSave.disabled = disabled;
+        }
+
+        async function bankRequest(path = '', options = {}) {
+            const response = await fetch(bankApi + path, { cache: 'no-store', ...options });
+            if (response.status === 401) throw new Error('登录已过期。请在另一个标签页登录后台后重试。');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(typeof data.detail === 'string' ? data.detail : '操作失败，请重试。');
+            }
+            return data;
+        }
+
+        const bankLabel = bank => `${bank.name}（${bank.pair_count} 对）`;
+
+        async function loadBanks() {
+            bankReload.hidden = true;
+            setStatus('正在加载词库…');
+            try {
+                const { banks } = await bankRequest();
+                bankPicker.replaceChildren(new Option('新建词库', ''), ...banks.map(bank => new Option(bankLabel(bank), bank.id)));
+                bankPicker.disabled = false;
+                disableEditor(false);
+                setStatus('');
+            } catch (error) {
+                bankReload.hidden = false;
+                setStatus(error.message, true);
+            }
+        }
+
+        bankPicker.addEventListener('change', async () => {
+            const selected = bankPicker.value;
+            bankPicker.disabled = true;
+            disableEditor(true);
+            setStatus(selected ? '正在读取词库…' : '');
+            try {
+                const bank = selected ? await bankRequest(`/${encodeURIComponent(selected)}`) : { name: '', pairs_text: '' };
+                bankName.value = bank.name;
+                bankPairs.value = bank.pairs_text;
+                editingBank = selected;
+                setStatus('');
+            } catch (error) {
+                bankPicker.value = editingBank;
+                setStatus(error.message, true);
+            } finally {
+                bankPicker.disabled = false;
+                disableEditor(false);
+            }
+        });
+
+        document.getElementById('bank-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            bankPicker.disabled = true;
+            disableEditor(true);
+            setStatus('正在保存…');
+            try {
+                const bank = await bankRequest(editingBank ? `/${encodeURIComponent(editingBank)}` : '', {
+                    method: editingBank ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: bankName.value, pairs_text: bankPairs.value })
+                });
+                const option = Array.from(bankPicker.options).find(item => item.value === bank.id);
+                if (option) option.textContent = bankLabel(bank);
+                else bankPicker.add(new Option(bankLabel(bank), bank.id));
+                editingBank = bankPicker.value = bank.id;
+                bankName.value = bank.name;
+                setStatus(`已保存「${bank.name}」，共 ${bank.pair_count} 对。`);
+            } catch (error) {
+                setStatus(error.message, true);
+            } finally {
+                bankPicker.disabled = false;
+                disableEditor(false);
+            }
+        });
+
+        bankReload.addEventListener('click', loadBanks);
+        loadBanks();
+    </script>
+</body>
+</html>

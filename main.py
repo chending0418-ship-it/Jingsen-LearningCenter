@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, reading, report_history, skills, vocabulary_skills, todo
-from api import familymeeting
+from api import familymeeting, word_matching
 from config import config
 from services.admin_session_service import is_admin_authenticated
 from services.model_settings_service import get_model_settings_service
@@ -44,6 +44,8 @@ app.add_middleware(
 
 # 注册各学科路由（兼容根路径与 /learningcenter 前缀）
 app.include_router(english.router)
+app.include_router(word_matching.router)
+app.include_router(word_matching.admin_router)
 app.include_router(chinese.router)
 app.include_router(math.router)
 app.include_router(math.admin_router)
@@ -65,6 +67,8 @@ app.include_router(reading.admin_router)
 app.include_router(familymeeting.router)
 
 app.include_router(english.router, prefix=BASE_PATH)
+app.include_router(word_matching.router, prefix=BASE_PATH)
+app.include_router(word_matching.admin_router, prefix=BASE_PATH)
 app.include_router(chinese.router, prefix=BASE_PATH)
 app.include_router(math.router, prefix=BASE_PATH)
 app.include_router(math.admin_router, prefix=BASE_PATH)
@@ -263,6 +267,11 @@ async def serve_learningcenter_admin_models(request: Request):
 @app.get("/admin/learningcenter/reading")
 async def serve_learningcenter_admin_reading(request: Request):
     return serve_admin_file(request, "static/admin_reading.html", "Book Reading admin page not found")
+
+
+@app.get("/admin/learningcenter/word-matching")
+async def serve_word_matching_admin(request: Request):
+    return serve_admin_file(request, "static/admin_word_matching.html", "Word Matching admin page not found")
 
 
 @app.get("/admin/learningcenter/math")

@@ -126,6 +126,20 @@ CREATE TABLE IF NOT EXISTS practice_report_items (
     FOREIGN KEY(report_id) REFERENCES practice_reports(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS word_matching_banks (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    name_key TEXT NOT NULL UNIQUE,
+    pairs_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS word_matching_attempts (
+    id TEXT PRIMARY KEY,
+    snapshot_json TEXT NOT NULL,
+    expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_word_matching_attempts_expiry
+    ON word_matching_attempts(expires_at);
+
 CREATE TABLE IF NOT EXISTS generation_jobs (
     id TEXT PRIMARY KEY,
     kind TEXT NOT NULL,
@@ -422,6 +436,9 @@ class SQLiteDatabase:
                                     raise
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(6, ?)", (_now(),)
+                        )
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(7, ?)", (_now(),)
                         )
                     break
                 except sqlite3.OperationalError as exc:
@@ -755,21 +772,39 @@ class ReportRepository:
                 if not isinstance(raw, dict):
                     continue
                 item = dict(raw)
-                report_id = str(item.get("id") or _stable_key("report", item, position))
-                details = item.get("details")
-                conn.execute(
-                    """INSERT INTO practice_reports(id,position,created_at,report_date,module,module_label,total_count,correct_count,payload_json)
-                       VALUES(?,?,?,?,?,?,?,?,?)""",
-                    (report_id, position, item.get("created_at"), item.get("date"), item.get("module"), item.get("module_label"),
-                     int(item.get("total_count") or item.get("total_questions") or 0), int(item.get("correct_count") or item.get("correct") or 0), _dump(item)),
-                )
-                if isinstance(details, list):
-                    conn.executemany("INSERT INTO practice_report_items(report_id,position,payload_json) VALUES(?,?,?)", [(report_id, i, _dump(value)) for i, value in enumerate(details)])
+                self._insert(conn, item, position)
         if connection is not None:
             operation(connection)
         else:
             with self.database.transaction() as conn:
                 operation(conn)
+
+    def _insert(self, connection: sqlite3.Connection, item: Dict[str, Any], position: int) -> None:
+        report_id = str(item.get("id") or _stable_key("report", item, position))
+        connection.execute(
+            """INSERT INTO practice_reports(id,position,created_at,report_date,module,module_label,total_count,correct_count,payload_json)
+               VALUES(?,?,?,?,?,?,?,?,?)""",
+            (report_id, position, item.get("created_at"), item.get("date"), item.get("module"), item.get("module_label"),
+             int(item.get("total_count") or item.get("total_questions") or 0), int(item.get("correct_count") or item.get("correct") or 0), _dump(item)),
+        )
+        details = item.get("details")
+        if isinstance(details, list):
+            connection.executemany(
+                "INSERT INTO practice_report_items(report_id,position,payload_json) VALUES(?,?,?)",
+                [(report_id, i, _dump(value)) for i, value in enumerate(details)],
+            )
+
+    def append(self, item: Dict[str, Any], connection: sqlite3.Connection | None = None) -> None:
+        if connection is None:
+            with self.database.transaction() as conn:
+                self.append(item, conn)
+            return
+        position = connection.execute("SELECT COALESCE(MAX(position), -1) + 1 FROM practice_reports").fetchone()[0]
+        self._insert(connection, item, position)
+
+    def get(self, report_id: str, connection: sqlite3.Connection) -> Dict[str, Any] | None:
+        row = connection.execute("SELECT payload_json FROM practice_reports WHERE id=?", (report_id,)).fetchone()
+        return _load(row["payload_json"], None) if row else None
 
     def read_all(self) -> Dict[str, Any]:
         with self.database.read() as connection:

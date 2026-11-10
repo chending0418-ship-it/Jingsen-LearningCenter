@@ -5,8 +5,8 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`6`
-- 表总数：`27`
+- 当前 Schema 版本：`7`
+- 表总数：`29`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
 - 日期时间通常使用 `TEXT` 保存 ISO 8601 字符串；日期使用 `YYYY-MM-DD`，月份使用 `YYYY-MM`。
@@ -43,6 +43,8 @@
 | 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
 | 26 | `math_sessions` | Math | 保存固定 10 题的因式分解训练与正确率统计 | 8 |
 | 27 | `math_session_questions` | Math | 保存原题、首次答案、草稿、提示与判题结果 | 9 |
+| 28 | `word_matching_banks` | Word Matching | 保存独立配对词库 | 4 |
+| 29 | `word_matching_attempts` | Word Matching | 保存未批改的配对题快照 | 3 |
 
 ## 3. 系统与迁移表
 
@@ -279,6 +281,27 @@
 | 索引名 | 字段 | 用途 |
 | --- | --- | --- |
 | `idx_generation_jobs_expiry` | `expires_at` | 查找并清理过期生成任务 |
+
+### 6.4 `word_matching_banks`
+
+配对词库单独存储，与 `libraries` 和 `library_items` 独立。
+
+| 字段 | 类型 | 键/约束 | 说明 |
+| --- | --- | --- | --- |
+| `id` | `TEXT` | 主键 | 词库 ID |
+| `name` | `TEXT` | 非空 | 词库显示名称 |
+| `name_key` | `TEXT` | 非空、唯一 | 用于判定重名的规范化名称 |
+| `pairs_json` | `TEXT` | 非空 | 按输入顺序保存的单词和释义对 |
+
+### 6.5 `word_matching_attempts`
+
+| 字段 | 类型 | 键/约束 | 说明 |
+| --- | --- | --- | --- |
+| `id` | `TEXT` | 主键 | 练习 ID，批改后作为报告 ID |
+| `snapshot_json` | `TEXT` | 非空 | 开题时的词库名称、候选词、释义及标准答案 |
+| `expires_at` | `INTEGER` | 非空 | 24 小时过期时间，Unix 秒数 |
+
+`idx_word_matching_attempts_expiry` 用于在开题时清理已过期练习。首次批改在同一事务中追加 `practice_reports` 记录并删除快照。重试以练习 ID 读取已保存报告，逐题结果保存在报告的 `payload_json.question_results` 中。
 
 ## 7. 模型设置表
 

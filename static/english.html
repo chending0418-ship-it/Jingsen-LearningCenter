@@ -38,6 +38,47 @@
         .la-choice.selected .choice-badge { background: #2563EB; color: #FFFFFF; }
     </style>
     <link rel="stylesheet" href="/static/learning_front_theme.css">
+    <style>
+        #word-matching-area { max-width: 62rem; }
+        #word-matching-area [hidden] { display: none; }
+        .matching-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
+        .matching-controls > div { flex: 1 1 16rem; min-width: 0; }
+        .matching-btn {
+            min-height: 44px;
+            padding: .5rem .75rem;
+            border: 1px solid var(--learn-ink);
+            background: white;
+            font-size: .875rem;
+            font-weight: 750;
+            overflow-wrap: anywhere;
+        }
+        .matching-btn:hover:not(:disabled) { border-color: var(--learn-blue); color: var(--learn-blue); }
+        .matching-btn:focus-visible { outline: 2px solid var(--learn-blue); outline-offset: 2px; }
+        .matching-btn-primary { background: var(--learn-ink); color: white; }
+        .matching-btn-primary:hover:not(:disabled) { background: var(--learn-blue); color: white; }
+        .matching-btn:disabled { cursor: not-allowed; background: #eceae4; color: #625e55; }
+        .matching-btn[aria-pressed="true"] { border-color: var(--learn-blue); background: #e6edff; color: var(--learn-blue); }
+        .matching-options-panel { position: sticky; top: 0; z-index: 1; border-bottom: 1px solid var(--learn-line); background: var(--learn-paper); padding: .75rem 0; }
+        .matching-options { display: flex; flex-wrap: wrap; gap: .375rem; max-height: 23vh; overflow: auto; padding: 4px; margin: 4px -4px -4px; }
+        .matching-options button { max-width: 100%; }
+        .matching-options button:disabled { text-decoration: line-through; }
+        .matching-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: .5rem 1rem;
+            align-items: center;
+            padding: .75rem 0;
+            border-bottom: 1px solid var(--learn-line);
+            overflow-wrap: anywhere;
+            scroll-margin-top: 42vh;
+        }
+        .matching-row button { text-align: start; }
+        .matching-correct { color: #156348; }
+        .matching-incorrect, #matching-status[data-error="true"] { color: #9b231c; }
+        @media (max-width: 480px) {
+            .matching-row { grid-template-columns: minmax(0, 1fr); }
+        }
+    </style>
 </head>
 <body class="learning-english min-h-screen p-4 md:p-8 text-gray-900">
     <div class="max-w-6xl mx-auto">
@@ -71,13 +112,13 @@
                     <div>
                         <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Vocabulary Training</span>
                         <h2 class="text-3xl font-extrabold mt-4">Word Palace</h2>
-                        <p class="text-gray-500 mt-3 leading-relaxed">Use your general English libraries for cloze and word-meaning matching. Options are refined with stronger distractors.</p>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Practice with Daily Word, match words to meanings from a named word bank, or build Vocabulary Skills.</p>
                     </div>
                     <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-100"></div>
                 </div>
                 <div class="grid grid-cols-3 gap-3 mt-6 text-sm">
                     <div class="rounded-2xl bg-white/70 p-3"><strong>10-50</strong><br><span class="text-gray-500">words</span></div>
-                    <div class="rounded-2xl bg-white/70 p-3"><strong>2 modes</strong><br><span class="text-gray-500">cloze/match</span></div>
+                    <div class="rounded-2xl bg-white/70 p-3"><strong>Matching</strong><br><span class="text-gray-500">word banks</span></div>
                     <div class="rounded-2xl bg-white/70 p-3"><strong>General</strong><br><span class="text-gray-500">libraries</span></div>
                 </div>
             </button>
@@ -119,12 +160,13 @@
                     <div>
                         <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Daily Reports</p>
                         <h2 class="text-3xl font-extrabold mt-2">Learning History</h2>
-                        <p class="text-gray-500 mt-3 max-w-3xl">Daily Word, Vocabulary Skills, and MAP Test reports are saved locally on the server by day. This view reads the local history file directly.</p>
+                        <p class="text-gray-500 mt-3 max-w-3xl">Review scores and answers from Daily Word, Word Matching, Vocabulary Skills, and MAP Language Arts.</p>
                     </div>
-                    <select id="report-module-filter" onchange="loadReportHistory()" class="p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
+                    <select id="report-module-filter" aria-label="Filter by module" onchange="loadReportHistory()" class="p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
                         <option value="">All Modules</option>
                         <option value="word_palace">Word Palace</option>
                         <option value="word_vocabulary_skills">Vocabulary Skills</option>
+                        <option value="word_matching">Word Matching</option>
                         <option value="map_language_arts">MAP Language Arts</option>
                     </select>
                 </div>
@@ -137,9 +179,9 @@
                 <div class="glass-card rounded-[2rem] p-6 md:p-8">
                     <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Word Palace</p>
                     <h2 class="text-3xl font-extrabold mt-2">Choose a Practice Pathway</h2>
-                    <p class="text-gray-500 mt-3 max-w-3xl">Daily Word keeps the existing library-based quiz. Vocabulary Skills adds Grade / Topic / Skill practice with diagnostic Detail reports.</p>
+                    <p class="text-gray-500 mt-3 max-w-3xl">Choose a library quiz, match words from a named word bank, or practice a vocabulary skill.</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <button onclick="showWordPalaceArea('daily-word')" class="module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
                         <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Library Practice</span>
                         <h3 class="text-2xl font-bold mt-4">Daily Word</h3>
@@ -158,7 +200,51 @@
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Diagnosis</strong><br><span class="text-gray-500">weak details</span></div>
                         </div>
                     </button>
+                    <button onclick="showWordPalaceArea('word-matching')" class="module-card text-left glass-card p-6">
+                        <h3 class="text-2xl font-bold">Word Matching</h3>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Choose a word bank and place each word beside its meaning. Submit to see your score and review the answers.</p>
+                    </button>
                 </div>
+            </section>
+
+            <section id="word-matching-area" class="hidden">
+                <button type="button" onclick="showWordPalaceArea('overview')">← Back to Word Palace</button>
+                <section id="matching-setup" class="glass-card mt-4">
+                    <h2 class="font-extrabold">Word Matching</h2>
+                    <p class="text-gray-500 mt-3">Choose a word bank to practice all the words in it.</p>
+                    <form id="matching-start-form" class="matching-controls mt-4">
+                        <div>
+                            <label for="matching-bank" class="block mb-1">Word bank</label>
+                            <select id="matching-bank" class="w-full" required disabled></select>
+                        </div>
+                        <button id="matching-start" class="matching-btn matching-btn-primary" disabled>Start practice</button>
+                        <button id="matching-reload" type="button" class="matching-btn" hidden>Reload word banks</button>
+                    </form>
+                </section>
+                <section id="matching-practice" class="mt-4" hidden>
+                    <div class="flex flex-wrap justify-between items-start gap-3">
+                        <div class="min-w-0">
+                            <h2 id="matching-title" class="font-extrabold break-words" tabindex="-1"></h2>
+                            <p id="matching-instructions" class="text-gray-500 mt-2 text-sm">Select a word, then select the blank beside its meaning. Select a filled answer to clear it or to place the selected word there.</p>
+                        </div>
+                        <button id="matching-change" type="button" class="matching-btn">Choose a word bank</button>
+                    </div>
+                    <div id="matching-options-panel" class="matching-options-panel">
+                        <div class="flex flex-wrap justify-between gap-2 items-baseline">
+                            <h3 id="matching-options-label" class="font-extrabold">Word bank</h3>
+                            <p id="matching-progress" class="text-sm" role="status"></p>
+                        </div>
+                        <div id="matching-options" class="matching-options" role="group" aria-labelledby="matching-options-label"></div>
+                    </div>
+                    <p id="matching-score" class="mt-4 font-bold" tabindex="-1" hidden></p>
+                    <ol id="matching-rows"></ol>
+                    <div class="flex flex-wrap gap-3 mt-4">
+                        <button id="matching-submit" type="button" class="matching-btn matching-btn-primary" disabled>Submit answers</button>
+                        <button id="matching-retry" type="button" class="matching-btn" hidden>Practice again</button>
+                        <button id="matching-reports" type="button" class="matching-btn matching-btn-primary" hidden>View Daily Reports</button>
+                    </div>
+                </section>
+                <p id="matching-status" class="mt-3 text-sm" role="status"></p>
             </section>
 
             <section id="daily-word-area" class="hidden">
@@ -620,12 +706,13 @@
             document.getElementById('word-palace-overview').classList.toggle('hidden', !isWordPalace);
             document.getElementById('daily-word-area').classList.add('hidden');
             document.getElementById('vocab-skills-area').classList.add('hidden');
+            document.getElementById('word-matching-area').classList.add('hidden');
             document.getElementById('setup-section').classList.add('hidden');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.add('hidden');
             document.getElementById('page-title').innerText = isWordPalace ? 'Word Palace' : 'MAP Test';
             document.getElementById('page-subtitle').innerText = isWordPalace
-                ? 'Choose Daily Word for library practice or Vocabulary Skills for Grade / Topic / Skill diagnostics.'
+                ? 'Choose Daily Word, Word Matching, or Vocabulary Skills.'
                 : 'Explore Language Arts and Reading pathways for future MAP Test practice.';
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = isWordPalace ? 'Word Palace' : 'MAP Test Preview';
@@ -642,10 +729,16 @@
             const showOverview = area === 'overview';
             const showDailyWord = area === 'daily-word';
             const showVocabularySkills = area === 'vocabulary-skills';
+            const showMatching = area === 'word-matching';
 
             document.getElementById('word-palace-overview').classList.toggle('hidden', !showOverview);
             document.getElementById('daily-word-area').classList.toggle('hidden', !showDailyWord);
             document.getElementById('vocab-skills-area').classList.toggle('hidden', !showVocabularySkills);
+            document.getElementById('word-matching-area').classList.toggle('hidden', !showMatching);
+            if (showMatching) {
+                document.getElementById('progress-text').innerText = 'Word Matching';
+                if (!matchingAttempt) loadMatchingBanks();
+            }
 
             if (showDailyWord) {
                 resetDailyWordPractice(true);
@@ -697,7 +790,7 @@
             scrollEnglishTop();
         }
 
-        async function showReportHistory() {
+        async function showReportHistory(module) {
             if (quizInProgress) return;
             document.getElementById('module-overview').classList.add('hidden');
             document.getElementById('module-home-btn').classList.remove('hidden');
@@ -708,7 +801,8 @@
             document.getElementById('daily-word-area')?.classList.add('hidden');
             document.getElementById('vocab-skills-area')?.classList.add('hidden');
             document.getElementById('page-title').innerText = 'Daily Reports';
-            document.getElementById('page-subtitle').innerText = 'Review daily Daily Word, Vocabulary Skills, and MAP Test practice history saved in the local server file.';
+            document.getElementById('page-subtitle').innerText = 'Review English practice history by day.';
+            if (module) document.getElementById('report-module-filter').value = module;
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = 'History';
             scrollEnglishTop();
@@ -785,7 +879,7 @@
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                         <div>
                             <div class="font-extrabold text-lg">${escapeHtml(report.module_label || report.title || '')}</div>
-                            ${report.title ? `<p class="text-sm text-gray-500 mt-1">${escapeHtml(report.title)}</p>` : ''}
+                            ${report.title ? `<p class="text-sm text-gray-500 mt-1 break-words">${escapeHtml(report.title)}</p>` : ''}
                             ${contextBits.length ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(contextBits.join(' · '))}</p>` : ''}
                             <p class="text-sm text-gray-500 mt-1">${escapeHtml(report.created_at || '')}</p>
                         </div>
@@ -830,12 +924,13 @@
                     ${questions.length ? `
                         <button onclick="toggleReportDetails('${detailId}')" class="mt-4 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-black">Show / Hide Details</button>
                         <div id="${detailId}" class="hidden mt-4 space-y-3">
-                            ${questions.slice(0, 20).map(item => `
+                            ${(report.module === 'word_matching' ? questions : questions.slice(0, 20)).map(item => `
                                 <div class="p-4 rounded-2xl bg-white border border-gray-100">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <span class="font-bold text-sm">${item.blank_id ? `Blank ${escapeHtml(item.blank_id)}` : `Question ${escapeHtml(item.question_id ?? item.question_index ?? '')}`}</span>
                                         <span class="px-3 py-1 rounded-full text-xs font-bold ${item.is_correct ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${item.is_correct ? 'Correct' : 'Needs Review'}</span>
                                     </div>
+                                    ${report.module === 'word_matching' ? `<p class="mt-2 break-words">${escapeHtml(item.meaning)}</p>` : ''}
                                     ${item.detail ? `<p class="text-xs text-purple-700 font-bold mt-2">Detail: ${escapeHtml(displayKnowledgePoint(item.detail))}</p>` : ''}
                                     <p class="text-sm text-gray-500 mt-2">Your answer: ${escapeHtml(formatAnswer(item.student_answer ?? item.user_answer))} · Correct: ${escapeHtml(formatAnswer(item.correct_answer ?? item.word))}</p>
                                     ${item.explanation ? `<p class="text-sm text-gray-600 mt-2">${escapeHtml(item.explanation)}</p>` : ''}
@@ -2542,6 +2637,172 @@
         document.getElementById('vocab-skills-area').classList.add('hidden');
         document.getElementById('map-test-section').classList.add('hidden');
         document.getElementById('report-history-section').classList.add('hidden');
+    </script>
+    <script>
+        const matchingApi = '/api/english/word-matching';
+        const matchingElement = id => document.getElementById(`matching-${id}`);
+        let matchingAttempt = null;
+        let matchingAnswers = {};
+        let matchingWord = null;
+        let matchingBusy = false;
+
+        function matchingStatus(message = '', error = false) {
+            const status = matchingElement('status');
+            status.dataset.error = error;
+            status.textContent = message;
+        }
+
+        async function matchingRequest(path, body) {
+            const response = await fetch(`${matchingApi}${path}`, body ? {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            } : { cache: 'no-store' });
+            const data = await readJsonResponse(response, 'Word Matching is unavailable. Please try again.');
+            if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Word Matching is unavailable. Please try again.');
+            return data;
+        }
+
+        async function loadMatchingBanks() {
+            if (matchingBusy) return;
+            matchingBusy = true;
+            const select = matchingElement('bank');
+            const start = matchingElement('start');
+            const reload = matchingElement('reload');
+            const previous = select.value;
+            start.disabled = select.disabled = true;
+            reload.hidden = true;
+            matchingStatus('Loading word banks…');
+            try {
+                const { banks } = await matchingRequest('/banks');
+                select.replaceChildren(...banks.map(bank => new Option(`${bank.name} (${bank.pair_count} words)`, bank.id)));
+                if (banks.some(bank => bank.id === previous)) select.value = previous;
+                start.disabled = select.disabled = banks.length === 0;
+                reload.hidden = banks.length > 0;
+                matchingStatus(banks.length ? '' : 'There are no word banks yet. Ask an administrator to add one, then reload.');
+            } catch (error) {
+                reload.hidden = false;
+                matchingStatus(error.message, true);
+            } finally {
+                matchingBusy = false;
+            }
+        }
+
+        function refreshMatchingAnswers() {
+            const used = new Set(Object.values(matchingAnswers));
+            matchingAttempt.options.forEach(option => {
+                const button = matchingElement(`option-${option.id}`);
+                button.disabled = used.has(option.id);
+                button.setAttribute('aria-pressed', String(matchingWord === option.id));
+            });
+            matchingAttempt.questions.forEach(question => {
+                const option = matchingAttempt.options.find(option => option.id === matchingAnswers[question.id]);
+                const button = matchingElement(`answer-${question.id}`);
+                button.textContent = option ? option.word : 'Place word';
+                button.setAttribute('aria-label', `${question.meaning} — ${option ? `Answer: ${option.word}` : 'Place word'}`);
+            });
+            matchingElement('progress').textContent = `${used.size} of ${matchingAttempt.questions.length} matched`;
+            matchingElement('submit').disabled = used.size !== matchingAttempt.questions.length;
+        }
+
+        async function startMatchingPractice(event) {
+            event?.preventDefault();
+            if (matchingBusy) return;
+            matchingBusy = true;
+            const bank = matchingElement('bank');
+            matchingElement('start').disabled = bank.disabled = matchingElement('retry').disabled = matchingElement('change').disabled = true;
+            matchingStatus('Preparing practice…');
+            try {
+                matchingAttempt = await matchingRequest('/attempts', { bank_id: bank.value });
+                matchingAnswers = {};
+                matchingWord = null;
+                matchingElement('title').textContent = matchingAttempt.bank_name;
+                matchingElement('options').innerHTML = matchingAttempt.options.map(option =>
+                    `<button type="button" class="matching-btn" id="matching-option-${escapeHtml(option.id)}" data-option="${escapeHtml(option.id)}">${escapeHtml(option.word)}</button>`
+                ).join('');
+                matchingElement('rows').innerHTML = matchingAttempt.questions.map((question, index) =>
+                    `<li class="matching-row"><span>${index + 1}. ${escapeHtml(question.meaning)}</span><button type="button" class="matching-btn" id="matching-answer-${escapeHtml(question.id)}" data-question="${escapeHtml(question.id)}"></button></li>`
+                ).join('');
+                matchingElement('setup').hidden = true;
+                matchingElement('practice').hidden = false;
+                ['options-panel', 'instructions', 'submit'].forEach(id => matchingElement(id).hidden = false);
+                ['score', 'retry', 'reports'].forEach(id => matchingElement(id).hidden = true);
+                refreshMatchingAnswers();
+                matchingStatus('');
+                matchingElement('title').focus();
+            } catch (error) {
+                matchingStatus(error.message, true);
+            } finally {
+                matchingElement('start').disabled = bank.disabled = matchingElement('retry').disabled = matchingElement('change').disabled = false;
+                matchingBusy = false;
+            }
+        }
+
+        matchingElement('options').addEventListener('click', event => {
+            if (matchingBusy || !event.target.dataset.option) return;
+            const option = event.target.dataset.option;
+            matchingWord = matchingWord === option ? null : option;
+            refreshMatchingAnswers();
+        });
+
+        matchingElement('rows').addEventListener('click', event => {
+            const question = event.target.dataset.question;
+            if (matchingBusy || !question) return;
+            if (matchingWord) {
+                matchingAnswers[question] = matchingWord;
+                matchingWord = null;
+            } else if (matchingAnswers[question]) {
+                delete matchingAnswers[question];
+            } else {
+                matchingElement('progress').textContent = 'Select a word first.';
+                matchingElement('options').querySelector('button:not(:disabled)')?.focus();
+                return;
+            }
+            matchingStatus('');
+            refreshMatchingAnswers();
+        });
+
+        async function submitMatchingPractice() {
+            if (matchingBusy) return;
+            matchingBusy = true;
+            matchingElement('submit').disabled = matchingElement('change').disabled = true;
+            matchingStatus('Checking your answers…');
+            try {
+                const report = await matchingRequest(`/attempts/${encodeURIComponent(matchingAttempt.id)}/grade`, { answers: matchingAnswers });
+                ['options-panel', 'instructions', 'submit'].forEach(id => matchingElement(id).hidden = true);
+                ['score', 'retry', 'reports'].forEach(id => matchingElement(id).hidden = false);
+                matchingElement('score').textContent = `${report.correct_count} of ${report.total_count} correct · Saved to Daily Reports`;
+                matchingElement('rows').innerHTML = report.question_results.map((item, index) => `
+                    <li class="matching-row">
+                        <span>${index + 1}. ${escapeHtml(item.meaning)}</span>
+                        <div>
+                            <p class="${item.is_correct ? 'matching-correct' : 'matching-incorrect'} font-bold">${item.is_correct ? 'Correct' : 'Needs review'} · ${escapeHtml(item.user_answer)}</p>
+                            ${item.is_correct ? '' : `<p class="text-gray-500 text-sm">Correct word: ${escapeHtml(item.correct_answer)}</p>`}
+                        </div>
+                    </li>`).join('');
+                matchingStatus('');
+                matchingElement('score').focus();
+            } catch (error) {
+                matchingStatus(error.message, true);
+                matchingElement('submit').disabled = false;
+            } finally {
+                matchingElement('change').disabled = false;
+                matchingBusy = false;
+            }
+        }
+
+        matchingElement('start-form').addEventListener('submit', startMatchingPractice);
+        matchingElement('retry').addEventListener('click', () => startMatchingPractice());
+        matchingElement('reload').addEventListener('click', loadMatchingBanks);
+        matchingElement('submit').addEventListener('click', submitMatchingPractice);
+        matchingElement('reports').addEventListener('click', () => showReportHistory('word_matching'));
+        matchingElement('change').addEventListener('click', async () => {
+            matchingAttempt = null;
+            matchingElement('practice').hidden = true;
+            matchingElement('setup').hidden = false;
+            await loadMatchingBanks();
+            matchingElement(matchingElement('bank').disabled ? 'reload' : 'bank').focus();
+        });
     </script>
 </body>
 </html>
