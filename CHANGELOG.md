@@ -9,13 +9,22 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
-## 2026-11-10：English 新增 Word Matching（待审）
+## 2026-11-10：Word Matching 已部署至香港生产
+
+- [PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 经 GitHub 合并。线上运行发布分支的合并提交 `9feb329b0e259c1b5b32df39b342fab26adfdd01`，应用代码与通过 177 项 Python 测试及 13 项 JavaScript 回归的 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75` 一致。
+- 上线入口为 English → Word Palace → Word Matching，后台 Learning Center → Word Matching 词库可新增和编辑分组。Daily Reports 已提供独立筛选。生产配对词库初始为空，管理员录入首组后学生即可开题。
+- 按 updateNew.md 短暂停止写入并运行 update_safe.sh。完整数据、一致性 SQLite 和服务器配置快照位于 `backups/releases/20261110-162338-2977748`，发布前代码快照位于 `backups/releases/word-matching-code-20261110-162336-2977685`。
+- SQLite v7 新增两张配对表，旧数据迁移返回 `migrated=false`。两个 SQLite 数据库均通过完整性和外键校验。原 246 条练习报告、4,816 条旧词条内容与顺序、其他业务记录，以及 140 个非数据库数据文件和服务器配置均通过发布前后核对。
+- 内网和公网健康检查通过。公网 Chrome 以 390px 验证学生入口、空词库提示、日报筛选、旧词库和报告；管理员会话验证两个后台入口。生产代码在隔离 SQLite 中验证建库、开题、批改、重试及日报只写一次。
+- 若需回退，按发布流程回退 PR #27 并保留现有 SQLite 数据。发布前生产提交为 `f369c6821c70c618391096bc2792222f2ced3c43`。
+
+## 2026-11-10：English 新增 Word Matching（功能记录）
 
 - 用途：让管理员按课程准备固定的单词和释义。后台 Learning Center → Word Matching 词库可按行录入 `word,meaning`，命名并编辑每组 2–50 对词条。配对词库独立存储，与 Daily Word 等旧词库可同名，各自读取对应数据。
 - 练习：在 English → Word Palace → Word Matching 选择词库。每轮使用该组全部词条，分别打乱词和释义，选词填空后由服务端批改。Daily Reports 可单独筛选此题型并查看词库名称、分数和逐题答案。
 - 数据：SQLite Schema v7 幂等新增词库和临时练习表。后台编辑不改变进行中的题目快照，未提交练习 24 小时后过期。批改和日报保存使用同一事务，同一轮重试返回原成绩。旧题型报告也改为事务追加，以免并发写入丢失；无需导入或回填旧词库。
 - 验证：177 项 Python 测试和 13 项现有 JavaScript 回归通过。Chrome 验证 390px 和 1280px 的后台、选词、改答、批改和日报，以及 320px 下 50 词词库的滚动和答题。使用本地测试数据库，无真实 AI 请求。
-- 发布与回退：待审 [PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 目标为 `deploy/tencent-learningcenter-path`，发布基线为 `b918f22`，测试提交为 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75`。回退功能代码并保留 SQLite 数据，已存配对词库和报告可供再次发布时使用。部署时按 updateNew.md 先备份并验证现有数据，新题型上线后需在后台录入词库才可开题。
+- 发布与回退：[PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 目标为 `deploy/tencent-learningcenter-path`，发布基线为 `b918f22`，测试提交为 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75`。回退功能代码并保留 SQLite 数据，已存配对词库和报告可供再次发布时使用。部署时按 updateNew.md 先备份并验证现有数据，新题型上线后需在后台录入词库才可开题。
 
 ## 2026-11-09：父子谈话开场为三条路配图
 
