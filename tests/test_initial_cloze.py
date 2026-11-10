@@ -120,9 +120,40 @@ def test_ambiguity_or_wrong_answer_never_publishes_passage(practice):
     job = client.get(f"{BASE}/jobs/{job_id}").json()
     assert job["status"] == "failed"
     assert job["questions"] == []
-    assert len(generator.prompts) == 4
+    assert len(generator.prompts) == 6
+    assert "Blank 2 needs a stronger clue" in generator.prompts[2]
+    assert "outdoors" in generator.prompts[2]
     assert client.post(f"{BASE}/jobs/{job_id}/grade", json={"answers": {}}).status_code == 404
     assert not client.get("/api/reports/history?module=initial_cloze").json()["reports"]
+
+
+def test_review_ignores_invalid_alternatives_and_duplicate_spellings(practice):
+    client, _, generator = practice
+    generator.reviews = [["octopus", " OCTOPUS ", "creature"], ["ocean", "open water", "water"]]
+    job_id = start(client).json()["job_id"]
+    job = client.get(f"{BASE}/jobs/{job_id}").json()
+    assert job["status"] == "completed"
+    assert len(generator.prompts) == 2
+
+
+def test_review_feedback_can_recover_a_rejected_passage(practice, monkeypatch):
+    client, _, generator = practice
+    original = generator.generate_json
+
+    async def review_then_accept(prompt, **options):
+        if len(generator.prompts) == 1:
+            generator.reviews = [["octopus"], ["ocean", "outdoors"]]
+        elif len(generator.prompts) == 3:
+            generator.reviews = [["octopus"], ["ocean"]]
+        return await original(prompt, **options)
+
+    monkeypatch.setattr(generator, "generate_json", review_then_accept)
+    job_id = start(client).json()["job_id"]
+    job = client.get(f"{BASE}/jobs/{job_id}").json()
+    assert job["status"] == "completed"
+    assert "Blank 2 needs a stronger clue" in generator.prompts[2]
+    assert "outdoors" in generator.prompts[2]
+    assert all(word not in generator.prompts[3] for word in WORDS)
 
 
 @pytest.mark.parametrize("passage", [

@@ -9,6 +9,19 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：为 Luna 的首字母完形填空关闭推理
+
+- 首字母完形填空的出题和独立试填会对已验证兼容的 `gpt-5.6-luna`、`gpt-5.4-nano` 和 `gpt-5.4-nano-2026-03-17` 发送 `reasoning_effort=none`，以缩短等待时间。三种模型均在生产网关成功接受该值。
+- 在隔离环境按用户选择使用 Luna、新令牌和线上词库 `4000-4` 真实生成 5 空，浏览器从开题到显示短文耗时 26.5 秒。故意答错一空，得到 4/5，重复提交仅存一份日报。194 项 Python 测试通过。实际出题时间会随短文改写轮次变化。
+- 变更并入 [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36)，测试提交为 `591756cef4e9456eb61d36a75077e4a3b1c16df9`。无需数据迁移。若需回退，可撤回本次关闭推理的代码并保留唯一答案修复及 SQLite 数据。
+
+## 2026-11-10：修复首字母完形填空的唯一答案校验
+
+- 旧提示要求试填模型列出所有可能答案，实际输出混入首字母不符、语法不符和只与主题相关的词。现在要求独立试填给出最佳答案，仅保留同样符合全文线索的竞争词。服务端去除无效候选和重复拼写，发现仍有歧义时将具体空位反馈给出题模型改写。
+- 生产选用的 `gpt-5.6-luna` 会拒绝自动添加的 `reasoning_effort=minimal`。现在对该模型省略此参数，保留后台选定的模型。
+- 191 项 Python 测试通过。用生产网关当前令牌和共用词库 `4000-4` 的隔离副本，在 Chrome 真实生成一篇 5 空短文，人工复核线索并故意答错一空，批改为 4/5。重复提交仅记录一份日报。该次生成约 105 秒。
+- [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 目标为 `deploy/tencent-learningcenter-path`，测试提交为 `7cc8c384fe4f7ecb975ec109786f9c9d29f7be4b`。无需数据迁移。若需回退，回退本次修复的代码并保留 SQLite 数据。
+
 ## 2026-11-10：首字母完形填空已发布至香港
 
 - [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 经 GitHub 合并并发布。生产提交为 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`，应用文件与通过 188 项 Python 和 13 项 JavaScript 回归的 `0ff5cc6b381437246dcdcb9f29bbbb6afa99f282` 一致。入口为 English → Word Palace → First-Letter Cloze，包含加宽后的电脑和 iPad 布局。

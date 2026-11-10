@@ -17,6 +17,9 @@ class AIGenerator:
     """AI 内容生成器类"""
 
     MINIMAL_REASONING_MODEL_PREFIXES = ("gpt-5",)
+    # This model rejects "minimal" on the production gateway.
+    NO_MINIMAL_REASONING_MODELS = {"gpt-5.6-luna"}
+    NO_REASONING_MODELS = {"gpt-5.4-nano", "gpt-5.4-nano-2026-03-17", "gpt-5.6-luna"}
     
     def __init__(self):
         """初始化 OpenAI 客户端"""
@@ -39,7 +42,10 @@ class AIGenerator:
     def _uses_minimal_reasoning(cls, model: str) -> bool:
         """Only add the GPT-5 reasoning parameter to compatible model families."""
         normalized = str(model or "").strip().lower()
-        return normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
+        return (
+            normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
+            and normalized not in cls.NO_MINIMAL_REASONING_MODELS
+        )
 
     @staticmethod
     def _parse_json_content(content: Any) -> Any:
@@ -62,13 +68,19 @@ class AIGenerator:
                 return json.loads(text[start:end + 1])
             raise
 
-    async def _create_chat_completion(self, **kwargs):
-        model = str(kwargs.get("model") or "")
-        if self._uses_minimal_reasoning(model):
+    async def _create_chat_completion(self, *, prefer_no_reasoning: bool = False, **kwargs):
+        model = str(kwargs.get("model") or "").strip().lower()
+        effort = None
+        if prefer_no_reasoning and model in self.NO_REASONING_MODELS:
+            effort = "none"
+        elif self._uses_minimal_reasoning(model):
+            effort = "minimal"
+
+        if effort is not None:
             # `extra_body` keeps this compatible with the production OpenAI
             # Python SDK 1.x while still sending the standard API field.
             extra_body = dict(kwargs.get("extra_body") or {})
-            extra_body.setdefault("reasoning_effort", "minimal")
+            extra_body.setdefault("reasoning_effort", effort)
             kwargs["extra_body"] = extra_body
         try:
             return await asyncio.wait_for(
