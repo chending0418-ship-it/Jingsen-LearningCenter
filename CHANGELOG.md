@@ -9,6 +9,12 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：放大首字母完形填空的电脑和 iPad 布局
+
+- 原答题区在大屏上较窄，短文和空格偏小。答题区最大宽度从 832px 扩至 1152px，平板尺寸短文为 24px，1024px 及以上为 26px，输入框与设置控件至少高 56px 或 60px。平板竖屏并排显示词库和空数，较宽的横屏将生成按钮排在同一行。
+- Chrome 在 320–1440px 检查键盘、模拟触控、批改及 20 空布局。macOS WebKit 用 656–1194px 的平板横竖屏尺寸验证选库、作答和批改。188 项 Python 和 13 项 JavaScript 回归通过。实机 iPad 的软键盘与触控尚未验收。
+- 更新 [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33)，布局测试提交为 `0ff5cc6b381437246dcdcb9f29bbbb6afa99f282`。无需数据库迁移。单独回退本次布局提交可恢复原尺寸，保留首字母完形填空和已存报告。
+
 ## 2026-11-10：Word Palace 新增首字母完形填空
 
 - 为练习从上下文推断词义并拼写单词，新增 English → Word Palace → First-Letter Cloze。先从现有已启用英语词库中选一组，再按可用词数选 1–20 个空。出题从词库随机抽取互不重复的纯字母单词，短文题材由模型选择。
