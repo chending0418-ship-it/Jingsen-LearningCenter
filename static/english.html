@@ -3093,7 +3093,7 @@
                 }
                 if (clozeJob !== pending) return;
                 if (job.status !== 'completed') {
-                    throw new Error('Could not prepare a passage with clear answers. Try again or choose fewer blanks.');
+                    throw new Error(job.error || 'Could not generate a passage. Please try again.');
                 }
                 clozeQuestion = { ...job.questions[0], id: pending.id };
                 renderClozePassage();
