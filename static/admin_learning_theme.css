@@ -150,13 +150,6 @@ body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
 .learning-admin-home section.grid .card:nth-child(3) { background: var(--lc-amber) !important; }
 .learning-admin-home section.grid .card:nth-child(4) { background: var(--lc-purple) !important; }
 .learning-admin-home section.grid .card:nth-child(6) { background: #dce4ff !important; }
-.learning-admin-home .library-action-bar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 12px; border: 1px solid var(--lc-ink); background: #fff; }
-.learning-admin-home .library-action-copy { display: flex; align-items: baseline; gap: 10px; }
-.learning-admin-home .library-action-copy span { color: var(--lc-blue); font: 500 9px/1 "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
-.learning-admin-home .library-action-copy strong { font-size: 17px; letter-spacing: -.025em; }
-.learning-admin-home .library-action-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-.learning-admin-home .library-action-buttons button { min-height: 36px; padding: 0 13px !important; border: 1px solid var(--lc-ink); background: var(--lc-ink); color: #fff; font-size: 12px; font-weight: 600; }
-.learning-admin-home .library-action-buttons button:last-child { background: var(--lc-blue) !important; }
 .learning-admin-home table th,
 .learning-admin-home table td,
 .skills-admin-page table th,
@@ -312,9 +305,6 @@ body.learning-admin.tailwind-admin { --accent: var(--lc-blue); }
     .models-admin-page .shell { width: min(calc(100% - 24px), 1420px); }
     .models-admin-page .model-grid,
     .models-admin-page .loading-grid { grid-template-columns: 1fr; }
-    .learning-admin-home .library-action-bar { align-items: flex-start; flex-direction: column; }
-    .learning-admin-home .library-action-buttons { width: 100%; }
-    .learning-admin-home .library-action-buttons button { flex: 1 1 8rem; min-height: 44px; }
     .learning-admin.tailwind-admin header h1,
     .todo-admin-page .topbar h1,
     .models-admin-page .topbar h1 { font-size: 30px !important; }
