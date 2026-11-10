@@ -14,8 +14,8 @@
 - 用途：让管理员按课程准备固定的单词和释义。后台 Learning Center → Word Matching 词库可按行录入 `word,meaning`，命名并编辑每组 2–50 对词条。配对词库独立存储，与 Daily Word 等旧词库可同名，各自读取对应数据。
 - 练习：在 English → Word Palace → Word Matching 选择词库。每轮使用该组全部词条，分别打乱词和释义，选词填空后由服务端批改。Daily Reports 可单独筛选此题型并查看词库名称、分数和逐题答案。
 - 数据：SQLite Schema v7 幂等新增词库和临时练习表。后台编辑不改变进行中的题目快照，未提交练习 24 小时后过期。批改和日报保存使用同一事务，同一轮重试返回原成绩。旧题型报告也改为事务追加，以免并发写入丢失；无需导入或回填旧词库。
-- 验证：177 项 Python 测试和 13 项现有 JavaScript 回归通过。Chrome 验证 390px 和 1280px 的后台、选词、改答、批改和日报，以及小屏滚动。使用本地测试数据库，无真实 AI 请求。
-- 发布与回退：以发布分支 `b918f22` 为基线，PR 待创建。回退功能代码并保留 SQLite 数据，已存配对词库和报告可供再次发布时使用。部署时按 updateNew.md 先备份并验证现有数据，新题型上线后需在后台录入词库才可开题。
+- 验证：177 项 Python 测试和 13 项现有 JavaScript 回归通过。Chrome 验证 390px 和 1280px 的后台、选词、改答、批改和日报，以及 320px 下 50 词词库的滚动和答题。使用本地测试数据库，无真实 AI 请求。
+- 发布与回退：待审 [PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 目标为 `deploy/tencent-learningcenter-path`，发布基线为 `b918f22`，测试提交为 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75`。回退功能代码并保留 SQLite 数据，已存配对词库和报告可供再次发布时使用。部署时按 updateNew.md 先备份并验证现有数据，新题型上线后需在后台录入词库才可开题。
 
 ## 2026-11-09：父子谈话开场为三条路配图
 
