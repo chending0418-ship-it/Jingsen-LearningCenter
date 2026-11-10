@@ -9,6 +9,12 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：更换香港生产的模型网关令牌
+
+- 因用户发现未知来源的模型用量，更换香港生产 Learning Center 的模型网关令牌。核对确认仅更新生产服务使用的 `OPENAI_API_KEY`，应用继续运行 [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 的合并提交 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`。没有数据或数据库结构迁移。
+- 在隔离数据库用生产模型验证新令牌，再重启生产服务并确认新进程已加载该配置。内网与公网健康检查通过，公网 Daily Word 成功使用实际模型生成一道题。首字母完形填空的隔离样题已取得模型响应，但未通过唯一答案校验，真实出题仍待验收。
+- 发布前配置保存在权限受限的服务器快照 `backups/releases/initial-cloze-key-rotation-20261110-200421-3032620`。若后续令牌失效，先在隔离环境验证可用令牌，再更新同一配置项并重启及验收。
+
 ## 2026-11-10：首字母完形填空已发布至香港
 
 - [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 经 GitHub 合并并发布。生产提交为 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`，应用文件与通过 188 项 Python 和 13 项 JavaScript 回归的 `0ff5cc6b381437246dcdcb9f29bbbb6afa99f282` 一致。入口为 English → Word Palace → First-Letter Cloze，包含加宽后的电脑和 iPad 布局。
