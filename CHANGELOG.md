@@ -14,6 +14,7 @@
 - [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 经 GitHub 合并并发布。生产提交为 `61bb80b67c827a4cb156b31ccf59587edd6cb7d4`，应用文件与通过 194 项 Python 测试的 `591756cef4e9456eb61d36a75077e4a3b1c16df9` 一致。生产模型为 `gpt-5.6-luna`，首字母完形的出题和试填使用 `reasoning_effort=none`。
 - 按 updateNew.md 暂停写入、备份、同步合并提交并重启服务。数据和配置快照为 `backups/releases/20261110-202421-3038242`，旧代码快照为 `backups/releases/initial-cloze-luna-code-20261110-202420-3038167`。迁移返回 `migrated=false`。两份 SQLite 完整性、外键和逐表比对通过，250 条历史报告、4,816 条词条、140 个非数据库文件及服务器配置均通过发布前后核对。
 - 内网和公网健康检查通过，公网 Daily Word 用 Luna 实际生成一道题，耗时 16.6 秒。公网 5 空完形首轮三次试填后未通过唯一答案校验，第二轮试填与第三轮出题分别达到 50 秒请求上限。部署代码的隔离副本确认发出 `reasoning_effort=none`，本轮同样超时。部署前同版本曾在隔离环境通过真实 5 空批改，但本次公网 5 空未通过验收。
+- 超时复查用同一生产网关直连 Luna，最小 JSON 请求和 5 空试填分别耗时 46.0 和 45.0 秒，均报告 0 个推理 token。两次在 0.34 秒内发完请求，耗时集中在等待网关响应头。生产日志显示试填在 50 秒时被应用判为失败，SDK 随后重试，重试后记录的 HTTP 200 已无法继续该任务。
 - 若需回退，通过发布 PR 回退 [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 并按 updateNew.md 发布，保留 SQLite 数据。此前生产提交为 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`，该版本的 Luna 请求会因 `minimal` 参数失败。
 
 ## 2026-11-10：为 Luna 的首字母完形填空关闭推理
