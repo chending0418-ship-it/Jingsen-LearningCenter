@@ -9,6 +9,14 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：拼写练习与后台词库列表已发布至香港
+
+- [PR #29](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/29) 通过 GitHub 合并并发布。生产提交为 `97128954dfebc18d3af63b6537dbe9a8a7c2cfde`，应用代码与通过 178 项 Python、13 项 JavaScript 回归及 Chrome 验证的 `2bd1e5ee21b0dc92e23c1ebef649d6a837c33289` 一致。
+- 学生端看释义自行拼写，释义、输入框和批改结果已放大。后台「词库操作」栏的入口可见，已保存的配对词库显示在列表前面，可直接编辑。日报继续记录得分和逐题结果。
+- 依照 updateNew.md 暂停写入、备份、同步合并提交并校验数据。发布快照为 `backups/releases/20261110-163437-2980656`，代码快照为 `backups/releases/word-matching-admin-code-20261110-163436-2980606`。无数据库结构迁移，两库完整性和外键校验通过。原有 1 组配对词库、2 个未提交练习、248 条历史报告、旧词条和其他业务记录均通过前后核对，140 个非数据库文件和服务器配置逐字节一致。
+- 内网与公网健康检查通过。公网 Chrome 390px 检查新输入框、既有词库和日报，管理员会话确认两个后台入口。使用生产代码及隔离 SQLite 验证无候选词、拼写批改、错词反馈及报告重试只写一次。
+- 若需回退，按发布流程回退 PR #29，保留 SQLite 数据。此前生产提交为 `9feb329b0e259c1b5b32df39b342fab26adfdd01`。回退时尚未提交的拼写练习需重新开题。
+
 ## 2026-11-10：Word Matching 改为看释义拼写，后台统一展示配对词库
 
 - 学生选择词库后按释义自行拼写。开题响应仅返回题号和释义，服务端逐题核对，忽略大小写及多余空格。提交后显示原答案、正确拼写和得分，并写入 Daily Reports。
