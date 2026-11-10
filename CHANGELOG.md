@@ -9,6 +9,14 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-10：Word Matching 改为看释义拼写，后台统一展示配对词库
+
+- 学生选择词库后按释义自行拼写。开题响应仅返回题号和释义，服务端逐题核对，忽略大小写及多余空格。提交后显示原答案、正确拼写和得分，并写入 Daily Reports。
+- 放大释义、输入框和成绩，桌面左右对齐，手机逐题上下排列。关闭答题框的拼写检查、自动更正和自动首字母大写。
+- 后台「词库操作」栏的 Word Matching 入口增加深色背景和窄屏换行。列表从独立接口读取已保存的配对词库，显示题型和词条数，可直接编辑对应分组。普通词库与配对词库仍分别维护。
+- 178 项 Python 测试和 13 项 JavaScript 回归通过。Chrome 在 320px、390px、1280px 验证拼写、重试、批改及日报，并验证后台入口、同名词库隔离、筛选和编辑。
+- 发布 [PR #29](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/29) 目标为 `deploy/tencent-learningcenter-path`，基线为 `8a64501`，测试提交为 `2bd1e5ee21b0dc92e23c1ebef649d6a837c33289`。无需数据库结构迁移。已打开的旧选词练习仍可提交，历史报告与词库继续使用原存储。回退保留数据，回退时尚未提交的拼写练习需重新开题。
+
 ## 2026-11-10：Word Matching 已部署至香港生产
 
 - [PR #27](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/27) 经 GitHub 合并。线上运行发布分支的合并提交 `9feb329b0e259c1b5b32df39b342fab26adfdd01`，应用代码与通过 177 项 Python 测试及 13 项 JavaScript 回归的 `5236fee7437b79f46bb1b08459b4ceea0d9b0b75` 一致。

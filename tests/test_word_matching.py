@@ -1,5 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
+import json
 import sqlite3
+import time
 
 import pytest
 from fastapi.testclient import TestClient
@@ -44,8 +46,7 @@ def login(client):
 
 
 def answers_for(attempt):
-    words = {item["word"]: item["id"] for item in attempt["options"]}
-    return {item["id"]: words[PAIRS[item["meaning"]]] for item in attempt["questions"]}
+    return {item["id"]: PAIRS[item["meaning"]] for item in attempt["questions"]}
 
 
 def test_admin_to_practice_to_daily_report(client):
@@ -70,21 +71,25 @@ def test_admin_to_practice_to_daily_report(client):
     response = client.post(f"{PUBLIC}/attempts", json={"bank_id": bank_id})
     assert response.status_code == 201
     attempt = response.json()
-    assert len(attempt["questions"]) == len(attempt["options"]) == len(PAIRS)
+    assert set(attempt) == {"id", "bank_name", "questions"}
+    assert len(attempt["questions"]) == len(PAIRS)
+    assert not any(word in response.text for word in PAIRS.values())
     assert all(set(item) == {"id", "meaning"} for item in attempt["questions"])
     grade_url = f"{PUBLIC}/attempts/{attempt['id']}/grade"
     assert client.post(grade_url, json={"answers": {}}).status_code == 400
     answers = answers_for(attempt)
     first, second, third = answers
-    assert client.post(grade_url, json={"answers": answers | {first: answers[second]}}).status_code == 400
-    assert client.post(grade_url, json={"answers": answers | {first: "forged"}}).status_code == 400
+    assert client.post(grade_url, json={"answers": answers | {first: "  "}}).status_code == 400
+    assert client.post(grade_url, json={"answers": answers | {"forged": "anything"}}).status_code == 400
+    assert client.post(grade_url, json={"answers": answers | {first: "a" * 101}}).status_code == 422
 
     login(client)
     assert client.put(f"{ADMIN}/{bank_id}", json={"name": "Edited", "pairs_text": "alpha,一\nbeta,二"}).status_code == 200
     next_attempt = client.post(f"{PUBLIC}/attempts", json={"bank_id": bank_id}).json()
     assert next_attempt["bank_name"] == "Edited"
     assert {item["meaning"] for item in next_attempt["questions"]} == {"一", "二"}
-    answers[first], answers[second] = answers[second], answers[first]
+    answers[first] = answers[second] = "misspelled"
+    answers[third] = "  " + answers[third].upper() + "  "
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda _: client.post(grade_url, json={"answers": answers}), range(2)))
     assert all(response.status_code == 200 for response in results)
@@ -93,6 +98,8 @@ def test_admin_to_practice_to_daily_report(client):
     assert report["title"] == "科学 Packet3"
     assert report["correct_count"] == 1 and report["accuracy"] == "33%"
     assert {item["question_id"] for item in report["question_results"] if item["is_correct"]} == {third}
+    assert {item["user_answer"] for item in report["question_results"] if not item["is_correct"]} == {"misspelled"}
+    assert {item["correct_answer"] for item in report["question_results"]} == set(PAIRS.values())
 
     history = client.get("/learningcenter/api/reports/history?module=word_matching").json()
     assert history["reports"] == [report]
@@ -163,3 +170,23 @@ def test_schema_upgrade_expiration_and_other_reports(tmp_path, monkeypatch):
     with service.database.read() as connection:
         assert not connection.execute("SELECT 1 FROM word_matching_attempts").fetchone()
         assert connection.execute("SELECT count(*) FROM schema_migrations WHERE version=7").fetchone()[0] == 1
+
+
+def test_open_multiple_choice_attempt_can_still_be_submitted(tmp_path):
+    service = WordMatchingService(SQLiteDatabase(tmp_path / "legacy-attempt.sqlite3"))
+    snapshot = {
+        "bank_name": "Before update",
+        "options": [{"id": "1", "word": "water"}, {"id": "2", "word": "ice"}],
+        "questions": [
+            {"id": "1", "meaning": "冰", "answer_id": "2"},
+            {"id": "2", "meaning": "水", "answer_id": "1"},
+        ],
+    }
+    with service.database.transaction() as connection:
+        connection.execute(
+            "INSERT INTO word_matching_attempts(id, snapshot_json, expires_at) VALUES (?, ?, ?)",
+            ("legacy", json.dumps(snapshot), int(time.time()) + 60),
+        )
+    report = service.grade_attempt("legacy", {"1": "2", "2": "1"})
+    assert report["correct_count"] == 2
+    assert [item["user_answer"] for item in report["question_results"]] == ["ice", "water"]

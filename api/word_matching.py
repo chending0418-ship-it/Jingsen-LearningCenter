@@ -1,5 +1,7 @@
 """Word Matching practice and administrator word banks."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -26,7 +28,7 @@ class StartAttemptInput(BaseModel):
 
 
 class GradeAttemptInput(BaseModel):
-    answers: dict[str, str] = Field(max_length=MAX_PAIRS)
+    answers: dict[str, Annotated[str, Field(max_length=100)]] = Field(max_length=MAX_PAIRS)
 
 
 def _service() -> WordMatchingService:

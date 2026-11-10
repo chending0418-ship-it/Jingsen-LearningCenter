@@ -31,7 +31,7 @@
                 <a href="/admin">BACK2ADMIN</a><span aria-hidden="true">|</span><a href="/admin/learningcenter">Learning Center</a>
             </nav>
             <h1 class="text-3xl font-bold mt-3">Word Matching 词库</h1>
-            <p class="text-gray-500 mt-2">配对词库单独管理。保存后，学生可在 English → Word Palace → Word Matching 选择这组词库。</p>
+            <p class="text-gray-500 mt-2">配对词库单独管理。保存后，学生可在 English → Word Palace → Word Matching 选择词库，按释义拼写单词。</p>
         </header>
 
         <div class="card border bg-white/75 p-5 md:p-6 space-y-5">
@@ -95,17 +95,29 @@
             try {
                 const { banks } = await bankRequest();
                 bankPicker.replaceChildren(new Option('新建词库', ''), ...banks.map(bank => new Option(bankLabel(bank), bank.id)));
+                const requested = new URLSearchParams(location.search).get('id');
+                if (requested && banks.some(bank => bank.id === requested)) {
+                    await selectBank(requested);
+                    return;
+                }
                 bankPicker.disabled = false;
                 disableEditor(false);
-                setStatus('');
+                setStatus(requested ? '这组词库不存在。请选择现有词库。' : '', Boolean(requested));
             } catch (error) {
                 bankReload.hidden = false;
                 setStatus(error.message, true);
             }
         }
 
-        bankPicker.addEventListener('change', async () => {
-            const selected = bankPicker.value;
+        function setEditingBank(id) {
+            editingBank = bankPicker.value = id;
+            const url = new URL(location.href);
+            if (id) url.searchParams.set('id', id);
+            else url.searchParams.delete('id');
+            history.replaceState(null, '', url);
+        }
+
+        async function selectBank(selected) {
             bankPicker.disabled = true;
             disableEditor(true);
             setStatus(selected ? '正在读取词库…' : '');
@@ -113,7 +125,7 @@
                 const bank = selected ? await bankRequest(`/${encodeURIComponent(selected)}`) : { name: '', pairs_text: '' };
                 bankName.value = bank.name;
                 bankPairs.value = bank.pairs_text;
-                editingBank = selected;
+                setEditingBank(selected);
                 setStatus('');
             } catch (error) {
                 bankPicker.value = editingBank;
@@ -122,7 +134,9 @@
                 bankPicker.disabled = false;
                 disableEditor(false);
             }
-        });
+        }
+
+        bankPicker.addEventListener('change', () => selectBank(bankPicker.value));
 
         document.getElementById('bank-form').addEventListener('submit', async event => {
             event.preventDefault();
@@ -138,7 +152,7 @@
                 const option = Array.from(bankPicker.options).find(item => item.value === bank.id);
                 if (option) option.textContent = bankLabel(bank);
                 else bankPicker.add(new Option(bankLabel(bank), bank.id));
-                editingBank = bankPicker.value = bank.id;
+                setEditingBank(bank.id);
                 bankName.value = bank.name;
                 setStatus(`已保存「${bank.name}」，共 ${bank.pair_count} 对。`);
             } catch (error) {

@@ -298,7 +298,7 @@
 | 字段 | 类型 | 键/约束 | 说明 |
 | --- | --- | --- | --- |
 | `id` | `TEXT` | 主键 | 练习 ID，批改后作为报告 ID |
-| `snapshot_json` | `TEXT` | 非空 | 开题时的词库名称、候选词、释义及标准答案 |
+| `snapshot_json` | `TEXT` | 非空 | 开题时的词库名称、释义及标准拼写。旧快照中的候选词 ID 仍可用于批改 |
 | `expires_at` | `INTEGER` | 非空 | 24 小时过期时间，Unix 秒数 |
 
 `idx_word_matching_attempts_expiry` 用于在开题时清理已过期练习。首次批改在同一事务中追加 `practice_reports` 记录并删除快照。重试以练习 ID 读取已保存报告，逐题结果保存在报告的 `payload_json.question_results` 中。
