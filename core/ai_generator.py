@@ -17,6 +17,8 @@ class AIGenerator:
     """AI 内容生成器类"""
 
     MINIMAL_REASONING_MODEL_PREFIXES = ("gpt-5",)
+    # This model rejects "minimal" on the production gateway.
+    NO_MINIMAL_REASONING_MODELS = {"gpt-5.6-luna"}
     
     def __init__(self):
         """初始化 OpenAI 客户端"""
@@ -39,7 +41,10 @@ class AIGenerator:
     def _uses_minimal_reasoning(cls, model: str) -> bool:
         """Only add the GPT-5 reasoning parameter to compatible model families."""
         normalized = str(model or "").strip().lower()
-        return normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
+        return (
+            normalized.startswith(cls.MINIMAL_REASONING_MODEL_PREFIXES)
+            and normalized not in cls.NO_MINIMAL_REASONING_MODELS
+        )
 
     @staticmethod
     def _parse_json_content(content: Any) -> Any:

@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
+import pytest
 from fastapi.testclient import TestClient
 
 import services.model_settings_service as model_settings_module
@@ -115,7 +116,8 @@ def test_ai_generator_uses_minimal_reasoning_for_gpt5_models(monkeypatch):
     assert observed[0]["extra_body"]["reasoning_effort"] == "minimal"
 
 
-def test_ai_generator_does_not_send_reasoning_effort_to_other_models(monkeypatch):
+@pytest.mark.parametrize("model", ["claude-opus-4-6-medium", "gpt-5.6-luna"])
+def test_ai_generator_omits_minimal_reasoning_for_incompatible_models(monkeypatch, model):
     observed = []
 
     def create(**kwargs):
@@ -132,7 +134,7 @@ def test_ai_generator_does_not_send_reasoning_effort_to_other_models(monkeypatch
 
     asyncio.run(
         generator._create_chat_completion(
-            model="claude-opus-4-6-medium",
+            model=model,
             messages=[],
         )
     )
