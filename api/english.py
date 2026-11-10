@@ -5,7 +5,9 @@ from fastapi import APIRouter, BackgroundTasks, Query, HTTPException
 from services.english_service import EnglishService
 from models.schemas import GenerateRequest, GenerationJobResponse, QuestionsResponse, ErrorResponse, LibraryInfo, SubmitRequest, GradeResponse
 from services.generation_job_service import GenerationJobNotFound, get_generation_job_service
-from typing import List, Optional
+from services.initial_cloze_service import InitialClozeService, MAX_BLANKS, MODULE as INITIAL_CLOZE
+from pydantic import BaseModel, Field
+from typing import Annotated, List, Optional
 
 router = APIRouter(prefix="/api/english", tags=["English"])
 
@@ -114,3 +116,65 @@ async def get_library_info(library_name: str):
     - **library_name**: 词库名称
     """
     return await english_service.get_library_info(library_name)
+
+
+class InitialClozeInput(BaseModel):
+    library: str = Field(min_length=1)
+    count: int = Field(ge=1, le=MAX_BLANKS)
+
+
+class InitialClozeAnswers(BaseModel):
+    answers: dict[str, Annotated[str, Field(max_length=100)]] = Field(max_length=MAX_BLANKS)
+
+
+def initial_cloze_service() -> InitialClozeService:
+    return InitialClozeService(
+        english_service.library_admin_service,
+        english_service.ai_generator,
+        generation_job_service,
+    )
+
+
+@router.get("/initial-cloze/capacity")
+def get_initial_cloze_capacity(library: str = Query(min_length=1)):
+    try:
+        return {"max_blanks": initial_cloze_service().capacity(library)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/initial-cloze/jobs", response_model=GenerationJobResponse, status_code=202)
+async def create_initial_cloze_job(request: InitialClozeInput, background_tasks: BackgroundTasks):
+    service = initial_cloze_service()
+    try:
+        job = service.create_job(request.library, request.count)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    background_tasks.add_task(service.run_job, job["job_id"])
+    return job
+
+
+@router.get("/initial-cloze/jobs/{job_id}", response_model=GenerationJobResponse)
+def get_initial_cloze_job(job_id: str):
+    try:
+        return generation_job_service.get_job(job_id, kind=INITIAL_CLOZE)
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail="This practice is unavailable. Start a new passage.") from exc
+
+
+@router.delete("/initial-cloze/jobs/{job_id}", response_model=GenerationJobResponse)
+def cancel_initial_cloze_job(job_id: str):
+    try:
+        return generation_job_service.cancel_job(job_id, kind=INITIAL_CLOZE)
+    except GenerationJobNotFound as exc:
+        raise HTTPException(status_code=404, detail="This practice is unavailable. Start a new passage.") from exc
+
+
+@router.post("/initial-cloze/jobs/{job_id}/grade")
+def grade_initial_cloze_job(job_id: str, request: InitialClozeAnswers):
+    try:
+        return initial_cloze_service().grade(job_id, request.answers)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

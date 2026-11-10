@@ -121,6 +121,32 @@
         .matching-result strong { font-size: 1.125rem; }
         .matching-correct { color: #156348; }
         .matching-incorrect, #matching-status[data-error="true"] { color: #9b231c; }
+        #initial-cloze-area { max-width: 52rem; margin-inline: auto; }
+        #initial-cloze-area [hidden] { display: none; }
+        #initial-cloze-status[data-error="true"] { color: #9b231c; }
+        .initial-cloze-passage {
+            max-width: 68ch;
+            font-size: 1.125rem;
+            line-height: 1.75;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        .initial-cloze-blank {
+            display: inline-flex;
+            align-items: baseline;
+            gap: .25rem;
+            padding-inline-start: .2rem;
+            white-space: nowrap;
+            font-weight: 700;
+        }
+        .learning-english input.initial-cloze-answer {
+            width: 9ch;
+            margin-block: .125rem;
+            padding: .25rem .35rem !important;
+            font-size: inherit;
+        }
+        .initial-cloze-correct { color: #156348; }
+        .initial-cloze-incorrect { color: #9b231c; }
         @media (max-width: 540px) {
             .matching-intro { margin-bottom: 1rem; }
             .matching-row { grid-template-columns: minmax(0, 1fr); padding: .875rem 1rem; }
@@ -208,12 +234,13 @@
                     <div>
                         <p class="text-sm font-bold text-blue-600 uppercase tracking-[0.18em]">Daily Reports</p>
                         <h2 class="text-3xl font-extrabold mt-2">Learning History</h2>
-                        <p class="text-gray-500 mt-3 max-w-3xl">Review scores and answers from Daily Word, Word Matching, Vocabulary Skills, and MAP Language Arts.</p>
+                        <p class="text-gray-500 mt-3 max-w-3xl">Review answers and scores from English practice.</p>
                     </div>
                     <select id="report-module-filter" aria-label="Filter by module" onchange="loadReportHistory()" class="p-3 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--blue-accent)] outline-none">
                         <option value="">All Modules</option>
                         <option value="word_palace">Word Palace</option>
                         <option value="word_vocabulary_skills">Vocabulary Skills</option>
+                        <option value="initial_cloze">First-Letter Cloze</option>
                         <option value="word_matching">Word Matching</option>
                         <option value="map_language_arts">MAP Language Arts</option>
                     </select>
@@ -227,21 +254,30 @@
                 <div class="glass-card rounded-[2rem] p-6 md:p-8">
                     <p class="text-sm font-bold text-emerald-600 uppercase tracking-[0.18em]">Word Palace</p>
                     <h2 class="text-3xl font-extrabold mt-2">Choose a Practice Pathway</h2>
-                    <p class="text-gray-500 mt-3 max-w-3xl">Choose a library quiz, spell words from meanings in a word bank, or practice a vocabulary skill.</p>
+                    <p class="text-gray-500 mt-3 max-w-3xl">Practice with a vocabulary library, spell words from definitions, or work on a vocabulary skill.</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                     <button onclick="showWordPalaceArea('daily-word')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
-                        <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Library Practice</span>
-                        <h3 class="text-2xl font-bold mt-4">Daily Word</h3>
+                        <h3 class="text-2xl font-bold">Daily Word</h3>
+                        <span class="inline-flex mt-3 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Library Practice</span>
                         <p class="text-gray-500 mt-3 leading-relaxed">Use enabled word libraries for cloze and meaning-match practice, then review explanations and missed words.</p>
                         <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Libraries</strong><br><span class="text-gray-500">enabled lists</span></div>
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Modes</strong><br><span class="text-gray-500">cloze/match</span></div>
                         </div>
                     </button>
+                    <button onclick="showWordPalaceArea('initial-cloze')" class="word-palace-pathway module-card text-left glass-card p-6" aria-label="First-Letter Cloze 首字母完形填空">
+                        <h3 class="text-2xl font-bold">First-Letter Cloze</h3>
+                        <span class="inline-flex mt-3 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">首字母完形填空</span>
+                        <p class="text-gray-500 mt-3 leading-relaxed">Read a short passage and complete each word from its first letter.</p>
+                        <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Libraries</strong><br><span class="text-gray-500">enabled lists</span></div>
+                            <div class="rounded-2xl bg-white/70 p-3"><strong>Answer</strong><br><span class="text-gray-500">typed spelling</span></div>
+                        </div>
+                    </button>
                     <button onclick="showWordPalaceArea('vocabulary-skills')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-blue-100">
-                        <span class="inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">Skill Tree</span>
-                        <h3 class="text-2xl font-bold mt-4">Vocabulary Skills</h3>
+                        <h3 class="text-2xl font-bold">Vocabulary Skills</h3>
+                        <span class="inline-flex mt-3 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">Skill Tree</span>
                         <p class="text-gray-500 mt-3 leading-relaxed">Select Grade, Topic, and Skill. Practice covers multiple Details and reports the exact weak knowledge points.</p>
                         <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Grade-based</strong><br><span class="text-gray-500">skills tree</span></div>
@@ -249,8 +285,8 @@
                         </div>
                     </button>
                     <button onclick="showWordPalaceArea('word-matching')" class="word-palace-pathway module-card text-left glass-card rounded-[2rem] p-6 border-emerald-100">
-                        <span class="inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Spelling Practice</span>
-                        <h3 class="text-2xl font-bold mt-4">Word Matching</h3>
+                        <h3 class="text-2xl font-bold">Word Matching</h3>
+                        <span class="inline-flex mt-3 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Spelling Practice</span>
                         <p class="text-gray-500 mt-3 leading-relaxed">Choose a word bank and spell the word for each meaning. Submit to see your score and review the answers.</p>
                         <div class="word-palace-pathway-details grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-2xl bg-white/70 p-3"><strong>Prompt</strong><br><span class="text-gray-500">word meanings</span></div>
@@ -258,6 +294,51 @@
                         </div>
                     </button>
                 </div>
+            </section>
+
+            <section id="initial-cloze-area" class="hidden">
+                <button type="button" onclick="showWordPalaceArea('overview')">← Back to Word Palace</button>
+                <section class="glass-card mt-4">
+                    <h2 id="initial-cloze-title" class="font-extrabold" tabindex="-1">First-Letter Cloze</h2>
+                    <form id="initial-cloze-setup" class="mt-4">
+                        <p>Choose a vocabulary library and how many blanks to fill.</p>
+                        <div class="matching-controls mt-4">
+                            <div>
+                                <label for="initial-cloze-library" class="block mb-1">Vocabulary library</label>
+                                <select id="initial-cloze-library" class="w-full" required disabled>
+                                    <option value="">Choose a library</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="initial-cloze-count" class="block mb-1">Number of blanks</label>
+                                <select id="initial-cloze-count" class="w-full" required disabled></select>
+                            </div>
+                            <button id="initial-cloze-start" class="matching-btn matching-btn-primary" disabled>Generate passage</button>
+                            <button id="initial-cloze-reload" type="button" class="matching-btn" hidden>Reload libraries</button>
+                            <button id="initial-cloze-cancel" type="button" class="matching-btn" hidden>Cancel</button>
+                        </div>
+                    </form>
+                    <section id="initial-cloze-practice" class="mt-4" hidden>
+                        <p id="initial-cloze-instructions" class="mt-2">The first letter is given. Type the remaining letters in each blank.</p>
+                        <form id="initial-cloze-answer-form" class="mt-3">
+                            <div id="initial-cloze-passage" class="initial-cloze-passage" lang="en"></div>
+                            <div id="initial-cloze-actions" class="flex flex-wrap items-center gap-3 mt-4">
+                                <button id="initial-cloze-submit" class="matching-btn matching-btn-primary" disabled>Submit answers</button>
+                                <p id="initial-cloze-progress" class="text-sm" role="status"></p>
+                                <button id="initial-cloze-change" type="button" class="matching-btn">Change settings</button>
+                            </div>
+                        </form>
+                        <section id="initial-cloze-review" class="mt-5" hidden>
+                            <h3 id="initial-cloze-score" class="font-bold" tabindex="-1"></h3>
+                            <ol id="initial-cloze-results" class="mt-3 space-y-2 break-words"></ol>
+                            <div class="flex flex-wrap gap-3 mt-4">
+                                <button id="initial-cloze-retry" type="button" class="matching-btn matching-btn-primary">New passage</button>
+                                <button id="initial-cloze-reports" type="button" class="matching-btn">View Daily Reports</button>
+                            </div>
+                        </section>
+                    </section>
+                    <p id="initial-cloze-status" class="mt-3 text-sm" role="status"></p>
+                </section>
             </section>
 
             <section id="word-matching-area" class="hidden">
@@ -764,12 +845,13 @@
             document.getElementById('daily-word-area').classList.add('hidden');
             document.getElementById('vocab-skills-area').classList.add('hidden');
             document.getElementById('word-matching-area').classList.add('hidden');
+            document.getElementById('initial-cloze-area').classList.add('hidden');
             document.getElementById('setup-section').classList.add('hidden');
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('result-section').classList.add('hidden');
             document.getElementById('page-title').innerText = isWordPalace ? 'Word Palace' : 'MAP Test';
             document.getElementById('page-subtitle').innerText = isWordPalace
-                ? 'Choose Daily Word, Word Matching, or Vocabulary Skills.'
+                ? 'Choose Daily Word, First-Letter Cloze, Vocabulary Skills, or Word Matching.'
                 : 'Explore Language Arts and Reading pathways for future MAP Test practice.';
             document.getElementById('progress-text').classList.remove('hidden');
             document.getElementById('progress-text').innerText = isWordPalace ? 'Word Palace' : 'MAP Test Preview';
@@ -787,11 +869,17 @@
             const showDailyWord = area === 'daily-word';
             const showVocabularySkills = area === 'vocabulary-skills';
             const showMatching = area === 'word-matching';
+            const showInitialCloze = area === 'initial-cloze';
 
             document.getElementById('word-palace-overview').classList.toggle('hidden', !showOverview);
             document.getElementById('daily-word-area').classList.toggle('hidden', !showDailyWord);
             document.getElementById('vocab-skills-area').classList.toggle('hidden', !showVocabularySkills);
             document.getElementById('word-matching-area').classList.toggle('hidden', !showMatching);
+            document.getElementById('initial-cloze-area').classList.toggle('hidden', !showInitialCloze);
+            if (showInitialCloze) {
+                document.getElementById('progress-text').innerText = 'First-Letter Cloze';
+                if (!initialClozeLibrariesLoaded) loadInitialClozeLibraries();
+            }
             if (showMatching) {
                 document.getElementById('progress-text').innerText = 'Word Matching';
                 if (!matchingAttempt) loadMatchingBanks();
@@ -2838,6 +2926,208 @@
             await loadMatchingBanks();
             matchingElement(matchingElement('bank').disabled ? 'reload' : 'bank').focus();
         });
+    </script>
+    <script>
+        const initialClozeApi = '/api/english/initial-cloze';
+        const clozeElement = id => document.getElementById(`initial-cloze-${id}`);
+        let initialClozeLibrariesLoaded = false;
+        let clozeCapacityRequest = 0;
+        let clozeJob = null;
+        let clozeQuestion = null;
+        let clozeGrading = false;
+
+        function clozeStatus(message = '', error = false) {
+            const status = clozeElement('status');
+            status.dataset.error = error;
+            status.textContent = message;
+        }
+
+        async function clozeRequest(path, options = {}) {
+            const response = await fetch(path, { cache: 'no-store', ...options });
+            const fallback = 'First-Letter Cloze is unavailable. Please try again.';
+            const data = await readJsonResponse(response, fallback);
+            if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : fallback);
+            return data;
+        }
+
+        function clozePost(path, body) {
+            return clozeRequest(initialClozeApi + path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+        }
+
+        async function loadInitialClozeLibraries() {
+            const library = clozeElement('library');
+            clozeElement('reload').hidden = true;
+            clozeStatus('Loading vocabulary libraries…');
+            try {
+                const names = await clozeRequest('/api/english/libraries');
+                library.replaceChildren(new Option('Choose a library', ''), ...names.map(name => new Option(name, name)));
+                library.disabled = !names.length;
+                initialClozeLibrariesLoaded = true;
+                clozeStatus(names.length ? '' : 'Ask an administrator to enable an English vocabulary library.');
+                clozeElement('reload').hidden = names.length > 0;
+            } catch (error) {
+                clozeStatus(error.message, true);
+                clozeElement('reload').hidden = false;
+            }
+        }
+
+        async function loadClozeCapacity() {
+            const request = ++clozeCapacityRequest;
+            const library = clozeElement('library').value;
+            const count = clozeElement('count');
+            count.replaceChildren();
+            count.disabled = clozeElement('start').disabled = true;
+            clozeStatus();
+            if (!library) return;
+            clozeStatus('Checking available words…');
+            try {
+                const query = new URLSearchParams({ library });
+                const { max_blanks: max } = await clozeRequest(`${initialClozeApi}/capacity?${query}`);
+                if (request !== clozeCapacityRequest) return;
+                count.replaceChildren(...Array.from({ length: max }, (_, i) => new Option(String(i + 1), String(i + 1))));
+                if (max) count.value = String(Math.min(5, max));
+                count.disabled = clozeElement('start').disabled = max === 0;
+                clozeStatus(max ? '' : 'This library has no single English words for this exercise. Choose another library.');
+            } catch (error) {
+                if (request === clozeCapacityRequest) clozeStatus(error.message, true);
+            }
+        }
+
+        function setClozeGenerating(generating) {
+            clozeElement('library').disabled = clozeElement('count').disabled = clozeElement('start').disabled = generating;
+            clozeElement('cancel').hidden = !generating;
+            clozeElement('cancel').disabled = generating;
+        }
+
+        async function startInitialCloze(event) {
+            event.preventDefault();
+            if (clozeJob || clozeElement('start').disabled) return;
+            const library = clozeElement('library').value;
+            const count = Number(clozeElement('count').value);
+            const pending = clozeJob = { id: '' };
+            setClozeGenerating(true);
+            clozeStatus('Writing the passage and checking the blanks…');
+            try {
+                let job = await clozePost('/jobs', { library, count });
+                pending.id = job.job_id;
+                clozeElement('cancel').disabled = false;
+                while (clozeJob === pending && isGenerationActive(job.status)) {
+                    await new Promise(resolve => setTimeout(resolve, 1250));
+                    if (clozeJob !== pending) return;
+                    job = await clozeRequest(`${initialClozeApi}/jobs/${pending.id}`);
+                }
+                if (clozeJob !== pending) return;
+                if (job.status !== 'completed') {
+                    throw new Error('Could not prepare a passage with clear answers. Try again or choose fewer blanks.');
+                }
+                clozeQuestion = { ...job.questions[0], id: pending.id };
+                renderClozePassage();
+                clozeStatus();
+            } catch (error) {
+                if (clozeJob === pending) clozeStatus(error.message, true);
+            } finally {
+                if (clozeJob === pending) {
+                    clozeJob = null;
+                    setClozeGenerating(false);
+                }
+            }
+        }
+
+        function cancelInitialCloze() {
+            const id = clozeJob?.id;
+            if (!id) return;
+            clozeJob = null;
+            setClozeGenerating(false);
+            clozeStatus('Generation cancelled. You can generate a new passage.');
+            clozeElement('start').focus();
+            clozeRequest(`${initialClozeApi}/jobs/${id}`, { method: 'DELETE' }).catch(() => {});
+        }
+
+        function renderClozePassage(results = null) {
+            const { segments, blanks } = clozeQuestion;
+            clozeElement('passage').innerHTML = blanks.map(({ id, initial }, index) => {
+                const context = escapeHtml(segments[index]);
+                const letter = escapeHtml(initial);
+                if (results) {
+                    const answer = results[index].correct_answer;
+                    return `${context}<strong>${letter}${escapeHtml(answer.slice(1))}</strong>`;
+                }
+                return `${context}<span class="initial-cloze-blank"><span aria-hidden="true">${letter}</span><input
+                    type="text" class="initial-cloze-answer" name="${escapeHtml(id)}"
+                    aria-label="Blank ${index + 1}, starts with ${letter}. Type the remaining letters."
+                    autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" maxlength="99" required></span>`;
+            }).join('') + escapeHtml(segments.at(-1));
+            if (results) return;
+            clozeElement('setup').hidden = clozeElement('review').hidden = true;
+            clozeElement('practice').hidden = clozeElement('actions').hidden = clozeElement('instructions').hidden = false;
+            refreshClozeAnswers();
+            clozeElement('title').focus();
+        }
+
+        function refreshClozeAnswers() {
+            const fields = [...clozeElement('answer-form').querySelectorAll('input')];
+            const answered = fields.filter(field => field.value.trim()).length;
+            const summary = `${answered} of ${fields.length} filled`;
+            const progress = clozeElement('progress');
+            if (progress.textContent !== summary) progress.textContent = summary;
+            clozeElement('submit').disabled = clozeGrading || answered !== fields.length;
+        }
+
+        async function gradeInitialCloze(event) {
+            event.preventDefault();
+            if (!clozeQuestion || clozeGrading || clozeElement('submit').disabled) return;
+            const fields = new FormData(event.currentTarget);
+            const inputs = event.currentTarget.querySelectorAll('input');
+            inputs.forEach(input => input.readOnly = true);
+            const answers = Object.fromEntries(clozeQuestion.blanks.map(({ id, initial }) => [id, initial + fields.get(id).trim()]));
+            clozeGrading = clozeElement('submit').disabled = clozeElement('change').disabled = true;
+            clozeStatus('Checking your answers…');
+            try {
+                const report = await clozePost(`/jobs/${clozeQuestion.id}/grade`, { answers });
+                clozeElement('score').textContent = `${report.correct_count} of ${report.total_count} correct`;
+                clozeElement('results').innerHTML = report.question_results.map(item => `
+                    <li><strong>Blank ${item.blank_id}</strong> ·
+                        ${item.is_correct
+                            ? `<span class="initial-cloze-correct">Correct · ${escapeHtml(item.correct_answer)}</span>`
+                            : `<span class="initial-cloze-incorrect">Your answer: ${escapeHtml(item.user_answer)}</span> · Correct word: <strong>${escapeHtml(item.correct_answer)}</strong>`}
+                    </li>`).join('');
+                renderClozePassage(report.question_results);
+                clozeElement('review').hidden = false;
+                clozeElement('actions').hidden = clozeElement('instructions').hidden = true;
+                clozeStatus('Saved to Daily Reports.');
+                clozeElement('score').focus();
+            } catch (error) {
+                clozeStatus(error.message, true);
+            } finally {
+                clozeGrading = clozeElement('change').disabled = false;
+                if (clozeElement('review').hidden) {
+                    inputs.forEach(input => input.readOnly = false);
+                    refreshClozeAnswers();
+                }
+            }
+        }
+
+        clozeElement('library').addEventListener('change', loadClozeCapacity);
+        clozeElement('reload').addEventListener('click', loadInitialClozeLibraries);
+        clozeElement('setup').addEventListener('submit', startInitialCloze);
+        clozeElement('cancel').addEventListener('click', cancelInitialCloze);
+        clozeElement('answer-form').addEventListener('input', refreshClozeAnswers);
+        clozeElement('answer-form').addEventListener('submit', gradeInitialCloze);
+        clozeElement('reports').addEventListener('click', () => showReportHistory('initial_cloze'));
+        function resetInitialCloze() {
+            clozeQuestion = null;
+            clozeElement('practice').hidden = true;
+            clozeElement('setup').hidden = false;
+            clozeStatus();
+            clozeElement('start').focus();
+        }
+
+        clozeElement('retry').addEventListener('click', resetInitialCloze);
+        clozeElement('change').addEventListener('click', resetInitialCloze);
     </script>
 </body>
 </html>
