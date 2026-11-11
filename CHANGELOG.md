@@ -12,8 +12,8 @@
 
 ## 2026-11-11：撤回 Word Matching 连续题序去重
 
-- 按用户要求撤回 [PR #50](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/50)。每次开题使用原有随机洗牌，连续两轮有可能碰巧同序。
-- 生产从未部署 PR #50。已核对运行提交 `ae4cf02` 中的开题代码调用 `random.shuffle`，本次只恢复发布分支代码，无需部署或迁移。撤回后的应用代码与该生产提交一致，9 项 Word Matching 测试通过。
+- 通过 [PR #51](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/51) 撤回 [PR #50](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/50)。每次开题使用原有随机洗牌，连续两轮有可能碰巧同序。
+- 生产从未部署 PR #50。已核对运行提交 `ae4cf02` 中的开题代码调用 `random.shuffle`，本次只恢复发布分支代码，无需部署或迁移。撤回后的应用代码与该生产提交一致，测试提交为 `6ffa17b241f97d42d741ba25b4f1ce1c7238116f`，9 项 Word Matching 测试通过。
 - 若日后需要恢复连续题序去重，可另开 PR 重新应用该功能。
 
 ## 2026-11-11：首字母完形填空在横线上逐字输入
