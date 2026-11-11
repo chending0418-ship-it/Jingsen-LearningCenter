@@ -548,6 +548,7 @@
         .back-link:hover { background: transparent; text-decoration: underline; text-underline-offset: 4px; }
         .back-link svg { display: none; }
         .todo-nav-center { justify-self: center; }
+        .schedule-link { display: inline-flex; min-height: 44px; align-items: center; font-family: inherit; font-size: 13px; font-weight: 750; color: var(--blue); text-decoration: underline; text-underline-offset: 4px; }
         .date-pill { justify-self: end; color: var(--ink); text-align: right; }
 
         .hero { min-height: 250px; margin: 0; padding: 40px 0 34px; display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(280px, .58fr); align-items: end; gap: clamp(36px, 5vw, 76px); position: relative; overflow: hidden; border-bottom: 1px solid var(--line); isolation: isolate; }
@@ -623,7 +624,7 @@
         @media (max-width: 520px) {
             .shell { padding-left: 20px; padding-right: 20px; }
             .topbar { min-height: 70px; }
-            .back-link, .date-pill, .todo-nav-center { font-size: 9px; }
+            .back-link, .date-pill { font-size: 9px; }
             .date-pill { max-width: none; line-height: 1.25; }
             .hero { min-height: 330px; padding: 46px 0 34px; }
             h1 { font-size: clamp(52px, 15vw, 76px); line-height: .88; }
@@ -646,7 +647,7 @@
             <a id="back-link" class="back-link" href="/portal">
                 BACK2LEARNING
             </a>
-            <span class="todo-nav-center">04 / RHYTHM</span>
+            <a id="schedule-link" class="todo-nav-center schedule-link" href="/todo/family-schedule">家庭日程</a>
             <div id="date-pill" class="date-pill">今天</div>
         </nav>
 
@@ -772,6 +773,7 @@
         let undoTimer = null;
 
         document.getElementById('back-link').href = withBasePath('/portal');
+        document.getElementById('schedule-link').href = withBasePath('/todo/family-schedule');
         document.getElementById('preview-note').classList.toggle('visible', DEMO_MODE);
         document.getElementById('undo-button').addEventListener('click', undoLastCompletion);
 

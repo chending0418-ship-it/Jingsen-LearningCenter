@@ -160,6 +160,8 @@
             white-space: nowrap;
         }
 
+        a.nav-tab { display: inline-flex; align-items: center; text-decoration: none; }
+        a.nav-tab:hover { text-decoration: underline; text-underline-offset: 4px; }
         .nav-tab.active { background: var(--ink); color: #fff; box-shadow: 0 6px 16px rgba(24,32,29,.16); }
         .view { display: none; animation: viewIn 180ms ease; }
         .view.active { display: block; }
@@ -667,6 +669,7 @@
                 <button class="nav-tab" data-view="stats">周月统计</button>
                 <button class="nav-tab" data-view="points">积分修正与支出</button>
                 <button class="nav-tab" data-view="subjects">科目管理</button>
+                <a class="nav-tab" href="/admin/learningcenter/todo/family-schedule">家庭日程</a>
                 <button class="nav-tab" data-view="settings">设置</button>
             </nav>
         </div>
@@ -935,7 +938,7 @@
 
         document.getElementById('admin-back').href = '/admin';
         document.getElementById('demo-badge').classList.toggle('visible', DEMO_MODE);
-        document.querySelectorAll('.nav-tab').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
+        document.querySelectorAll('.nav-tab[data-view]').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
         document.getElementById('task-modal-backdrop').addEventListener('click', event => {
             if (event.target === event.currentTarget) closeTaskModal();
         });
@@ -1106,7 +1109,7 @@
 
         function switchView(viewName) {
             document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `view-${viewName}`));
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.view === viewName));
+            document.querySelectorAll('.nav-tab[data-view]').forEach(tab => tab.classList.toggle('active', tab.dataset.view === viewName));
             if (viewName === 'tasks') renderTaskTable();
             if (viewName === 'day') renderDayView();
             if (viewName === 'week') renderWeekView();

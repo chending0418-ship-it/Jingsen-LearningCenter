@@ -553,3 +553,32 @@ def test_subject_and_template_upserts_preserve_existing_task_foreign_keys(servic
     assert len(tasks) == 2
     assert next(row for row in service._repository.read_subjects()["subjects"] if row["id"] == "sub_reading")["name"] == "阅读与表达"
     assert service._repository.read_templates()["templates"][0]["title"] == "更新后的重复模板"
+
+
+def test_family_schedule_backup_restores_events_and_preserves_current_share(service):
+    import zipfile
+
+    event = service.save_family_schedule_event({
+        "title": "家庭聚餐", "event_date": service.today(), "start_time": "18:30",
+        "location": "", "label": "家庭",
+    })
+    old_token = service.issue_family_schedule_share()
+    backup_name = service.create_backup()["name"]
+    old_backup = service.backups_dir / "legacy-backup.zip"
+    with zipfile.ZipFile(service.backups_dir / backup_name) as current, zipfile.ZipFile(old_backup, "w") as legacy:
+        assert "family-schedule.json" in current.namelist()
+        for name in current.namelist():
+            data = current.read(name)
+            assert old_token.encode() not in data
+            if name != "family-schedule.json":
+                legacy.writestr(name, data)
+
+    new_token = service.issue_family_schedule_share()
+    service.restore_backup(old_backup.name)
+    assert service.family_schedule(None)["events"] == [event]
+    service.delete_family_schedule_event(event["id"])
+    assert service.family_schedule(None)["events"] == []
+
+    service.restore_backup(backup_name)
+    assert service.family_schedule(None, new_token)["events"] == [event]
+    assert service.family_schedule(None, old_token) is None

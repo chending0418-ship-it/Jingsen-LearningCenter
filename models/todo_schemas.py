@@ -161,3 +161,24 @@ class SettingsUpdateRequest(BaseModel):
 
 class BackupRestoreRequest(BaseModel):
     confirm: bool = False
+
+
+class FamilyScheduleEvent(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+    event_date: date
+    start_time: Optional[str] = Field(default=None, pattern=r"^(?:[01][0-9]|2[0-3]):[0-5][0-9]$")
+    location: str = Field(default="", max_length=120)
+    label: str = Field(default="其他", min_length=1, max_length=20)
+
+    @field_validator("title", "location", "label", mode="before")
+    @classmethod
+    def strip_schedule_text(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
+class FamilyScheduleBackupEvent(FamilyScheduleEvent):
+    id: str = Field(pattern=r"^[0-9a-f]{32}$")
+
+
+class FamilyScheduleAccess(BaseModel):
+    token: str = Field(pattern=r"^[A-Za-z0-9_-]{43}$")

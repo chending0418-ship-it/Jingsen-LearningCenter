@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import calendar
 import hashlib
+import hmac
 import json
 import os
 import re
+import secrets
 import shutil
 import tempfile
 import threading
@@ -22,9 +24,11 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional
 from zoneinfo import ZoneInfo
 
 import fcntl
+from pydantic import TypeAdapter, ValidationError
 
 from config import config
 from database import TodoRepository, database_for_todo_root, migrate_todo_legacy_data
+from models.todo_schemas import FamilyScheduleBackupEvent
 
 
 DEFAULT_SUBJECTS = [
@@ -62,6 +66,7 @@ class LearningTodoService:
         self.templates_path = self.data_dir / "templates.json"
         self.reports_path = self.data_dir / "reports.json"
         self.points_ledger_path = self.data_dir / "points-ledger.json"
+        self.schedule_path = self.data_dir / "family-schedule.json"
         self.lock_path = self.data_dir / ".storage.lock"
         self._database = database_for_todo_root(self.data_dir)
         migrate_todo_legacy_data(self.data_dir, self._database)
@@ -157,6 +162,8 @@ class LearningTodoService:
             payload = self._repository.read_reports()
         elif path == self.points_ledger_path:
             payload = self._repository.read_ledger()
+        elif path == self.schedule_path:
+            payload = {"version": 1, "events": self._repository.schedule_events()}
         elif path.parent == self.tasks_dir:
             payload = self._repository.read_tasks(path.stem)
         else:
@@ -251,6 +258,7 @@ class LearningTodoService:
 
     def _managed_json_paths_unlocked(self) -> List[Path]:
         paths = [self.settings_path, self.subjects_path, self.templates_path, self.reports_path, self.points_ledger_path]
+        paths.append(self.schedule_path)
         paths.extend(self._month_path(month) for month in self._month_names_unlocked())
         return paths
 
@@ -650,6 +658,19 @@ class LearningTodoService:
                     with path.open("r", encoding="utf-8") as handle:
                         restored_payloads[path.relative_to(extract_dir).as_posix()] = json.load(handle)
 
+                schedule_backup = restored_payloads.get(self.schedule_path.name)
+                schedule_events = None
+                if self.schedule_path.name in restored_payloads:
+                    if not isinstance(schedule_backup, dict) or schedule_backup.get("version") != 1:
+                        raise TodoDataError("家庭日程备份格式无效")
+                    try:
+                        validated = TypeAdapter(list[FamilyScheduleBackupEvent]).validate_python(schedule_backup.get("events"))
+                    except ValidationError as exc:
+                        raise TodoDataError("家庭日程备份格式无效") from exc
+                    if len({event.id for event in validated}) != len(validated):
+                        raise TodoDataError("家庭日程备份包含重复日程")
+                    schedule_events = [event.model_dump(mode="json") for event in validated]
+
                 # 先解除旧任务对模板和科目的引用，再恢复静态 Todo 数据。
                 self._repository.delete_all_tasks()
 
@@ -676,6 +697,8 @@ class LearningTodoService:
                     if match:
                         self._repository.replace_tasks(match.group(1), payload)
                 self._bootstrap_unlocked_validate()
+                if schedule_events is not None:
+                    self._repository.restore_schedule_events(schedule_events)
             finally:
                 shutil.rmtree(extract_dir, ignore_errors=True)
                 archive_copy.unlink(missing_ok=True)
@@ -688,6 +711,50 @@ class LearningTodoService:
         self._points_ledger_unlocked()
         for month in self._month_names_unlocked():
             self._month_payload_unlocked(month)
+
+    def family_schedule(self, start: date | None, token: str | None = None) -> dict | None:
+        today = date.fromisoformat(self.today())
+        start = start or today - timedelta(days=today.weekday())
+        end = start + timedelta(days=min(6, (date.max - start).days))
+        with self._guard():
+            if token is not None and not self.can_view_family_schedule(token):
+                return None
+            events = self._repository.schedule_events(start.isoformat(), end.isoformat())
+        return {
+            "today": today.isoformat(), "start": start.isoformat(), "end": end.isoformat(),
+            "timezone": self.timezone_name, "events": events,
+        }
+
+    def save_family_schedule_event(self, data: dict, event_id: str | None = None) -> dict:
+        event = {"id": event_id or uuid.uuid4().hex, **data}
+        with self._guard():
+            if not self._repository.save_schedule_event(event, create=event_id is None):
+                raise TodoDataError("日程不存在")
+        return event
+
+    def delete_family_schedule_event(self, event_id: str) -> None:
+        with self._guard():
+            if not self._repository.delete_schedule_event(event_id):
+                raise TodoDataError("日程不存在")
+
+    def family_schedule_share_enabled(self) -> bool:
+        return bool(self._repository.schedule_share_digest())
+
+    def can_view_family_schedule(self, token: str) -> bool:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{43}", token):
+            return False
+        digest = hashlib.sha256(token.encode("ascii")).hexdigest()
+        return hmac.compare_digest(digest, self._repository.schedule_share_digest())
+
+    def issue_family_schedule_share(self) -> str:
+        token = secrets.token_urlsafe(32)
+        with self._guard():
+            self._repository.set_schedule_share_digest(hashlib.sha256(token.encode("ascii")).hexdigest())
+        return token
+
+    def revoke_family_schedule_share(self) -> None:
+        with self._guard():
+            self._repository.set_schedule_share_digest("")
 
     def list_subjects(self, include_disabled: bool = True) -> List[Dict[str, Any]]:
         with self._guard():

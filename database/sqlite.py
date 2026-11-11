@@ -239,6 +239,17 @@ CREATE TABLE IF NOT EXISTS points_ledger (
     payload_json TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS todo_family_schedule (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    event_date TEXT NOT NULL,
+    start_time TEXT,
+    location TEXT NOT NULL,
+    label TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_todo_family_schedule_date
+    ON todo_family_schedule(event_date, start_time, id);
+
 CREATE TABLE IF NOT EXISTS reading_books (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -439,6 +450,9 @@ class SQLiteDatabase:
                         )
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(7, ?)", (_now(),)
+                        )
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(8, ?)", (_now(),)
                         )
                     break
                 except sqlite3.OperationalError as exc:
@@ -1368,6 +1382,65 @@ class ReadingRepository:
 class TodoRepository:
     def __init__(self, database: SQLiteDatabase):
         self.database = database
+
+    def schedule_events(self, start: str | None = None, end: str | None = None) -> list[dict]:
+        with self.database.read() as connection:
+            return [
+                dict(row) for row in connection.execute(
+                    """SELECT id, title, event_date, start_time, location, label
+                       FROM todo_family_schedule
+                       WHERE event_date BETWEEN ? AND ?
+                       ORDER BY event_date, start_time, title, id""",
+                    (start or "0001-01-01", end or "9999-12-31"),
+                )
+            ]
+
+    def save_schedule_event(self, event: dict, *, create: bool) -> bool:
+        with self.database.transaction() as connection:
+            if create:
+                connection.execute(
+                    """INSERT INTO todo_family_schedule(id,title,event_date,start_time,location,label)
+                       VALUES(:id,:title,:event_date,:start_time,:location,:label)""",
+                    event,
+                )
+                return True
+            cursor = connection.execute(
+                """UPDATE todo_family_schedule
+                   SET title=:title, event_date=:event_date, start_time=:start_time,
+                       location=:location, label=:label WHERE id=:id""",
+                event,
+            )
+            return bool(cursor.rowcount)
+
+    def delete_schedule_event(self, event_id: str) -> bool:
+        with self.database.transaction() as connection:
+            cursor = connection.execute("DELETE FROM todo_family_schedule WHERE id=?", (event_id,))
+            return bool(cursor.rowcount)
+
+    def restore_schedule_events(self, events: list[dict]) -> None:
+        with self.database.transaction() as connection:
+            connection.execute("DELETE FROM todo_family_schedule")
+            connection.executemany(
+                """INSERT INTO todo_family_schedule(id,title,event_date,start_time,location,label)
+                   VALUES(:id,:title,:event_date,:start_time,:location,:label)""",
+                events,
+            )
+
+    def schedule_share_digest(self) -> str:
+        with self.database.read() as connection:
+            row = connection.execute("SELECT value FROM app_state WHERE key='todo_family_schedule_share'").fetchone()
+        return row["value"] if row else ""
+
+    def set_schedule_share_digest(self, digest: str) -> None:
+        with self.database.transaction() as connection:
+            if digest:
+                connection.execute(
+                    """INSERT INTO app_state(key,value,updated_at) VALUES('todo_family_schedule_share',?,?)
+                       ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at""",
+                    (digest, _now()),
+                )
+            else:
+                connection.execute("DELETE FROM app_state WHERE key='todo_family_schedule_share'")
 
     def read_settings(self) -> Dict[str, Any]:
         with self.database.read() as connection:

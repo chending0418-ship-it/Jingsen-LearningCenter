@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#F2F0E8">
+    <title>家庭日程 · Jingsen Learning Center</title>
+    <link rel="stylesheet" href="/static/admin_learning_theme.css">
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
+    <style>
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        .shell { width: min(calc(100% - 40px), 1040px); margin: auto; padding: 0 0 56px; }
+        header { border-bottom: 1px solid var(--lc-line); padding: 12px 0 24px; }
+        .back { display: inline-flex; align-items: center; min-height: 44px; color: var(--lc-blue); text-underline-offset: 4px; }
+        .heading, .week-bar, .form-actions, .share-actions, .event-actions {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+        }
+        .heading, .week-bar { justify-content: space-between; column-gap: 20px; }
+        h1 { margin: 6px 0 0; font-size: 2.5rem; line-height: 1.15; letter-spacing: -.035em; }
+        h2 { font-size: 1.25rem; margin: 0; }
+        h3, p { margin: 0; }
+        .week-bar { margin: 24px 0 12px; }
+        .week-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+        .timezone { color: var(--lc-muted); font-size: .875rem; margin-top: 3px; }
+        button {
+            min-height: 44px; padding: 0 12px; border: 1px solid var(--lc-line); background: #fcfbf7;
+            color: var(--lc-ink); font-weight: 700; font-size: .875rem !important;
+        }
+        button:hover:not(:disabled) { background: #e8e5db; }
+        button:disabled { opacity: .55; cursor: default; }
+        button.primary { background: var(--lc-blue); border-color: var(--lc-blue); color: #fff; }
+        button.primary:hover:not(:disabled) { background: #1038b9; }
+        button.danger { color: #9c2a1d; }
+        :focus-visible { outline: 2px solid var(--lc-blue); outline-offset: 3px; }
+        ::selection { color: #121212; background: #c9b8ff; }
+        .message { padding: 22px 0; color: var(--lc-muted); line-height: 1.6; }
+        .error { color: #9c2a1d; }
+        #retry { margin-top: 10px; }
+        .day { display: grid; grid-template-columns: 144px minmax(0, 1fr); border-top: 1px solid var(--lc-line); }
+        .day:last-child { border-bottom: 1px solid var(--lc-line); }
+        .day h3 { padding: 18px 12px 12px 0; font-size: .95rem; }
+        .day.today h3 { color: var(--lc-blue); }
+        .day ul { padding: 0; margin: 0; list-style: none; }
+        .day-empty { color: var(--lc-muted); padding: 18px 0; }
+        .event {
+            display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px;
+            align-items: start; padding: 13px 0;
+        }
+        .event + .event { border-top: 1px solid var(--lc-line); }
+        .event time { color: var(--lc-muted); font-variant-numeric: tabular-nums; padding-top: 3px; }
+        .event-title { font-weight: 750; line-height: 1.5; overflow-wrap: anywhere; }
+        .event-place { color: var(--lc-muted); margin-top: 3px; font-size: .875rem; overflow-wrap: anywhere; }
+        .event-label {
+            display: inline-block; margin: 0 0 4px; padding: 2px 7px;
+            background: var(--label-color); color: var(--lc-ink); font-size: .75rem;
+            font-weight: 750; line-height: 1.5; overflow-wrap: anywhere;
+        }
+        .week-view .shell { width: min(calc(100% - 2 * var(--learn-pad)), 1440px); }
+        .week-view header { padding-bottom: 18px; border-color: var(--learn-ink); }
+        .week-view .back { color: var(--learn-blue); font-size: .875rem; font-weight: 750; text-decoration: none; }
+        .week-view .back:hover { text-decoration: underline; }
+        .week-view h1 { font-size: 3rem; font-weight: 800; line-height: 1.05; }
+        .week-view .week-actions button { border-color: var(--learn-ink); }
+        .week-view #current { background: var(--learn-ink); color: #fff; }
+        .week-view #current:hover:not(:disabled) { background: var(--learn-blue); }
+        .week-view #agenda:not(:empty) {
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); min-height: 260px;
+            border: 1px solid var(--learn-ink); background: #fcfbf7;
+        }
+        .week-view .day { display: block; min-width: 0; border: 0; }
+        .week-view .day + .day { border-inline-start: 1px solid var(--learn-line); }
+        .week-view .day h3 {
+            display: grid; gap: 3px; padding: 10px 10px 9px;
+            border-bottom: 1px solid var(--learn-ink); background: var(--learn-paper);
+            font-size: .875rem; line-height: 1.35;
+        }
+        .week-view .day.today h3 { background: var(--learn-blue); color: #fff; }
+        .week-day-label { display: flex; justify-content: space-between; align-items: center; gap: 3px; }
+        .week-today { padding: 1px 4px; background: var(--learn-acid); color: var(--learn-ink); font-size: .75rem; }
+        .week-date { font: 500 .8125rem/1.35 "DM Mono", monospace; }
+        .week-view .day-empty { padding: 12px 10px; font-size: .8125rem; }
+        .week-view .day ul { display: grid; gap: 6px; padding: 6px; }
+        .week-view .event {
+            grid-template-columns: auto minmax(0, 1fr); gap: 4px 6px; padding: 7px;
+            border: 1px solid var(--learn-line); background: #fff;
+        }
+        .week-view .event :is(time, .timezone) {
+            margin: 0; padding: 2px 0; font-size: .8125rem; line-height: 1.4;
+        }
+        .week-view .event time { font-family: "DM Mono", monospace; }
+        .week-view .event-details { display: contents; }
+        .week-view .event-label {
+            justify-self: start; max-width: 100%; margin: 0; padding: 2px 4px; line-height: 1.4;
+        }
+        .week-view :is(.event-title, .event-place) { grid-column: 1 / -1; }
+        .week-view .event-title { font-size: .9375rem; line-height: 1.4; }
+        .week-view .event-place { margin: 0; font-size: .8125rem; line-height: 1.45; }
+        .editor, .share { padding: 18px 0; border-bottom: 1px solid var(--lc-line); }
+        form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+        form .wide { grid-column: 1 / -1; }
+        .field { display: grid; gap: 5px; }
+        .learning-admin .field label { font-size: .875rem !important; letter-spacing: 0; }
+        input { min-height: 44px; width: 100%; min-width: 0; padding: 8px 10px; }
+        .share p { margin: 6px 0 10px; color: var(--lc-muted); line-height: 1.55; font-size: .875rem; }
+        .share output { display: block; overflow-wrap: anywhere; margin: 10px 0; color: var(--lc-blue); }
+        #feedback { color: var(--lc-blue); margin-top: 10px; }
+        #feedback:empty { margin-top: 0; }
+        #feedback.error { color: #9c2a1d; }
+        @media (max-width: 620px) {
+            h1 { font-size: 2rem; }
+            header { padding-bottom: 18px; }
+            .day { grid-template-columns: 1fr; }
+            .day h3 { padding: 12px 0 4px; }
+            .day-empty { padding: 8px 0 12px; }
+        }
+        @media (max-width: 420px) {
+            .shell { width: calc(100% - 32px); }
+            .event { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+            .event-actions { grid-column: 2; }
+        }
+    </style>
+</head>
+<body class="learning-admin">
+<main class="shell">
+    <header>
+        <a id="back" class="back" href="/todo">返回 TODO</a>
+        <div class="heading">
+            <h1>家庭日程</h1>
+            <button id="add" class="primary" type="button" hidden>新增日程</button>
+        </div>
+    </header>
+
+    <section id="editor" class="editor" aria-labelledby="editor-title" hidden>
+        <h2 id="editor-title">新增日程</h2>
+        <form id="event-form">
+            <div class="field wide"><label for="title">日程名称</label><input id="title" name="title" required maxlength="120"></div>
+            <div class="field"><label for="event-date">日期</label><input id="event-date" name="event_date" type="date" required></div>
+            <div class="field"><label for="start-time">开始时间（留空为全天）</label><input id="start-time" name="start_time" type="time"></div>
+            <div class="field wide"><label for="location">地点（选填）</label><input id="location" name="location" maxlength="120"></div>
+            <div class="field wide"><label for="label">标签</label><input id="label" name="label" list="labels" value="其他" required maxlength="20"></div>
+            <datalist id="labels">
+                <option value="家庭"></option><option value="学校"></option><option value="运动"></option>
+                <option value="出行"></option><option value="其他"></option>
+            </datalist>
+            <div class="form-actions wide">
+                <button id="save" class="primary" type="submit">保存日程</button>
+                <button id="cancel" type="button">取消</button>
+            </div>
+        </form>
+    </section>
+    <p id="feedback" role="status"></p>
+
+    <section aria-labelledby="week-title">
+        <div id="week-bar" class="week-bar" hidden>
+            <div>
+                <h2 id="week-title" aria-live="polite">本周</h2>
+                <p id="timezone" class="timezone"></p>
+            </div>
+            <nav class="week-actions" aria-label="浏览日程">
+                <button id="previous" type="button">上一周</button>
+                <button id="current" type="button">本周</button>
+                <button id="next" type="button">下一周</button>
+            </nav>
+        </div>
+        <div id="message" class="message">
+            <p id="message-text" role="status">正在加载日程…</p>
+            <button id="retry" type="button" hidden>重试</button>
+        </div>
+        <div id="agenda"></div>
+    </section>
+
+    <section id="share" class="share" aria-labelledby="share-title" hidden>
+        <h2 id="share-title">分享给孩子</h2>
+        <p id="share-description">生成查看链接，在孩子的设备上打开一次，即可从 TODO 查看日程。</p>
+        <div class="share-actions">
+            <button id="issue" type="button">生成查看链接</button>
+            <button id="revoke" class="danger" type="button" hidden>撤销查看权限</button>
+        </div>
+        <div id="share-result" hidden>
+            <output id="share-url" aria-label="家庭日程查看链接"></output>
+            <button id="copy" type="button">复制链接</button>
+        </div>
+        <p id="share-feedback" role="status"></p>
+    </section>
+</main>
+<script>
+    const admin = location.pathname.startsWith('/admin/');
+    const adminPage = '/admin/learningcenter/todo/family-schedule';
+    const base = location.pathname.startsWith('/learningcenter/') ? '/learningcenter' : '';
+    const api = (admin ? '/api/admin/todo' : base + '/api/todo') + '/family-schedule';
+    const $ = id => document.getElementById(id);
+    const form = $('event-form');
+    const wideScreen = window.matchMedia('(min-width: 768px) and (min-height: 560px), (min-width: 768px) and (pointer: fine)');
+    const showsWeekColumns = () => !admin && wideScreen.matches;
+    let schedule = null;
+    let editingId = null;
+    let requestedStart = null;
+    let requestId = 0;
+    let invitation = readInvitation();
+
+    $('back').href = admin ? '/admin/learningcenter/todo' : base + '/todo';
+    function readInvitation() {
+        if (!location.hash) return null;
+        const token = new URLSearchParams(location.hash.slice(1)).get('invite');
+        history.replaceState(null, '', location.pathname + location.search);
+        return token;
+    }
+
+    const toDate = value => new Date(value + 'T12:00:00Z');
+    const addDays = (value, amount) => {
+        const day = toDate(value);
+        day.setUTCDate(day.getUTCDate() + amount);
+        return day.toISOString().slice(0, 10);
+    };
+    const monday = value => addDays(value, -((toDate(value).getUTCDay() + 6) % 7));
+    const shortDate = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', timeZone: 'UTC' });
+    const dayDate = new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short', timeZone: 'UTC' });
+    const numericDate = new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', timeZone: 'UTC' });
+    const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'short', timeZone: 'UTC' });
+    const labelColors = new Map([
+        ['家庭', '#FFD5C5'], ['学校', '#DCE4FF'], ['运动', '#D9EDBB'],
+        ['出行', '#FFE6A8'], ['其他', '#E8E5DB']
+    ]);
+    const otherColors = ['#DCE4FF', '#D9EDBB', '#FFE6A8', '#E8D9FA', '#FFD5C5', '#BEE9E2'];
+    function labelColor(label) {
+        if (labelColors.has(label)) return labelColors.get(label);
+        let hash = 0;
+        for (const character of label) hash = (hash * 31 + character.codePointAt(0)) >>> 0;
+        return otherColors[hash % otherColors.length];
+    }
+
+    function node(tag, className, text) {
+        const element = document.createElement(tag);
+        element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    }
+
+    async function request(path, method = 'GET', body) {
+        const response = await fetch(api + path, {
+            method, cache: 'no-store',
+            ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {})
+        });
+        if (response.status === 401 && admin) {
+            location.replace('/admin?next=' + encodeURIComponent(adminPage));
+        }
+        if (response.status === 204) return null;
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const error = new Error(typeof payload.detail === 'string' ? payload.detail : '操作失败，请检查输入后重试。');
+            error.status = response.status;
+            throw error;
+        }
+        return payload;
+    }
+
+    function message(text, retry = false) {
+        $('message').hidden = !text;
+        $('message-text').textContent = text;
+        $('retry').hidden = !retry;
+    }
+
+    async function loadSchedule(start = null) {
+        const id = ++requestId;
+        requestedStart = start;
+        $('agenda').replaceChildren();
+        message('正在加载日程…');
+        const controls = ['previous', 'current', 'next', 'add'];
+        controls.forEach(id => $(id).disabled = true);
+        try {
+            const token = invitation;
+            if (token && !admin) {
+                await request('/access', 'POST', { token });
+                if (token === invitation) invitation = null;
+            }
+            const data = await request(start ? '?start=' + encodeURIComponent(start) : '');
+            if (id !== requestId) return;
+            schedule = data;
+            renderSchedule();
+        } catch (error) {
+            if (id !== requestId) return;
+            $('week-bar').hidden = true;
+            $('add').hidden = true;
+            $('share').hidden = true;
+            if (error.status === 401 || error.status === 422) {
+                invitation = null;
+                message(error.status === 422 ? '查看链接无效，请向家长索取新链接。' : error.message);
+            } else {
+                message('日程暂时无法加载，请重试。', true);
+            }
+        } finally {
+            if (id === requestId) {
+                controls.forEach(control => $(control).disabled = false);
+                if (!$('week-bar').hidden) {
+                    $('previous').disabled = schedule.start <= '0001-01-07';
+                    $('next').disabled = schedule.end === '9999-12-31';
+                }
+            }
+        }
+    }
+
+    function renderSchedule() {
+        const { start, end, timezone } = schedule;
+        const first = toDate(start);
+        const last = toDate(end);
+        const year = first.getUTCFullYear();
+        $('week-title').textContent = year + '年' + shortDate.format(first) + ' – '
+            + (last.getUTCFullYear() === year ? '' : last.getUTCFullYear() + '年') + shortDate.format(last);
+        $('timezone').textContent = timezone === 'Asia/Shanghai' ? '北京时间' : timezone;
+        $('week-bar').hidden = false;
+        $('add').hidden = !admin;
+        $('share').hidden = !admin;
+        $('issue').textContent = schedule.share_enabled ? '生成新链接' : '生成查看链接';
+        $('revoke').hidden = !schedule.share_enabled;
+        renderAgenda();
+    }
+
+    function renderAgenda() {
+        const { today, start, end, events } = schedule;
+        const columns = showsWeekColumns();
+        const days = new Map();
+        if (today >= start && today <= end) days.set(today, []);
+        for (const event of events) {
+            if (!days.has(event.event_date)) days.set(event.event_date, []);
+            days.get(event.event_date).push(event);
+        }
+        const dates = [...days.keys()].sort();
+        if (columns) {
+            dates.length = 0;
+            for (let offset = 0; offset < 7; offset++) {
+                const day = addDays(start, offset);
+                dates.push(day);
+                if (day === end) break;
+            }
+        }
+        message(dates.length ? '' : '这一周没有安排。');
+        $('agenda').replaceChildren(...dates.map(day => {
+            const isToday = day === today;
+            const section = node('section', isToday ? 'day today' : 'day');
+            const heading = renderDayHeading(day, isToday, columns);
+            const items = days.get(day) ?? [];
+            if (!items.length) {
+                section.append(heading, node('p', 'day-empty', columns ? '暂无安排' : '今天没有安排。'));
+            } else {
+                const list = node('ul', '');
+                list.append(...items.map(renderEvent));
+                section.append(heading, list);
+            }
+            return section;
+        }));
+    }
+
+    function renderDayHeading(day, isToday, columns) {
+        const date = toDate(day);
+        if (!columns) return node('h3', '', dayDate.format(date) + (isToday ? ' · 今天' : ''));
+
+        const heading = node('h3', '');
+        const dayLabel = node('span', 'week-day-label', weekday.format(date));
+        if (isToday) {
+            heading.setAttribute('aria-current', 'date');
+            dayLabel.append(node('span', 'week-today', '今天'));
+        }
+        const dateLabel = node('time', 'week-date', numericDate.format(date));
+        dateLabel.dateTime = day;
+        heading.append(dayLabel, dateLabel);
+        return heading;
+    }
+
+    function renderEvent(event) {
+        const row = node('li', 'event');
+        const time = node(event.start_time ? 'time' : 'span', '', event.start_time || '全天');
+        if (event.start_time) time.dateTime = event.start_time;
+        if (!event.start_time) time.className = 'timezone';
+        const details = node('div', 'event-details');
+        const label = node('span', 'event-label', event.label);
+        label.style.setProperty('--label-color', labelColor(event.label));
+        details.append(label, node('p', 'event-title', event.title));
+        if (event.location) details.append(node('p', 'event-place', event.location));
+        row.append(time, details);
+        if (admin) {
+            const actions = node('div', 'event-actions');
+            const edit = node('button', '', '编辑');
+            const remove = node('button', 'danger', '删除');
+            edit.setAttribute('aria-label', '编辑 ' + event.title);
+            remove.setAttribute('aria-label', '删除 ' + event.title);
+            edit.addEventListener('click', () => openEditor(event));
+            remove.addEventListener('click', () => deleteEvent(event, remove));
+            actions.append(edit, remove);
+            row.append(actions);
+        }
+        return row;
+    }
+
+    function feedback(text, failed = false) {
+        $('feedback').textContent = text;
+        $('feedback').classList.toggle('error', failed);
+    }
+
+    function openEditor(event) {
+        editingId = event?.id ?? null;
+        form.reset();
+        $('editor-title').textContent = event ? '编辑日程' : '新增日程';
+        $('title').value = event?.title ?? '';
+        $('event-date').value = event?.event_date ?? (monday(schedule.today) === schedule.start ? schedule.today : schedule.start);
+        $('start-time').value = event?.start_time ?? '';
+        $('location').value = event?.location ?? '';
+        $('label').value = event?.label ?? '其他';
+        $('editor').hidden = false;
+        feedback('');
+        $('title').focus();
+    }
+
+    async function deleteEvent(event, button) {
+        if (!confirm('删除「' + event.title + '」？')) return;
+        button.disabled = true;
+        try {
+            await request('/events/' + event.id, 'DELETE');
+            if (editingId === event.id) $('editor').hidden = true;
+            await loadSchedule(schedule.start);
+            feedback('日程已删除。');
+        } catch (error) {
+            feedback(error.message, true);
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(form));
+        data.start_time ||= null;
+        const id = editingId;
+        $('save').disabled = true;
+        try {
+            await request(id ? '/events/' + id : '/events', id ? 'PUT' : 'POST', data);
+            $('editor').hidden = true;
+            await loadSchedule(monday(data.event_date));
+            feedback('日程已保存。');
+            if (!$('add').hidden) $('add').focus();
+        } catch (error) {
+            feedback(error.message, true);
+        } finally {
+            $('save').disabled = false;
+        }
+    });
+
+    async function changeShare(revoke) {
+        if (schedule.share_enabled && !confirm(revoke ? '撤销后，已打开过链接的设备也会失去查看权限。' : '生成新链接后，旧链接和已授权的设备会失效。')) return;
+        $('issue').disabled = $('revoke').disabled = true;
+        $('share-feedback').textContent = '';
+        try {
+            const result = await request('/share', revoke ? 'DELETE' : 'POST');
+            schedule.share_enabled = !revoke;
+            $('share-result').hidden = revoke;
+            $('share-url').textContent = revoke ? '' : new URL('/learningcenter/todo/family-schedule#invite=' + result.token, location.origin).href;
+            renderSchedule();
+            $('share-feedback').textContent = revoke ? '已撤销查看权限。' : '请把链接发给孩子。这条链接只在此处显示一次。';
+        } catch (error) {
+            $('share-feedback').textContent = error.message;
+        } finally {
+            $('issue').disabled = $('revoke').disabled = false;
+        }
+    }
+
+    $('add').addEventListener('click', () => openEditor());
+    $('cancel').addEventListener('click', () => { $('editor').hidden = true; $('add').focus(); });
+    $('previous').addEventListener('click', () => loadSchedule(addDays(schedule.start, -7)));
+    $('current').addEventListener('click', () => loadSchedule());
+    $('next').addEventListener('click', () => loadSchedule(addDays(schedule.start, 7)));
+    $('retry').addEventListener('click', () => loadSchedule(requestedStart));
+    $('issue').addEventListener('click', () => changeShare(false));
+    $('revoke').addEventListener('click', () => changeShare(true));
+    $('copy').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText($('share-url').textContent);
+            $('share-feedback').textContent = '链接已复制。';
+        } catch {
+            $('share-feedback').textContent = '请选择上方链接并手动复制。';
+        }
+    });
+
+    window.addEventListener('hashchange', () => {
+        const token = readInvitation();
+        if (token && !admin) {
+            invitation = token;
+            loadSchedule();
+        }
+    });
+
+    function updateLayout() {
+        document.body.classList.toggle('week-view', showsWeekColumns());
+        if (schedule && !$('week-bar').hidden && !$('current').disabled) renderAgenda();
+    }
+    wideScreen.addEventListener('change', updateLayout);
+    updateLayout();
+
+    // A restored page must re-check the current viewing permission.
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) location.reload();
+    });
+    loadSchedule();
+</script>
+</body>
+</html>

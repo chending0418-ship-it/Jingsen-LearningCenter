@@ -11,6 +11,8 @@ from models.todo_schemas import (
     CopyDayRequest,
     CopyWeekRequest,
     EditScope,
+    FamilyScheduleAccess,
+    FamilyScheduleEvent,
     PointsCorrectionRequest,
     PointsSpendRequest,
     ReportCommentRequest,
@@ -410,3 +412,76 @@ async def restore_backup(backup_name: str, request: BackupRestoreRequest):
 @admin_router.get("/storage/validate")
 async def validate_storage():
     return _service().validate_storage()
+
+
+SCHEDULE_COOKIE = "jlc_family_schedule"
+
+
+def _private_schedule_response(request: Request, response: Response) -> None:
+    origin = request.headers.get("origin")
+    if origin and origin not in {f"https://{request.url.netloc}", f"http://{request.url.netloc}"}:
+        raise HTTPException(status_code=403, detail="无法从其他网站访问家庭日程")
+    response.headers["Cache-Control"] = "private, no-store"
+
+
+@public_router.get("/family-schedule", dependencies=[Depends(_private_schedule_response)])
+async def view_family_schedule(request: Request, start: date | None = None):
+    token = None if is_admin_authenticated(request) else request.cookies.get(SCHEDULE_COOKIE, "")
+    schedule = _service().family_schedule(start, token)
+    if schedule is None:
+        raise HTTPException(status_code=401, detail="请打开家长发来的家庭日程查看链接")
+    return schedule
+
+
+@public_router.post("/family-schedule/access", dependencies=[Depends(_private_schedule_response)])
+async def open_family_schedule_link(data: FamilyScheduleAccess, request: Request, response: Response):
+    if not _service().can_view_family_schedule(data.token):
+        raise HTTPException(status_code=401, detail="查看链接已失效，请向家长索取新链接")
+    response.set_cookie(
+        SCHEDULE_COOKIE,
+        data.token,
+        max_age=30 * 24 * 3600,
+        httponly=True,
+        secure=request.url.scheme == "https" or request.url.hostname not in {"localhost", "127.0.0.1", "::1"},
+        samesite="strict",
+    )
+    return {"authorized": True}
+
+
+@admin_router.get("/family-schedule", dependencies=[Depends(_private_schedule_response)])
+async def manage_family_schedule(start: date | None = None):
+    service = _service()
+    return {**service.family_schedule(start), "share_enabled": service.family_schedule_share_enabled()}
+
+
+@admin_router.post("/family-schedule/events", status_code=201, dependencies=[Depends(_private_schedule_response)])
+async def create_family_schedule_event(event: FamilyScheduleEvent):
+    return _service().save_family_schedule_event(_model_json(event))
+
+
+@admin_router.put("/family-schedule/events/{event_id}", dependencies=[Depends(_private_schedule_response)])
+async def update_family_schedule_event(event_id: str, event: FamilyScheduleEvent):
+    try:
+        return _service().save_family_schedule_event(_model_json(event), event_id)
+    except TodoDataError as error:
+        _raise_todo_error(error)
+
+
+@admin_router.delete("/family-schedule/events/{event_id}", dependencies=[Depends(_private_schedule_response)])
+async def delete_family_schedule_event(event_id: str, response: Response):
+    try:
+        _service().delete_family_schedule_event(event_id)
+    except TodoDataError as error:
+        _raise_todo_error(error)
+    response.status_code = 204
+
+
+@admin_router.post("/family-schedule/share", dependencies=[Depends(_private_schedule_response)])
+async def issue_family_schedule_link():
+    return {"token": _service().issue_family_schedule_share()}
+
+
+@admin_router.delete("/family-schedule/share", dependencies=[Depends(_private_schedule_response)])
+async def revoke_family_schedule_link(response: Response):
+    _service().revoke_family_schedule_share()
+    response.status_code = 204
