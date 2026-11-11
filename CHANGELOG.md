@@ -10,12 +10,11 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
-## 2026-11-11：Word Matching 每轮使用不同题序
+## 2026-11-11：撤回 Word Matching 连续题序去重
 
-- 开始拼写练习和点击 Practice again 时重新打乱题序。同一词库若洗出与上一轮相同的顺序，就随机交换两题。首次开题也会避开词库录入顺序。
-- 在 SQLite 现有的 `app_state` 中按词库保存最近一轮题序，与生成练习一起提交。无需数据库结构迁移，批改仍使用该轮保存的题序。回退时可通过发布 PR 撤回应用代码并保留数据库。
-- 201 项 Python 测试通过，包含两题和四题的重复洗牌及批改回归。Chrome 验证四题词库首次开题、Practice again、刷新后重开和满分批改。
-- 发布见 [PR #50](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/50)，测试提交为 `b29bff41ace418e91fdfad5cb5330c1cfc08979b`。
+- 通过 [PR #51](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/51) 撤回 [PR #50](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/50)。每次开题使用原有随机洗牌，连续两轮有可能碰巧同序。
+- 生产从未部署 PR #50。已核对运行提交 `ae4cf02` 中的开题代码调用 `random.shuffle`，本次只恢复发布分支代码，无需部署或迁移。撤回后的应用代码与该生产提交一致，测试提交为 `6ffa17b241f97d42d741ba25b4f1ce1c7238116f`，9 项 Word Matching 测试通过。
+- 若日后需要恢复连续题序去重，可另开 PR 重新应用该功能。
 
 ## 2026-11-11：首字母完形填空在横线上逐字输入
 
