@@ -154,10 +154,21 @@ async def create_initial_cloze_job(request: InitialClozeInput, background_tasks:
     return job
 
 
+def _with_initial_cloze_lengths(job: dict) -> dict:
+    if job["questions"]:
+        # The stored plan also covers passages generated before length hints were added.
+        words = generation_job_service.get_internal_job(job["job_id"], INITIAL_CLOZE)["plan"]["words"]
+        for question in job["questions"]:
+            for blank in question["blanks"]:
+                blank["length"] = len(words[int(blank["id"])])
+    return job
+
+
 @router.get("/initial-cloze/jobs/{job_id}", response_model=GenerationJobResponse)
 def get_initial_cloze_job(job_id: str):
     try:
-        return generation_job_service.get_job(job_id, kind=INITIAL_CLOZE)
+        job = generation_job_service.get_job(job_id, kind=INITIAL_CLOZE)
+        return _with_initial_cloze_lengths(job)
     except GenerationJobNotFound as exc:
         raise HTTPException(status_code=404, detail="This practice is unavailable. Start a new passage.") from exc
 
@@ -165,7 +176,8 @@ def get_initial_cloze_job(job_id: str):
 @router.delete("/initial-cloze/jobs/{job_id}", response_model=GenerationJobResponse)
 def cancel_initial_cloze_job(job_id: str):
     try:
-        return generation_job_service.cancel_job(job_id, kind=INITIAL_CLOZE)
+        job = generation_job_service.cancel_job(job_id, kind=INITIAL_CLOZE)
+        return _with_initial_cloze_lengths(job)
     except GenerationJobNotFound as exc:
         raise HTTPException(status_code=404, detail="This practice is unavailable. Start a new passage.") from exc
 
