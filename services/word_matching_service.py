@@ -105,15 +105,7 @@ class WordMatchingService:
             if bank is None:
                 raise LookupError("This word bank is no longer available. Choose another bank.")
             pairs = json.loads(bank["pairs_json"])
-            order_key = f"word_matching_last_order:{bank_id}"
-            previous = connection.execute("SELECT value FROM app_state WHERE key=?", (order_key,)).fetchone()
-            previous_order = json.loads(previous["value"]) if previous else [meaning for _, meaning in pairs]
-
             random.shuffle(pairs)
-            if [meaning for _, meaning in pairs] == previous_order:
-                first, second = random.sample(range(len(pairs)), 2)
-                pairs[first], pairs[second] = pairs[second], pairs[first]
-
             questions = [
                 {"id": str(index), "meaning": meaning, "answer": word}
                 for index, (word, meaning) in enumerate(pairs, 1)
@@ -123,11 +115,6 @@ class WordMatchingService:
             connection.execute(
                 "INSERT INTO word_matching_attempts(id,snapshot_json,expires_at) VALUES(?,?,?)",
                 (attempt_id, json.dumps(snapshot, ensure_ascii=False), now + ATTEMPT_TTL_SECONDS),
-            )
-            connection.execute(
-                """INSERT INTO app_state(key, value, updated_at) VALUES(?, ?, CURRENT_TIMESTAMP)
-                   ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at""",
-                (order_key, json.dumps([question["meaning"] for question in questions], ensure_ascii=False)),
             )
         return {
             "id": attempt_id,
