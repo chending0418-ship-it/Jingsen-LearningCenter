@@ -16,7 +16,7 @@
 - 家长在后台生成查看链接，孩子在自己的浏览器打开后可直接从 TODO 查看。访问凭证保留 30 天，之后可重新打开有效链接。撤销或重新生成链接会使旧链接和已授权浏览器失效。日程由后台独立维护。
 - SQLite Schema 8 自动添加空的日程表，无需回填历史记录或新增环境变量。Todo ZIP 备份包含日程，恢复旧版 ZIP 时保留现有日程和分享设置。整库快照含分享摘要，恢复整库后可在后台重新生成链接。
 - 测试提交为 `a2405c97631a38a703c83fe1b52c0613f20ec6e7`，197 项 Python 和 13 项 JavaScript 测试通过。Chrome 在桌面及 320、390、834px 验证 Admin 录入、编辑、删除，孩子端标签和周切换，以及同一标签页打开分享链接、刷新后保留权限和撤销后拒绝访问。
-- 发布 PR 将提交至 `deploy/tencent-learningcenter-path`。合并后按 updateNew.md 备份、部署并验证生产 Admin 与孩子端路径。需要回退时通过发布 PR 回退应用代码并保留 SQLite 和服务器配置，以便保留已录入的日程。
+- 发布见 [PR #44](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/44)，目标为 `deploy/tencent-learningcenter-path`。合并后按 updateNew.md 备份、部署并验证生产 Admin 与孩子端路径。需要回退时通过发布 PR 回退应用代码并保留 SQLite 和服务器配置，以便保留已录入的日程。
 
 ## 2026-11-11：首字母完形填空显示字母数
 
