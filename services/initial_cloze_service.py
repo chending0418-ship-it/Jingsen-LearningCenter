@@ -152,12 +152,14 @@ Return only a JSON object with the key "sentences" and a list of {len(words)} co
 
             question, = record["questions"]
             blanks = question["blanks"]
-            if set(answers) != {blank["id"] for blank in blanks} or not all(value.strip() for value in answers.values()):
+            if set(answers) != {blank["id"] for blank in blanks}:
                 raise ValueError("Fill in every blank before submitting.")
             results = []
             for number, blank in enumerate(blanks, 1):
                 word = record["plan"]["words"][int(blank["id"])]
                 answer = answers[blank["id"]].strip()
+                if len(answer) != len(word) or not TARGET.fullmatch(answer):
+                    raise ValueError("Fill each blank with the indicated number of English letters.")
                 results.append({
                     "blank_id": number,
                     "user_answer": answer,

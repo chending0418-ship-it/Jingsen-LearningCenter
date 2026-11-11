@@ -94,6 +94,10 @@ def test_shared_library_to_passage_to_daily_report(practice, monkeypatch):
 
     url = f"{BASE}/jobs/{job_id}/grade"
     assert client.post(url, json={"answers": {first: "octopus"}}).status_code == 400
+    for invalid_answer in ("ocea", "oceans", "oce@n"):
+        response = client.post(url, json={"answers": {first: "octopus", second: invalid_answer}})
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Fill each blank with the indicated number of English letters."
     answers = {first: " OCTOPUS ", second: "oasis"}
     with ThreadPoolExecutor(max_workers=2) as pool:
         responses = list(pool.map(lambda _: client.post(url, json={"answers": answers}), range(2)))
