@@ -108,6 +108,37 @@ def test_admin_to_practice_to_daily_report(client):
     assert day["modules"][0]["module_label"] == "Word Matching"
 
 
+@pytest.mark.parametrize("pair_count", [2, 4])
+def test_start_attempt_changes_question_order_even_when_shuffle_repeats(client, monkeypatch, pair_count):
+    from services import word_matching_service
+
+    pairs = {f"Meaning {i}": f"word{i}" for i in range(pair_count)}
+    login(client)
+    created = client.post(ADMIN, json={
+        "name": "Question order",
+        "pairs_text": "\n".join(f"{word},{meaning}" for meaning, word in pairs.items()),
+    })
+    assert created.status_code == 201
+    bank_id = created.json()["id"]
+
+    # Simulate a shuffle that always returns the bank's original order.
+    monkeypatch.setattr(word_matching_service.random, "shuffle", lambda items: None)
+    previous_order = list(pairs)
+    for _ in range(4):
+        started = client.post(f"{PUBLIC}/attempts", json={"bank_id": bank_id})
+        assert started.status_code == 201
+        attempt = started.json()
+        order = [question["meaning"] for question in attempt["questions"]]
+        assert sorted(order) == sorted(pairs)
+        assert order != previous_order
+        previous_order = order
+
+        answers = {question["id"]: pairs[question["meaning"]] for question in attempt["questions"]}
+        graded = client.post(f"{PUBLIC}/attempts/{attempt['id']}/grade", json={"answers": answers})
+        assert graded.status_code == 200
+        assert graded.json()["correct_count"] == pair_count
+
+
 def test_matching_and_daily_word_banks_are_separate(client):
     login(client)
     old_url = "/api/admin/libraries"
