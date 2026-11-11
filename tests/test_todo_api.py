@@ -170,7 +170,7 @@ def test_family_schedule_is_private_and_shared_access_is_read_only(tmp_path, mon
         assert schedule.headers["cache-control"] == "private, no-store"
         assert schedule.json() == {
             "today": "2026-11-11", "start": "2026-11-09", "end": "2026-11-15",
-            "timezone": service.timezone_name, "events": [{**event, "id": event_id}],
+            "timezone": service.timezone_name, "events": [{**event, "id": event_id, "end_time": None}],
         }
         assert child.get(reader_api, headers={"Origin": "https://another-site.example"}).status_code == 403
         assert child.get(reader_api, params={"start": "2026-11-16"}).json()["events"] == []
@@ -178,7 +178,7 @@ def test_family_schedule_is_private_and_shared_access_is_read_only(tmp_path, mon
 
         changed = {**event, "title": "球队集合", "label": "棒球队", "start_time": None}
         assert parent.put(f"{admin_api}/events/{event_id}", json=changed).json()["label"] == "棒球队"
-        assert child.get(reader_api).json()["events"] == [{**changed, "id": event_id}]
+        assert child.get(reader_api).json()["events"] == [{**changed, "id": event_id, "end_time": None}]
         new_token = parent.post(admin_api + "/share").json()["token"]
         assert child.get(reader_api).status_code == 401
         assert child.post(reader_api + "/access", json={"token": token}).status_code == 401
@@ -188,3 +188,57 @@ def test_family_schedule_is_private_and_shared_access_is_read_only(tmp_path, mon
         assert parent.delete(admin_api + "/share").status_code == 204
         assert child.get(reader_api).status_code == 401
         assert child.post(reader_api + "/access", json={"token": new_token}).status_code == 401
+
+
+
+def test_family_schedule_recurrence_times_and_labels(tmp_path, monkeypatch):
+    service = LearningTodoService(data_dir=str(tmp_path), today_provider=lambda: date(2026, 11, 11))
+    monkeypatch.setattr(todo_service_module, "_learning_todo_service", service)
+    monkeypatch.setattr(config, "ADMIN_PASSWORD", "test-password")
+
+    api = "/api/admin/todo/family-schedule"
+    with TestClient(app, base_url="https://testserver") as parent, TestClient(app, base_url="https://testserver") as child:
+        assert parent.post("/api/admin/session", json={"password": "test-password"}).status_code == 200
+        weekly = {
+            "title": "练球", "label": "球队", "event_date": "2026-11-11",
+            "start_time": "18:00", "end_time": "19:00",
+            "repeat": "weekly", "repeat_weekdays": [1, 5], "end_date": "2026-11-20",
+        }
+        for update in (
+            {"end_time": "17:00"}, {"end_time": "18:00"}, {"start_time": None}, {"repeat_weekdays": []},
+            {"end_date": "2026-11-10"},
+        ):
+            assert parent.post(api + "/events", json={**weekly, **update}).status_code == 422
+        assert parent.post(api + "/events", json={**weekly, "end_date": "2026-11-12"}).status_code == 400
+        response = parent.post(api + "/events", json=weekly)
+        assert response.status_code == 201
+        series = response.json()
+        assert series["first_occurrence_date"] == "2026-11-13"
+        week = parent.get(api, params={"start": "2026-11-16"}).json()
+        assert week["labels"] == ["球队"]
+        assert [item["event_date"] for item in week["events"]] == ["2026-11-16", "2026-11-20"]
+        assert all(item["series_start_date"] == "2026-11-11" for item in week["events"])
+
+        reader = "/api/todo/family-schedule"
+        token = parent.post(api + "/share").json()["token"]
+        assert child.post(reader + "/access", json={"token": token}).status_code == 200
+        view = child.get(reader, params={"start": "2026-11-16"}).json()
+        assert "labels" not in view
+        assert "series_start_date" not in view["events"][0]
+        assert all(item["end_time"] == "19:00" for item in view["events"])
+        assert child.get(reader, params={"start": "2026-11-23"}).json()["events"] == []
+
+        series_api = api + "/events/" + series["id"]
+        response = parent.put(series_api, json={**weekly, "title": "接球练习", "end_time": "19:30"})
+        assert response.status_code == 200
+        assert child.get(reader, params={"start": "2026-11-16"}).json()["events"][0]["end_time"] == "19:30"
+        assert parent.delete(series_api).status_code == 204
+        assert child.get(reader, params={"start": "2026-11-16"}).json()["events"] == []
+        assert parent.get(api).json()["labels"] == ["球队"]
+
+        daily = {"title": "阅读", "event_date": "2026-11-15", "repeat": "daily", "end_date": "2026-11-17"}
+        assert parent.post(api + "/events", json=daily).status_code == 201
+        days = child.get(reader, params={"start": "2026-11-16"}).json()["events"]
+        assert [item["event_date"] for item in days] == ["2026-11-16", "2026-11-17"]
+        assert all(item["start_time"] is None and item["end_time"] is None for item in days)
+        assert parent.get(api).json()["labels"] == ["其他", "球队"]

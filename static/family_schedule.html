@@ -51,6 +51,10 @@
         }
         .event + .event { border-top: 1px solid var(--lc-line); }
         .event time { color: var(--lc-muted); font-variant-numeric: tabular-nums; padding-top: 3px; }
+        .event.has-time-range { grid-template-columns: 108px minmax(0, 1fr) auto; }
+        .event-time-range { display: flex; flex-wrap: wrap; gap: 0 3px; align-items: baseline; color: var(--lc-muted); font-size: .8125rem; }
+        .event-time-range span { white-space: nowrap; }
+        .event-repeat { color: var(--lc-muted); margin-top: 3px; font-size: .8125rem; }
         .event-title { font-weight: 750; line-height: 1.5; overflow-wrap: anywhere; }
         .event-place { color: var(--lc-muted); margin-top: 3px; font-size: .875rem; overflow-wrap: anywhere; }
         .event-label {
@@ -91,6 +95,8 @@
             margin: 0; padding: 2px 0; font-size: .8125rem; line-height: 1.4;
         }
         .week-view .event time { font-family: "DM Mono", monospace; }
+        .week-view .event.has-time-range { grid-template-columns: minmax(0, 1fr); }
+        .week-view .has-time-range .event-label { grid-column: 1 / -1; }
         .week-view .event-details { display: contents; }
         .week-view .event-label {
             justify-self: start; max-width: 100%; margin: 0; padding: 2px 4px; line-height: 1.4;
@@ -103,7 +109,16 @@
         form .wide { grid-column: 1 / -1; }
         .field { display: grid; gap: 5px; }
         .learning-admin .field label { font-size: .875rem !important; letter-spacing: 0; }
-        input { min-height: 44px; width: 100%; min-width: 0; padding: 8px 10px; }
+        .field :is(input, select) { min-height: 44px; width: 100%; min-width: 0; padding: 8px 10px; }
+        .weekday-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+        .weekday-field legend { margin-bottom: 5px; padding: 0; color: var(--lc-muted); font-size: .875rem; }
+        .weekdays { display: flex; gap: 6px; flex-wrap: wrap; }
+        .learning-admin .weekdays label {
+            display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; min-height: 44px;
+            border: 1px solid var(--lc-line); background: #fff; font: inherit !important; cursor: pointer;
+        }
+        .weekdays input { margin: 0; accent-color: var(--lc-blue); }
+        .editor-note { color: var(--lc-muted); margin-top: 6px; font-size: .875rem; }
         .share p { margin: 6px 0 10px; color: var(--lc-muted); line-height: 1.55; font-size: .875rem; }
         .share output { display: block; overflow-wrap: anywhere; margin: 10px 0; color: var(--lc-blue); }
         #feedback { color: var(--lc-blue); margin-top: 10px; }
@@ -119,6 +134,7 @@
         @media (max-width: 420px) {
             .shell { width: calc(100% - 32px); }
             .event { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+            .event.has-time-range { grid-template-columns: 46px minmax(0, 1fr); }
             .event-actions { grid-column: 2; }
         }
     </style>
@@ -135,16 +151,36 @@
 
     <section id="editor" class="editor" aria-labelledby="editor-title" hidden>
         <h2 id="editor-title">新增日程</h2>
+        <p id="series-note" class="editor-note" hidden>修改会应用到整组重复日程。</p>
         <form id="event-form">
             <div class="field wide"><label for="title">日程名称</label><input id="title" name="title" required maxlength="120"></div>
             <div class="field"><label for="event-date">日期</label><input id="event-date" name="event_date" type="date" required></div>
-            <div class="field"><label for="start-time">开始时间（留空为全天）</label><input id="start-time" name="start_time" type="time"></div>
-            <div class="field wide"><label for="location">地点（选填）</label><input id="location" name="location" maxlength="120"></div>
-            <div class="field wide"><label for="label">标签</label><input id="label" name="label" list="labels" value="其他" required maxlength="20"></div>
-            <datalist id="labels">
-                <option value="家庭"></option><option value="学校"></option><option value="运动"></option>
-                <option value="出行"></option><option value="其他"></option>
-            </datalist>
+            <div class="field">
+                <label for="repeat">重复方式</label>
+                <select id="repeat" name="repeat">
+                    <option value="once">不重复</option><option value="daily">每天</option>
+                    <option value="weekly">每周指定星期</option><option value="monthly">每月</option>
+                </select>
+            </div>
+            <div class="field"><label for="start-time">开始时间（可选）</label><input id="start-time" name="start_time" type="time"></div>
+            <div class="field"><label for="end-time">结束时间（可选）</label><input id="end-time" name="end_time" type="time"></div>
+            <fieldset id="weekday-field" class="weekday-field wide" hidden disabled>
+                <legend>重复星期</legend>
+                <div class="weekdays">
+                    <label><input name="repeat-weekday" type="checkbox" value="1">周一</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="2">周二</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="3">周三</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="4">周四</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="5">周五</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="6">周六</label>
+                    <label><input name="repeat-weekday" type="checkbox" value="0">周日</label>
+                </div>
+            </fieldset>
+            <div id="month-day-field" class="field" hidden><label for="repeat-month-day">每月重复日期</label><select id="repeat-month-day" name="repeat_month_day" disabled></select></div>
+            <div id="repeat-end-field" class="field" hidden><label for="repeat-end">重复截止日期（可选）</label><input id="repeat-end" name="end_date" type="date" disabled></div>
+            <div class="field"><label for="location">地点（选填）</label><input id="location" name="location" maxlength="120"></div>
+            <div class="field"><label for="label">标签</label><select id="label" name="label"></select></div>
+            <div id="custom-label-field" class="field wide" hidden><label for="custom-label">新标签名称</label><input id="custom-label" maxlength="20" required disabled></div>
             <div class="form-actions wide">
                 <button id="save" class="primary" type="submit">保存日程</button>
                 <button id="cancel" type="button">取消</button>
@@ -193,10 +229,12 @@
     const api = (admin ? '/api/admin/todo' : base + '/api/todo') + '/family-schedule';
     const $ = id => document.getElementById(id);
     const form = $('event-form');
+    const weekdayInputs = [...form.querySelectorAll('[name="repeat-weekday"]')];
     const wideScreen = window.matchMedia('(min-width: 768px) and (min-height: 560px), (min-width: 768px) and (pointer: fine)');
     const showsWeekColumns = () => !admin && wideScreen.matches;
     let schedule = null;
     let editingId = null;
+    let editingSeries = false;
     let requestedStart = null;
     let requestId = 0;
     let invitation = readInvitation();
@@ -250,7 +288,8 @@
         if (response.status === 204) return null;
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
-            const error = new Error(typeof payload.detail === 'string' ? payload.detail : '操作失败，请检查输入后重试。');
+            const detail = Array.isArray(payload.detail) ? payload.detail[0]?.msg : payload.detail;
+            const error = new Error(typeof detail === 'string' ? detail.replace(/^Value error, /, '') : '操作失败，请检查输入后重试。');
             error.status = response.status;
             throw error;
         }
@@ -373,14 +412,30 @@
         const row = node('li', 'event');
         const time = node(event.start_time ? 'time' : 'span', '', event.start_time || '全天');
         if (event.start_time) time.dateTime = event.start_time;
-        if (!event.start_time) time.className = 'timezone';
+        else time.className = 'timezone';
+        if (event.end_time) {
+            const finish = node('time', '', event.end_time);
+            finish.dateTime = event.end_time;
+            const start = node('span', '');
+            const separator = node('span', '', '–');
+            separator.setAttribute('aria-label', '至');
+            start.append(time, separator);
+            const range = node('div', 'event-time-range');
+            range.append(start, finish);
+            row.classList.add('has-time-range');
+            row.append(range);
+        } else {
+            row.append(time);
+        }
         const details = node('div', 'event-details');
         const label = node('span', 'event-label', event.label);
         label.style.setProperty('--label-color', labelColor(event.label));
         details.append(label, node('p', 'event-title', event.title));
         if (event.location) details.append(node('p', 'event-place', event.location));
-        row.append(time, details);
+        row.append(details);
         if (admin) {
+            const repeatText = { daily: '每天', weekly: '每周', monthly: '每月' }[event.repeat];
+            if (repeatText) details.append(node('p', 'event-repeat', repeatText + '重复'));
             const actions = node('div', 'event-actions');
             const edit = node('button', '', '编辑');
             const remove = node('button', 'danger', '删除');
@@ -399,22 +454,58 @@
         $('feedback').classList.toggle('error', failed);
     }
 
+    function updateRepeatFields() {
+        const repeat = $('repeat').value;
+        const weekly = repeat === 'weekly';
+        $('weekday-field').hidden = $('weekday-field').disabled = !weekly;
+        $('month-day-field').hidden = $('repeat-month-day').disabled = repeat !== 'monthly';
+        $('repeat-end-field').hidden = $('repeat-end').disabled = repeat === 'once';
+        if (weekly && !weekdayInputs.some(input => input.checked) && $('event-date').value) {
+            const day = toDate($('event-date').value).getUTCDay();
+            weekdayInputs.find(input => Number(input.value) === day).checked = true;
+        }
+        $('repeat-end').min = $('event-date').value;
+    }
+
+    function updateCustomLabel() {
+        const creating = $('label').value === '';
+        $('custom-label-field').hidden = $('custom-label').disabled = !creating;
+        if (creating) $('custom-label').focus();
+    }
+
     function openEditor(event) {
         editingId = event?.id ?? null;
+        editingSeries = Boolean(event && event.repeat && event.repeat !== 'once');
         form.reset();
-        $('editor-title').textContent = event ? '编辑日程' : '新增日程';
+        $('editor-title').textContent = editingSeries ? '编辑重复日程' : event ? '编辑日程' : '新增日程';
+        $('series-note').hidden = !editingSeries;
+        $('save').textContent = editingSeries ? '保存整组日程' : '保存日程';
         $('title').value = event?.title ?? '';
-        $('event-date').value = event?.event_date ?? (monday(schedule.today) === schedule.start ? schedule.today : schedule.start);
+        $('event-date').value = event?.series_start_date ?? event?.event_date ??
+            (monday(schedule.today) === schedule.start ? schedule.today : schedule.start);
         $('start-time').value = event?.start_time ?? '';
+        $('end-time').value = event?.end_time ?? '';
         $('location').value = event?.location ?? '';
-        $('label').value = event?.label ?? '其他';
+        const labels = schedule.labels ?? [];
+        const label = event?.label ?? labels[0] ?? '其他';
+        const options = [...new Set([...labels, ...labelColors.keys(), label])];
+        $('label').replaceChildren(...options.map(value => new Option(value, value)), new Option('新建标签…', ''));
+        $('label').value = label;
+        $('repeat').value = event?.repeat ?? 'once';
+        $('repeat-end').value = event?.end_date ?? '';
+        $('repeat-month-day').value = event?.repeat_month_day ?? '';
+        for (const input of weekdayInputs) input.checked = event?.repeat_weekdays?.includes(Number(input.value)) ?? false;
+        updateRepeatFields();
+        updateCustomLabel();
         $('editor').hidden = false;
         feedback('');
         $('title').focus();
     }
 
     async function deleteEvent(event, button) {
-        if (!confirm('删除「' + event.title + '」？')) return;
+        const recurring = event.repeat && event.repeat !== 'once';
+        const prompt = recurring ? '删除「' + event.title + '」的整组重复日程？' : '删除「' + event.title + '」？';
+        if (!confirm(prompt)) return;
         button.disabled = true;
         try {
             await request('/events/' + event.id, 'DELETE');
@@ -430,14 +521,33 @@
 
     form.addEventListener('submit', async event => {
         event.preventDefault();
-        const data = Object.fromEntries(new FormData(form));
-        data.start_time ||= null;
+        const fields = new FormData(form);
+        const monthly = fields.get('repeat_month_day');
+        const data = {
+            title: fields.get('title'), event_date: fields.get('event_date'), location: fields.get('location'),
+            start_time: fields.get('start_time') || null, end_time: fields.get('end_time') || null,
+            label: (fields.get('label') || $('custom-label').value).trim(),
+            repeat: fields.get('repeat'), repeat_weekdays: fields.getAll('repeat-weekday').map(Number),
+            end_date: fields.get('end_date') || null,
+            repeat_month_day: monthly === 'last' ? monthly : monthly ? Number(monthly) : null,
+        };
+        if (data.end_time && (!data.start_time || data.end_time <= data.start_time)) {
+            feedback('结束时间必须晚于同一天的开始时间。', true);
+            $('end-time').focus();
+            return;
+        }
+        if (data.repeat === 'weekly' && !data.repeat_weekdays.length) {
+            feedback('请选择至少一个重复星期。', true);
+            weekdayInputs[0].focus();
+            return;
+        }
         const id = editingId;
+        const visibleWeek = schedule.start;
         $('save').disabled = true;
         try {
-            await request(id ? '/events/' + id : '/events', id ? 'PUT' : 'POST', data);
+            const saved = await request(id ? '/events/' + id : '/events', id ? 'PUT' : 'POST', data);
             $('editor').hidden = true;
-            await loadSchedule(monday(data.event_date));
+            await loadSchedule(id && saved.repeat !== 'once' ? visibleWeek : monday(saved.first_occurrence_date));
             feedback('日程已保存。');
             if (!$('add').hidden) $('add').focus();
         } catch (error) {
@@ -465,6 +575,14 @@
         }
     }
 
+    $('repeat-month-day').add(new Option('按日程日期', ''));
+    for (let day = 1; day <= 31; day++) {
+        $('repeat-month-day').add(new Option(day + ' 日', day));
+    }
+    $('repeat-month-day').add(new Option('最后一天', 'last'));
+    $('repeat').addEventListener('change', updateRepeatFields);
+    $('event-date').addEventListener('change', updateRepeatFields);
+    $('label').addEventListener('change', updateCustomLabel);
     $('add').addEventListener('click', () => openEditor());
     $('cancel').addEventListener('click', () => { $('editor').hidden = true; $('add').focus(); });
     $('previous').addEventListener('click', () => loadSchedule(addDays(schedule.start, -7)));

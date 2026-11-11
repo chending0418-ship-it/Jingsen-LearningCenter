@@ -24,11 +24,11 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional
 from zoneinfo import ZoneInfo
 
 import fcntl
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 
 from config import config
 from database import TodoRepository, database_for_todo_root, migrate_todo_legacy_data
-from models.todo_schemas import FamilyScheduleBackupEvent
+from models.todo_schemas import FamilyScheduleBackup, FamilyScheduleEvent
 
 
 DEFAULT_SUBJECTS = [
@@ -163,7 +163,11 @@ class LearningTodoService:
         elif path == self.points_ledger_path:
             payload = self._repository.read_ledger()
         elif path == self.schedule_path:
-            payload = {"version": 1, "events": self._repository.schedule_events()}
+            payload = {
+                "version": 2,
+                "events": self._repository.schedule_events(),
+                "labels": self._repository.schedule_labels(),
+            }
         elif path.parent == self.tasks_dir:
             payload = self._repository.read_tasks(path.stem)
         else:
@@ -511,16 +515,17 @@ class LearningTodoService:
     def _weekday_sunday_zero(value: date) -> int:
         return (value.weekday() + 1) % 7
 
-    def _recurrence_dates(self, template: Dict[str, Any], through: date) -> Iterator[date]:
+    def _recurrence_dates(
+        self, template: Dict[str, Any], through: date, *, from_date: date | None = None,
+    ) -> Iterator[date]:
         start = self._parse_date(template["start_date"])
         end = min(through, self._parse_date(template["end_date"])) if template.get("end_date") else through
-        if end < start:
-            return
+        first = max(start, from_date) if from_date is not None else start
         kind = template["repeat"]
-        cursor = start
         weekdays = set(template.get("repeat_weekdays") or [])
         month_day = template.get("repeat_month_day")
-        while cursor <= end:
+        for offset in range((end - first).days + 1):
+            cursor = first + timedelta(days=offset)
             include = kind == "daily"
             if kind == "weekly":
                 include = self._weekday_sunday_zero(cursor) in weekdays
@@ -531,7 +536,6 @@ class LearningTodoService:
                     include = cursor.day == int(month_day or start.day)
             if include:
                 yield cursor
-            cursor += timedelta(days=1)
 
     @staticmethod
     def _occurrence_id(template_id: str, occurrence_date: str) -> str:
@@ -658,18 +662,14 @@ class LearningTodoService:
                     with path.open("r", encoding="utf-8") as handle:
                         restored_payloads[path.relative_to(extract_dir).as_posix()] = json.load(handle)
 
-                schedule_backup = restored_payloads.get(self.schedule_path.name)
-                schedule_events = None
+                schedule_backup = None
                 if self.schedule_path.name in restored_payloads:
-                    if not isinstance(schedule_backup, dict) or schedule_backup.get("version") != 1:
-                        raise TodoDataError("家庭日程备份格式无效")
                     try:
-                        validated = TypeAdapter(list[FamilyScheduleBackupEvent]).validate_python(schedule_backup.get("events"))
+                        schedule_backup = FamilyScheduleBackup.model_validate(restored_payloads[self.schedule_path.name])
                     except ValidationError as exc:
                         raise TodoDataError("家庭日程备份格式无效") from exc
-                    if len({event.id for event in validated}) != len(validated):
+                    if len({event.id for event in schedule_backup.events}) != len(schedule_backup.events):
                         raise TodoDataError("家庭日程备份包含重复日程")
-                    schedule_events = [event.model_dump(mode="json") for event in validated]
 
                 # 先解除旧任务对模板和科目的引用，再恢复静态 Todo 数据。
                 self._repository.delete_all_tasks()
@@ -697,8 +697,11 @@ class LearningTodoService:
                     if match:
                         self._repository.replace_tasks(match.group(1), payload)
                 self._bootstrap_unlocked_validate()
-                if schedule_events is not None:
-                    self._repository.restore_schedule_events(schedule_events)
+                if schedule_backup is not None:
+                    self._repository.restore_schedule_events(
+                        [event.model_dump(mode="json") for event in schedule_backup.events],
+                        list(dict.fromkeys(schedule_backup.labels)) if schedule_backup.version == 2 else None,
+                    )
             finally:
                 shutil.rmtree(extract_dir, ignore_errors=True)
                 archive_copy.unlink(missing_ok=True)
@@ -712,25 +715,63 @@ class LearningTodoService:
         for month in self._month_names_unlocked():
             self._month_payload_unlocked(month)
 
-    def family_schedule(self, start: date | None, token: str | None = None) -> dict | None:
+    def family_schedule(
+        self, start: date | None, token: str | None = None, *, include_editor: bool = False,
+    ) -> dict | None:
         today = date.fromisoformat(self.today())
         start = start or today - timedelta(days=today.weekday())
         end = start + timedelta(days=min(6, (date.max - start).days))
         with self._guard():
             if token is not None and not self.can_view_family_schedule(token):
                 return None
-            events = self._repository.schedule_events(start.isoformat(), end.isoformat())
-        return {
+            rules = self._repository.schedule_events(start.isoformat(), end.isoformat())
+            labels = self._repository.schedule_labels() if include_editor else None
+
+        events = []
+        for rule in rules:
+            first = self._parse_date(rule["event_date"])
+            if rule["repeat"] == "once":
+                dates = (first,) if start <= first <= end else ()
+            else:
+                dates = self._recurrence_dates({**rule, "start_date": first}, end, from_date=start)
+            for day in dates:
+                occurrence = {field: rule[field] for field in ("id", "title", "start_time", "end_time", "location", "label")}
+                if include_editor:
+                    occurrence.update(rule, series_start_date=rule["event_date"])
+                occurrence["event_date"] = day.isoformat()
+                events.append(occurrence)
+        events.sort(key=lambda event: (event["event_date"], event["start_time"] or "", event["title"], event["id"]))
+        payload = {
             "today": today.isoformat(), "start": start.isoformat(), "end": end.isoformat(),
             "timezone": self.timezone_name, "events": events,
         }
+        if labels is not None:
+            payload["labels"] = labels
+        return payload
 
     def save_family_schedule_event(self, data: dict, event_id: str | None = None) -> dict:
-        event = {"id": event_id or uuid.uuid4().hex, **data}
+        event = FamilyScheduleEvent.model_validate(data).model_dump(mode="json")
+        event["id"] = event_id or uuid.uuid4().hex
+        repeat = event["repeat"]
+        weekdays, month_day = self._normalize_repeat(
+            event["event_date"], repeat, event["repeat_weekdays"], event["repeat_month_day"],
+        )
+        event["repeat_weekdays"] = weekdays if repeat == "weekly" else []
+        event["repeat_month_day"] = month_day if repeat == "monthly" else None
+        first = self._parse_date(event["event_date"])
+        if repeat == "once":
+            event["end_date"] = None
+            first_occurrence = first
+        else:
+            # A valid monthly day can skip one short month.
+            through = first + timedelta(days=min(62, (date.max - first).days))
+            first_occurrence = next(self._recurrence_dates({**event, "start_date": first}, through), None)
+            if first_occurrence is None:
+                raise TodoDataError("重复截止日期前没有符合规则的日程")
         with self._guard():
             if not self._repository.save_schedule_event(event, create=event_id is None):
                 raise TodoDataError("日程不存在")
-        return event
+        return {**event, "first_occurrence_date": first_occurrence.isoformat()}
 
     def delete_family_schedule_event(self, event_id: str) -> None:
         with self._guard():

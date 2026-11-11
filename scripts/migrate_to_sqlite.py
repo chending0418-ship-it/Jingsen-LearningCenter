@@ -20,7 +20,7 @@ if __name__ == "__main__":
                 "libraries", "library_items", "skills", "practice_reports",
                 "generation_jobs",
                 "todo_subjects", "todo_templates", "todo_tasks", "todo_task_history",
-                "todo_reports", "points_ledger", "todo_family_schedule",
+                "todo_reports", "points_ledger", "todo_family_schedule", "todo_family_schedule_labels",
             )
         }
         result["integrity_check"] = connection.execute("PRAGMA integrity_check").fetchone()[0]

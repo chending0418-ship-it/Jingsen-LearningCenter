@@ -5,8 +5,8 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`8`
-- 表总数：`30`
+- 当前 Schema 版本：`9`
+- 表总数：`31`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
 - 日期时间通常使用 `TEXT` 保存 ISO 8601 字符串；日期使用 `YYYY-MM-DD`，月份使用 `YYYY-MM`。
@@ -45,7 +45,8 @@
 | 27 | `math_session_questions` | Math | 保存原题、首次答案、草稿、提示与判题结果 | 9 |
 | 28 | `word_matching_banks` | Word Matching | 保存独立配对词库 | 4 |
 | 29 | `word_matching_attempts` | Word Matching | 保存未批改的配对题快照 | 3 |
-| 30 | `todo_family_schedule` | Todo | 保存独立的家庭日程 | 6 |
+| 30 | `todo_family_schedule` | Todo | 保存家庭日程和重复规则 | 11 |
+| 31 | `todo_family_schedule_labels` | Todo | 保存家庭日程标签和最近使用顺序 | 2 |
 
 ## 3. 系统与迁移表
 
@@ -456,7 +457,7 @@
 
 ### 8.9 `todo_family_schedule`
 
-用途：保存家长录入的家庭日程。Todo ZIP 备份中的对应文件是 `family-schedule.json`。
+用途：保存家长录入的单次日程和重复规则。周视图按需展开日期。Todo ZIP 备份中的对应文件是 `family-schedule.json`。
 查看链接的 SHA-256 摘要位于 `app_state` 的 `todo_family_schedule_share` 键下，不写入 Todo ZIP 备份。
 
 | 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
@@ -467,6 +468,20 @@
 | `start_time` | `TEXT` | 是 | `NULL` |  | 开始时间，空值表示全天 |
 | `location` | `TEXT` | 否 | 无 |  | 地点，可为空字符串 |
 | `label` | `TEXT` | 否 | 无 |  | 用于显示颜色的标签名称 |
+| `end_time` | `TEXT` | 是 | `NULL` |  | 同一天的结束时间 |
+| `repeat` | `TEXT` | 否 | `once` |  | 单次、每天、每周或每月 |
+| `repeat_weekdays` | `TEXT` | 否 | `[]` |  | JSON 数组，周日为 0 |
+| `end_date` | `TEXT` | 是 | `NULL` |  | 重复截止日期，包含当天 |
+| `repeat_month_day` | `TEXT` | 是 | `NULL` |  | JSON 数字或字符串 `last` |
+
+### 8.10 `todo_family_schedule_labels`
+
+按最近使用顺序保存标签。删除日程后，标签仍可用于新日程。标签随家庭日程写入 Todo ZIP。
+
+| 字段 | 类型 | 可空 | 默认值 | 键/约束 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `label` | `TEXT` | 否 | 无 | 主键 | 标签名称 |
+| `used_order` | `INTEGER` | 否 | 无 |  | 值越大表示越近期使用 |
 
 ## 9. Book Reading 表
 

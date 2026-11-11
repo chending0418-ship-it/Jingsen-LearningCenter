@@ -245,7 +245,16 @@ CREATE TABLE IF NOT EXISTS todo_family_schedule (
     event_date TEXT NOT NULL,
     start_time TEXT,
     location TEXT NOT NULL,
-    label TEXT NOT NULL
+    label TEXT NOT NULL,
+    end_time TEXT,
+    repeat TEXT NOT NULL DEFAULT 'once',
+    repeat_weekdays TEXT NOT NULL DEFAULT '[]',
+    end_date TEXT,
+    repeat_month_day TEXT
+);
+CREATE TABLE IF NOT EXISTS todo_family_schedule_labels (
+    label TEXT PRIMARY KEY,
+    used_order INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_todo_family_schedule_date
     ON todo_family_schedule(event_date, start_time, id);
@@ -454,12 +463,33 @@ class SQLiteDatabase:
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(8, ?)", (_now(),)
                         )
+                        self._migrate_schedule_recurrence(connection)
                     break
                 except sqlite3.OperationalError as exc:
                     if "locked" not in str(exc).lower() or attempt == 5:
                         raise
                     time.sleep(0.05 * (attempt + 1))
             self._initialized = True
+
+    @staticmethod
+    def _migrate_schedule_recurrence(connection: sqlite3.Connection) -> None:
+        if connection.execute("SELECT 1 FROM schema_migrations WHERE version=9").fetchone():
+            return
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(todo_family_schedule)")}
+        for column, definition in (
+            ("end_time", "TEXT"),
+            ("repeat", "TEXT NOT NULL DEFAULT 'once'"),
+            ("repeat_weekdays", "TEXT NOT NULL DEFAULT '[]'"),
+            ("end_date", "TEXT"),
+            ("repeat_month_day", "TEXT"),
+        ):
+            if column not in columns:
+                connection.execute(f"ALTER TABLE todo_family_schedule ADD COLUMN {column} {definition}")
+        connection.execute(
+            """INSERT OR IGNORE INTO todo_family_schedule_labels(label, used_order)
+               SELECT label, MAX(rowid) FROM todo_family_schedule GROUP BY label"""
+        )
+        connection.execute("INSERT INTO schema_migrations(version, applied_at) VALUES(9, ?)", (_now(),))
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
@@ -1383,47 +1413,95 @@ class TodoRepository:
     def __init__(self, database: SQLiteDatabase):
         self.database = database
 
-    def schedule_events(self, start: str | None = None, end: str | None = None) -> list[dict]:
+    _INSERT_SCHEDULE_EVENT = """INSERT INTO todo_family_schedule(
+        id, title, event_date, start_time, location, label, end_time,
+        repeat, repeat_weekdays, end_date, repeat_month_day
+    ) VALUES(
+        :id, :title, :event_date, :start_time, :location, :label, :end_time,
+        :repeat, :repeat_weekdays, :end_date, :repeat_month_day
+    )"""
+
+    def schedule_events(self, start: str = "0001-01-01", end: str = "9999-12-31") -> list[dict]:
+        with self.database.read() as connection:
+            rows = connection.execute(
+                """SELECT id, title, event_date, start_time, location, label, end_time,
+                          repeat, repeat_weekdays, end_date, repeat_month_day
+                   FROM todo_family_schedule
+                   WHERE event_date <= ? AND (
+                       event_date >= ? OR (repeat != 'once' AND (end_date IS NULL OR end_date >= ?))
+                   )
+                   ORDER BY event_date, start_time, title, id""",
+                (end, start, start),
+            ).fetchall()
+        events = []
+        for row in rows:
+            event = dict(row)
+            event["repeat_weekdays"] = _load(event["repeat_weekdays"], [])
+            event["repeat_month_day"] = _load(event["repeat_month_day"], None)
+            events.append(event)
+        return events
+
+    @staticmethod
+    def _schedule_event_parameters(event: dict) -> dict:
+        return {
+            **event,
+            "repeat_weekdays": _dump(event["repeat_weekdays"]),
+            "repeat_month_day": _dump(event["repeat_month_day"]) if event["repeat_month_day"] is not None else None,
+        }
+
+    def schedule_labels(self) -> list[str]:
         with self.database.read() as connection:
             return [
-                dict(row) for row in connection.execute(
-                    """SELECT id, title, event_date, start_time, location, label
-                       FROM todo_family_schedule
-                       WHERE event_date BETWEEN ? AND ?
-                       ORDER BY event_date, start_time, title, id""",
-                    (start or "0001-01-01", end or "9999-12-31"),
+                row["label"] for row in connection.execute(
+                    "SELECT label FROM todo_family_schedule_labels ORDER BY used_order DESC, label"
                 )
             ]
 
     def save_schedule_event(self, event: dict, *, create: bool) -> bool:
+        parameters = self._schedule_event_parameters(event)
         with self.database.transaction() as connection:
             if create:
-                connection.execute(
-                    """INSERT INTO todo_family_schedule(id,title,event_date,start_time,location,label)
-                       VALUES(:id,:title,:event_date,:start_time,:location,:label)""",
-                    event,
+                connection.execute(self._INSERT_SCHEDULE_EVENT, parameters)
+            else:
+                updated = connection.execute(
+                    """UPDATE todo_family_schedule
+                       SET title=:title, event_date=:event_date, start_time=:start_time,
+                           location=:location, label=:label, end_time=:end_time, repeat=:repeat,
+                           repeat_weekdays=:repeat_weekdays, end_date=:end_date, repeat_month_day=:repeat_month_day
+                       WHERE id=:id""",
+                    parameters,
                 )
-                return True
-            cursor = connection.execute(
-                """UPDATE todo_family_schedule
-                   SET title=:title, event_date=:event_date, start_time=:start_time,
-                       location=:location, label=:label WHERE id=:id""",
-                event,
+                if not updated.rowcount:
+                    return False
+            connection.execute(
+                """INSERT INTO todo_family_schedule_labels(label, used_order)
+                   VALUES (?, (SELECT COALESCE(MAX(used_order), 0) + 1 FROM todo_family_schedule_labels))
+                   ON CONFLICT(label) DO UPDATE SET used_order=excluded.used_order""",
+                (event["label"],),
             )
-            return bool(cursor.rowcount)
+            return True
 
     def delete_schedule_event(self, event_id: str) -> bool:
         with self.database.transaction() as connection:
             cursor = connection.execute("DELETE FROM todo_family_schedule WHERE id=?", (event_id,))
             return bool(cursor.rowcount)
 
-    def restore_schedule_events(self, events: list[dict]) -> None:
+    def restore_schedule_events(self, events: list[dict], labels: list[str] | None) -> None:
         with self.database.transaction() as connection:
             connection.execute("DELETE FROM todo_family_schedule")
             connection.executemany(
-                """INSERT INTO todo_family_schedule(id,title,event_date,start_time,location,label)
-                   VALUES(:id,:title,:event_date,:start_time,:location,:label)""",
-                events,
+                self._INSERT_SCHEDULE_EVENT,
+                [self._schedule_event_parameters(event) for event in events],
+            )
+            if labels is not None:
+                connection.execute("DELETE FROM todo_family_schedule_labels")
+                connection.executemany(
+                    "INSERT INTO todo_family_schedule_labels(label, used_order) VALUES(?, ?)",
+                    [(label, order) for order, label in enumerate(reversed(labels), 1)],
+                )
+            connection.execute(
+                """INSERT OR IGNORE INTO todo_family_schedule_labels(label, used_order)
+                   SELECT DISTINCT label, 0 FROM todo_family_schedule"""
             )
 
     def schedule_share_digest(self) -> str:
