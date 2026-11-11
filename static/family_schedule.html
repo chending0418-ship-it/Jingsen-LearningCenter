@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#F2F0E8">
     <title>家庭日程 · Jingsen Learning Center</title>
     <link rel="stylesheet" href="/static/admin_learning_theme.css">
+    <link rel="stylesheet" href="/static/learning_front_theme.css">
     <style>
         * { box-sizing: border-box; }
         [hidden] { display: none !important; }
@@ -57,31 +58,39 @@
             background: var(--label-color); color: var(--lc-ink); font-size: .75rem;
             font-weight: 750; line-height: 1.5; overflow-wrap: anywhere;
         }
-        .week-view .shell { width: min(calc(100% - 40px), 1440px); }
+        .week-view .shell { width: min(calc(100% - 2 * var(--learn-pad)), 1440px); }
+        .week-view header { padding-bottom: 18px; border-color: var(--learn-ink); }
+        .week-view .back { color: var(--learn-blue); font-size: .875rem; font-weight: 750; text-decoration: none; }
+        .week-view .back:hover { text-decoration: underline; }
+        .week-view h1 { font-size: 3rem; font-weight: 800; line-height: 1.05; }
+        .week-view .week-actions button { border-color: var(--learn-ink); }
+        .week-view #current { background: var(--learn-ink); color: #fff; }
+        .week-view #current:hover:not(:disabled) { background: var(--learn-blue); }
         .week-view #agenda:not(:empty) {
             display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); min-height: 260px;
-            border: 1px solid var(--lc-line); background: #fcfbf7;
+            border: 1px solid var(--learn-ink); background: #fcfbf7;
         }
         .week-view .day { display: block; min-width: 0; border: 0; }
-        .week-view .day + .day { border-inline-start: 1px solid var(--lc-line); }
+        .week-view .day + .day { border-inline-start: 1px solid var(--learn-line); }
         .week-view .day h3 {
             display: grid; gap: 3px; padding: 10px 10px 9px;
-            border-bottom: 1px solid var(--lc-line); background: #e8e5db;
+            border-bottom: 1px solid var(--learn-ink); background: var(--learn-paper);
             font-size: .875rem; line-height: 1.35;
         }
-        .week-view .day.today h3 { background: #dce4ff; }
+        .week-view .day.today h3 { background: var(--learn-blue); color: #fff; }
         .week-day-label { display: flex; justify-content: space-between; align-items: center; gap: 3px; }
-        .week-today { font-size: .75rem; }
-        .week-date { font-weight: 500; font-variant-numeric: tabular-nums; }
+        .week-today { padding: 1px 4px; background: var(--learn-acid); color: var(--learn-ink); font-size: .75rem; }
+        .week-date { font: 500 .8125rem/1.35 "DM Mono", monospace; }
         .week-view .day-empty { padding: 12px 10px; font-size: .8125rem; }
         .week-view .day ul { display: grid; gap: 6px; padding: 6px; }
         .week-view .event {
             grid-template-columns: auto minmax(0, 1fr); gap: 4px 6px; padding: 7px;
-            border: 1px solid var(--lc-line); background: #fff;
+            border: 1px solid var(--learn-line); background: #fff;
         }
         .week-view .event :is(time, .timezone) {
             margin: 0; padding: 2px 0; font-size: .8125rem; line-height: 1.4;
         }
+        .week-view .event time { font-family: "DM Mono", monospace; }
         .week-view .event-details { display: contents; }
         .week-view .event-label {
             justify-self: start; max-width: 100%; margin: 0; padding: 2px 4px; line-height: 1.4;
