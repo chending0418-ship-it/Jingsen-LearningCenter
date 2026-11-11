@@ -556,29 +556,80 @@ def test_subject_and_template_upserts_preserve_existing_task_foreign_keys(servic
 
 
 def test_family_schedule_backup_restores_events_and_preserves_current_share(service):
+    import json
     import zipfile
 
-    event = service.save_family_schedule_event({
-        "title": "家庭聚餐", "event_date": service.today(), "start_time": "18:30",
-        "location": "", "label": "家庭",
+    retired = service.save_family_schedule_event({
+        "title": "球队集合", "event_date": service.today(), "label": "球队",
     })
+    service.delete_family_schedule_event(retired["id"])
+    event = service.save_family_schedule_event({
+        "title": "家庭聚餐", "event_date": service.today(), "start_time": "18:30", "end_time": "19:30",
+        "location": "", "label": "家庭", "repeat": "monthly", "repeat_month_day": "last",
+    })
+    public_event = {
+        key: event[key] for key in ("id", "title", "start_time", "end_time", "location", "label")
+    }
+    public_event["event_date"] = "2026-07-31"
     old_token = service.issue_family_schedule_share()
     backup_name = service.create_backup()["name"]
     old_backup = service.backups_dir / "legacy-backup.zip"
-    with zipfile.ZipFile(service.backups_dir / backup_name) as current, zipfile.ZipFile(old_backup, "w") as legacy:
+    version_one = service.backups_dir / "schedule-v1.zip"
+    with (
+        zipfile.ZipFile(service.backups_dir / backup_name) as current,
+        zipfile.ZipFile(old_backup, "w") as legacy,
+        zipfile.ZipFile(version_one, "w") as previous_schedule,
+    ):
         assert "family-schedule.json" in current.namelist()
         for name in current.namelist():
             data = current.read(name)
             assert old_token.encode() not in data
-            if name != "family-schedule.json":
+            if name == "family-schedule.json":
+                old_event = {key: event[key] for key in ("id", "title", "event_date", "start_time", "location", "label")}
+                previous_schedule.writestr(name, json.dumps({"version": 1, "events": [old_event]}))
+            else:
                 legacy.writestr(name, data)
+                previous_schedule.writestr(name, data)
 
     new_token = service.issue_family_schedule_share()
     service.restore_backup(old_backup.name)
-    assert service.family_schedule(None)["events"] == [event]
+    assert service.family_schedule(None)["events"] == [public_event]
     service.delete_family_schedule_event(event["id"])
     assert service.family_schedule(None)["events"] == []
 
     service.restore_backup(backup_name)
-    assert service.family_schedule(None, new_token)["events"] == [event]
+    assert service.family_schedule(None, new_token)["events"] == [public_event]
+    assert service.family_schedule(date(2026, 8, 31))["events"] == [{**public_event, "event_date": "2026-08-31"}]
+    assert service.family_schedule(None, include_editor=True)["labels"] == ["家庭", "球队"]
     assert service.family_schedule(None, old_token) is None
+
+    service.restore_backup(version_one.name)
+    assert service.family_schedule(None, new_token)["events"] == [
+        {**public_event, "event_date": service.today(), "end_time": None}
+    ]
+    assert service.family_schedule(None, include_editor=True)["labels"] == ["家庭", "球队"]
+
+
+def test_family_schedule_schema_8_events_keep_their_dates_and_labels(tmp_path, fixed_today):
+    import sqlite3
+
+    with sqlite3.connect(tmp_path / "learning-center.sqlite3") as db:
+        db.executescript("""
+            CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);
+            INSERT INTO schema_migrations VALUES (8, '2026-11-11');
+            CREATE TABLE todo_family_schedule (
+                id TEXT PRIMARY KEY, title TEXT NOT NULL, event_date TEXT NOT NULL,
+                start_time TEXT, location TEXT NOT NULL, label TEXT NOT NULL
+            );
+            INSERT INTO todo_family_schedule VALUES ('legacy', '练球', '2026-07-28', '19:00', '', '球队');
+        """)
+
+    service = LearningTodoService(data_dir=str(tmp_path), today_provider=fixed_today)
+    week = service.family_schedule(None, include_editor=True)
+    assert week["labels"] == ["球队"]
+    assert week["events"][0]["event_date"] == "2026-07-28"
+    assert week["events"][0]["repeat"] == "once"
+    assert week["events"][0]["end_time"] is None
+    assert service.family_schedule(date(2026, 8, 4))["events"] == []
+    with sqlite3.connect(tmp_path / "learning-center.sqlite3") as db:
+        assert db.execute("SELECT max(version) FROM schema_migrations").fetchone() == (9,)

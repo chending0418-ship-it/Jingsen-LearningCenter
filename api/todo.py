@@ -451,12 +451,15 @@ async def open_family_schedule_link(data: FamilyScheduleAccess, request: Request
 @admin_router.get("/family-schedule", dependencies=[Depends(_private_schedule_response)])
 async def manage_family_schedule(start: date | None = None):
     service = _service()
-    return {**service.family_schedule(start), "share_enabled": service.family_schedule_share_enabled()}
+    return {**service.family_schedule(start, include_editor=True), "share_enabled": service.family_schedule_share_enabled()}
 
 
 @admin_router.post("/family-schedule/events", status_code=201, dependencies=[Depends(_private_schedule_response)])
 async def create_family_schedule_event(event: FamilyScheduleEvent):
-    return _service().save_family_schedule_event(_model_json(event))
+    try:
+        return _service().save_family_schedule_event(_model_json(event))
+    except TodoDataError as error:
+        _raise_todo_error(error)
 
 
 @admin_router.put("/family-schedule/events/{event_id}", dependencies=[Depends(_private_schedule_response)])

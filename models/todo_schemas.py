@@ -1,7 +1,7 @@
 """Learning Todo API 请求模型。"""
 
 from datetime import date
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -163,12 +163,21 @@ class BackupRestoreRequest(BaseModel):
     confirm: bool = False
 
 
+ScheduleTime = Annotated[str, Field(pattern=r"^(?:[01][0-9]|2[0-3]):[0-5][0-9]$")]
+ScheduleLabel = Annotated[str, Field(min_length=1, max_length=20)]
+
+
 class FamilyScheduleEvent(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     event_date: date
-    start_time: Optional[str] = Field(default=None, pattern=r"^(?:[01][0-9]|2[0-3]):[0-5][0-9]$")
+    start_time: ScheduleTime | None = None
+    end_time: ScheduleTime | None = None
     location: str = Field(default="", max_length=120)
-    label: str = Field(default="其他", min_length=1, max_length=20)
+    label: ScheduleLabel = "其他"
+    repeat: RepeatKind = "once"
+    repeat_weekdays: list[Annotated[int, Field(ge=0, le=6)]] = Field(default_factory=list, max_length=7)
+    end_date: date | None = None
+    repeat_month_day: Annotated[int, Field(ge=1, le=31)] | Literal["last"] | None = None
 
     @field_validator("title", "location", "label", mode="before")
     @classmethod
@@ -176,8 +185,25 @@ class FamilyScheduleEvent(BaseModel):
         return value.strip() if isinstance(value, str) else value
 
 
+    @model_validator(mode="after")
+    def validate_schedule(self):
+        if self.end_time and (not self.start_time or self.end_time <= self.start_time):
+            raise ValueError("结束时间必须晚于同一天的开始时间")
+        if self.repeat != "once" and self.end_date and self.end_date < self.event_date:
+            raise ValueError("重复截止日期不能早于日程日期")
+        if self.repeat == "weekly" and not self.repeat_weekdays:
+            raise ValueError("每周重复至少选择一个星期")
+        return self
+
+
 class FamilyScheduleBackupEvent(FamilyScheduleEvent):
     id: str = Field(pattern=r"^[0-9a-f]{32}$")
+
+
+class FamilyScheduleBackup(BaseModel):
+    version: Literal[1, 2]
+    events: list[FamilyScheduleBackupEvent]
+    labels: list[ScheduleLabel] = Field(default_factory=list)
 
 
 class FamilyScheduleAccess(BaseModel):
