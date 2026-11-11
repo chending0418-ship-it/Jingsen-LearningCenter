@@ -58,8 +58,9 @@ def start(client, count=2):
     return client.post(f"{BASE}/jobs", json={"library": "Sea Life", "count": count})
 
 
-def test_shared_library_to_passage_to_daily_report(practice):
+def test_shared_library_to_passage_to_daily_report(practice, monkeypatch):
     client, jobs, generator = practice
+    monkeypatch.setattr("services.initial_cloze_service.random.sample", lambda pool, count: WORDS[::-1])
     assert client.post("/api/admin/word-matching/banks", json={
         "name": "Matching Only", "pairs_text": "atlas,map book\nviolin,string instrument",
     }).status_code == 201
@@ -84,8 +85,10 @@ def test_shared_library_to_passage_to_daily_report(practice):
     assert len(generator.prompts) == 1
     question, = job["questions"]
     assert question["segments"] == ["An ", " can change its color to hide. It has eight arms and lives in the ", "."]
-    assert [set(blank) for blank in question["blanks"]] == [{"id", "initial"}] * 2
+    assert [set(blank) for blank in question["blanks"]] == [{"id", "initial", "length"}] * 2
     assert [blank["initial"] for blank in question["blanks"]] == ["o", "o"]
+    assert [blank["length"] for blank in question["blanks"]] == [7, 5]
+    assert client.delete(f"{BASE}/jobs/{job_id}").json()["questions"] == [question]
     first, second = (blank["id"] for blank in question["blanks"])
     assert first != second
 

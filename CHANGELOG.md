@@ -9,6 +9,12 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-11：首字母完形填空显示字母数
+
+- 每空显示首字母和每个缺失字母对应的下划线，例如六个字母的词显示为 `a_ _ _ _ _`。输入时隐藏下划线，清空后恢复。长提示在窄屏换行，读屏标签会读出总字母数。
+- 接口从练习保存的词库原词计算字母数，已有练习也可显示提示。提交前仍隐藏完整答案。195 项 Python 测试通过，Chrome 在桌面、窄屏手机和 iPad Mini 模拟尺寸验证了显示、输入和提交。
+- 变更见 [PR #42](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/42)，测试提交为 `91d93a126ced6fce5dc707aa3d09cc7a849155aa`。无需数据迁移。若需回退，通过发布 PR 撤回此次变更，并按常规备份流程重新部署。
+
 ## 2026-11-10：为 DeepSeek V4.1 Flash 关闭推理
 
 - 网关默认会为 `deepseek-v4.1-flash` 返回推理内容。共用生成器在选中此模型时发送 `thinking.type=disabled`，涵盖 Daily Word 出题和批改总结，以及首字母完形填空出题。切换全站默认模型仍通过 Admin 设置。
