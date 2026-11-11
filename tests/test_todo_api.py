@@ -123,3 +123,68 @@ def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(t
 
         assert client.delete("/api/admin/session").status_code == 200
         assert client.get("/api/admin/todo/overview").status_code == 401
+
+
+def test_family_schedule_is_private_and_shared_access_is_read_only(tmp_path, monkeypatch):
+    service = LearningTodoService(data_dir=str(tmp_path), today_provider=lambda: date(2026, 11, 11))
+    monkeypatch.setattr(todo_service_module, "_learning_todo_service", service)
+    monkeypatch.setattr(config, "ADMIN_PASSWORD", "test-password")
+    monkeypatch.setattr(config, "ADMIN_SESSION_SECRET", "test-session-secret")
+
+    admin_api = "/api/admin/todo/family-schedule"
+    reader_api = "/learningcenter/api/todo/family-schedule"
+    admin_page = "/admin/learningcenter/todo/family-schedule"
+    event = {
+        "title": "棒球训练",
+        "event_date": "2026-11-12",
+        "start_time": "17:30",
+        "location": "球场",
+        "label": "运动",
+    }
+
+    with TestClient(app, base_url="https://testserver") as parent, TestClient(app, base_url="https://testserver") as child:
+        assert child.get("/learningcenter/todo/family-schedule").status_code == 200
+        assert child.get(admin_page, follow_redirects=False).status_code == 303
+        assert child.get(reader_api).status_code == 401
+        assert child.post(admin_api + "/events", json=event).status_code == 401
+        assert parent.post("/api/admin/session", json={"password": "test-password"}).status_code == 200
+        assert parent.get(admin_page).status_code == 200
+        assert parent.post(admin_api + "/events", json={**event, "start_time": "25:00"}).status_code == 422
+        assert parent.post(admin_api + "/events", json={**event, "title": " "}).status_code == 422
+        created = parent.post(admin_api + "/events", json=event)
+        assert created.status_code == 201
+        event_id = created.json()["id"]
+        assert parent.get(admin_api).json()["share_enabled"] is False
+        assert child.get(reader_api).status_code == 401
+
+        token = parent.post(admin_api + "/share").json()["token"]
+        assert child.post(reader_api + "/access", json={"token": "a" * 43}).status_code == 401
+        access = child.post(reader_api + "/access", json={"token": token})
+        assert access.status_code == 200
+        assert "HttpOnly" in access.headers["set-cookie"]
+        assert "Secure" in access.headers["set-cookie"]
+        assert "SameSite=strict" in access.headers["set-cookie"]
+
+        schedule = child.get(reader_api)
+        assert schedule.status_code == 200
+        assert schedule.headers["cache-control"] == "private, no-store"
+        assert schedule.json() == {
+            "today": "2026-11-11", "start": "2026-11-09", "end": "2026-11-15",
+            "timezone": service.timezone_name, "events": [{**event, "id": event_id}],
+        }
+        assert child.get(reader_api, headers={"Origin": "https://another-site.example"}).status_code == 403
+        assert child.get(reader_api, params={"start": "2026-11-16"}).json()["events"] == []
+        assert child.put(f"{admin_api}/events/{event_id}", json=event).status_code == 401
+
+        changed = {**event, "title": "球队集合", "label": "棒球队", "start_time": None}
+        assert parent.put(f"{admin_api}/events/{event_id}", json=changed).json()["label"] == "棒球队"
+        assert child.get(reader_api).json()["events"] == [{**changed, "id": event_id}]
+        new_token = parent.post(admin_api + "/share").json()["token"]
+        assert child.get(reader_api).status_code == 401
+        assert child.post(reader_api + "/access", json={"token": token}).status_code == 401
+        assert child.post(reader_api + "/access", json={"token": new_token}).status_code == 200
+        assert parent.delete(f"{admin_api}/events/{event_id}").status_code == 204
+        assert child.get(reader_api).json()["events"] == []
+        assert parent.delete(admin_api + "/share").status_code == 204
+        assert child.get(reader_api).status_code == 401
+        assert child.post(reader_api + "/access", json={"token": new_token}).status_code == 401

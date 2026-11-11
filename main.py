@@ -202,6 +202,12 @@ async def serve_todo_page():
     return serve_static_file("static/todo.html", "Todo page not found")
 
 
+@app.get("/todo/family-schedule")
+@app.get(f"{BASE_PATH}/todo/family-schedule")
+async def serve_family_schedule():
+    return FileResponse("static/family_schedule.html", headers={"Cache-Control": "no-store"})
+
+
 def serve_admin_file(request: Request, path: str, not_found_message: str):
     """Serve an Admin page only after the shared Admin session is present."""
     if not is_admin_authenticated(request):
@@ -257,6 +263,13 @@ async def serve_learningcenter_admin_skills(request: Request):
 @app.get("/admin/learningcenter/todo")
 async def serve_learningcenter_admin_todo(request: Request):
     return serve_admin_file(request, "static/admin_todo.html", "Admin Todo page not found")
+
+
+@app.get("/admin/learningcenter/todo/family-schedule")
+async def serve_admin_family_schedule(request: Request):
+    response = serve_admin_file(request, "static/family_schedule.html", "Family schedule page not found")
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.get("/admin/learningcenter/models")
