@@ -57,6 +57,38 @@
             background: var(--label-color); color: var(--lc-ink); font-size: .75rem;
             font-weight: 750; line-height: 1.5; overflow-wrap: anywhere;
         }
+        .week-view .shell { width: min(calc(100% - 40px), 1440px); }
+        .week-view #agenda:not(:empty) {
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); min-height: 260px;
+            border: 1px solid var(--lc-line); background: #fcfbf7;
+        }
+        .week-view .day { display: block; min-width: 0; border: 0; }
+        .week-view .day + .day { border-inline-start: 1px solid var(--lc-line); }
+        .week-view .day h3 {
+            display: grid; gap: 3px; padding: 10px 10px 9px;
+            border-bottom: 1px solid var(--lc-line); background: #e8e5db;
+            font-size: .875rem; line-height: 1.35;
+        }
+        .week-view .day.today h3 { background: #dce4ff; }
+        .week-day-label { display: flex; justify-content: space-between; align-items: center; gap: 3px; }
+        .week-today { font-size: .75rem; }
+        .week-date { font-weight: 500; font-variant-numeric: tabular-nums; }
+        .week-view .day-empty { padding: 12px 10px; font-size: .8125rem; }
+        .week-view .day ul { display: grid; gap: 6px; padding: 6px; }
+        .week-view .event {
+            grid-template-columns: auto minmax(0, 1fr); gap: 4px 6px; padding: 7px;
+            border: 1px solid var(--lc-line); background: #fff;
+        }
+        .week-view .event :is(time, .timezone) {
+            margin: 0; padding: 2px 0; font-size: .8125rem; line-height: 1.4;
+        }
+        .week-view .event-details { display: contents; }
+        .week-view .event-label {
+            justify-self: start; max-width: 100%; margin: 0; padding: 2px 4px; line-height: 1.4;
+        }
+        .week-view :is(.event-title, .event-place) { grid-column: 1 / -1; }
+        .week-view .event-title { font-size: .9375rem; line-height: 1.4; }
+        .week-view .event-place { margin: 0; font-size: .8125rem; line-height: 1.45; }
         .editor, .share { padding: 18px 0; border-bottom: 1px solid var(--lc-line); }
         form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
         form .wide { grid-column: 1 / -1; }
@@ -152,6 +184,8 @@
     const api = (admin ? '/api/admin/todo' : base + '/api/todo') + '/family-schedule';
     const $ = id => document.getElementById(id);
     const form = $('event-form');
+    const wideScreen = window.matchMedia('(min-width: 768px) and (min-height: 560px), (min-width: 768px) and (pointer: fine)');
+    const showsWeekColumns = () => !admin && wideScreen.matches;
     let schedule = null;
     let editingId = null;
     let requestedStart = null;
@@ -175,6 +209,8 @@
     const monday = value => addDays(value, -((toDate(value).getUTCDay() + 6) % 7));
     const shortDate = new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', timeZone: 'UTC' });
     const dayDate = new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short', timeZone: 'UTC' });
+    const numericDate = new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', timeZone: 'UTC' });
+    const weekday = new Intl.DateTimeFormat('zh-CN', { weekday: 'short', timeZone: 'UTC' });
     const labelColors = new Map([
         ['家庭', '#FFD5C5'], ['学校', '#DCE4FF'], ['运动', '#D9EDBB'],
         ['出行', '#FFE6A8'], ['其他', '#E8E5DB']
@@ -258,7 +294,7 @@
     }
 
     function renderSchedule() {
-        const { today, start, end, timezone, events } = schedule;
+        const { start, end, timezone } = schedule;
         const first = toDate(start);
         const last = toDate(end);
         const year = first.getUTCFullYear();
@@ -270,20 +306,35 @@
         $('share').hidden = !admin;
         $('issue').textContent = schedule.share_enabled ? '生成新链接' : '生成查看链接';
         $('revoke').hidden = !schedule.share_enabled;
+        renderAgenda();
+    }
 
+    function renderAgenda() {
+        const { today, start, end, events } = schedule;
+        const columns = showsWeekColumns();
         const days = new Map();
         if (today >= start && today <= end) days.set(today, []);
         for (const event of events) {
             if (!days.has(event.event_date)) days.set(event.event_date, []);
             days.get(event.event_date).push(event);
         }
-        message(days.size ? '' : '这一周没有安排。');
-        $('agenda').replaceChildren(...[...days.keys()].sort().map(day => {
-            const section = node('section', day === today ? 'day today' : 'day');
-            const heading = node('h3', '', dayDate.format(toDate(day)) + (day === today ? ' · 今天' : ''));
-            const items = days.get(day);
+        const dates = [...days.keys()].sort();
+        if (columns) {
+            dates.length = 0;
+            for (let offset = 0; offset < 7; offset++) {
+                const day = addDays(start, offset);
+                dates.push(day);
+                if (day === end) break;
+            }
+        }
+        message(dates.length ? '' : '这一周没有安排。');
+        $('agenda').replaceChildren(...dates.map(day => {
+            const isToday = day === today;
+            const section = node('section', isToday ? 'day today' : 'day');
+            const heading = renderDayHeading(day, isToday, columns);
+            const items = days.get(day) ?? [];
             if (!items.length) {
-                section.append(heading, node('p', 'day-empty', '今天没有安排。'));
+                section.append(heading, node('p', 'day-empty', columns ? '暂无安排' : '今天没有安排。'));
             } else {
                 const list = node('ul', '');
                 list.append(...items.map(renderEvent));
@@ -293,12 +344,28 @@
         }));
     }
 
+    function renderDayHeading(day, isToday, columns) {
+        const date = toDate(day);
+        if (!columns) return node('h3', '', dayDate.format(date) + (isToday ? ' · 今天' : ''));
+
+        const heading = node('h3', '');
+        const dayLabel = node('span', 'week-day-label', weekday.format(date));
+        if (isToday) {
+            heading.setAttribute('aria-current', 'date');
+            dayLabel.append(node('span', 'week-today', '今天'));
+        }
+        const dateLabel = node('time', 'week-date', numericDate.format(date));
+        dateLabel.dateTime = day;
+        heading.append(dayLabel, dateLabel);
+        return heading;
+    }
+
     function renderEvent(event) {
         const row = node('li', 'event');
         const time = node(event.start_time ? 'time' : 'span', '', event.start_time || '全天');
         if (event.start_time) time.dateTime = event.start_time;
         if (!event.start_time) time.className = 'timezone';
-        const details = node('div', '');
+        const details = node('div', 'event-details');
         const label = node('span', 'event-label', event.label);
         label.style.setProperty('--label-color', labelColor(event.label));
         details.append(label, node('p', 'event-title', event.title));
@@ -413,6 +480,13 @@
             loadSchedule();
         }
     });
+
+    function updateLayout() {
+        document.body.classList.toggle('week-view', showsWeekColumns());
+        if (schedule && !$('week-bar').hidden && !$('current').disabled) renderAgenda();
+    }
+    wideScreen.addEventListener('change', updateLayout);
+    updateLayout();
 
     // A restored page must re-check the current viewing permission.
     window.addEventListener('pageshow', event => {
