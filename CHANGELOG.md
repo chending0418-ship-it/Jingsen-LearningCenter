@@ -18,6 +18,15 @@
 - 202 项 Python 测试和 13 项 JavaScript 测试通过。Chrome 在 1440、834、768、390、320px 下验证了登录、课表数据、键盘切换、宽窄屏布局和原有 Todo 栏目切换。
 - 变更见 [PR #54](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/54)，测试提交为 `3d24c1644cc2fa63ee6bfb5264c7eeeaecdc20ba`。
 
+## 2026-11-12 TODO 记忆曲线与任务管理默认当天已上线
+
+- [PR #52](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/52) 经 GitHub 合并并发布。生产提交为 `93c36f1d60fff84c7aec19bf413606525bffc5a8`，与评审分支末端的文件一致。测试提交为 `c8a544ff0d0495b53704efb8e9511bd04c40d630`，202 项 Python 和 13 项 JavaScript 测试通过。
+- 依照 `updateNew.md` 暂停生产写入并运行 `update_safe.sh`。数据和配置快照保存在 `backups/releases/20261112-112922-3605152`，旧版代码快照保存在 `backups/releases/todo-memory-curve-code-20261112-112920-3605073`。SQLite Schema 仍为 9。两份数据库通过完整性、外键与业务数据比对，原有 1,924 项 TODO、32 条重复模板和 31 条积分流水保留。140 个非数据库文件及环境配置与快照一致。
+- 发布后的附加核对脚本将积分表名写错，延迟了服务重启。更正为 `points_ledger` 后，使用同一快照重新核对并启动服务。服务于 11:29:22 停止，工作进程于 11:29:38 就绪。内网健康检查和公网入口均通过。
+- 公网 Chrome 在 1440px 和 390px 验证了「记忆曲线」选项、日期切换和清除、重新打开「任务管理」时回到当天，以及孩子端 TODO。用生产代码和 SQLite 快照副本验证了 11 月 12、13、15、18、26 日及 12 月 11 日的排期、独立完成和取消完成、修改后续任务时保留排期。验收写入都在副本完成。
+- 发布前提交为 `ae4cf027a013ea29d99146e59fbb68b9e42f6362`。如需回退，通过发布 PR 撤回本次应用代码并按现有流程重新部署，保留 SQLite 与服务器配置。回退期间应避免在旧后台编辑记忆曲线规则。
+- 生产发布记录来源见 [PR #53](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/53)。
+
 ## 2026-11-12 TODO 新增记忆曲线，任务管理默认显示今天
 
 - 为安排间隔复习，后台任务新增「记忆曲线」。以计划日期为第 1 天，在第 1、2、4、7、15、30 天各安排一次，第 30 天后停止。每次任务可单独完成。在日期和规则相同的情况下修改本次及以后任务的内容时，保留原日期与完成记录。
@@ -32,11 +41,27 @@
 - 生产从未部署 PR #50。已核对运行提交 `ae4cf02` 中的开题代码调用 `random.shuffle`，本次只恢复发布分支代码，无需部署或迁移。撤回后的应用代码与该生产提交一致，测试提交为 `6ffa17b241f97d42d741ba25b4f1ce1c7238116f`，9 项 Word Matching 测试通过。
 - 若日后需要恢复连续题序去重，可另开 PR 重新应用该功能。
 
+## 2026-11-11：上线首字母完形填空逐字输入
+
+- 约 12:41（北京时间）合并并部署 [PR #48](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/48)。生产提交和发布分支均为 `ae4cf027a013ea29d99146e59fbb68b9e42f6362`，测试提交为 `e823cba522603d3af302aaf31483a56bf447a36d`。公网健康检查通过，英语页面与部署提交中的文件一致。
+- 按 `update_safe.sh` 备份、部署并重启。无新增数据迁移。140 个数据文件及两份 SQLite 通过发布前后比对和完整性校验，`.env` 与备份一致。数据快照为 `20261111-124058-3275419`，旧代码快照为 `cloze-letter-slots-code-20261111-124057-3275352`。
+- 用 Chrome 的 iPad Mini 模拟尺寸从公网共用词库生成一套 5 空题，耗时约 4 秒。五空显示 5、5、11、6、6 条横线，与缺失字母数一致。浏览器验证逐字落在横线上、空线保留、退格恢复空线、超出横线数量的输入被拦截。用线上同一套题和已部署代码在隔离副本提交，故意拼错一空得 4/5。服务端拒绝超长答案，重复提交只记一份报告。
+- 回退时通过发布 PR 撤回 #48，再按现有备份流程重新部署。
+- 生产发布记录来源见 [PR #49](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/49)。
+
 ## 2026-11-11：首字母完形填空在横线上逐字输入
 
 - 每条横线对应一个缺失字母。已输入的字母显示在各自横线上，剩余空线保持可见，退格后恢复空线。输入和粘贴都受横线数限制，全部填齐后可以提交。服务端根据原词核对答案长度和字母。
 - 199 项 Python 测试通过。用五空测试题在 Chrome 桌面、iPad Mini 模拟尺寸和窄屏手机检查了部分填答、超长键入和粘贴、退格、39 条横线的长词及成绩显示。接口测试确认填满但拼错的答案仍判错。
 - 变更见 [PR #48](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/48)，测试提交为 `e823cba522603d3af302aaf31483a56bf447a36d`。无需数据迁移。可通过发布 PR 撤回本次代码并按常规备份流程重新部署。
+
+## 2026-11-11：家庭日程的时间范围、重复和标签记忆已上线
+
+- [PR #46](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/46) 经 GitHub 合并并发布到 jingsen.cc。生产提交为 `fa08cebe0be2235be2901222e8ab6296b9d95791`，文件与评审分支末端 `600aaa6f1cc0b879ef6a474e4bd13187b4770c2a` 一致。测试提交 `533a5803d4ecb523df1857f188e5f22eb7696a43` 通过 199 项 Python 测试。
+- 按 updateNew.md 暂停写入并运行 update_safe.sh。服务器数据和配置快照为 `backups/releases/20261111-122745-3271986`，代码快照为 `backups/releases/family-schedule-recurrence-code-20261111-122744-3271918`。Schema 9 保留原有 6 条日程和分享权限，收录 2 个已有标签。140 个非数据库文件及环境配置逐字节一致，两份 SQLite 通过完整性和外键校验。4,816 条词条按内容、归属和顺序核对，其余原业务字段逐行核对。
+- 内外网健康检查通过，公网家庭日程 HTML 与发布文件一致。Chrome 公网验证了 Admin 起止时间、重复选项和默认标签，以及孩子从 TODO 打开查看页。用生产运行环境和发布前 SQLite 副本验证时间校验、跨周重复、截止、整组编辑删除、孩子只读权限和删除日程后保留标签。验收写入均在副本进行。
+- 若需回退，通过发布 PR 撤回 PR #46 的应用改动并按现有流程重新部署，保留 SQLite 和服务器配置。旧版只按起始日期展示重复日程，回退期间暂停在旧版编辑这些日程。发布前生产提交为 `f2e0b102777334a09285e2d3243d26d0cb816e49`。
+- 生产发布记录来源见 [PR #47](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/47)。
 
 ## 2026-11-11：家庭日程支持起止时间、重复和常用标签
 
@@ -44,6 +69,15 @@
 - 新建标签会保留在家长端下拉框里，新建日程默认选用最近保存的标签。Schema 9 为现有日程补充空的结束时间和单次规则，并收录已有日程中的标签。Todo ZIP 保存标签和重复规则，同时兼容旧版备份。
 - 测试提交为 `533a5803d4ecb523df1857f188e5f22eb7696a43`。199 项 Python 测试通过，涵盖旧库迁移、两版 ZIP 恢复、重复日期、截止和标签保留。Chrome 验证了家长端时间校验和整组编辑删除、跨浏览器标签记忆、以及手机和 iPad 尺寸的孩子端时间范围。
 - 发布见 [PR #46](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/46)。回退时通过发布 PR 撤回应用代码，保留 Schema 9 和服务器数据。旧版应用按起始日期显示重复日程，因此回退期间应暂停编辑这些日程，重新启用新版后可继续使用已保存的规则。
+
+## 2026-11-11：家庭日程已部署到 jingsen.cc
+
+- [PR #44](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/44) 经 GitHub 合并后发布到香港生产。生产提交为 `f2e0b102777334a09285e2d3243d26d0cb816e49`，文件与评审分支末端 `4013fc379fb0ec3afe1bf3700ad89daa99dd0ee0` 一致，布局测试提交为 `55bfa87771c03e4a12c9f3c4a6655eb89148d1d6`。
+- 按 updateNew.md 暂停写入并运行 update_safe.sh。数据和服务器配置快照为 `backups/releases/20261111-120239-3265641`，发布前代码快照为 `backups/releases/family-schedule-code-20261111-120237-3265564`。Schema 8 添加空的家庭日程表，旧 JSON/TXT 迁移返回 `migrated=false`。140 个原有非数据库文件及服务器配置逐字节一致，两个 SQLite 数据库的完整性和外键校验通过。
+- 服务恢复前首次逐行校验因既有启动同步重建词条内部行 ID 和时间戳而暂停。复核了全部 4,816 条词条的内容、所属词库、规范化文本和顺序，均一致。原有 251 条练习报告、1,856 项 Todo 任务及其余原业务记录通过逐行核对。通过校验后启动服务，内网和公网健康检查通过。
+- Chrome 公网实测从 Admin → Learning Todo → 家庭日程新增、编辑及删除临时日程。独立浏览器打开分享链接后，从 TODO 进入七列只读周历并看到更新。删除测试日程及对应临时分享后，复核日程表为空且分享已关闭。iPad 检查使用 834×1194 浏览器视口，实机 Safari 尚待验收。
+- 回退通过发布 PR 撤回 PR #44 的应用改动并按既有流程重新部署，保留 SQLite 和服务器配置。发布前生产提交为 `b8667d97681c3de8aa5a637e42be2f31ae4b6411`。
+- 生产发布记录来源见 [PR #45](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/45)。
 
 ## 2026-11-11：家庭日程在宽屏按周横排
 
@@ -59,11 +93,27 @@
 - 测试提交为 `a2405c97631a38a703c83fe1b52c0613f20ec6e7`，197 项 Python 和 13 项 JavaScript 测试通过。Chrome 在桌面及 320、390、834px 验证 Admin 录入、编辑、删除，孩子端标签和周切换，以及同一标签页打开分享链接、刷新后保留权限和撤销后拒绝访问。
 - 发布见 [PR #44](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/44)，目标为 `deploy/tencent-learningcenter-path`。合并后按 updateNew.md 备份、部署并验证生产 Admin 与孩子端路径。需要回退时通过发布 PR 回退应用代码并保留 SQLite 和服务器配置，以便保留已录入的日程。
 
+## 2026-11-11：上线首字母完形填空的字母数提示
+
+- 约 11:00（北京时间）合并并部署 [PR #42](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/42)。生产提交和发布分支均为 `b8667d97681c3de8aa5a637e42be2f31ae4b6411`，测试提交为 `91d93a126ced6fce5dc707aa3d09cc7a849155aa`。公网健康检查通过，英语页面与部署提交中的文件一致。
+- 按 `update_safe.sh` 备份、部署并重启。无新增数据迁移。140 个数据文件及两份 SQLite 通过发布前后比对和完整性校验，`.env` 与备份一致。数据快照为 `20261111-110005-3250318`，旧代码快照为 `cloze-length-code-20261111-110003-3250251`。
+- 在 Chrome 的 iPad Mini 模拟尺寸从公网词库 `EE-The Prince and the Pauper` 生成一套 5 空题，耗时约 4 秒。五个答案共 8、8、8、7、7 个字母，页面依次显示 7、7、7、6、6 条下划线。用同一题和线上代码在隔离副本接收浏览器提交，故意答错一空，页面显示 4/5，重复提交只记一份报告。
+- 回退时通过发布 PR 撤回 #42，再按现有备份流程重新部署。
+- 生产发布记录来源见 [PR #43](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/43)。
+
 ## 2026-11-11：首字母完形填空显示字母数
 
 - 每空显示首字母和每个缺失字母对应的下划线，例如六个字母的词显示为 `a_ _ _ _ _`。输入时隐藏下划线，清空后恢复。长提示在窄屏换行，读屏标签会读出总字母数。
 - 接口从练习保存的词库原词计算字母数，已有练习也可显示提示。提交前仍隐藏完整答案。195 项 Python 测试通过，Chrome 在桌面、窄屏手机和 iPad Mini 模拟尺寸验证了显示、输入和提交。
 - 变更见 [PR #42](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/42)，测试提交为 `91d93a126ced6fce5dc707aa3d09cc7a849155aa`。无需数据迁移。若需回退，通过发布 PR 撤回此次变更，并按常规备份流程重新部署。
+
+## 2026-11-10：上线无推理的 DeepSeek V4.1 Flash
+
+- 约 21:34（北京时间）将 [PR #40](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/40) 合并到发布分支并部署。生产与发布分支均为 `f9d7f0cddeac79ecaecd6b0a6234027a766af2ad`，测试提交为 `2ae687272e924427961fc86af64a2786a0ef12fc`。通过 Admin 将全站默认模型从 `gpt-5.4-nano` 切换为 `deepseek-v4.1-flash`，公网健康接口已确认。
+- 执行 `update_safe.sh` 并重启。140 个数据文件、两份 SQLite 的内容与完整性均通过发布前后比对，`.env` 与备份一致，无新增数据迁移。数据快照为 `20261110-213353-3056354`，旧代码快照为 `deepseek-flash-code-20261110-213352-3056282`。
+- 公网 Daily Word 从 `4000-4` 生成 3 题，耗时 4.23 秒。首字母完形填空从 `EE-The Prince and the Pauper` 生成 5 空，耗时 3.40 秒，公开响应只提供首字母。用同一批线上题目和已部署代码在隔离副本验证，故意各答错一题，分别得 2/3 和 4/5。首字母题重复提交只写一份报告。Daily Word 批改请求确认发送关闭推理参数，网关未返回推理内容。
+- 模型切换会影响使用全站默认模型的其他模块，本次实测范围为上述两种练习。如需恢复，可先在 Admin 选回 `gpt-5.4-nano`。如需回退代码，通过发布 PR 撤回 #40 并按现有备份流程重新部署。
+- 生产发布记录来源见 [PR #41](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/41)。
 
 ## 2026-11-10：为 DeepSeek V4.1 Flash 关闭推理
 
@@ -71,12 +121,29 @@
 - 195 项 Python 测试通过。在隔离环境用线上词库和真实网关生成两套 5 空题，分别耗时 2.59 秒及 2.33 秒，均一次出题并正确判为 4/5。Daily Word 生成 3 题耗时 3.60 秒。这三次模型响应均未返回推理内容。
 - 变更见 [PR #40](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/40)，测试提交为 `2ae687272e924427961fc86af64a2786a0ef12fc`。无需数据迁移。若线上模型表现不稳定，可通过 Admin 恢复 `gpt-5.4-nano`。如需回退代码，通过发布 PR 撤回本变更并按标准备份流程重新部署。
 
+## 2026-11-10：上线首字母完形填空的原词造句流程
+
+- 约 21:28（北京时间）将 [PR #38](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/38) 合并至发布分支并部署。服务器及发布分支均核对为 `1a7b2fb20295507f0def720ae0fb8ab541dc11a1`，合并前测试提交为 `f46c1575d9afca97bd9d897f718d6eedac971ebd`。学生从共用词库选择空数后，模型生成短文，服务端按原词挖空和批改。
+- 备份后执行 `update_safe.sh` 和重启，公网首页及健康检查通过。本次无新增迁移，例行迁移检查通过。140 个数据文件、两份 SQLite 的内容及完整性均通过对照检查，`.env` 与备份一致。数据快照为 `20261110-212802-3054573`，代码快照为 `initial-cloze-direct-code-20261110-212801-3054489`。
+- 用线上当前模型 `gpt-5.4-nano` 从 `EE-The Prince and the Pauper` 随机抽词，公网约 2.9 秒生成 5 空。用同一题和已部署代码在隔离副本提交 4 对 1 错，得到 4/5，重复提交只生成一份报告。Daily Word 从 `4000-4` 生成 3 题，约 4.8 秒。
+- 这次随机短文仍有词性和词形使用问题，例如把动词 `oppress` 放在修饰名词的位置。现有校验检查词的拼写和出现次数。需要回退时，通过发布 PR 撤回 #38，依现行备份流程重新部署并保留生产数据与配置。
+- 生产发布记录来源见 [PR #39](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/39)。
+
 ## 2026-11-10：先用词库原词造句，再挖空
 
 - 修复首字母完形填空因模型试填给出同首字母替代词而反复退回短文的问题。从共用词库抽取指定数量的词，让模型逐词造句并串成一篇短文。服务端核对所有原词恰好出现一次后挖空，只有短文格式或用词不合格时才重写。前端只显示首字母，批改使用抽中的原词。
 - 生成超时和短文格式或用词不合格现在分别提示。每空的标准答案固定，语境仍可能允许同首字母的其他词。
 - 194 项 Python 测试通过。在隔离环境用线上共用词库 `EE-The Prince and the Pauper`、此前出题失败的同一组 5 个词和当前网关模型 `gpt-5.4-nano` 实测，一次模型请求，约 2.95 秒生成 5 空，提交 4 对 1 错得到 4/5。
 - 变更见 [PR #38](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/38)，测试提交为 `f46c1575d9afca97bd9d897f718d6eedac971ebd`。无需数据迁移。若上线后需要回退，通过发布分支撤回该 PR，并按现有备份流程重新部署，保留 SQLite 数据及线上配置。
+
+## 2026-11-10：Luna 兼容修复和首字母完形校验已发布至香港
+
+- [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 经 GitHub 合并并发布。生产提交为 `61bb80b67c827a4cb156b31ccf59587edd6cb7d4`，应用文件与通过 194 项 Python 测试的 `591756cef4e9456eb61d36a75077e4a3b1c16df9` 一致。生产模型为 `gpt-5.6-luna`，首字母完形的出题和试填使用 `reasoning_effort=none`。
+- 按 updateNew.md 暂停写入、备份、同步合并提交并重启服务。数据和配置快照为 `backups/releases/20261110-202421-3038242`，旧代码快照为 `backups/releases/initial-cloze-luna-code-20261110-202420-3038167`。迁移返回 `migrated=false`。两份 SQLite 完整性、外键和逐表比对通过，250 条历史报告、4,816 条词条、140 个非数据库文件及服务器配置均通过发布前后核对。
+- 内网和公网健康检查通过，公网 Daily Word 用 Luna 实际生成一道题，耗时 16.6 秒。公网 5 空完形首轮三次试填后未通过唯一答案校验，第二轮试填与第三轮出题分别达到 50 秒请求上限。部署代码的隔离副本确认发出 `reasoning_effort=none`，本轮同样超时。部署前同版本曾在隔离环境通过真实 5 空批改，但本次公网 5 空未通过验收。
+- 超时复查用同一生产网关直连 Luna，最小 JSON 请求和 5 空试填分别耗时 46.0 和 45.0 秒，均报告 0 个推理 token。两次在 0.34 秒内发完请求，耗时集中在等待网关响应头。生产日志显示试填在 50 秒时被应用判为失败，SDK 随后重试，重试后记录的 HTTP 200 已无法继续该任务。
+- 若需回退，通过发布 PR 回退 [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 并按 updateNew.md 发布，保留 SQLite 数据。此前生产提交为 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`，该版本的 Luna 请求会因 `minimal` 参数失败。
+- 生产发布记录来源见 [PR #37](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/37)。
 
 ## 2026-11-10：为 Luna 的首字母完形填空关闭推理
 
@@ -90,6 +157,13 @@
 - 生产选用的 `gpt-5.6-luna` 会拒绝自动添加的 `reasoning_effort=minimal`。现在对该模型省略此参数，保留后台选定的模型。
 - 191 项 Python 测试通过。用生产网关当前令牌和共用词库 `4000-4` 的隔离副本，在 Chrome 真实生成一篇 5 空短文，人工复核线索并故意答错一空，批改为 4/5。重复提交仅记录一份日报。该次生成约 105 秒。
 - [PR #36](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/36) 目标为 `deploy/tencent-learningcenter-path`，测试提交为 `7cc8c384fe4f7ecb975ec109786f9c9d29f7be4b`。无需数据迁移。若需回退，回退本次修复的代码并保留 SQLite 数据。
+
+## 2026-11-10：更换香港生产的模型网关令牌
+
+- 因用户发现未知来源的模型用量，更换香港生产 Learning Center 的模型网关令牌。核对确认仅更新生产服务使用的 `OPENAI_API_KEY`，应用继续运行 [PR #33](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/33) 的合并提交 `338c4d524aad0ed41cef0b169ca6bac19d534a9c`。没有数据或数据库结构迁移。
+- 在隔离数据库用生产模型验证新令牌，再重启生产服务并确认新进程已加载该配置。内网与公网健康检查通过，公网 Daily Word 成功使用实际模型生成一道题。首字母完形填空的隔离样题已取得模型响应，但未通过唯一答案校验，真实出题仍待验收。
+- 发布前配置保存在权限受限的服务器快照 `backups/releases/initial-cloze-key-rotation-20261110-200421-3032620`。若后续令牌失效，先在隔离环境验证可用令牌，再更新同一配置项并重启及验收。
+- 生产发布记录来源见 [PR #35](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/35)。
 
 ## 2026-11-10：首字母完形填空已发布至香港
 
@@ -281,6 +355,12 @@
 - 验证：23 项 Reading / 预习 / API / SQLite 迁移 / 首页回归与 6 项反馈渲染检查通过，脚本语法和 git diff --check 通过。以本地数据库只读一致性副本逐一浏览 17 课实际原文，核对两部 1975 标签；浏览器遍历 34 练习所有选项与解析，验证选择恢复、旧版入口、桌面及 390px 布局，无脚本错误或横向溢出。原文快照在源章节变化后保持不变；无凭证及错误凭证读取被拒绝。AI 阅读评分沿用原实现，测试使用模拟模型，未调用真实供应商。
 - 审查记录：PR https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/10 ，测试功能提交 `03ff3986a02de58e8f2aaf6aee1580838093a9e0`；后续仅补充本审查链接。
 - 发布与回退：按 PR 流程送审后才可合并；本次不合并、不部署。部署仍须遵循 updateNew.md 的线上数据备份、迁移、验证及健康检查。回退功能代码即可恢复旧入口；保留已产生的 preparation_json 和学习记录，不使用整库恢复覆盖新数据。新课记录需保留本分支代码方可完整查看新增的语法与分章阅读界面。
+
+## 2026-10-22：历史 PR 补录与生产发布规范
+
+- [PR #9](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/9) 提出从最新发布分支创建 `codex/` 分支，经 GitHub PR 合并后再按 `updateNew.md` 发布已核对的合并提交。现将该流程补入仓库规范、README、部署文档和 PR 模板。
+- [历史 PR 补录](docs/pr-backfill-2026-10-22.md) 记录原 #1–#8 对应的 8 段提交。核对确认覆盖 `c0822b7..9181e9f` 的 54 个历史提交，无遗漏或重叠。记录以 Git 历史为依据。
+- 补录只修改文档，无需数据迁移或部署。若需撤回，可通过文档 PR 回退。GitHub 服务端分支保护需单独配置和验证。
 
 ## 2026-10-21：Reading 评估三卡片与大字号展示（已上线）
 
