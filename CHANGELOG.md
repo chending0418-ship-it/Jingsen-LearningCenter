@@ -9,6 +9,25 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-12：清理 9 条已合并的远端分支
+
+- 为减少 GitHub 分支列表中的历史条目，移除下列 9 条已合入发布分支的工作分支。清理完成时，远端分支由 58 条减至 49 条。
+- 删除前逐一核对分支末端、已合并 PR 和 Git 祖先关系，确认没有开放 PR 或本地工作树把这些分支作为上游。批量删除时校验各分支末端仍是已核对的提交。
+- 删除后重新对照全部远端引用，确认默认分支 `main`、发布分支 `deploy/tencent-learningcenter-path`（`809ffd7bcc9e6e29b6196eb2da8ddc91eec745cc`）、回滚标签和 #55 的分支均保持原提交。公网首页返回 HTTP 200，健康检查返回 `healthy`。无需部署或数据迁移。
+- 恢复前确认远端分支名仍空闲，然后用下表的提交重建同名分支。所有提交均可从发布分支获取，本地也保留了经验证的 Git bundle。若分支名已被重新使用，先核对新分支的用途。
+
+| 远端分支 | 已合并 PR | 删除前提交 |
+| --- | --- | --- |
+| `codex/baseball-release-record-20261106` | [#15](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/15) | `7e0797908c1e0d0fe3f3d720a882662c13e928eb` |
+| `codex/family-meeting-host-guide` | [#21](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/21) | `e1687aff9c5068a6d6620112718f94d6b8775e15` |
+| `codex/family-meeting-mobile-save` | [#19](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/19) | `89a98ee803eff6e2ee8b677d747635a15a6f81af` |
+| `codex/family-meeting-opening-art` | [#25](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/25) | `7050c7986dd24dda5bf6d00cbb004f6839099bdd` |
+| `codex/family-meeting-opening-brief` | [#23](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/23) | `27e03c921bd76d98a1c90f7adc3117b6beb66e5c` |
+| `codex/record-family-meeting-art-rollout` | [#26](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/26) | `44bfbc66ac762594e96c53f3e9a5eaf85e39fe27` |
+| `codex/record-family-meeting-guide-rollout` | [#22](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/22) | `4316cebf447f1b6c5864f614ac498da172b5c44b` |
+| `codex/record-family-meeting-mobile-rollout` | [#20](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/20) | `b8d5f228af5f67f595ca57a336826232696e8528` |
+| `codex/record-family-meeting-opening-rollout` | [#24](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/24) | `0d143b1f8cb43ce050c320e8e295fd72b3bc8541` |
+
 
 ## 2026-11-12：Todo 管理新增本学期课表
 
