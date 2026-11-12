@@ -455,6 +455,14 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 ---
 
+## 发布流程
+
+所有新改动统一走：`codex/功能分支 → PR 到 deploy/tencent-learningcenter-path → GitHub 合并 → 部署合并后的提交`。
+
+禁止直接推送、强推生产分支，或部署尚未合并的功能分支；`main` 暂不调整。PR 必须说明验证、数据/迁移影响与回退方案，并同步更新 `CHANGELOG.md`。提交 PR 不代表获得合并或部署授权。
+
+历史 PR 补录与提交范围见 [`docs/pr-backfill-2026-10-22.md`](docs/pr-backfill-2026-10-22.md)。部署前置条件与安全操作见 [`updateNew.md`](updateNew.md)。这些仓库规范不等同于 GitHub 服务端分支保护；`update_safe.sh` 本身不会验证 PR 是否已合并。
+
 ## 服务器更新提醒
 
 线上 app 目录：
