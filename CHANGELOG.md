@@ -16,6 +16,7 @@
 - 按照片上的英文科目代码录入，`E` 统一为 `ENG`，`M` 统一为 `MATH`。上课时间按手写标注转录。课表随页面发布，换学期时需更新页面内容。
 - 无需 API 或数据库迁移。回退时通过发布 PR 撤回课表页面改动，按 `updateNew.md` 重新部署，保留服务器数据和配置。
 - 202 项 Python 测试和 13 项 JavaScript 测试通过。Chrome 在 1440、834、768、390、320px 下验证了登录、课表数据、键盘切换、宽窄屏布局和原有 Todo 栏目切换。
+- 变更见 [PR #54](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/54)，测试提交为 `3d24c1644cc2fa63ee6bfb5264c7eeeaecdc20ba`。
 
 ## 2026-11-12 TODO 新增记忆曲线，任务管理默认显示今天
 
