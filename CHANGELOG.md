@@ -9,6 +9,13 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
+## 2026-11-12：GitHub 默认分支切换到发布分支
+
+- 仓库所有者把 GitHub 默认分支从 `main` 改为 `deploy/tencent-learningcenter-path`。仓库首页、默认克隆和新建 PR 的默认目标现在都指向正在维护的分支。
+- 对照切换前后的远端引用，只有默认指针 `HEAD` 改变，所有分支和回滚标签的提交均一致。发布分支仍指向 `809ffd7bcc9e6e29b6196eb2da8ddc91eec745cc`。开放的 #55 和 #57 仍以该分支为目标。
+- 部署脚本仍明确指定发布分支。本次无需部署或迁移。公网首页和健康接口返回 HTTP 200，健康状态为 `healthy`。公网英语和 Todo 页面与发布分支的静态文件逐字节一致。
+- 如需回退，由仓库管理员在 GitHub Settings 的 Default branch 中重新选择 `main`，然后复查远端 `HEAD` 和公网健康。
+
 ## 2026-11-12：清理 36 条已归档的远端分支
 
 - 为减少 GitHub 分支列表中的历史条目，移除 20 条已通过 PR 合入发布分支的工作分支、6 条提交已在发布历史中且已补录的旧分支，以及 10 条发布记录已由 [PR #56](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/56) 归档的文档分支。远端分支由 58 条减至 23 条，其中包含本次记录 PR 的工作分支。
