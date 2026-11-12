@@ -9,24 +9,51 @@
 - 当前生产分支：`deploy/tencent-learningcenter-path`。
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
-## 2026-11-12：清理 9 条已合并的远端分支
+## 2026-11-12：清理 36 条已归档的远端分支
 
-- 为减少 GitHub 分支列表中的历史条目，移除下列 9 条已合入发布分支的工作分支。清理完成时，远端分支由 58 条减至 49 条。
-- 删除前逐一核对分支末端、已合并 PR 和 Git 祖先关系，确认没有开放 PR 或本地工作树把这些分支作为上游。批量删除时校验各分支末端仍是已核对的提交。
+- 为减少 GitHub 分支列表中的历史条目，移除 20 条已通过 PR 合入发布分支的工作分支、6 条提交已在发布历史中且已补录的旧分支，以及 10 条发布记录已由 [PR #56](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/56) 归档的文档分支。远端分支由 58 条减至 23 条，其中包含本次记录 PR 的工作分支。
+- 删除前逐一核对分支末端、合并或归档证据，并检查开放 PR 和本地上游。批量删除时仅接受已核对的分支提交。剩余分支包括 18 条有本地分支跟踪的上游、2 条开放 PR 的分支和 3 条长期分支。
 - 删除后重新对照全部远端引用，确认默认分支 `main`、发布分支 `deploy/tencent-learningcenter-path`（`809ffd7bcc9e6e29b6196eb2da8ddc91eec745cc`）、回滚标签和 #55 的分支均保持原提交。公网首页返回 HTTP 200，健康检查返回 `healthy`。无需部署或数据迁移。
-- 恢复前确认远端分支名仍空闲，然后用下表的提交重建同名分支。所有提交均可从发布分支获取，本地也保留了经验证的 Git bundle。若分支名已被重新使用，先核对新分支的用途。
+- 恢复前确认远端分支名仍空闲，再用下表中的原提交重建同名分支。已验证备份可恢复全部 36 个分支末端。若分支名已被重新使用，先核对新分支的用途。
 
-| 远端分支 | 已合并 PR | 删除前提交 |
+| 远端分支 | 相关 PR | 删除前提交 |
 | --- | --- | --- |
+| `codex/backfill-family-meeting` | [#4](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/4) | `2a16d02684a297eece7fc8442a7100f3d044742b` |
+| `codex/baseball-production-20261106` | [#16](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/16) | `20ed8eaed221edc2b907865fe9d9a02cb8b8f592` |
 | `codex/baseball-release-record-20261106` | [#15](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/15) | `7e0797908c1e0d0fe3f3d720a882662c13e928eb` |
+| `codex/factorization-week2` | [#5](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/5) | `c53dec9422307e733a954ae0f47b59cdbfeb2ad4` |
 | `codex/family-meeting-host-guide` | [#21](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/21) | `e1687aff9c5068a6d6620112718f94d6b8775e15` |
 | `codex/family-meeting-mobile-save` | [#19](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/19) | `89a98ee803eff6e2ee8b677d747635a15a6f81af` |
 | `codex/family-meeting-opening-art` | [#25](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/25) | `7050c7986dd24dda5bf6d00cbb004f6839099bdd` |
 | `codex/family-meeting-opening-brief` | [#23](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/23) | `27e03c921bd76d98a1c90f7adc3117b6beb66e5c` |
+| `codex/math-factorization` | [#2](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/2) | `29e790da5dc7afd3ed611de94b53fd8ad83ef69b` |
+| `codex/production-pr-policy` | [#9](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/9) | `e6249290856acdc9dd755fc9a809e859ca3d1aa0` |
+| `codex/reading-feedback-cards` | [#8](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/8) | `9181e9f8c7bd3d8939b71a43dbca5e39f6f12c5a` |
+| `codex/reading-reader-release-record-20261106` | [#14](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/14) | `2a7441ef646569c8ba67b84a7162598e2cdd0d89` |
+| `codex/reading-speed-release-record-20261106` | [#18](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/18) | `c8aa87f6fb58e8b4c2025818de9dbd0deec7befd` |
+| `codex/reading17-release-record-20261106` | [#11](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/11) | `df753cb45d2440555e3a98af7ac53c50d4aaa9a8` |
+| `codex/reconcile-release-docs-20261112` | [#56](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/56) | `2046812328ee9e0e0bdc2174ad144903bef34d78` |
+| `codex/record-cloze-length-rollout` | [#43](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/43) | `aa153045985feb3ace09881e98d3a23ee9b093fc` |
+| `codex/record-cloze-slots-rollout` | [#49](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/49) | `e30189cfba97956b993bca6e6af223e2ef0bf96f` |
+| `codex/record-deepseek-flash-rollout` | [#41](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/41) | `15f25ee455c1dd76876162729d61e77637b05e57` |
 | `codex/record-family-meeting-art-rollout` | [#26](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/26) | `44bfbc66ac762594e96c53f3e9a5eaf85e39fe27` |
 | `codex/record-family-meeting-guide-rollout` | [#22](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/22) | `4316cebf447f1b6c5864f614ac498da172b5c44b` |
 | `codex/record-family-meeting-mobile-rollout` | [#20](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/20) | `b8d5f228af5f67f595ca57a336826232696e8528` |
 | `codex/record-family-meeting-opening-rollout` | [#24](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/24) | `0d143b1f8cb43ce050c320e8e295fd72b3bc8541` |
+| `codex/record-family-schedule-recurrence-rollout` | [#47](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/47) | `463334871e84d06d6405c4aa38ec57b562bf7245` |
+| `codex/record-family-schedule-rollout` | [#45](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/45) | `48fb850d9caec6f0ee11429bb6074b3f2c10b1d1` |
+| `codex/record-initial-cloze-direct-rollout` | [#39](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/39) | `a74797ab4e56fcf201e0f9fa5ef565441013ff07` |
+| `codex/record-initial-cloze-luna-rollout` | [#37](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/37) | `c547a3604f493fe6c07f7d38538fccc6d89db204` |
+| `codex/record-initial-cloze-rollout` | [#34](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/34) | `88e86ca7b4e5fd383492335d673709f227a397d5` |
+| `codex/record-production-key-rotation` | [#35](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/35) | `bcd648ae31ed5e7a5e3f79adc93c3341d4a7ec62` |
+| `codex/record-todo-memory-curve-rollout` | [#53](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/53) | `11a3ac1099752be28d1e9e171088691d7cbdfe8d` |
+| `codex/record-word-matching-rollout` | [#28](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/28) | `2525d0073fda955e78f3ce997ad1422cb8d9aae7` |
+| `codex/record-word-matching-spelling-rollout` | [#30](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/30) | `9fb123932d563692956d7867cbe51bbd2e07ca8d` |
+| `codex/record-word-matching-toolbar-rollout` | [#32](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/32) | `6b142173c8eb6f91a5d4067afc09c948eb643ea7` |
+| `codex/shoedog-english-questions` | [#7](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/7) | `e76c5b40bcf06eec9efe35cc05147ece7286532f` |
+| `codex/shoedog-preparation-release` | [#6](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/6) | `41df06f1a59541eebc97102473731bc995262f06` |
+| `codex/todo-memory-curve` | [#52](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/52) | `861bc1f513c23dd5cfa5a7475e324ac64eff95fa` |
+| `codex/todo-semester-timetable` | [#54](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/54) | `a01053092a93f5855834e2c2062d5fa8f724f57c` |
 
 
 ## 2026-11-12：Todo 管理新增本学期课表
