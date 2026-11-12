@@ -633,6 +633,92 @@
             .points-row { padding: 8px 10px; }
         }
 
+        #view-timetable { padding-top: 18px; }
+        #view-timetable h2 { font-size: 30px; }
+        .timetable-term { margin: 6px 0 20px; color: var(--lc-muted); font-size: 15px; }
+        .timetable-day-picker { display: none; }
+
+        .semester-timetable {
+            width: 100%;
+            table-layout: fixed;
+            border: 1px solid var(--lc-ink);
+            background: #fff;
+            color: var(--lc-ink);
+        }
+
+        .semester-timetable :is(th, td) {
+            padding: 12px;
+            border: 1px solid var(--lc-line);
+            text-align: center;
+        }
+
+        table.semester-timetable th {
+            font: inherit !important;
+            letter-spacing: normal;
+        }
+
+        .semester-timetable thead { font-size: 17px; font-weight: 700; }
+        .semester-timetable thead th {
+            height: 50px;
+            background: var(--lc-blue) !important;
+            border-color: rgba(255, 255, 255, .35);
+            color: #fff !important;
+        }
+
+        .semester-timetable thead th:first-child { width: 152px; }
+        .semester-timetable tbody { font-size: 15px; font-weight: 700; line-height: 1.4; }
+        .semester-timetable tbody th { background: var(--lc-paper) !important; }
+
+        .timetable-time {
+            display: block;
+            margin-top: 3px;
+            color: var(--lc-muted);
+            font-size: 13px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .semester-timetable td { font-size: 21px; font-weight: 750; }
+        .semester-timetable .timetable-empty { background: #f8f7f2; color: var(--lc-muted); font-weight: 400; }
+        .semester-timetable tbody + tbody tr:first-child > * {
+            border-top: 2px solid var(--lc-ink) !important;
+        }
+        .timetable-note { margin: 12px 0 0; color: var(--lc-muted); font-size: 14px; }
+
+        @media (max-width: 759px) {
+            #view-timetable { padding-top: 12px; }
+            .timetable-day-picker {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                margin-bottom: 14px;
+                border: 1px solid var(--lc-ink);
+            }
+
+            .timetable-day-picker button {
+                min-height: 46px;
+                padding: 0;
+                border: 0;
+                background: #fff;
+                color: var(--lc-ink);
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .timetable-day-picker button + button { border-left: 1px solid var(--lc-line); }
+            .timetable-day-picker button:hover { background: var(--lc-paper); }
+            .timetable-day-picker button[aria-pressed="true"] { background: var(--lc-acid); }
+            .timetable-day-picker button:focus-visible { outline: 2px solid var(--lc-blue); outline-offset: -3px; }
+
+            .semester-timetable thead th:first-child { width: 48%; }
+            .semester-timetable tr > :not(:first-child) { display: none; }
+            .semester-timetable[data-day="1"] tr > :nth-child(2),
+            .semester-timetable[data-day="2"] tr > :nth-child(3),
+            .semester-timetable[data-day="3"] tr > :nth-child(4),
+            .semester-timetable[data-day="4"] tr > :nth-child(5),
+            .semester-timetable[data-day="5"] tr > :nth-child(6) { display: table-cell; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
@@ -661,8 +747,9 @@
 
         <div class="nav-wrap">
             <nav class="nav-tabs" aria-label="Todo 管理栏目">
-                <button class="nav-tab active" data-view="overview">今日概览</button>
+                <button class="nav-tab active" data-view="overview" aria-current="true">今日概览</button>
                 <button class="nav-tab" data-view="tasks">任务管理</button>
+                <button class="nav-tab" type="button" data-view="timetable" aria-controls="view-timetable">本学期课表</button>
                 <button class="nav-tab" data-view="day">日视图</button>
                 <button class="nav-tab" data-view="week">周视图</button>
                 <button class="nav-tab" data-view="month">月视图</button>
@@ -675,6 +762,75 @@
         </div>
 
         <div id="api-error" class="api-error">Todo 服务暂时不可用，请刷新重试；也可以使用 <code>?demo=1</code> 查看不写入数据的演示。</div>
+
+        <section id="view-timetable" class="view" aria-labelledby="timetable-heading">
+            <h2 id="timetable-heading">本学期课表</h2>
+            <p class="timetable-term">2026 学年第一学期</p>
+            <div class="timetable-day-picker" role="group" aria-label="选择星期">
+                <button type="button" data-day="1" aria-pressed="true" aria-controls="semester-timetable">周一</button>
+                <button type="button" data-day="2" aria-pressed="false" aria-controls="semester-timetable">周二</button>
+                <button type="button" data-day="3" aria-pressed="false" aria-controls="semester-timetable">周三</button>
+                <button type="button" data-day="4" aria-pressed="false" aria-controls="semester-timetable">周四</button>
+                <button type="button" data-day="5" aria-pressed="false" aria-controls="semester-timetable">周五</button>
+            </div>
+            <table id="semester-timetable" class="semester-timetable" data-day="1" aria-label="2026 学年第一学期周课表">
+                <thead>
+                    <tr>
+                        <th scope="col">节次 / 时间</th>
+                        <th scope="col">星期一</th>
+                        <th scope="col">星期二</th>
+                        <th scope="col">星期三</th>
+                        <th scope="col">星期四</th>
+                        <th scope="col">星期五</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">上午第 1 节<span class="timetable-time">08:30–09:10</span></th>
+                        <td>CHN</td><td>MATH</td><td>MUS</td><td>ENG</td><td>ENG</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">上午第 2 节<span class="timetable-time">09:25–10:05</span></th>
+                        <td>OPT</td><td>PE</td><td>CHN</td><td>IT</td><td>MATH</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">上午第 3 节<span class="timetable-time">10:20–11:00</span></th>
+                        <td>ENG</td><td>MATH</td><td>CHN</td><td>ART</td><td>CHN</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">上午第 4 节<span class="timetable-time">11:45–12:25</span></th>
+                        <td>ENG</td><td>CHN</td><td>ENG</td><td>ENG</td><td>GEO</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <th scope="row">下午第 1 节<span class="timetable-time">12:40–13:20</span></th>
+                        <td>SCI</td><td>PE</td><td>ENG</td><td>PE</td><td>PG</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">下午第 2 节<span class="timetable-time">13:35–14:15</span></th>
+                        <td>MATH</td><td>ENG</td><td>PE</td><td>SCI</td><td>ENG</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">下午第 3 节<span class="timetable-time">14:30–15:10</span></th>
+                        <td>MATH</td><td>ENG</td><td>MATH</td><td>CHN</td><td class="timetable-empty" aria-label="无课程">—</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">下午第 4 节<span class="timetable-time">15:25–16:05</span></th>
+                        <td>GEO</td><td>GEO</td><td>CLUB</td><td>MATH</td><td class="timetable-empty" aria-label="无课程">—</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">下午第 5 节<span class="timetable-time">16:15–16:55</span></th>
+                        <td class="timetable-empty" aria-label="无课程">—</td>
+                        <td class="timetable-empty" aria-label="无课程">—</td>
+                        <td>SCI</td>
+                        <td class="timetable-empty" aria-label="无课程">—</td>
+                        <td class="timetable-empty" aria-label="无课程">—</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="timetable-note">上午第 3、4 节之间：11:00–11:45</p>
+        </section>
 
         <section id="view-overview" class="view active">
             <div class="section-title-row">
@@ -941,6 +1097,12 @@
         document.getElementById('admin-back').href = '/admin';
         document.getElementById('demo-badge').classList.toggle('visible', DEMO_MODE);
         document.querySelectorAll('.nav-tab[data-view]').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
+        const timetable = document.getElementById('semester-timetable');
+        const timetableDayButtons = document.querySelectorAll('.timetable-day-picker button');
+        timetableDayButtons.forEach(button => button.addEventListener('click', () => {
+            timetable.dataset.day = button.dataset.day;
+            timetableDayButtons.forEach(day => day.setAttribute('aria-pressed', String(day === button)));
+        }));
         document.getElementById('task-modal-backdrop').addEventListener('click', event => {
             if (event.target === event.currentTarget) closeTaskModal();
         });
@@ -1111,7 +1273,11 @@
 
         function switchView(viewName) {
             document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `view-${viewName}`));
-            document.querySelectorAll('.nav-tab[data-view]').forEach(tab => tab.classList.toggle('active', tab.dataset.view === viewName));
+            document.querySelectorAll('.nav-tab[data-view]').forEach(tab => {
+                const isCurrent = tab.dataset.view === viewName;
+                tab.classList.toggle('active', isCurrent);
+                tab.setAttribute('aria-current', String(isCurrent));
+            });
             if (viewName === 'tasks') setTaskDateFilter(null);
             if (viewName === 'day') renderDayView();
             if (viewName === 'week') renderWeekView();
