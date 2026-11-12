@@ -8,6 +8,48 @@ from main import app
 from services.learning_todo_service import LearningTodoService
 
 
+def test_memory_curve_task_uses_six_calendar_days_and_stops(tmp_path, monkeypatch):
+    service = LearningTodoService(
+        data_dir=str(tmp_path / "data" / "learning-todo"),
+        today_provider=lambda: date(2028, 2, 28),
+    )
+    monkeypatch.setattr(todo_service_module, "_learning_todo_service", service)
+    monkeypatch.setattr(config, "ADMIN_PASSWORD", "todo-test-password")
+
+    with TestClient(app) as client:
+        assert client.post("/api/admin/session", json={"password": "todo-test-password"}).status_code == 200
+        payload = {
+            "title": "单词复习",
+            "subject_id": "sub_english",
+            "planned_date": "2028-02-28",
+            "repeat": "memory_curve",
+        }
+        created = client.post("/api/admin/todo/tasks", json=payload)
+        assert created.status_code == 201
+        assert created.json()["repeat"] == "memory_curve"
+
+        response = client.get("/api/admin/todo/tasks")
+        assert response.status_code == 200
+        tasks = response.json()["tasks"]
+        assert [task["planned_date"] for task in tasks] == [
+            "2028-02-28", "2028-02-29", "2028-03-02",
+            "2028-03-05", "2028-03-13", "2028-03-28",
+        ]
+        assert len({task["id"] for task in tasks}) == 6
+        assert all(task["template_id"] == created.json()["template_id"] for task in tasks)
+
+        today = client.get("/api/todo/today").json()["today_pending_tasks"]
+        assert [task["id"] for task in today] == [tasks[0]["id"]]
+        assert client.post(f"/api/todo/tasks/{tasks[0]['id']}/complete").status_code == 200
+        reloaded = client.get("/api/admin/todo/tasks").json()["tasks"]
+        assert [task["id"] for task in reloaded] == [task["id"] for task in tasks]
+        assert [task["id"] for task in reloaded if task["completed_at"]] == [tasks[0]["id"]]
+
+        schedule = {key: value for key, value in payload.items() if key not in {"subject_id", "planned_date"}}
+        schedule["event_date"] = payload["planned_date"]
+        assert client.post("/api/admin/todo/family-schedule/events", json=schedule).status_code == 422
+
+
 def test_admin_session_protects_todo_admin_api_and_public_child_api_stays_open(tmp_path, monkeypatch):
     service = LearningTodoService(
         data_dir=str(tmp_path / "data" / "learning-todo"),
