@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 RepeatKind = Literal["once", "daily", "weekly", "monthly"]
+TaskRepeatKind = Literal[RepeatKind, "memory_curve"]
 EditScope = Literal["this", "future", "series"]
 
 
@@ -53,7 +54,7 @@ class TaskCreateRequest(BaseModel):
     parent_note: str = Field(default="", max_length=2000)
     reward_goal: str = Field(default="", max_length=500)
     reward_points: int = Field(default=0, ge=0, le=100000)
-    repeat: RepeatKind = "once"
+    repeat: TaskRepeatKind = "once"
     repeat_weekdays: list[int] = Field(default_factory=list)
     end_date: Optional[date] = None
     repeat_month_day: Optional[int | Literal["last"]] = None
@@ -82,7 +83,7 @@ class TaskUpdateRequest(BaseModel):
     parent_note: Optional[str] = Field(default=None, max_length=2000)
     reward_goal: Optional[str] = Field(default=None, max_length=500)
     reward_points: Optional[int] = Field(default=None, ge=0, le=100000)
-    repeat: Optional[RepeatKind] = None
+    repeat: Optional[TaskRepeatKind] = None
     repeat_weekdays: Optional[list[int]] = None
     end_date: Optional[date] = None
     repeat_month_day: Optional[int | Literal["last"]] = None

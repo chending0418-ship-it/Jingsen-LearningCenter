@@ -198,6 +198,49 @@ def test_monthly_last_day_handles_short_months_and_leap_year(tmp_path):
     assert [task["planned_date"] for task in tasks] == ["2028-01-31", "2028-02-29", "2028-03-31"]
 
 
+def test_memory_curve_edits_preserve_completion_and_remaining_dates(service):
+    original = service.create_task({
+        "title": "单词复习", "subject_id": "sub_english", "planned_date": "2026-07-28",
+    })
+    service.complete_task(original["id"])
+    converted = service.update_task(original["id"], {"repeat": "memory_curve"})
+    tasks = service.list_tasks()
+    assert len(tasks) == 6
+    assert tasks[0]["id"] == converted["id"] == original["id"]
+    assert tasks[0]["completed_local_date"] == "2026-07-28"
+    assert all(task["template_id"] == converted["template_id"] for task in tasks)
+
+    service.complete_task(tasks[2]["id"])
+    service.update_task(tasks[2]["id"], {"title": "听写复习", "planned_date": tasks[2]["planned_date"]}, scope="future")
+    updated = service.list_tasks()
+    assert [task["id"] for task in updated] == [task["id"] for task in tasks]
+    assert [task["title"] for task in updated] == ["单词复习"] * 2 + ["听写复习"] * 4
+    assert updated[2]["completed_local_date"] == "2026-07-28"
+
+    service.void_task(updated[4]["id"], scope="future")
+    service.update_task(original["id"], {"title": "检查单词"}, scope="series")
+    assert [task["id"] for task in service.list_tasks()] == [task["id"] for task in tasks[:4]]
+
+
+def test_changing_a_memory_curve_rule_preserves_manually_voided_tasks(service):
+    first = service.create_task({
+        "title": "复习", "subject_id": "sub_english", "planned_date": "2026-07-28",
+        "repeat": "daily", "end_date": "2026-08-02",
+    })
+    original = service.list_tasks()
+    service.void_task(original[2]["id"])
+
+    service.update_task(first["id"], {"repeat": "memory_curve"}, scope="series")
+    assert [task["planned_date"] for task in service.list_tasks()] == [
+        "2026-07-28", "2026-07-29", "2026-07-31", "2026-08-03", "2026-08-11", "2026-08-26",
+    ]
+
+    service.update_task(first["id"], {"repeat": "daily", "end_date": "2026-08-02"}, scope="series")
+    assert [task["id"] for task in service.list_tasks()] == [
+        task["id"] for index, task in enumerate(original) if index != 2
+    ]
+
+
 def test_copy_day_creates_fresh_uncompleted_instances(service):
     original = service.create_task(
         {

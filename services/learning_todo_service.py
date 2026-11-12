@@ -13,6 +13,7 @@ import os
 import re
 import secrets
 import shutil
+import sqlite3
 import tempfile
 import threading
 import uuid
@@ -20,7 +21,7 @@ import zipfile
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, get_args
 from zoneinfo import ZoneInfo
 
 import fcntl
@@ -28,7 +29,7 @@ from pydantic import ValidationError
 
 from config import config
 from database import TodoRepository, database_for_todo_root, migrate_todo_legacy_data
-from models.todo_schemas import FamilyScheduleBackup, FamilyScheduleEvent
+from models.todo_schemas import FamilyScheduleBackup, FamilyScheduleEvent, TaskRepeatKind
 
 
 DEFAULT_SUBJECTS = [
@@ -42,7 +43,8 @@ DEFAULT_SUBJECTS = [
 
 ACTIVE_LIFECYCLE = "active"
 INACTIVE_LIFECYCLES = {"cancelled", "voided"}
-REPEAT_KINDS = {"once", "daily", "weekly", "monthly"}
+REPEAT_KINDS = frozenset(get_args(TaskRepeatKind))
+MEMORY_CURVE_OFFSETS = (0, 1, 3, 6, 14, 29)
 POINT_TRANSACTION_TYPES = {"spend", "correction"}
 STREAK_CORRECTION_ACTIONS = {"none", "preserve", "clear"}
 
@@ -336,12 +338,15 @@ class LearningTodoService:
                     return task, month
         raise TodoDataError("任务不存在")
 
-    def _write_task_unlocked(self, task: Dict[str, Any], previous_month: Optional[str] = None) -> None:
+    def _write_task_unlocked(
+        self, task: Dict[str, Any], previous_month: Optional[str] = None,
+        *, connection: sqlite3.Connection | None = None,
+    ) -> None:
         target_month = self._month_key(task["planned_date"])
         if previous_month and previous_month != target_month:
             old_payload = self._month_payload_unlocked(previous_month)
             old_payload["tasks"] = [row for row in old_payload["tasks"] if row.get("id") != task["id"]]
-            self._atomic_write_json(self._month_path(previous_month), old_payload)
+            self._repository.replace_tasks(previous_month, old_payload, connection=connection)
 
         payload = self._month_payload_unlocked(target_month)
         for index, row in enumerate(payload["tasks"]):
@@ -351,7 +356,7 @@ class LearningTodoService:
         else:
             payload["tasks"].append(task)
         payload["tasks"].sort(key=lambda row: (row.get("planned_date", ""), row.get("created_at", ""), row.get("id", "")))
-        self._atomic_write_json(self._month_path(target_month), payload)
+        self._repository.replace_tasks(target_month, payload, connection=connection)
 
     def _write_tasks_grouped_unlocked(self, tasks: Iterable[Dict[str, Any]]) -> None:
         grouped: Dict[str, List[Dict[str, Any]]] = {}
@@ -522,6 +527,14 @@ class LearningTodoService:
         end = min(through, self._parse_date(template["end_date"])) if template.get("end_date") else through
         first = max(start, from_date) if from_date is not None else start
         kind = template["repeat"]
+        if kind == "memory_curve":
+            first_offset = (first - start).days
+            last_offset = (end - start).days
+            for offset in MEMORY_CURVE_OFFSETS:
+                if first_offset <= offset <= last_offset:
+                    yield start + timedelta(days=offset)
+            return
+
         weekdays = set(template.get("repeat_weekdays") or [])
         month_day = template.get("repeat_month_day")
         for offset in range((end - first).days + 1):
@@ -556,7 +569,9 @@ class LearningTodoService:
         created: List[Dict[str, Any]] = []
         reactivated: List[Dict[str, Any]] = []
         for template in templates:
-            for occurrence in self._recurrence_dates(template, through):
+            # A memory curve has at most six instances, even when scheduled far in advance.
+            template_through = date.max if template["repeat"] == "memory_curve" else through
+            for occurrence in self._recurrence_dates(template, template_through):
                 occurrence_date = occurrence.isoformat()
                 key = (template["id"], occurrence_date)
                 if key in existing:
@@ -856,6 +871,8 @@ class LearningTodoService:
     ) -> tuple[List[int], Optional[int | str]]:
         if repeat not in REPEAT_KINDS:
             raise TodoDataError("重复方式无效")
+        if repeat == "memory_curve":
+            return [], None
         weekdays = sorted(set(repeat_weekdays or []))
         if any(day < 0 or day > 6 for day in weekdays):
             raise TodoDataError("重复星期无效")
@@ -869,6 +886,29 @@ class LearningTodoService:
             if month_day != "last" and not 1 <= int(month_day) <= 31:
                 raise TodoDataError("每月重复日期无效")
         return weekdays, month_day
+
+    def _new_template(
+        self, data: Dict[str, Any], planned_date: str, end_date: str | None,
+        weekdays: List[int], month_day: int | str | None,
+    ) -> Dict[str, Any]:
+        now = self._now()
+        return {
+            "id": f"tpl_{uuid.uuid4().hex}",
+            "title": data["title"].strip(),
+            "subject_id": data["subject_id"],
+            "description": data.get("description", "").strip(),
+            "parent_note": data.get("parent_note", "").strip(),
+            "reward_goal": data.get("reward_goal", ""),
+            "reward_points": data.get("reward_points", 0),
+            "repeat": data["repeat"],
+            "repeat_weekdays": weekdays,
+            "repeat_month_day": month_day,
+            "start_date": planned_date,
+            "end_date": end_date,
+            "active": True,
+            "created_at": now,
+            "updated_at": now,
+        }
 
     def create_task(self, data: Dict[str, Any]) -> Dict[str, Any]:
         with self._guard():
@@ -904,24 +944,12 @@ class LearningTodoService:
                 self._write_task_unlocked(task)
                 return self._enrich_task_unlocked(task)
 
-            now = self._now()
-            template = {
-                "id": f"tpl_{uuid.uuid4().hex}",
-                "title": data["title"].strip(),
-                "subject_id": data["subject_id"],
-                "description": data.get("description", "").strip(),
-                "parent_note": data.get("parent_note", "").strip(),
+            template_data = {
+                **data,
                 "reward_goal": reward_goal,
                 "reward_points": reward_points,
-                "repeat": repeat,
-                "repeat_weekdays": weekdays,
-                "repeat_month_day": month_day,
-                "start_date": planned_date,
-                "end_date": end_date,
-                "active": True,
-                "created_at": now,
-                "updated_at": now,
             }
+            template = self._new_template(template_data, planned_date, end_date, weekdays, month_day)
             templates = self._templates_unlocked()
             templates["templates"].append(template)
             self._atomic_write_json(self.templates_path, templates)
@@ -1060,8 +1088,24 @@ class LearningTodoService:
 
             template_id = task.get("template_id")
             if scope == "this" or not template_id:
+                if template_id and changes.get("repeat") not in (None, task["repeat"]):
+                    if "memory_curve" in (task["repeat"], changes["repeat"]):
+                        raise TodoDataError("请修改整个重复计划或本次及以后的任务，以更改记忆曲线")
                 self._apply_task_changes_unlocked(task, changes)
-                self._write_task_unlocked(task, previous_month)
+                if not template_id and changes.get("repeat") == "memory_curve":
+                    end_date = changes.get("end_date")
+                    if end_date and self._parse_date(end_date) < self._parse_date(task["planned_date"]):
+                        raise TodoDataError("结束日期不能早于开始日期")
+                    template = self._new_template(task, task["planned_date"], end_date, [], None)
+                    templates = self._templates_unlocked()
+                    templates["templates"].append(template)
+                    task.update(template_id=template["id"], occurrence_key=task["planned_date"], repeat_weekdays=[])
+                    with self._database.transaction() as connection:
+                        self._repository.replace_templates(templates, connection=connection)
+                        self._write_task_unlocked(task, previous_month, connection=connection)
+                    self._materialize_default_horizon_unlocked()
+                else:
+                    self._write_task_unlocked(task, previous_month)
                 return self._enrich_task_unlocked(task)
             if changes.get("repeat") == "once":
                 raise TodoDataError("重复计划不能批量修改为单次任务")
@@ -1079,6 +1123,25 @@ class LearningTodoService:
                 changes["reward_points"] = reward_points
             boundary = task["planned_date"] if scope == "future" else template["start_date"]
             now = self._now()
+            original_repeat = template["repeat"]
+            repeat = changes.get("repeat") or original_repeat
+            if (
+                scope == "future" and repeat == original_repeat == "memory_curve"
+                and changes.get("planned_date") in (None, task["planned_date"])
+                and changes.get("end_date", template.get("end_date")) == template.get("end_date")
+            ):
+                # The whole curve is materialized. Updating these instances keeps their dates and completion records.
+                self._materialize_default_horizon_unlocked()
+                instance_changes = {key: value for key, value in changes.items() if key not in {"planned_date", "repeat_weekdays"}}
+                affected = [
+                    row for row in self._all_tasks_unlocked()
+                    if row.get("template_id") == template_id and row["planned_date"] >= boundary
+                ]
+                for instance in affected:
+                    self._apply_task_changes_unlocked(instance, instance_changes)
+                self._write_tasks_grouped_unlocked(affected)
+                refreshed, _ = self._find_task_unlocked(task_id)
+                return self._enrich_task_unlocked(refreshed)
 
             target_template = template
             if scope == "future":
@@ -1100,8 +1163,9 @@ class LearningTodoService:
                     target_template[key] = changes[key]
             if "end_date" in changes:
                 target_template["end_date"] = changes["end_date"]
+            elif repeat == "memory_curve" and original_repeat != repeat:
+                target_template["end_date"] = None
             target_template["updated_at"] = now
-            repeat = target_template.get("repeat", "once")
             weekdays, month_day = self._normalize_repeat(
                 target_template["start_date"],
                 repeat,
@@ -1116,19 +1180,27 @@ class LearningTodoService:
             if scope == "series":
                 # 整个计划修改时，计划日期是编辑器当前实例日期，不能写到所有实例。
                 instance_changes.pop("planned_date", None)
+            instances = [
+                row for row in self._all_tasks_unlocked()
+                if row.get("template_id") == template_id and row["planned_date"] >= boundary
+            ]
             settings = self._settings_unlocked()
             horizon = self._parse_date(self.today()) + timedelta(days=int(settings["recurrence_horizon_days"]))
+            if original_repeat == "memory_curve":
+                horizon = max(horizon, max((self._parse_date(row["planned_date"]) for row in instances), default=horizon))
             if target_template.get("end_date"):
                 horizon = min(horizon, self._parse_date(target_template["end_date"]))
             allowed_series_dates = (
-                {value.isoformat() for value in self._recurrence_dates(target_template, horizon)}
+                {value.isoformat() for value in self._recurrence_dates(
+                    target_template, date.max if repeat == "memory_curve" else horizon,
+                )}
                 if scope == "series"
                 else set()
             )
             affected = []
-            for instance in self._all_tasks_unlocked():
-                if instance.get("template_id") != template_id or instance["planned_date"] < boundary:
-                    continue
+            for instance in instances:
+                occurrence_date = instance.get("occurrence_key") if repeat == "memory_curve" else instance["planned_date"]
+                on_rule = occurrence_date in allowed_series_dates
                 if scope == "future":
                     instance["lifecycle_status"] = "voided"
                     instance["voided_at"] = now
@@ -1138,13 +1210,24 @@ class LearningTodoService:
                     self._apply_task_changes_unlocked(instance, instance_changes)
                     if (
                         instance["planned_date"] >= self.today()
-                        and instance["planned_date"] not in allowed_series_dates
+                        and not on_rule
                         and not instance.get("completed_at")
+                        and self._is_active(instance)
                     ):
                         instance["lifecycle_status"] = "voided"
                         instance["voided_at"] = now
                         instance["voided_local_date"] = self.today()
                         self._event(instance, "voided", now, reason="repeat-rule-changed")
+                    elif (
+                        on_rule and instance["lifecycle_status"] == "voided"
+                        and original_repeat != repeat and "memory_curve" in (original_repeat, repeat)
+                    ):
+                        last_void = next((event for event in reversed(instance["history"]) if event["type"] == "voided"), {})
+                        if last_void.get("reason") == "repeat-rule-changed":
+                            instance["lifecycle_status"] = ACTIVE_LIFECYCLE
+                            instance.pop("voided_at", None)
+                            instance.pop("voided_local_date", None)
+                            self._event(instance, "reactivated", now, reason="repeat-rule-changed")
                 affected.append(instance)
             self._write_tasks_grouped_unlocked(affected)
             self._materialize_default_horizon_unlocked(target_template.get("end_date"))
