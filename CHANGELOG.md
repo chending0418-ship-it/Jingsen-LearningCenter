@@ -16,6 +16,7 @@
 - 答案与词库中的词匹配时即时加删除线。修改或清空答案会重新判断是否仍有其他题使用该词。标记依据已输入文字，最终分数沿用现有批改规则。
 - 204 项 Python 和 13 项 JavaScript 测试通过。Microsoft Edge 在 1440、834、768、390 和 320px 验证 50 词长列表、独立滚动、标记增删、重复输入、批改、重练和关闭词库的状态。
 - 本次仅修改学生端页面，无数据迁移。回退时通过发布 PR 撤回该页面改动并按 `updateNew.md` 重新部署。
+- 变更见 [PR #60](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/60)，测试提交为 `48a5c2f30d236bd5ae50e29ced9720fed597faa6`。
 
 ## 2026-11-13：Word Matching 词库可显示备选单词
 
