@@ -10,6 +10,13 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
+## 2026-11-13：Word Matching 双栏作答已上线
+
+- [PR #60](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/60) 经 GitHub 合并并发布。生产提交 `5218a8ace23e16134db60a1fba6220c26fffe890` 与发布分支一致，学生端页面与测试提交 `48a5c2f30d236bd5ae50e29ced9720fed597faa6` 一致。发布前 204 项 Python 和 13 项 JavaScript 测试通过。
+- 按 `updateNew.md` 停止写入并执行 `update_safe.sh`。数据及配置快照为 `backups/releases/20261113-101936-3936464`，发布前代码快照为 `backups/releases/word-bank-layout-code-20261113-101935-3936410`。配置和 140 个非数据库文件与快照一致，两个 SQLite 库通过完整性、外键及业务数据核对，主库仍为 Schema 10，原有 4 个 Word Matching 词库和 4 次练习保留。
+- 服务于北京时间 10:19:36 暂停，10:19:45 恢复健康。内外网健康检查、门户、学生 Todo 和 Word Matching 历史报告接口均通过。公网 Edge 核对页面与发布提交一致、实际词库列表可加载，并用模拟题目验证 1440px、390px 双栏布局、右侧独立滚动、已填写标记和编辑后清除，以及 834px 在关闭词库时的单栏布局。验收未写入生产练习。
+- 发布前生产提交为 `7e2c8ad5801b6d1f7022c73f17436a6db0c42c2a`。本次无需数据迁移。若需回退，通过发布 PR 撤回学生端页面改动，并按现有流程重新部署，保留数据及配置。
+
 ## 2026-11-13：Word Matching 备选词与作答区并排显示
 
 - 接续 [PR #58](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/58)，启用 Show Word Bank 的练习把备选词放在左侧并放大字号，右侧题目过长时可在作答区内滚动。备选词没有独立滚动条；窄屏的词库超出视口时可滚动页面，右侧作答区会随页面保持可用。
