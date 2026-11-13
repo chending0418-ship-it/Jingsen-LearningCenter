@@ -675,4 +675,4 @@ def test_family_schedule_schema_8_events_keep_their_dates_and_labels(tmp_path, f
     assert week["events"][0]["end_time"] is None
     assert service.family_schedule(date(2026, 8, 4))["events"] == []
     with sqlite3.connect(tmp_path / "learning-center.sqlite3") as db:
-        assert db.execute("SELECT max(version) FROM schema_migrations").fetchone() == (9,)
+        assert db.execute("SELECT count(*) FROM schema_migrations WHERE version=9").fetchone() == (1,)

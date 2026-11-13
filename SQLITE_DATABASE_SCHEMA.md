@@ -5,7 +5,7 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`9`
+- 当前 Schema 版本：`10`
 - 表总数：`31`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
@@ -43,7 +43,7 @@
 | 25 | `reading_session_questions` | Book Reading | 保存逐题问答、追问、反馈及家长备注 | 18 |
 | 26 | `math_sessions` | Math | 保存固定 10 题的因式分解训练与正确率统计 | 8 |
 | 27 | `math_session_questions` | Math | 保存原题、首次答案、草稿、提示与判题结果 | 9 |
-| 28 | `word_matching_banks` | Word Matching | 保存独立配对词库 | 4 |
+| 28 | `word_matching_banks` | Word Matching | 保存独立配对词库 | 5 |
 | 29 | `word_matching_attempts` | Word Matching | 保存未批改的配对题快照 | 3 |
 | 30 | `todo_family_schedule` | Todo | 保存家庭日程和重复规则 | 11 |
 | 31 | `todo_family_schedule_labels` | Todo | 保存家庭日程标签和最近使用顺序 | 2 |
@@ -294,6 +294,7 @@
 | `name` | `TEXT` | 非空 | 词库显示名称 |
 | `name_key` | `TEXT` | 非空、唯一 | 用于判定重名的规范化名称 |
 | `pairs_json` | `TEXT` | 非空 | 按输入顺序保存的单词和释义对 |
+| `show_word_bank` | `INTEGER` | 非空，默认 `0`，取值 `0` 或 `1` | 是否在学生答题时显示本轮备选单词 |
 
 ### 6.5 `word_matching_attempts`
 

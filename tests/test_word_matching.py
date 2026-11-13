@@ -108,6 +108,59 @@ def test_admin_to_practice_to_daily_report(client):
     assert day["modules"][0]["module_label"] == "Word Matching"
 
 
+def test_word_bank_visibility_is_saved_per_bank(client):
+    login(client)
+    payload = {
+        "name": "Science", "pairs_text": "water,水\nice,冰",
+        "show_word_bank": True,
+    }
+    created = client.post(ADMIN, json=payload)
+    assert created.status_code == 201
+    bank_id = created.json()["id"]
+    editor_url = f"{ADMIN}/{bank_id}"
+    assert client.get(editor_url).json()["show_word_bank"] is True
+    assert client.put(editor_url, json={"name": "Science", "pairs_text": "water,水\nice,冰"}).status_code == 200
+    other = client.post(ADMIN, json={"name": "Other", "pairs_text": "alpha,一\nbeta,二"}).json()
+
+    start_url = f"{PUBLIC}/attempts"
+    shown = client.post(start_url, json={"bank_id": bank_id}).json()
+    assert shown["word_bank"] == ["ice", "water"]
+    assert all(set(question) == {"id", "meaning"} for question in shown["questions"])
+    assert "word_bank" not in client.post(start_url, json={"bank_id": other["id"]}).json()
+
+    assert client.put(editor_url, json=payload | {"show_word_bank": False}).status_code == 200
+    assert client.get(editor_url).json()["show_word_bank"] is False
+    assert "word_bank" not in client.post(start_url, json={"bank_id": bank_id}).json()
+
+    answers = {question["id"]: {"水": "water", "冰": "ice"}[question["meaning"]] for question in shown["questions"]}
+    report = client.post(f"{start_url}/{shown['id']}/grade", json={"answers": answers})
+    assert report.status_code == 200 and report.json()["correct_count"] == 2
+
+
+def test_existing_word_bank_defaults_to_hidden(tmp_path):
+    path = tmp_path / "schema-v9.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.execute("""
+            CREATE TABLE word_matching_banks (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                name_key TEXT NOT NULL UNIQUE,
+                pairs_json TEXT NOT NULL
+            )
+        """)
+        connection.execute(
+            "INSERT INTO word_matching_banks VALUES (?, ?, ?, ?)",
+            ("legacy", "Legacy", "legacy", json.dumps([["water", "水"], ["ice", "冰"]])),
+        )
+    service = WordMatchingService(SQLiteDatabase(path))
+    bank = service.get_bank("legacy")
+    assert bank["show_word_bank"] is False
+    assert bank["pairs_text"] == "water,水\nice,冰"
+    assert "word_bank" not in service.start_attempt("legacy")
+    with SQLiteDatabase(path).read() as connection:
+        assert connection.execute("SELECT count(*) FROM schema_migrations WHERE version=10").fetchone()[0] == 1
+
+
 def test_matching_and_daily_word_banks_are_separate(client):
     login(client)
     old_url = "/api/admin/libraries"

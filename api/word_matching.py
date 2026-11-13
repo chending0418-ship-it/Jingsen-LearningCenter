@@ -21,6 +21,7 @@ admin_router = APIRouter(
 class WordBankInput(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     pairs_text: str = Field(min_length=1, max_length=25_000)
+    show_word_bank: bool | None = None
 
 
 class StartAttemptInput(BaseModel):
@@ -51,7 +52,9 @@ def get_bank(bank_id: str):
 
 def _save_bank(request: WordBankInput, bank_id: str | None = None):
     try:
-        return _service().save_bank(request.name, request.pairs_text, bank_id)
+        return _service().save_bank(
+            request.name, request.pairs_text, bank_id, show_word_bank=request.show_word_bank
+        )
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
