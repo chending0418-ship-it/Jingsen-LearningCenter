@@ -43,6 +43,7 @@
         .word-palace-pathway > span { align-self: flex-start; }
         .word-palace-pathway-details { margin-top: auto; padding-top: 1.5rem; }
         #word-matching-area { max-width: 64rem; margin-inline: auto; }
+        #word-matching-area:has(.matching-word-bank:not([hidden])) { max-width: 72rem; }
         #word-matching-area [hidden] { display: none; }
         .matching-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
         .matching-controls > div { flex: 1 1 16rem; min-width: 0; }
@@ -70,21 +71,50 @@
         }
         #matching-instructions { max-width: 58ch; font-size: 1rem; line-height: 1.55; }
         #matching-bank, .learning-english input.matching-answer { min-height: 52px; font-size: 1.125rem; }
+        #matching-practice { scroll-margin-top: .75rem; }
+        .matching-workspace:has(.matching-word-bank:not([hidden])) {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+            align-items: start;
+            gap: 1rem;
+        }
+        .matching-workspace:has(.matching-word-bank:not([hidden])) > * {
+            position: sticky;
+            top: .75rem;
+            min-width: 0;
+        }
         .matching-word-bank {
-            margin: 0 0 1rem;
-            padding: .875rem 1.25rem;
+            padding: 1rem 1.25rem;
             border: 1px solid var(--learn-line);
             background: #f7f6f1;
         }
-        .matching-word-bank ul { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+        .matching-word-bank h3 { font-size: 1.125rem; }
+        .matching-word-bank ul { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
         .matching-word-bank li {
             max-width: 100%;
-            padding: .25rem .625rem;
+            padding: .25rem .5rem;
             border: 1px solid var(--learn-line);
             background: white;
+            font-size: 1.125rem;
+            font-weight: 650;
             overflow-wrap: anywhere;
         }
+        .matching-word-bank li[data-used="true"] {
+            background: var(--learn-paper);
+            color: var(--learn-muted);
+            text-decoration: line-through;
+        }
         .matching-sheet { background: #fff; border: 1px solid var(--learn-line); min-width: 0; }
+        #matching-rows[tabindex="0"] {
+            max-height: clamp(12rem, 52dvh, 36rem);
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            scrollbar-gutter: stable;
+        }
+        #matching-rows:focus-visible {
+            outline: 2px solid var(--learn-blue);
+            outline-offset: -2px;
+        }
         .matching-sheet-header {
             display: flex;
             justify-content: space-between;
@@ -116,9 +146,11 @@
         }
         .matching-number {
             min-width: 2ch;
+            flex-shrink: 0;
             color: var(--learn-muted);
             font-size: .875rem;
             font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
         .learning-english input.matching-answer { width: 100%; font-weight: 650; }
         .matching-answer::placeholder { color: var(--learn-muted); font-weight: 500; }
@@ -261,6 +293,25 @@
             .initial-cloze-controls > .initial-cloze-buttons { grid-column: auto; }
         }
         @media (max-width: 540px) {
+            #matching-practice:has(.matching-word-bank:not([hidden])) .matching-intro {
+                gap: .75rem;
+                margin-bottom: 1rem;
+            }
+            .matching-workspace:has(.matching-word-bank:not([hidden])) {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+                gap: .5rem;
+            }
+            .matching-word-bank { padding: .75rem .5rem; }
+            .matching-word-bank ul { gap: .375rem; }
+            .matching-word-bank li { padding-inline: .375rem; font-size: 1.0625rem; }
+            .matching-workspace:has(.matching-word-bank:not([hidden])) .matching-sheet-header {
+                gap: .25rem;
+                padding: .625rem .75rem;
+            }
+            .matching-workspace:has(.matching-word-bank:not([hidden])) .matching-row {
+                padding-inline: .75rem;
+            }
+            #matching-rows[tabindex="0"] { max-height: clamp(10rem, 42dvh, 28rem); }
             .matching-intro { margin-bottom: 1rem; }
             .matching-row { grid-template-columns: minmax(0, 1fr); padding: .875rem 1rem; }
             .matching-sheet-header, .matching-score { padding-inline: 1rem; }
@@ -484,24 +535,26 @@
                         <strong id="matching-score-count"></strong>
                         <span class="text-gray-500">Saved to Daily Reports</span>
                     </div>
-                    <section id="matching-word-bank" class="matching-word-bank" aria-labelledby="matching-word-bank-title" hidden>
-                        <h3 id="matching-word-bank-title" class="font-bold">Word Bank</h3>
-                        <ul id="matching-word-bank-words" role="list"></ul>
-                    </section>
-                    <form id="matching-answer-form">
-                        <fieldset id="matching-sheet" class="matching-sheet">
-                            <div class="matching-sheet-header">
-                                <strong id="matching-sheet-title">Spelling practice</strong>
-                                <p id="matching-progress" role="status"></p>
+                    <div class="matching-workspace">
+                        <section id="matching-word-bank" class="matching-word-bank" aria-labelledby="matching-word-bank-title" hidden>
+                            <h3 id="matching-word-bank-title" class="font-bold">Word Bank</h3>
+                            <ul id="matching-word-bank-words" role="list"></ul>
+                        </section>
+                        <form id="matching-answer-form">
+                            <fieldset id="matching-sheet" class="matching-sheet">
+                                <div class="matching-sheet-header">
+                                    <strong id="matching-sheet-title">Spelling practice</strong>
+                                    <p id="matching-progress" role="status"></p>
+                                </div>
+                                <ol id="matching-rows" aria-labelledby="matching-sheet-title"></ol>
+                            </fieldset>
+                            <div class="flex flex-wrap gap-3 mt-4">
+                                <button id="matching-submit" class="matching-btn matching-btn-primary" disabled>Submit answers</button>
+                                <button id="matching-retry" type="button" class="matching-btn" hidden>Practice again</button>
+                                <button id="matching-reports" type="button" class="matching-btn matching-btn-primary" hidden>View Daily Reports</button>
                             </div>
-                            <ol id="matching-rows" aria-labelledby="matching-sheet-title"></ol>
-                        </fieldset>
-                        <div class="flex flex-wrap gap-3 mt-4">
-                            <button id="matching-submit" class="matching-btn matching-btn-primary" disabled>Submit answers</button>
-                            <button id="matching-retry" type="button" class="matching-btn" hidden>Practice again</button>
-                            <button id="matching-reports" type="button" class="matching-btn matching-btn-primary" hidden>View Daily Reports</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </section>
                 <p id="matching-status" class="mt-3 text-sm" role="status"></p>
             </section>
@@ -2952,13 +3005,25 @@
             }
         }
 
+        function matchingWordKey(word) {
+            return word.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+        }
+
         function refreshMatchingAnswers() {
-            const fields = Array.from(matchingElement('rows').querySelectorAll('input'));
-            const answered = fields.filter(field => field.value.trim()).length;
+            const fields = matchingElement('rows').querySelectorAll('input');
+            const filledAnswers = Array.from(fields, field => field.value.trim()).filter(Boolean);
+            const answered = filledAnswers.length;
             const progress = matchingElement('progress');
             const summary = `${answered} of ${fields.length} answered`;
             if (progress.textContent !== summary) progress.textContent = summary;
             matchingElement('submit').disabled = answered !== fields.length;
+
+            const enteredWords = new Set(filledAnswers.map(matchingWordKey));
+            for (const item of matchingElement('word-bank-words').children) {
+                const used = enteredWords.has(item.dataset.wordKey);
+                item.dataset.used = String(used);
+                item.lastElementChild.hidden = !used;
+            }
         }
 
         function matchingMeaning(index, meaning) {
@@ -2976,13 +3041,21 @@
                 matchingAttempt = await matchingRequest('/attempts', { bank_id: bank.value });
                 matchingElement('title').textContent = matchingAttempt.bank_name;
                 const words = matchingAttempt.word_bank ?? [];
+                const rows = matchingElement('rows');
                 matchingElement('word-bank-words').replaceChildren(...words.map(word => {
                     const item = document.createElement('li');
-                    item.textContent = word;
+                    const status = document.createElement('span');
+                    status.className = 'sr-only';
+                    status.textContent = ' (entered)';
+                    status.hidden = true;
+                    item.dataset.wordKey = matchingWordKey(word);
+                    item.append(word, status);
                     return item;
                 }));
                 matchingElement('word-bank').hidden = words.length === 0;
-                matchingElement('rows').innerHTML = matchingAttempt.questions.map((question, index) => {
+                if (words.length) rows.tabIndex = 0;
+                else rows.removeAttribute('tabindex');
+                rows.innerHTML = matchingAttempt.questions.map((question, index) => {
                     const id = escapeHtml(question.id);
                     return `<li class="matching-row">
                         <label class="matching-meaning" for="matching-answer-${id}">${matchingMeaning(index, question.meaning)}</label>
@@ -2993,12 +3066,14 @@
                 }).join('');
                 matchingElement('setup').hidden = true;
                 matchingElement('practice').hidden = false;
+                rows.scrollTop = 0;
                 matchingElement('sheet-title').textContent = 'Spelling practice';
                 ['instructions', 'progress', 'submit'].forEach(id => matchingElement(id).hidden = false);
                 ['score', 'retry', 'reports'].forEach(id => matchingElement(id).hidden = true);
                 refreshMatchingAnswers();
                 matchingStatus('');
                 matchingElement('title').focus();
+                if (words.length) matchingElement('practice').scrollIntoView({ behavior: 'instant', block: 'start' });
             } catch (error) {
                 matchingStatus(error.message, true);
             } finally {
@@ -3017,6 +3092,7 @@
             try {
                 const report = await matchingRequest(`/attempts/${encodeURIComponent(matchingAttempt.id)}/grade`, { answers });
                 ['instructions', 'progress', 'submit', 'word-bank'].forEach(id => matchingElement(id).hidden = true);
+                matchingElement('rows').removeAttribute('tabindex');
                 ['score', 'retry', 'reports'].forEach(id => matchingElement(id).hidden = false);
                 matchingElement('score-count').textContent = `${report.correct_count} of ${report.total_count} correct`;
                 matchingElement('sheet-title').textContent = 'Review answers';
