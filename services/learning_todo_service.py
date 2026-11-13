@@ -41,6 +41,24 @@ DEFAULT_SUBJECTS = [
     {"id": "sub_other", "name": "其他", "color": "#6B7280", "sort_order": 60, "enabled": True},
 ]
 
+DEFAULT_SUBJECT_GRAY = "#6B7280"
+SUBJECT_ACCENTS = (
+    "#007F88", "#9D3879", "#87651A", "#4D63B3", "#AE4660", "#6A7428", "#965232", "#6250A6",
+)
+SUBJECT_ACCENTS_BY_NAME = {"地理": "#007F88", "棒球练习": "#9D3879"}
+
+
+def subject_display_color(subject: Dict[str, Any]) -> str:
+    color = (subject.get("color") or DEFAULT_SUBJECT_GRAY).upper()
+    subject_id = subject.get("id")
+    if color != DEFAULT_SUBJECT_GRAY or subject_id in (None, "sub_other"):
+        return color
+    if accent := SUBJECT_ACCENTS_BY_NAME.get(subject.get("name", "").strip()):
+        return accent
+    # Stable across processes, reordering, and renaming.
+    index = int(hashlib.sha256(subject_id.encode("utf-8")).hexdigest()[:8], 16)
+    return SUBJECT_ACCENTS[index % len(SUBJECT_ACCENTS)]
+
 ACTIVE_LIFECYCLE = "active"
 INACTIVE_LIFECYCLES = {"cancelled", "voided"}
 REPEAT_KINDS = frozenset(get_args(TaskRepeatKind))
@@ -417,7 +435,7 @@ class LearningTodoService:
             result["reward_status"] = "none"
         subject = self._subject_map_unlocked().get(task.get("subject_id"), {})
         result["subject_name"] = subject.get("name", "其他")
-        result["subject_color"] = subject.get("color", "#6B7280")
+        result["subject_color"] = subject_display_color(subject)
         if task.get("template_id"):
             template = next(
                 (
@@ -817,7 +835,8 @@ class LearningTodoService:
             subjects = self._subjects_unlocked()["subjects"]
             if not include_disabled:
                 subjects = [row for row in subjects if row.get("enabled", True)]
-            return sorted(subjects, key=lambda row: (row.get("sort_order", 0), row.get("created_at", "")))
+            ordered = sorted(subjects, key=lambda row: (row.get("sort_order", 0), row.get("created_at", "")))
+            return [{**row, "display_color": subject_display_color(row)} for row in ordered]
 
     def create_subject(self, name: str, color: str, sort_order: Optional[int] = None) -> Dict[str, Any]:
         with self._guard():
