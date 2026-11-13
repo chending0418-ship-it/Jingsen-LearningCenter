@@ -598,6 +598,37 @@ def test_subject_and_template_upserts_preserve_existing_task_foreign_keys(servic
     assert service._repository.read_templates()["templates"][0]["title"] == "更新后的重复模板"
 
 
+def test_default_gray_subjects_get_matching_admin_and_public_accents(service):
+    geography = service.create_subject("地理", "#6b7280")
+    baseball = service.create_subject("棒球练习", "#6B7280")
+    custom = service.create_subject("美术", "#1478A0")
+    automatic = service.create_subject("音乐", "#6B7280")
+    expected = {
+        geography["id"]: "#007F88",
+        baseball["id"]: "#9D3879",
+        custom["id"]: "#1478A0",
+        "sub_other": "#6B7280",
+    }
+    for subject_id in (*expected, automatic["id"]):
+        service.create_task({
+            "title": "今日练习",
+            "subject_id": subject_id,
+            "planned_date": "2026-07-28",
+        })
+
+    admin = {subject["id"]: subject for subject in service.list_subjects()}
+    expected[automatic["id"]] = admin[automatic["id"]]["display_color"]
+    assert expected[automatic["id"]] != "#6B7280"
+    assert admin[geography["id"]]["color"] == "#6B7280"
+    assert admin[baseball["id"]]["color"] == "#6B7280"
+    assert {key: admin[key]["display_color"] for key in expected} == expected
+    public = service.today_payload()["today_pending_tasks"]
+    assert {task["subject_id"]: task["subject_color"] for task in public} == expected
+
+    service.update_subject(automatic["id"], {"name": "音乐练习", "sort_order": 1})
+    assert service.list_subjects()[0]["display_color"] == expected[automatic["id"]]
+
+
 def test_family_schedule_backup_restores_events_and_preserves_current_share(service):
     import json
     import zipfile

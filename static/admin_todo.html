@@ -294,7 +294,7 @@
         .task-desc { max-width: 320px; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
         .task-reward-line { max-width: 360px; margin-top: 5px; overflow: hidden; color: #8B5B16; font-size: 10px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
         .subject-chip, .status-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 6px 8px; font-size: 10px; font-weight: 800; }
-        .subject-chip { background: color-mix(in srgb, var(--subject) 12%, white); color: color-mix(in srgb, var(--subject) 82%, #18201D); }
+        .subject-chip { background: color-mix(in srgb, var(--subject) 16%, white); color: color-mix(in srgb, var(--subject) 52%, #18201D); }
         .subject-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--subject); }
         .status-chip.pending { background: #F0F1EF; color: #5E6762; }
         .status-chip.done { background: var(--teal-soft); color: var(--teal); }
@@ -383,7 +383,7 @@
         .subject-swatch { width: 36px; height: 36px; border-radius: 11px; background: var(--subject); box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
         .subject-name { font-size: 13px; font-weight: 800; }
         .subject-count { margin-top: 3px; color: var(--muted); font-size: 10px; }
-        .order-handle { color: #A0A7A3; font-size: 16px; }
+        .subject-edit-color { min-height: 44px; padding: 0 9px; white-space: nowrap; }
 
         .switch { position: relative; width: 42px; height: 24px; display: inline-block; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -453,6 +453,43 @@
         .modal-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(12px); }
         .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; padding: 20px; }
         .modal-body .full { grid-column: 1 / -1; }
+        .task-subject-field { min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+        .task-subject-field legend { padding: 0; margin-bottom: 5px; color: var(--muted); font-size: 12px; font-weight: 800; }
+        .task-subject-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 116px), 1fr)); gap: 6px; }
+        .task-subject-choice {
+            --subject-ink: color-mix(in srgb, var(--subject) 52%, #18201D);
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 7px;
+            min-height: 44px;
+            padding: 7px 9px;
+            border: 1px solid color-mix(in srgb, var(--subject) 40%, white);
+            background: color-mix(in srgb, var(--subject) 12%, white);
+            cursor: pointer;
+            overflow-wrap: anywhere;
+        }
+        .task-subject-choice span { color: var(--subject-ink); font: 700 13px/1.3 Inter, sans-serif; letter-spacing: normal; text-transform: none; }
+        .task-subject-choice::before { content: ""; width: 8px; height: 8px; background: var(--subject); }
+        .task-subject-choice input { margin: 0; width: 15px; height: 15px; accent-color: color-mix(in srgb, var(--subject) 64%, #18201D); }
+        .task-subject-choice:hover { background: color-mix(in srgb, var(--subject) 18%, white); }
+        .task-subject-choice:has(:checked) {
+            background: color-mix(in srgb, var(--subject) 22%, white);
+            border-color: var(--subject-ink);
+            box-shadow: inset 0 0 0 1px var(--subject-ink);
+        }
+        .task-subject-choice:has(:focus-visible) { outline: 2px solid var(--lc-blue, #396FC3); outline-offset: 1px; }
+        .task-subject-empty { margin: 0; grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+        .subject-dialog { box-sizing: border-box; width: min(540px, calc(100% - 32px)); padding: 0; color: var(--ink); }
+        .subject-dialog::backdrop { background: rgba(20,27,24,.48); }
+        .subject-dialog .task-subject-options { grid-template-columns: repeat(auto-fit, minmax(min(100%, 92px), 1fr)); }
+        .todo-admin-page .subject-dialog .field label,
+        .todo-admin-page .subject-dialog .subject-color-custom { font-size: 12px !important; }
+        .todo-admin-page .modal-footer :is(.primary-button, .secondary-button) { width: auto; min-height: 44px; white-space: nowrap; }
+        .todo-admin-page .subject-edit-color { min-height: 44px; }
+        .subject-color-custom { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+        .subject-color-custom input[type="color"] { width: 48px; height: 44px; padding: 4px; cursor: pointer; }
+        .subject-dialog-error { margin: 0; color: var(--red); font-size: 13px; }
         .modal-footer { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 15px 20px; border-top: 1px solid var(--line); background: rgba(255,255,255,.97); }
         .close-button { width: 36px; height: 36px; border: 0; border-radius: 10px; background: #F1F3F0; color: var(--muted); font-size: 18px; }
 
@@ -551,8 +588,8 @@
             .calendar-title { min-width: 110px; font-size: 13px; }
             .stats-grid { grid-template-columns: 1fr; }
             .points-metrics { grid-template-columns: 1fr; }
-            .subject-row { grid-template-columns: auto minmax(0,1fr) auto; }
-            .order-handle { display: none; }
+            .subject-row { grid-template-columns: auto minmax(0,1fr) auto auto; gap: 6px; }
+            .subject-name { overflow-wrap: anywhere; }
             .modal-body { grid-template-columns: 1fr; }
             .modal-body .full { grid-column: auto; }
             .weekday-options { gap: 4px; }
@@ -1002,8 +1039,8 @@
 
         <section id="view-subjects" class="view">
             <div class="section-title-row">
-                <div><p class="section-label">Subjects</p><h2>科目管理</h2><p class="section-copy">科目颜色只用于任务分类，Grid 颜色只代表完成状态。</p></div>
-                <button class="secondary-button" type="button" onclick="addSubject()">＋ 新增科目</button>
+                <div><p class="section-label">Subjects</p><h2>科目管理</h2><p class="section-copy">科目颜色会显示在任务标签上。</p></div>
+                <button id="add-subject" class="secondary-button" type="button" onclick="openSubjectDialog()">＋ 新增科目</button>
             </div>
             <article class="panel"><div id="subject-list" class="subject-list"></div></article>
         </section>
@@ -1035,7 +1072,10 @@
             <div class="modal-body">
                 <input id="task-id" type="hidden">
                 <div class="field full"><label for="task-title">任务名称</label><input id="task-title" class="control" required maxlength="100" placeholder="例如：完成英语回家作业"></div>
-                <div class="field"><label for="task-subject">所属科目</label><select id="task-subject" class="control" required></select></div>
+                <fieldset class="task-subject-field full">
+                    <legend>所属科目</legend>
+                    <div id="task-subject-options" class="task-subject-options"></div>
+                </fieldset>
                 <div class="field"><label for="task-date">计划日期</label><input id="task-date" class="control" type="date" required></div>
                 <div class="field full"><label for="task-description">任务说明（可选）</label><textarea id="task-description" class="control" placeholder="孩子可以看到的任务说明"></textarea></div>
                 <div class="field full"><label for="task-parent-note">家长备注（仅 Admin 可见）</label><textarea id="task-parent-note" class="control" placeholder="记录提醒或安排原因"></textarea></div>
@@ -1073,6 +1113,34 @@
         </form>
     </div>
 
+    <dialog id="subject-dialog" class="modal subject-dialog" aria-labelledby="subject-dialog-title">
+        <form id="subject-form" onsubmit="saveSubject(event)">
+            <div class="modal-head">
+                <h3 id="subject-dialog-title">新增科目</h3>
+                <button class="close-button" type="button" onclick="subjectDialog.close()" aria-label="关闭">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="field full">
+                    <label for="subject-dialog-name">科目名称</label>
+                    <input id="subject-dialog-name" class="control" required maxlength="40" autofocus>
+                </div>
+                <fieldset class="task-subject-field full">
+                    <legend>科目颜色</legend>
+                    <div id="subject-color-options" class="task-subject-options"></div>
+                    <label class="subject-color-custom">
+                        <input id="subject-custom-color" type="color">
+                        <span>自定义颜色</span>
+                    </label>
+                </fieldset>
+                <p id="subject-dialog-error" class="subject-dialog-error full" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-button" type="button" onclick="subjectDialog.close()">取消</button>
+                <button class="primary-button" type="submit">保存科目</button>
+            </div>
+        </form>
+    </dialog>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
@@ -1081,6 +1149,16 @@
         const query = new URLSearchParams(window.location.search);
         const DEMO_MODE = query.get('demo') === '1';
         const WEEKDAY_NAMES = ['周日','周一','周二','周三','周四','周五','周六'];
+        const SUBJECT_PALETTE = [
+            ['湖青', '#007F88'], ['莓紫', '#9D3879'], ['芥黄', '#87651A'],
+            ['靛蓝', '#4D63B3'], ['玫红', '#AE4660'], ['橄榄绿', '#6A7428'],
+            ['陶棕', '#965232'], ['深紫', '#6250A6'], ['天蓝', '#3B82F6'],
+            ['橙色', '#E07A1F'], ['珊瑚红', '#D84A45'], ['松绿', '#2D8A62'],
+            ['浅紫', '#7656B5'],
+        ];
+        const subjectDialog = document.getElementById('subject-dialog');
+        const subjectColorOptions = document.getElementById('subject-color-options');
+        const customSubjectColor = document.getElementById('subject-custom-color');
 
         const state = {
             today: '',
@@ -1107,7 +1185,14 @@
             if (event.target === event.currentTarget) closeTaskModal();
         });
         document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') closeTaskModal();
+            if (event.key === 'Escape' && !subjectDialog.open) closeTaskModal();
+        });
+        subjectColorOptions.addEventListener('change', event => {
+            customSubjectColor.value = event.target.value;
+        });
+        customSubjectColor.addEventListener('input', () => {
+            const selected = customSubjectColor.value.toUpperCase();
+            subjectColorOptions.querySelectorAll('input').forEach(input => { input.checked = input.value === selected; });
         });
 
         function isoDate(date = new Date()) {
@@ -1157,7 +1242,9 @@
                 { id:'sub_chinese', name:'中文', color:'#D84A45', enabled:true, sort_order:30 },
                 { id:'sub_reading', name:'阅读', color:'#2D8A62', enabled:true, sort_order:40 },
                 { id:'sub_science', name:'科学', color:'#7656B5', enabled:true, sort_order:50 },
-                { id:'sub_other', name:'其他', color:'#6B7280', enabled:false, sort_order:60 }
+                { id:'sub_other', name:'其他', color:'#6B7280', enabled:true, sort_order:60 },
+                { id:'sub_demo_geography', name:'地理', color:'#6B7280', display_color:'#007F88', enabled:true, sort_order:70 },
+                { id:'sub_demo_baseball', name:'棒球练习', color:'#6B7280', display_color:'#9D3879', enabled:true, sort_order:80 }
             ];
             const task = (id, title, subjectId, date, description, completedDate = null, repeat = 'once', rewardGoal = '', rewardPoints = 0, rewardGranted = false) => ({
                 id, title, subject_id:subjectId, planned_date:date, description, parent_note:'',
@@ -1245,6 +1332,7 @@
         }
 
         function subjectById(id) { return state.subjects.find(subject => subject.id === id) || { name:'其他', color:'#6B7280' }; }
+        function subjectColor(subject) { return subject.display_color || subject.color; }
         function activeTask(task) { return task.lifecycle_status !== 'voided' && task.lifecycle_status !== 'cancelled'; }
         function taskStatus(task) {
             if (task.completed_local_date) return 'done';
@@ -1291,7 +1379,7 @@
 
         function renderAll() {
             document.getElementById('day-picker').value = state.today;
-            fillSubjectSelects();
+            fillSubjectFilter();
             renderOverview();
             renderTaskTable();
             renderDayView();
@@ -1324,7 +1412,7 @@
             document.getElementById('overview-task-list').innerHTML = list.length ? list.map(task => {
                 const subject = subjectById(task.subject_id);
                 const status = taskStatus(task);
-                return `<div class="mini-task" style="--subject:${escapeHtml(subject.color)}"><span class="mini-task-dot"></span><div><div class="mini-task-title">${escapeHtml(task.title)}</div><div class="mini-task-meta">${escapeHtml(subject.name)} · ${task.planned_date === state.today ? '今天' : task.planned_date}</div></div><span class="mini-status ${status === 'done' ? 'done' : ''}">${status === 'overdue' ? '逾期' : status === 'done' ? '完成' : '待办'}</span></div>`;
+                return `<div class="mini-task" style="--subject:${escapeHtml(subjectColor(subject))}"><span class="mini-task-dot"></span><div><div class="mini-task-title">${escapeHtml(task.title)}</div><div class="mini-task-meta">${escapeHtml(subject.name)} · ${task.planned_date === state.today ? '今天' : task.planned_date}</div></div><span class="mini-status ${status === 'done' ? 'done' : ''}">${status === 'overdue' ? '逾期' : status === 'done' ? '完成' : '待办'}</span></div>`;
             }).join('') : '<div class="empty">今天没有待处理任务</div>';
 
             const weekStart = startOfWeek(state.today);
@@ -1337,10 +1425,19 @@
             return `<button class="week-day ${info.color} ${todayClass}" type="button" onclick="openDate('${value}')"><span class="week-name">${WEEKDAY_NAMES[dateFromIso(value).getDay()]}</span><span class="week-date">${dateFromIso(value).getDate()}</span><span class="week-count">${info.done}/${info.total}${info.carryover ? ' · 有逾期' : ''}</span></button>`;
         }
 
-        function fillSubjectSelects() {
-            const options = state.subjects.filter(subject => subject.enabled).map(subject => `<option value="${escapeHtml(subject.id)}">${escapeHtml(subject.name)}</option>`).join('');
-            document.getElementById('task-subject').innerHTML = options;
+        function fillSubjectFilter() {
             document.getElementById('task-subject-filter').innerHTML = `<option value="">全部科目</option>${state.subjects.map(subject => `<option value="${escapeHtml(subject.id)}">${escapeHtml(subject.name)}</option>`).join('')}`;
+        }
+
+        function renderTaskSubjectOptions(currentId = null) {
+            const choices = state.subjects.filter(subject => subject.enabled || subject.id === currentId);
+            const selectedId = currentId || choices[0]?.id;
+            document.getElementById('task-subject-options').innerHTML = choices.map(subject => `
+                <label class="task-subject-choice" style="--subject:${escapeHtml(subjectColor(subject))}">
+                    <span>${escapeHtml(subject.name)}${subject.enabled ? '' : '（已停用）'}</span>
+                    <input type="radio" name="task-subject" value="${escapeHtml(subject.id)}"
+                        required ${subject.id === selectedId ? 'checked' : ''}>
+                </label>`).join('') || '<p class="task-subject-empty">请先在科目管理中启用或新增一个科目。</p>';
         }
 
         function renderTaskTable() {
@@ -1365,7 +1462,7 @@
                 const rewardAction = hasTaskReward(task)
                     ? `<button class="icon-button ${task.reward_granted_at ? 'reward-granted' : 'reward-ready'}" type="button" title="${task.reward_granted_at ? '奖励已发放' : status === 'done' ? '确认发放奖励' : '完成任务后才能发放'}" ${task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">★</button>`
                     : '';
-                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div>${rewardLine}</td><td><span class="subject-chip" style="--subject:${escapeHtml(subject.color)}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button>${rewardAction}<button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
+                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div>${rewardLine}</td><td><span class="subject-chip" style="--subject:${escapeHtml(subjectColor(subject))}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button>${rewardAction}<button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
             }).join('') : '<tr><td colspan="6"><div class="empty">没有符合条件的任务</div></td></tr>';
         }
 
@@ -1389,7 +1486,7 @@
             const rewardButton = hasTaskReward(task)
                 ? `<button class="reward-confirm-button" type="button" ${task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">${task.reward_granted_at ? `已发 +${Number(task.reward_awarded_points || task.reward_points)} 分` : '确认 Reward'}</button>`
                 : '';
-            return `<div class="admin-task-card" style="--subject:${escapeHtml(subject.color)}"><span class="admin-task-color"></span><div><div class="admin-task-title">${escapeHtml(task.title)}</div><div class="admin-task-sub">${escapeHtml(subject.name)} · ${escapeHtml(task.description || '无说明')}</div>${reward}</div><div class="admin-task-actions"><span class="status-chip ${status}">${status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成'}</span>${rewardButton}</div></div>`;
+            return `<div class="admin-task-card" style="--subject:${escapeHtml(subjectColor(subject))}"><span class="admin-task-color"></span><div><div class="admin-task-title">${escapeHtml(task.title)}</div><div class="admin-task-sub">${escapeHtml(subject.name)} · ${escapeHtml(task.description || '无说明')}</div>${reward}</div><div class="admin-task-actions"><span class="status-chip ${status}">${status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成'}</span>${rewardButton}</div></div>`;
         }
 
         function renderDayView() {
@@ -1470,7 +1567,7 @@
                 const subjectTasks = tasks.filter(task => task.subject_id === subject.id);
                 const subjectDone = subjectTasks.filter(task => task.completed_local_date).length;
                 const subjectRate = subjectTasks.length ? Math.round(subjectDone / subjectTasks.length * 100) : 0;
-                return `<div><div class="subject-bar-head"><span>${escapeHtml(subject.name)}</span><span>${subjectDone}/${subjectTasks.length} · ${subjectRate}%</span></div><div class="subject-bar-track"><div class="subject-bar-fill" style="--subject:${escapeHtml(subject.color)};width:${subjectRate}%"></div></div></div>`;
+                return `<div><div class="subject-bar-head"><span>${escapeHtml(subject.name)}</span><span>${subjectDone}/${subjectTasks.length} · ${subjectRate}%</span></div><div class="subject-bar-track"><div class="subject-bar-fill" style="--subject:${escapeHtml(subjectColor(subject))};width:${subjectRate}%"></div></div></div>`;
             }).join('');
         }
 
@@ -1666,7 +1763,7 @@
         function renderSubjects() {
             document.getElementById('subject-list').innerHTML = state.subjects.sort((a,b) => a.sort_order-b.sort_order).map(subject => {
                 const count = state.tasks.filter(task => task.subject_id === subject.id).length;
-                return `<div class="subject-row" style="--subject:${escapeHtml(subject.color)}"><span class="subject-swatch"></span><div><div class="subject-name">${escapeHtml(subject.name)}</div><div class="subject-count">${count} 个历史任务 · ${subject.enabled ? '使用中' : '已停用'}</div></div><label class="switch" title="启用或停用"><input type="checkbox" ${subject.enabled ? 'checked' : ''} onchange="toggleSubject('${subject.id}',this.checked)"><span class="switch-track"></span></label><span class="order-handle">☷</span></div>`;
+                return `<div class="subject-row" style="--subject:${escapeHtml(subjectColor(subject))}"><span class="subject-swatch"></span><div><div class="subject-name">${escapeHtml(subject.name)}</div><div class="subject-count">${count} 个历史任务 · ${subject.enabled ? '使用中' : '已停用'}</div></div><button class="secondary-button subject-edit-color" type="button" data-subject-id="${escapeHtml(subject.id)}" onclick="openSubjectDialog(this.dataset.subjectId)" aria-label="修改${escapeHtml(subject.name)}的颜色">改颜色</button><label class="switch" title="启用或停用"><input type="checkbox" ${subject.enabled ? 'checked' : ''} onchange="toggleSubject('${subject.id}',this.checked)"><span class="switch-track"></span></label></div>`;
             }).join('');
         }
         async function toggleSubject(id, enabled) {
@@ -1686,31 +1783,71 @@
             }
             subject.enabled = enabled;
             renderSubjects();
-            fillSubjectSelects();
+            fillSubjectFilter();
             showToast(enabled ? '科目已启用' : '科目已停用，历史任务仍保留');
         }
 
-        async function addSubject() {
-            const name = window.prompt('请输入科目名称');
-            if (!name?.trim()) return;
-            const color = window.prompt('请输入科目颜色（例如 #3B82F6）', '#6B7280');
-            if (!color) return;
-            if (DEMO_MODE) {
-                state.subjects.push({id:`sub_demo_${Date.now()}`,name:name.trim(),color,enabled:true,sort_order:(state.subjects.length+1)*10});
-                renderSubjects();
-                fillSubjectSelects();
-                showToast('科目已新增');
+        function openSubjectDialog(id = '') {
+            const subject = state.subjects.find(item => item.id === id);
+            const usage = new Map();
+            for (const item of state.subjects) {
+                const color = subjectColor(item).toUpperCase();
+                usage.set(color, (usage.get(color) || 0) + 1);
+            }
+            const suggested = SUBJECT_PALETTE.reduce((best, [, color]) => (
+                (usage.get(color) || 0) < (usage.get(best) || 0) ? color : best
+            ), SUBJECT_PALETTE[0][1]);
+            const selected = subject ? subjectColor(subject).toUpperCase() : suggested;
+            const name = document.getElementById('subject-dialog-name');
+            name.value = subject?.name || '';
+            name.readOnly = Boolean(subject);
+            subjectDialog.dataset.subjectId = subject?.id || '';
+            document.getElementById('subject-dialog-title').textContent = subject ? '修改科目颜色' : '新增科目';
+            document.getElementById('subject-dialog-error').hidden = true;
+            subjectColorOptions.innerHTML = SUBJECT_PALETTE.map(([label, color]) => `
+                <label class="task-subject-choice" style="--subject:${color}">
+                    <span>${label}</span>
+                    <input type="radio" name="subject-color" value="${color}" ${color === selected ? 'checked' : ''}>
+                </label>`).join('');
+            customSubjectColor.value = selected;
+            subjectDialog.showModal();
+        }
+
+        async function saveSubject(event) {
+            event.preventDefault();
+            const id = subjectDialog.dataset.subjectId;
+            const nameInput = document.getElementById('subject-dialog-name');
+            const name = nameInput.value.trim();
+            const color = customSubjectColor.value.toUpperCase();
+            const errorMessage = document.getElementById('subject-dialog-error');
+            if (!name) {
+                errorMessage.textContent = '请输入科目名称';
+                errorMessage.hidden = false;
+                nameInput.focus();
                 return;
             }
+            const submit = event.currentTarget.querySelector('button[type="submit"]');
+            submit.disabled = true;
+            errorMessage.hidden = true;
             try {
-                await apiRequest('/api/admin/todo/subjects', {
-                    method:'POST',
-                    body:JSON.stringify({ name:name.trim(), color })
-                });
-                await loadAdminData();
-                showToast('科目已新增');
+                if (DEMO_MODE) {
+                    if (id) Object.assign(subjectById(id), { color, display_color: color });
+                    else state.subjects.push({id:`sub_demo_${Date.now()}`,name,color,enabled:true,sort_order:(state.subjects.length+1)*10});
+                    renderAll();
+                } else {
+                    const path = id ? `/api/admin/todo/subjects/${encodeURIComponent(id)}` : '/api/admin/todo/subjects';
+                    await apiRequest(path, { method:id ? 'PUT' : 'POST', body:JSON.stringify(id ? { color } : { name, color }) });
+                    await loadAdminData();
+                }
+                subjectDialog.close();
+                const updated = [...document.querySelectorAll('.subject-edit-color')].find(button => button.dataset.subjectId === id);
+                (updated || document.getElementById('add-subject')).focus();
+                showToast(id ? '科目颜色已更新' : '科目已新增');
             } catch (error) {
-                showToast(error.message || '新增科目失败');
+                errorMessage.textContent = error.message || '科目保存失败，请重试';
+                errorMessage.hidden = false;
+            } finally {
+                submit.disabled = false;
             }
         }
 
@@ -1804,6 +1941,7 @@
 
         function openTaskModal(date = state.today) {
             document.getElementById('task-form').reset();
+            renderTaskSubjectOptions();
             document.getElementById('task-id').value = '';
             document.getElementById('task-date').value = date || state.today;
             document.getElementById('task-end-date').value = '';
@@ -1823,7 +1961,7 @@
             if (!task) return;
             document.getElementById('task-id').value = task.id;
             document.getElementById('task-title').value = task.title;
-            document.getElementById('task-subject').value = task.subject_id;
+            renderTaskSubjectOptions(task.subject_id);
             document.getElementById('task-date').value = task.planned_date;
             document.getElementById('task-description').value = task.description || '';
             document.getElementById('task-parent-note').value = task.parent_note || '';
@@ -1855,9 +1993,14 @@
         async function saveTask(event) {
             event.preventDefault();
             const id = document.getElementById('task-id').value;
+            const subjectId = document.querySelector('input[name="task-subject"]:checked')?.value;
+            if (!subjectId) {
+                showToast('请先选择一个科目');
+                return;
+            }
             const payload = {
                 title:document.getElementById('task-title').value.trim(),
-                subject_id:document.getElementById('task-subject').value,
+                subject_id:subjectId,
                 planned_date:document.getElementById('task-date').value,
                 description:document.getElementById('task-description').value.trim(),
                 parent_note:document.getElementById('task-parent-note').value.trim(),
@@ -1890,6 +2033,10 @@
                 const path = id
                     ? `/api/admin/todo/tasks/${encodeURIComponent(id)}?scope=${encodeURIComponent(scope)}`
                     : '/api/admin/todo/tasks';
+                if (id && !subjectById(subjectId).enabled) {
+                    // The current disabled subject remains available for editing the rest of its task.
+                    delete payload.subject_id;
+                }
                 await apiRequest(path, { method:id ? 'PUT' : 'POST', body:JSON.stringify(payload) });
                 closeTaskModal();
                 await loadAdminData();
