@@ -10,6 +10,14 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
+## 2026-11-13：Word Matching 备选词与作答区并排显示
+
+- 接续 [PR #58](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/58)，启用 Show Word Bank 的练习把备选词放在左侧并放大字号，右侧题目过长时可在作答区内滚动。备选词没有独立滚动条；窄屏的词库超出视口时可滚动页面，右侧作答区会随页面保持可用。
+- 答案与词库中的词匹配时即时加删除线。修改或清空答案会重新判断是否仍有其他题使用该词。标记依据已输入文字，最终分数沿用现有批改规则。
+- 204 项 Python 和 13 项 JavaScript 测试通过。Microsoft Edge 在 1440、834、768、390 和 320px 验证 50 词长列表、独立滚动、标记增删、重复输入、批改、重练和关闭词库的状态。
+- 本次仅修改学生端页面，无数据迁移。回退时通过发布 PR 撤回该页面改动并按 `updateNew.md` 重新部署。
+- 变更见 [PR #60](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/60)，测试提交为 `48a5c2f30d236bd5ae50e29ced9720fed597faa6`。
+
 ## 2026-11-13：Word Matching 词库可显示备选单词
 
 - 后台编辑词库时可勾选「Show Word Bank」，让学生在答题时参考本轮单词。单词按字母顺序显示在题目上方，学生仍按释义手动填写。设置按词库保存，默认关闭，修改后从下一轮练习生效。
