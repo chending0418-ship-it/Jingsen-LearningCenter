@@ -20,6 +20,7 @@
         .matching-admin-button:disabled { opacity: .65; cursor: not-allowed; }
         .learning-admin .admin-context-line { font-size: .75rem; }
         .learning-admin main label { font-size: .8125rem !important; }
+        #bank-show-word-bank { width: 1rem; height: 1rem; padding: 0; accent-color: var(--lc-blue); }
         #bank-form ::placeholder { color: var(--lc-muted); }
         #bank-status[data-error="true"] { color: #9b231c; }
     </style>
@@ -52,6 +53,13 @@
                     <p id="bank-format" class="text-sm text-gray-600 mb-2">每行输入一对 <code>word,meaning</code>，用英文逗号分隔。一组可保存 2–50 对。</p>
                     <textarea id="bank-pairs" class="w-full p-2.5" rows="9" aria-describedby="bank-format" placeholder="evaporation,蒸发&#10;condensation,凝结" required maxlength="25000" spellcheck="false" disabled></textarea>
                 </div>
+                <div>
+                    <label class="inline-flex items-center gap-2">
+                        <input id="bank-show-word-bank" type="checkbox" aria-describedby="bank-visibility-help" disabled>
+                        Show Word Bank
+                    </label>
+                    <p id="bank-visibility-help" class="text-sm text-gray-600 mt-1">开启后，学生答题时可以查看本轮练习的备选单词。</p>
+                </div>
                 <button id="bank-save" class="matching-admin-button" disabled>保存词库</button>
             </form>
             <p id="bank-status" class="text-sm break-words" role="status"></p>
@@ -63,6 +71,7 @@
         const bankPicker = document.getElementById('bank-picker');
         const bankName = document.getElementById('bank-name');
         const bankPairs = document.getElementById('bank-pairs');
+        const showWordBank = document.getElementById('bank-show-word-bank');
         const bankSave = document.getElementById('bank-save');
         const bankReload = document.getElementById('bank-reload');
         let editingBank = '';
@@ -74,7 +83,7 @@
         }
 
         function disableEditor(disabled) {
-            bankName.disabled = bankPairs.disabled = bankSave.disabled = disabled;
+            bankName.disabled = bankPairs.disabled = showWordBank.disabled = bankSave.disabled = disabled;
         }
 
         async function bankRequest(path = '', options = {}) {
@@ -125,6 +134,7 @@
                 const bank = selected ? await bankRequest(`/${encodeURIComponent(selected)}`) : { name: '', pairs_text: '' };
                 bankName.value = bank.name;
                 bankPairs.value = bank.pairs_text;
+                showWordBank.checked = bank.show_word_bank === true;
                 setEditingBank(selected);
                 setStatus('');
             } catch (error) {
@@ -147,7 +157,11 @@
                 const bank = await bankRequest(editingBank ? `/${encodeURIComponent(editingBank)}` : '', {
                     method: editingBank ? 'PUT' : 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: bankName.value, pairs_text: bankPairs.value })
+                    body: JSON.stringify({
+                        name: bankName.value,
+                        pairs_text: bankPairs.value,
+                        show_word_bank: showWordBank.checked
+                    })
                 });
                 const option = Array.from(bankPicker.options).find(item => item.value === bank.id);
                 if (option) option.textContent = bankLabel(bank);

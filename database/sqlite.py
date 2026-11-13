@@ -130,7 +130,8 @@ CREATE TABLE IF NOT EXISTS word_matching_banks (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     name_key TEXT NOT NULL UNIQUE,
-    pairs_json TEXT NOT NULL
+    pairs_json TEXT NOT NULL,
+    show_word_bank INTEGER NOT NULL DEFAULT 0 CHECK(show_word_bank IN (0, 1))
 );
 CREATE TABLE IF NOT EXISTS word_matching_attempts (
     id TEXT PRIMARY KEY,
@@ -464,6 +465,7 @@ class SQLiteDatabase:
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(8, ?)", (_now(),)
                         )
                         self._migrate_schedule_recurrence(connection)
+                        self._migrate_word_matching_visibility(connection)
                     break
                 except sqlite3.OperationalError as exc:
                     if "locked" not in str(exc).lower() or attempt == 5:
@@ -490,6 +492,18 @@ class SQLiteDatabase:
                SELECT label, MAX(rowid) FROM todo_family_schedule GROUP BY label"""
         )
         connection.execute("INSERT INTO schema_migrations(version, applied_at) VALUES(9, ?)", (_now(),))
+
+    @staticmethod
+    def _migrate_word_matching_visibility(connection: sqlite3.Connection) -> None:
+        if connection.execute("SELECT 1 FROM schema_migrations WHERE version=10").fetchone():
+            return
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(word_matching_banks)")}
+        if "show_word_bank" not in columns:
+            connection.execute(
+                """ALTER TABLE word_matching_banks ADD COLUMN
+                   show_word_bank INTEGER NOT NULL DEFAULT 0 CHECK(show_word_bank IN (0, 1))"""
+            )
+        connection.execute("INSERT INTO schema_migrations(version, applied_at) VALUES(10, ?)", (_now(),))
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:

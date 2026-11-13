@@ -70,6 +70,20 @@
         }
         #matching-instructions { max-width: 58ch; font-size: 1rem; line-height: 1.55; }
         #matching-bank, .learning-english input.matching-answer { min-height: 52px; font-size: 1.125rem; }
+        .matching-word-bank {
+            margin: 0 0 1rem;
+            padding: .875rem 1.25rem;
+            border: 1px solid var(--learn-line);
+            background: #f7f6f1;
+        }
+        .matching-word-bank ul { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+        .matching-word-bank li {
+            max-width: 100%;
+            padding: .25rem .625rem;
+            border: 1px solid var(--learn-line);
+            background: white;
+            overflow-wrap: anywhere;
+        }
         .matching-sheet { background: #fff; border: 1px solid var(--learn-line); min-width: 0; }
         .matching-sheet-header {
             display: flex;
@@ -470,6 +484,10 @@
                         <strong id="matching-score-count"></strong>
                         <span class="text-gray-500">Saved to Daily Reports</span>
                     </div>
+                    <section id="matching-word-bank" class="matching-word-bank" aria-labelledby="matching-word-bank-title" hidden>
+                        <h3 id="matching-word-bank-title" class="font-bold">Word Bank</h3>
+                        <ul id="matching-word-bank-words" role="list"></ul>
+                    </section>
                     <form id="matching-answer-form">
                         <fieldset id="matching-sheet" class="matching-sheet">
                             <div class="matching-sheet-header">
@@ -2957,6 +2975,13 @@
             try {
                 matchingAttempt = await matchingRequest('/attempts', { bank_id: bank.value });
                 matchingElement('title').textContent = matchingAttempt.bank_name;
+                const words = matchingAttempt.word_bank ?? [];
+                matchingElement('word-bank-words').replaceChildren(...words.map(word => {
+                    const item = document.createElement('li');
+                    item.textContent = word;
+                    return item;
+                }));
+                matchingElement('word-bank').hidden = words.length === 0;
                 matchingElement('rows').innerHTML = matchingAttempt.questions.map((question, index) => {
                     const id = escapeHtml(question.id);
                     return `<li class="matching-row">
@@ -2991,7 +3016,7 @@
             matchingStatus('Checking your answers…');
             try {
                 const report = await matchingRequest(`/attempts/${encodeURIComponent(matchingAttempt.id)}/grade`, { answers });
-                ['instructions', 'progress', 'submit'].forEach(id => matchingElement(id).hidden = true);
+                ['instructions', 'progress', 'submit', 'word-bank'].forEach(id => matchingElement(id).hidden = true);
                 ['score', 'retry', 'reports'].forEach(id => matchingElement(id).hidden = false);
                 matchingElement('score-count').textContent = `${report.correct_count} of ${report.total_count} correct`;
                 matchingElement('sheet-title').textContent = 'Review answers';

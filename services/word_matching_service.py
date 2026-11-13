@@ -59,17 +59,21 @@ class WordMatchingService:
     def get_bank(self, bank_id: str) -> dict:
         with self.database.read() as connection:
             row = connection.execute(
-                "SELECT name, pairs_json FROM word_matching_banks WHERE id=?", (bank_id,)
+                "SELECT name, pairs_json, show_word_bank FROM word_matching_banks WHERE id=?",
+                (bank_id,),
             ).fetchone()
         if row is None:
             raise LookupError("这组词库不存在。")
         return {
             "id": bank_id,
             "name": row["name"],
+            "show_word_bank": bool(row["show_word_bank"]),
             "pairs_text": "\n".join(f"{word},{meaning}" for word, meaning in json.loads(row["pairs_json"])),
         }
 
-    def save_bank(self, name: str, pairs_text: str, bank_id: str | None = None) -> dict:
+    def save_bank(
+        self, name: str, pairs_text: str, bank_id: str | None = None, *, show_word_bank: bool | None = None
+    ) -> dict:
         name = name.strip()
         if not name:
             raise ValueError("请输入词库名称。")
@@ -85,12 +89,15 @@ class WordMatchingService:
             if bank_id is None:
                 bank_id = uuid4().hex
                 connection.execute(
-                    "INSERT INTO word_matching_banks(id,name,name_key,pairs_json) VALUES(?,?,?,?)",
-                    (bank_id, name, name_key, pairs_json),
+                    """INSERT INTO word_matching_banks(id, name, name_key, pairs_json, show_word_bank)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (bank_id, name, name_key, pairs_json, int(bool(show_word_bank))),
                 )
             elif not connection.execute(
-                "UPDATE word_matching_banks SET name=?,name_key=?,pairs_json=? WHERE id=?",
-                (name, name_key, pairs_json, bank_id),
+                """UPDATE word_matching_banks
+                   SET name=?, name_key=?, pairs_json=?, show_word_bank=COALESCE(?, show_word_bank)
+                   WHERE id=?""",
+                (name, name_key, pairs_json, show_word_bank, bank_id),
             ).rowcount:
                 raise LookupError("这组词库不存在。")
         return {"id": bank_id, "name": name, "pair_count": len(pairs)}
@@ -100,7 +107,8 @@ class WordMatchingService:
         now = int(time.time())
         with self.database.transaction() as connection:
             bank = connection.execute(
-                "SELECT name, pairs_json FROM word_matching_banks WHERE id=?", (bank_id,)
+                "SELECT name, pairs_json, show_word_bank FROM word_matching_banks WHERE id=?",
+                (bank_id,),
             ).fetchone()
             if bank is None:
                 raise LookupError("This word bank is no longer available. Choose another bank.")
@@ -116,11 +124,14 @@ class WordMatchingService:
                 "INSERT INTO word_matching_attempts(id,snapshot_json,expires_at) VALUES(?,?,?)",
                 (attempt_id, json.dumps(snapshot, ensure_ascii=False), now + ATTEMPT_TTL_SECONDS),
             )
-        return {
+        response = {
             "id": attempt_id,
             "bank_name": snapshot["bank_name"],
             "questions": [{"id": item["id"], "meaning": item["meaning"]} for item in questions],
         }
+        if bank["show_word_bank"]:
+            response["word_bank"] = sorted((item["answer"] for item in questions), key=_normalized)
+        return response
 
     def grade_attempt(self, attempt_id: str, answers: dict[str, str]) -> dict:
         with self.database.transaction() as connection:
