@@ -10,13 +10,20 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
+## 2026-11-13：Word Matching 备选单词开关已上线
+
+- [PR #58](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/58) 的 GitHub 合并提交 `7e2c8ad5801b6d1f7022c73f17436a6db0c42c2a` 已部署，与发布分支一致。同批带入 [PR #56](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/56) 的发布文档。测试提交 `2c9c80bdb568e496dd669398e96173eb6aeee22b` 的应用文件与合并结果一致，发布前复跑 204 项 Python 和 13 项 JavaScript 测试通过。
+- 生产 SSH 验证通过，按 `updateNew.md` 暂停写入并执行 `update_safe.sh`。数据及配置快照位于 `backups/releases/20261113-100339-3932355`，旧代码快照位于 `backups/releases/word-bank-code-20261113-100338-3932285`。主库由 Schema 9 升至 10，现有 4 个 Word Matching 词库的开关均默认关闭，2 次已有练习保留。两份 SQLite 均通过完整性、外键及业务数据对比，配置和 140 个非数据库文件与备份一致。
+- 服务于北京时间 10:03:39 暂停，10:03:47 恢复健康。内外网健康检查、门户、学生 Todo、Word Matching 词库和历史报告接口均通过。Chrome 在公网验证了后台登录保护、词库开关默认关闭、学生端词库列表和两份页面文件与合并提交一致。在隔离环境用 390px Chrome 验证保存开关、按字母显示备选词、手动拼写获 6/6，以及关闭后下一轮隐藏词表。验收写入均在隔离环境完成。
+- 发布前生产提交为 `748065325117df8d04e890ee7e867bc3f8e98fb0`。需要回退时通过发布 PR 撤回应用改动并按 `updateNew.md` 重新部署，保留 SQLite 与新增列。旧版回退期间暂停在旧后台编辑 Word Matching 词库，以保留新版的显示设置。
+
 ## 2026-11-13：Word Matching 词库可显示备选单词
 
 - 后台编辑词库时可勾选「Show Word Bank」，让学生在答题时参考本轮单词。单词按字母顺序显示在题目上方，学生仍按释义手动填写。设置按词库保存，默认关闭，修改后从下一轮练习生效。
 - SQLite Schema v10 为 `word_matching_banks` 增加默认关闭的字段，保留已有词库和练习快照。关闭时开题接口不返回备选词。上线前按 `updateNew.md` 备份和验证，回退时通过发布 PR 撤回应用代码并重新部署，保留数据库及新增列。
 - 204 项 Python 测试通过，覆盖旧库迁移、每组词库独立设置、保存和关闭、已开题练习的批改。后台及学生页脚本通过开关交互检查，6 项现有 JavaScript 测试通过。本地浏览器运行受环境限制，页面布局及线上运行待发布时确认。
 
-- 变更见 [PR #58](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/58)，测试提交为 `2c9c80bdb568e496dd669398e96173eb6aeee22b`。部署及页面实机验收待完成，当前执行环境的 SSH 连接受到权限限制。
+- 变更见 [PR #58](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/58)，测试提交为 `2c9c80bdb568e496dd669398e96173eb6aeee22b`。部署与线上验收见上方上线记录。
 
 ## 2026-11-12：Todo 管理新增本学期课表
 
