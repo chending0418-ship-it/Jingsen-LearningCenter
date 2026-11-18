@@ -421,6 +421,18 @@ class LearningTodoService:
         return "pending"
 
     def _enrich_task_unlocked(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        subject = self._subject_map_unlocked().get(task.get("subject_id"), {})
+        template = None
+        if task.get("template_id"):
+            template = next(
+                (row for row in self._templates_unlocked()["templates"] if row.get("id") == task["template_id"]),
+                None,
+            )
+        return self._enrich_task(task, subject, template)
+
+    def _enrich_task(
+        self, task: Dict[str, Any], subject: Dict[str, Any], template: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         result = json.loads(json.dumps(task))
         result.setdefault("reward_goal", "")
         result.setdefault("reward_points", 0)
@@ -433,22 +445,13 @@ class LearningTodoService:
             result["reward_status"] = "pending"
         else:
             result["reward_status"] = "none"
-        subject = self._subject_map_unlocked().get(task.get("subject_id"), {})
         result["subject_name"] = subject.get("name", "其他")
         result["subject_color"] = subject_display_color(subject)
-        if task.get("template_id"):
-            template = next(
-                (
-                    row for row in self._templates_unlocked()["templates"]
-                    if row.get("id") == task.get("template_id")
-                ),
-                None,
-            )
-            if template:
-                result["repeat"] = template.get("repeat", result.get("repeat", "once"))
-                result["repeat_weekdays"] = template.get("repeat_weekdays", result.get("repeat_weekdays", []))
-                result["repeat_month_day"] = template.get("repeat_month_day")
-                result["end_date"] = template.get("end_date")
+        if template:
+            result["repeat"] = template.get("repeat", result.get("repeat", "once"))
+            result["repeat_weekdays"] = list(template.get("repeat_weekdays", result.get("repeat_weekdays", [])))
+            result["repeat_month_day"] = template.get("repeat_month_day")
+            result["end_date"] = template.get("end_date")
         result["status"] = self._task_status(task)
         if result["status"] == "overdue":
             result["overdue_days"] = max(
@@ -573,9 +576,8 @@ class LearningTodoService:
         digest = hashlib.sha256(f"{template_id}:{occurrence_date}".encode("utf-8")).hexdigest()[:24]
         return f"task_{digest}"
 
-    def _ensure_templates_through_unlocked(self, through: date) -> int:
-        templates_payload = self._templates_unlocked()
-        templates = [row for row in templates_payload["templates"] if row.get("active", True)]
+    def _ensure_templates_through_unlocked(self, through: date, templates: List[Dict[str, Any]]) -> int:
+        templates = [row for row in templates if row.get("active", True)]
         if not templates:
             return 0
         all_tasks = self._all_tasks_unlocked()
@@ -976,7 +978,7 @@ class LearningTodoService:
             horizon = self._parse_date(self.today()) + timedelta(days=int(settings["recurrence_horizon_days"]))
             if end_date:
                 horizon = min(horizon, self._parse_date(end_date))
-            self._ensure_templates_through_unlocked(max(horizon, self._parse_date(planned_date)))
+            self._ensure_templates_through_unlocked(max(horizon, self._parse_date(planned_date)), templates["templates"])
             occurrences = [
                 task
                 for task in self._all_tasks_unlocked()
@@ -1026,12 +1028,14 @@ class LearningTodoService:
                 raise TodoDataError("重复任务模板不存在")
             return template
 
-    def _materialize_default_horizon_unlocked(self, requested_end: Optional[str] = None) -> None:
+    def _materialize_default_horizon_unlocked(self, requested_end: Optional[str] = None) -> List[Dict[str, Any]]:
         settings = self._settings_unlocked()
         horizon = self._parse_date(self.today()) + timedelta(days=int(settings["recurrence_horizon_days"]))
         if requested_end:
             horizon = max(horizon, self._parse_date(requested_end))
-        self._ensure_templates_through_unlocked(horizon)
+        templates = self._templates_unlocked()["templates"]
+        self._ensure_templates_through_unlocked(horizon, templates)
+        return templates
 
     def list_tasks(
         self,
@@ -1043,7 +1047,7 @@ class LearningTodoService:
         include_inactive: bool = False,
     ) -> List[Dict[str, Any]]:
         with self._guard():
-            self._materialize_default_horizon_unlocked(to_date)
+            templates = self._materialize_default_horizon_unlocked(to_date)
             tasks = self._all_tasks_unlocked()
             if not include_inactive:
                 tasks = [task for task in tasks if self._is_active(task)]
@@ -1055,8 +1059,12 @@ class LearningTodoService:
                 tasks = [task for task in tasks if task.get("subject_id") == subject_id]
             if status:
                 tasks = [task for task in tasks if self._task_status(task) == status]
+            subjects = self._subject_map_unlocked()
+            templates_by_id = {template["id"]: template for template in templates}
             return [
-                self._enrich_task_unlocked(task)
+                self._enrich_task(
+                    task, subjects.get(task.get("subject_id"), {}), templates_by_id.get(task.get("template_id"))
+                )
                 for task in sorted(tasks, key=lambda row: (row["planned_date"], row.get("created_at", ""), row["id"]))
             ]
 
