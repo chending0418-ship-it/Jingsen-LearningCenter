@@ -1160,6 +1160,9 @@
         const subjectColorOptions = document.getElementById('subject-color-options');
         const customSubjectColor = document.getElementById('subject-custom-color');
 
+        const savingCompletions = new Set();
+        const staleSummaries = new Map();
+
         const state = {
             today: '',
             taskDateFilter: null,
@@ -1307,7 +1310,11 @@
                     apiRequest('/api/admin/todo/points')
                 ]);
                 state.today = overview.server_date || isoDate();
-                state.tasks = tasks.tasks || tasks || [];
+                const previousTasks = new Map(state.tasks.map(task => [task.id, task]));
+                state.tasks = (tasks.tasks || tasks || []).map(task => {
+                    const previous = previousTasks.get(task.id);
+                    return previous && previous.version > task.version ? previous : task;
+                });
                 state.subjects = subjects.subjects || subjects || [];
                 state.backups = backupPayload.backups || [];
                 state.points = points;
@@ -1367,14 +1374,40 @@
                 tab.setAttribute('aria-current', String(isCurrent));
             });
             if (viewName === 'tasks') setTaskDateFilter(null);
+            renderTaskView(viewName);
+            if (viewName === 'points') renderPoints();
+            if (viewName === 'subjects') renderSubjects();
+            if (viewName === 'settings') renderBackups();
+            refreshCompletionSummary(viewName);
+            window.scrollTo({ top:0, behavior:'smooth' });
+        }
+
+        function renderTaskView(viewName) {
+            if (viewName === 'overview') renderOverview();
             if (viewName === 'day') renderDayView();
             if (viewName === 'week') renderWeekView();
             if (viewName === 'month') renderMonthView();
             if (viewName === 'stats') renderStats();
-            if (viewName === 'points') renderPoints();
-            if (viewName === 'subjects') renderSubjects();
-            if (viewName === 'settings') renderBackups();
-            window.scrollTo({ top:0, behavior:'smooth' });
+        }
+
+        async function refreshCompletionSummary(viewName) {
+            const revision = staleSummaries.get(viewName);
+            if (!revision) return;
+            const isPoints = viewName === 'points';
+            try {
+                const result = await apiRequest(isPoints ? '/api/admin/todo/points' : '/api/admin/todo/backups');
+                if (staleSummaries.get(viewName) !== revision) return;
+                staleSummaries.delete(viewName);
+                if (isPoints) {
+                    state.points = result;
+                    renderPoints();
+                } else {
+                    state.backups = result.backups;
+                    renderBackups();
+                }
+            } catch (error) {
+                if (staleSummaries.get(viewName) === revision) showToast(error.message || '数据刷新失败');
+            }
         }
 
         function renderAll() {
@@ -1453,17 +1486,20 @@
                     && (!statusFilter || status === statusFilter)
                     && (!dateFilter || task.planned_date === dateFilter);
             }).sort((a,b) => a.planned_date.localeCompare(b.planned_date));
-            document.getElementById('task-table-body').innerHTML = tasks.length ? tasks.map(task => {
-                const subject = subjectById(task.subject_id);
-                const status = taskStatus(task);
-                const statusLabel = status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成';
-                const repeatLabel = { once:'单次', daily:'每天', weekly:'每周', monthly:'每月', memory_curve:'记忆曲线' }[task.repeat] || '单次';
-                const rewardLine = hasTaskReward(task) ? `<div class="task-reward-line">🎁 +${Number(task.reward_points)} 分 · ${escapeHtml(task.reward_goal)} · ${task.reward_granted_at ? '已发放' : '待确认'}</div>` : '';
-                const rewardAction = hasTaskReward(task)
-                    ? `<button class="icon-button ${task.reward_granted_at ? 'reward-granted' : 'reward-ready'}" type="button" title="${task.reward_granted_at ? '奖励已发放' : status === 'done' ? '确认发放奖励' : '完成任务后才能发放'}" ${task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">★</button>`
-                    : '';
-                return `<tr><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div>${rewardLine}</td><td><span class="subject-chip" style="--subject:${escapeHtml(subjectColor(subject))}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button>${rewardAction}<button class="icon-button" type="button" title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
-            }).join('') : '<tr><td colspan="6"><div class="empty">没有符合条件的任务</div></td></tr>';
+            document.getElementById('task-table-body').innerHTML = tasks.length ? tasks.map(taskRowHtml).join('') : '<tr><td colspan="6"><div class="empty">没有符合条件的任务</div></td></tr>';
+        }
+
+        function taskRowHtml(task) {
+            const subject = subjectById(task.subject_id);
+            const status = taskStatus(task);
+            const saving = savingCompletions.has(task.id);
+            const statusLabel = saving ? '正在保存…' : status === 'done' ? '已完成' : status === 'overdue' ? '已逾期' : '待完成';
+            const repeatLabel = { once:'单次', daily:'每天', weekly:'每周', monthly:'每月', memory_curve:'记忆曲线' }[task.repeat] || '单次';
+            const rewardLine = hasTaskReward(task) ? `<div class="task-reward-line">🎁 +${Number(task.reward_points)} 分 · ${escapeHtml(task.reward_goal)} · ${task.reward_granted_at ? '已发放' : '待确认'}</div>` : '';
+            const rewardAction = hasTaskReward(task)
+                ? `<button class="icon-button ${task.reward_granted_at ? 'reward-granted' : 'reward-ready'}" type="button" title="${task.reward_granted_at ? '奖励已发放' : status === 'done' ? '确认发放奖励' : '完成任务后才能发放'}" ${saving || task.reward_granted_at || status !== 'done' ? 'disabled' : ''} onclick="confirmTaskReward('${task.id}')">★</button>`
+                : '';
+            return `<tr id="row-${escapeHtml(task.id)}"><td><div class="task-name">${escapeHtml(task.title)}</div><div class="task-desc">${escapeHtml(task.description)}</div>${rewardLine}</td><td><span class="subject-chip" style="--subject:${escapeHtml(subjectColor(subject))}">${escapeHtml(subject.name)}</span></td><td>${escapeHtml(task.planned_date)}</td><td>${repeatLabel}</td><td><span class="status-chip ${status}">${statusLabel}</span></td><td><div class="table-actions"><button class="icon-button" type="button" ${saving ? 'disabled' : ''} title="编辑" onclick="editTask('${task.id}')">✎</button><button class="icon-button" type="button" ${saving ? 'disabled' : ''} title="${status === 'done' ? '取消完成' : '标为完成'}" onclick="toggleTaskCompletion('${task.id}')">${status === 'done' ? '↶' : '✓'}</button>${rewardAction}<button class="icon-button" type="button" ${saving ? 'disabled' : ''} title="作废" onclick="voidTask('${task.id}')">×</button></div></td></tr>`;
         }
 
         function setTaskDateFilter(date) {
@@ -1541,7 +1577,7 @@
             renderMonthView();
         }
 
-        function renderStats() {
+        function renderStats(loadComment = true) {
             const range = document.getElementById('stats-range').value;
             let start, end;
             if (range === 'week') { start = startOfWeek(state.today); end = addDays(start,6); }
@@ -1561,7 +1597,7 @@
             document.getElementById('rate-value').textContent = `${rate}%`;
             document.getElementById('rate-ring').style.setProperty('--rate',rate);
             document.getElementById('comment-title').textContent = range === 'week' ? '本周家长评语' : '本月家长评语';
-            document.getElementById('report-comment').value = state.comments[range] || '';
+            if (loadComment) document.getElementById('report-comment').value = state.comments[range] || '';
 
             document.getElementById('subject-bars').innerHTML = state.subjects.filter(subject => subject.enabled).map(subject => {
                 const subjectTasks = tasks.filter(task => task.subject_id === subject.id);
@@ -1689,6 +1725,7 @@
                         method:'POST',
                         body:JSON.stringify({ effective_date:effectiveDate, points, purpose, streak_action:streakAction })
                     });
+                    staleSummaries.delete('points');
                     state.points = result.account;
                     impact = result.impact;
                 }
@@ -1747,6 +1784,7 @@
                         method:'POST',
                         body:JSON.stringify({ points, purpose })
                     });
+                    staleSummaries.delete('points');
                     state.points = result.account;
                 }
                 document.getElementById('points-spend-form').reset();
@@ -1867,7 +1905,12 @@
             }
             try {
                 const backup = await apiRequest('/api/admin/todo/backups', { method:'POST' });
-                state.backups.unshift(backup);
+                if (staleSummaries.has('settings')) {
+                    staleSummaries.set('settings', Symbol());
+                    await refreshCompletionSummary('settings');
+                } else {
+                    state.backups.unshift(backup);
+                }
                 renderBackups();
                 showToast('备份已创建');
             } catch (error) {
@@ -2048,22 +2091,39 @@
 
         async function toggleTaskCompletion(id) {
             const task = state.tasks.find(item => item.id === id);
-            if (!task) return;
-            if (!DEMO_MODE) {
-                try {
-                    const wasCompleted = Boolean(task.completed_local_date);
-                    const action = wasCompleted ? 'undo-completion' : 'complete';
-                    await apiRequest(`/api/admin/todo/tasks/${encodeURIComponent(id)}/${action}`, { method:'POST', body:'{}' });
-                    await loadAdminData();
-                    showToast(wasCompleted ? '已取消完成状态' : '任务已标为完成');
-                } catch (error) {
-                    showToast(error.message || '完成状态更新失败');
+            if (!task || savingCompletions.has(id)) return;
+            const wasCompleted = Boolean(task.completed_local_date);
+            const action = wasCompleted ? 'undo-completion' : 'complete';
+            savingCompletions.add(id);
+            const updateRow = () => {
+                const row = document.getElementById(`row-${id}`);
+                const current = state.tasks.find(item => item.id === id);
+                if (row && current) row.outerHTML = taskRowHtml(current);
+            };
+            updateRow();
+            showToast('正在保存…');
+            try {
+                const updated = DEMO_MODE
+                    ? { ...task, completed_local_date:wasCompleted ? null : state.today }
+                    : await apiRequest(`/api/admin/todo/tasks/${encodeURIComponent(id)}/${action}`, { method:'POST', body:'{}' });
+                const current = state.tasks.find(item => item.id === id);
+                if (current && (updated.version ?? 0) >= (current.version ?? 0)) Object.assign(current, updated);
+                const view = document.querySelector('.view.active').id.slice(5);
+                if (!DEMO_MODE) {
+                    staleSummaries.set('points', Symbol());
+                    staleSummaries.set('settings', Symbol());
+                    refreshCompletionSummary(view);
                 }
-                return;
+                if (view === 'stats') renderStats(false);
+                else renderTaskView(view);
+                showToast(wasCompleted ? '已取消完成状态' : '任务已标为完成');
+            } catch (error) {
+                showToast(error.message || '完成状态更新失败');
+            } finally {
+                savingCompletions.delete(id);
+                if (document.getElementById('task-status-filter').value) renderTaskTable();
+                else updateRow();
             }
-            task.completed_local_date = task.completed_local_date ? null : state.today;
-            renderAll();
-            showToast(task.completed_local_date ? '任务已标为完成' : '已取消完成状态');
         }
 
         async function confirmTaskReward(id) {

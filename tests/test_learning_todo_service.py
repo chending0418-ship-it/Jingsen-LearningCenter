@@ -1,5 +1,6 @@
 from datetime import date
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -707,3 +708,21 @@ def test_family_schedule_schema_8_events_keep_their_dates_and_labels(tmp_path, f
     assert service.family_schedule(date(2026, 8, 4))["events"] == []
     with sqlite3.connect(tmp_path / "learning-center.sqlite3") as db:
         assert db.execute("SELECT count(*) FROM schema_migrations WHERE version=9").fetchone() == (1,)
+
+
+def test_list_tasks_reuses_subject_and_template_reads(service, monkeypatch):
+    service.create_task({
+        "title": "每周复习", "subject_id": "sub_math", "planned_date": "2026-07-28",
+        "repeat": "weekly", "repeat_weekdays": [2, 4], "end_date": "2026-08-20",
+    })
+    expected = [service.get_task(task["id"]) for task in service.list_tasks()]
+    assert len(expected) > 1
+
+    reads = {}
+    for name in ("read_subjects", "read_templates"):
+        reads[name] = Mock(wraps=getattr(service._repository, name))
+        monkeypatch.setattr(service._repository, name, reads[name])
+
+    assert service.list_tasks() == expected
+    for read in reads.values():
+        read.assert_called_once_with()
