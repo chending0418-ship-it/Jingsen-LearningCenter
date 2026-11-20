@@ -10,6 +10,12 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
+## 2026-11-20 G6（1）班新课表上线
+
+- 北京时间 19:54 在香港生产服务器发布 [PR #66](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/66)。发布前提交为 `2174bb722bf248b1f4c529181e8e8113ea48be33`，上线提交为 `8d28ac61d2e087b0b7f13e9c5446047325af500e`，与 GitHub 合并结果相同。Todo 管理页采用确认版 PDF 的九节作息及全周课程，周五第 1 节为 EC。
+- 暂停服务写入后执行 `update_safe.sh`，保留代码快照 `backups/releases/g6-timetable-code-20261120-195447-2308986` 以及数据和配置快照 `backups/releases/20261120-195448-2309022`。本次无新增依赖或数据迁移，持久数据清单、词库备份和配置比对通过。
+- 重启后服务为 active，内外网健康检查通过，公网首页返回 HTTP 200。回退时通过 PR 撤回课表页面改动，按 `updateNew.md` 重新部署，保留线上学习记录。
+
 ## 2026-11-20 G6（1）班本学期课表更新
 
 - 根据家长核对后的课程表，Todo 管理页更新了 2026 学年第一学期的九节作息和周一至周五的课程，节次按 1 至 9 连排。周五第 1 节为 EC，周一第 3 节同格显示 ENG 和 GEO。数学、语文分别使用 MATH 和 CHN。
