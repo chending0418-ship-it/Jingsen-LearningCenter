@@ -15,6 +15,7 @@
 - 北京时间 19:54 在香港生产服务器发布 [PR #66](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/66)。发布前提交为 `2174bb722bf248b1f4c529181e8e8113ea48be33`，上线提交为 `8d28ac61d2e087b0b7f13e9c5446047325af500e`，与 GitHub 合并结果相同。Todo 管理页采用确认版 PDF 的九节作息及全周课程，周五第 1 节为 EC。
 - 暂停服务写入后执行 `update_safe.sh`，保留代码快照 `backups/releases/g6-timetable-code-20261120-195447-2308986` 以及数据和配置快照 `backups/releases/20261120-195448-2309022`。本次无新增依赖或数据迁移，持久数据清单、词库备份和配置比对通过。
 - 重启后服务为 active，内外网健康检查通过，公网首页返回 HTTP 200。回退时通过 PR 撤回课表页面改动，按 `updateNew.md` 重新部署，保留线上学习记录。
+- 公网浏览器访问 Todo 管理入口正常进入登录页。发布后的 SSH 复核因连接超时中断，登录后的线上课表仍待实机核验。发布前已将同一版本的桌面及手机课表逐格比对确认版 PDF。发布记录见 [PR #67](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/67)。
 
 ## 2026-11-20 G6（1）班本学期课表更新
 
