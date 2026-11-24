@@ -17,6 +17,7 @@
 - 家庭口令由服务端 `FAMILY_CHAT_PASSWORD` 配置，留空时锁定。SQLite v11 新增项目、对话、问答、会话摘要和登录失败计数五张表。v10 测试库重复升级后原表内容相同，完整性和外键检查均通过。回退时通过 PR 撤回本次代码，保留数据库和家庭聊天记录。
 - 公网健康接口报告 `deepseek-v4.1-flash`。现有 V-API 的合成测试中，文字请求 2.67 秒收到第一个文本片段、3.04 秒完成，共 31 段；图片请求正确读出红、蓝顺序。[DeepSeek 官方模型说明](https://api-docs.deepseek.com/api/list-models/)列出文字和图片输入、文字输出，原厂上下文 1,048,576 token、单次最高输出 393,216 token。网页第一版提供文字输入输出。
 - 213 项 Python、13 项 JavaScript 测试通过。本地 Chrome 使用线上同版 OpenAI SDK 1.10.0 和真实网关完成两轮问答，看到 56 次不同的回答显示状态。另验入口、项目指令、移动归类、刷新、另一设备解锁及 320 至 1440 像素视口。生产反向代理对新页面的流式表现需在获准发布后验收。
+- [PR #68](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/68) 的功能测试提交为 `b1144cdf6393f038d5c0414fb8f17fbc40b791cb`。
 
 ## 2026-11-20 G6（1）班本学期课表更新
 
