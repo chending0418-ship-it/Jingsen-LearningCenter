@@ -50,7 +50,7 @@ aside { padding:22px 18px; background:#efefe7; border-right:1px solid var(--line
 .project-row .icon { color:var(--muted) }
 #threads .item { margin:2px 0 }
 .list-empty { margin:8px 6px; font-size:13px; color:var(--muted); line-height:1.6 }
-.desk { min-width:0; min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto }
+.desk { min-width:0; min-height:0; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto }
 .desk-head { min-height:77px; border-bottom:1px solid var(--line); padding:10px clamp(18px,4vw,58px) }
 .title-wrap { min-width:0; flex:1 }
 .title-wrap h1 { font-size:20px; font-weight:680; margin:3px 0 0; line-height:1.4 }
@@ -125,3 +125,8 @@ dialog p { margin:6px 0 12px }
  .user { max-width:94% }
 }
 @media(max-height:560px) { #empty p { display:none } }
+
+.web-setting { margin:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:13px }
+.web-setting select { width:auto; min-height:36px; font:inherit; color:var(--teal); padding:5px; border:1px solid #c4d0c7; border-radius:5px; background:white }
+.keyboard-hint { margin-left:auto }
+@media (max-width:560px) { .keyboard-hint { display:none } }

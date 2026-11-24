@@ -9,7 +9,7 @@ from database import database_for_data_root
 
 # Bound gateway cost while preserving the complete transcript in SQLite.
 HISTORY_CHARS = 32000
-STREAM_SECONDS = 90
+STREAM_SECONDS = 145
 STALE_SECONDS = STREAM_SECONDS + 30
 SYSTEM_MESSAGE = "你是家庭学习助手。使用学生提问的语言，以清晰、适龄的方式帮助学生理解。需要排版时使用 Markdown，行内公式用 $…$，独立公式用 $$…$$。"
 
@@ -44,6 +44,12 @@ def update_thread(thread_id, title, project_id):
             raise HTTPException(404, "找不到对话")
 
 
+def set_web_mode(thread_id, mode):
+    with database_for_data_root().transaction() as db:
+        if not db.execute("UPDATE chat_threads SET web_mode=? WHERE id=?", (mode, thread_id)).rowcount:
+            raise HTTPException(404, "找不到对话")
+
+
 def expire_pending(db, thread_id):
     db.execute("""UPDATE chat_turns SET status='failed'
                   WHERE thread_id=? AND status='pending' AND started_at < ?""",
@@ -61,26 +67,27 @@ def transcript(thread_id):
         return {**dict(thread), "turns": [dict(row) for row in rows]}
 
 
-def start_turn(thread_id, turn_id, question, project_id, create_thread):
+def start_turn(thread_id, turn_id, question, project_id, create_thread, web_mode="auto"):
     """Reserve before gateway I/O, replay completed requests, fence retries by attempt."""
     now = int(time.time())
     with database_for_data_root().transaction() as db:
-        thread = db.execute("SELECT project_id FROM chat_threads WHERE id=?", (thread_id,)).fetchone()
+        thread = db.execute("SELECT project_id, web_mode FROM chat_threads WHERE id=?", (thread_id,)).fetchone()
         if not thread:
             if not create_thread:
                 raise HTTPException(404, "找不到对话")
             check_project(db, project_id)
-            db.execute("INSERT INTO chat_threads VALUES(?,?,?,?)",
-                       (thread_id, " ".join(question.split())[:36], project_id, now))
+            db.execute("INSERT INTO chat_threads(id,title,project_id,updated_at,web_mode) VALUES(?,?,?,?,?)",
+                       (thread_id, " ".join(question.split())[:36], project_id, now, web_mode))
         else:
             project_id = thread["project_id"]
+            web_mode = thread["web_mode"]
         expire_pending(db, thread_id)
         prior = db.execute("SELECT * FROM chat_turns WHERE id=?", (turn_id,)).fetchone()
         if prior:
             if prior["thread_id"] != thread_id or prior["question"] != question:
                 raise HTTPException(409, "这次提问的标识已使用")
             if prior["status"] == "done":
-                return None, prior["answer"]
+                return None, prior["answer"], web_mode
         if db.execute("SELECT 1 FROM chat_turns WHERE thread_id=? AND status='pending'", (thread_id,)).fetchone():
             raise HTTPException(409, "这段对话正在生成回复，请稍后再发")
         attempt = uuid4().hex
@@ -113,7 +120,7 @@ def start_turn(thread_id, turn_id, question, project_id, create_thread):
             messages.extend([{"role": "user", "content": row["question"]},
                              {"role": "assistant", "content": row["answer"]}])
         messages.append({"role": "user", "content": question})
-        return attempt, messages
+        return attempt, messages, web_mode
 
 
 def finish_turn(turn_id, attempt, answer, status):

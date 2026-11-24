@@ -491,6 +491,10 @@ class SQLiteDatabase:
                         connection.execute(
                             "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(11, ?)", (_now(),)
                         )
+                        if not connection.execute("SELECT 1 FROM schema_migrations WHERE version=12").fetchone():
+                            connection.execute("""ALTER TABLE chat_threads ADD COLUMN web_mode TEXT NOT NULL
+                                                  DEFAULT 'auto' CHECK(web_mode IN ('auto','off'))""")
+                            connection.execute("INSERT INTO schema_migrations(version, applied_at) VALUES(12, ?)", (_now(),))
                     break
                 except sqlite3.OperationalError as exc:
                     if "locked" not in str(exc).lower() or attempt == 5:

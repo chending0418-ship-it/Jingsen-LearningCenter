@@ -60,7 +60,7 @@
         <div class="compose-area">
             <p id="notice" role="status"></p>
             <form id="composer"><textarea id="question" rows="2" maxlength="8000" aria-label="你的问题" placeholder="写下你的问题，或接着追问…" required></textarea>
-                <div class="compose-foot"><span>Enter 发送 · Shift + Enter 换行</span><button id="send" class="primary" type="submit">发送<svg><use href="#arrow"/></svg></button></div>
+                <div class="compose-foot"><label class="web-setting">联网<select id="webMode" aria-label="联网搜索模式"><option value="auto">自动</option><option value="off">关闭</option><option value="once">本次必查</option></select></label><span class="keyboard-hint">Enter 发送 · Shift + Enter 换行</span><button id="send" class="primary" type="submit">发送<svg><use href="#arrow"/></svg></button></div>
             </form>
         </div>
     </section>

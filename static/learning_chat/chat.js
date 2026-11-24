@@ -3,7 +3,7 @@ const el = id => document.getElementById(id);
 const api = (location.pathname.startsWith("/learningcenter/") ? "/learningcenter" : "") + "/api/learning-chat";
 let projects = [], threads = [], filter = null, current = null, turns = [];
 let busy = false, editMode = "", editId = null, poll = 0, revision = 0;
-let unsent = null;
+let unsent = null, webMode = "auto";
 const projectName = id => projects.find(project => project.id === id)?.name || "未归类";
 
 function notice(text) { el("notice").textContent = text; }
@@ -99,6 +99,7 @@ function updateControls() {
     for (const id of ["newChat","newProject","settings","logout"]) el(id).disabled = busy;
     el("send").disabled = busy || pending || !el("question").value.trim();
     el("question").disabled = busy || pending;
+    el("webMode").disabled = busy || pending;
     el("settings").hidden = !current;
 }
 
@@ -149,7 +150,7 @@ async function loadLists() {
 
 function newThread() {
     clearTimeout(poll); revision++; unsent = null;
-    current = null; turns = []; remember(null); notice(""); el("question").value = "";
+    current = null; turns = []; webMode = "auto"; el("webMode").value = webMode; remember(null); notice(""); el("question").value = "";
     renderLists(); renderTurns(); toggleNav(false);
 }
 
@@ -179,6 +180,7 @@ async function openThread(id) {
     const data = await request("/threads/" + id);
     if (revision !== stamp) return;
     current = data; turns = data.turns; unsent = null;
+    webMode = data.web_mode || "auto"; el("webMode").value = webMode;
     el("question").value = ""; remember(id); notice(""); toggleNav(false);
     renderTurns(); renderLists(); bottom(); scheduleRefresh(id,stamp);
 }
@@ -226,7 +228,7 @@ el("editForm").onsubmit = async event => {
     finally { submit.disabled = false; }
 };
 
-async function readReply(response,onText) {
+async function readReply(response,onText,onSearch) {
     const reader = response.body.getReader(), decoder = new TextDecoder();
     let buffer = "", done = false;
     try {
@@ -238,6 +240,7 @@ async function readReply(response,onText) {
                 if (!line) continue;
                 const event = JSON.parse(line);
                 if (event.type === "delta") onText(event.text);
+                else if (event.type === "searching") onSearch();
                 else if (event.type === "error") throw new Error(event.message);
                 else if (event.type === "done") done = true;
             }
@@ -252,6 +255,7 @@ async function sendTurn(retry) {
     const question = (retry?.question || el("question").value).trim();
     if (!question) return;
     const fresh = !current;
+    const once = el("webMode").value === "once";
     const draft = unsent?.question === question ? unsent : null;
     const threadId = current?.id || draft?.threadId || crypto.randomUUID();
     const id = retry?.id || draft?.id || crypto.randomUUID();
@@ -263,8 +267,8 @@ async function sendTurn(retry) {
     let accepted = false, renderTimer;
     try {
         const response = await request("/threads/" + threadId + "/turns","POST",
-            {id,question,create_thread:fresh,project_id:filter},true);
-        accepted = true; unsent = null;
+            {id,question,create_thread:fresh,project_id:filter,web_mode:webMode,search_once:once},true);
+        accepted = true; unsent = null; el("webMode").value = webMode;
         if (fresh) current = {id:threadId,title:question.slice(0,36),project_id:filter};
         remember(threadId); header(); el("question").value = ""; notice("正在回复…");
         const answer = el("messages").lastElementChild.querySelector(".answer");
@@ -276,9 +280,10 @@ async function sendTurn(retry) {
             if (nearEnd) bottom();
         };
         await readReply(response, text => {
+            if (el("notice").textContent !== "正在回复…") notice("正在回复…");
             turn.answer += text;
             if (renderTimer === undefined) renderTimer = setTimeout(paint,100);
-        });
+        }, () => { notice("正在查资料…"); if (!turn.answer) answer.textContent = "正在联网检索…"; });
         turn.status = "done"; notice("已自动保存");
     } catch (error) {
         if (el("workspace").hidden) return;
@@ -324,6 +329,17 @@ document.addEventListener("keydown",event => {
     if (event.key === "Escape" && !el("editor").open && el("sidebar").classList.contains("open")) el("closeNav").click();
 });
 matchMedia("(max-width:760px)").addEventListener("change", () => toggleNav(false));
+el("webMode").onchange = async () => {
+    const value = el("webMode").value;
+    if (value === "once") { notice("下一次提问将联网检索"); return; }
+    if (!current) { webMode = value; notice(""); return; }
+    busy = true; updateControls(); renderLists();
+    try {
+        await request("/threads/" + current.id + "/search","PATCH",{web_mode:value});
+        webMode = value; notice("已保存联网设置");
+    } catch (error) { el("webMode").value = webMode; notice(error.message); }
+    finally { busy = false; updateControls(); renderLists(); }
+};
 el("question").oninput = updateControls;
 el("question").onkeydown = event => {
     if (event.key === "Enter" && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {

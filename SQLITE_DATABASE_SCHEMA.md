@@ -5,7 +5,7 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`11`
+- 当前 Schema 版本：`12`
 - 表总数：`36`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
@@ -48,7 +48,7 @@
 | 30 | `todo_family_schedule` | Todo | 保存家庭日程和重复规则 | 11 |
 | 31 | `todo_family_schedule_labels` | Todo | 保存家庭日程标签和最近使用顺序 | 2 |
 | 32 | `chat_projects` | 学习对话 | 项目名称、共用学习指令 | 3 |
-| 33 | `chat_threads` | 学习对话 | 标题、项目外键、最近活动时间 | 4 |
+| 33 | `chat_threads` | 学习对话 | 标题、项目外键、最近活动时间及联网偏好 | 5 |
 | 34 | `chat_turns` | 学习对话 | 一轮提问、回复、状态及重试标识 | 7 |
 | 35 | `chat_sessions` | 家庭访问 | 会话摘要及过期时间 | 2 |
 | 36 | `chat_login_limits` | 家庭访问 | 登录失败窗口及次数 | 3 |
@@ -666,7 +666,7 @@
 ## 13. 家庭学习对话
 
 - `chat_projects(id, name, instructions)` 保存每个项目的学习指令。每次提问读取当前指令。
-- `chat_threads(id, title, project_id, updated_at)` 通过可空外键关联项目。未归类的对话也可继续使用。
+- `chat_threads(id, title, project_id, updated_at, web_mode)` 通过可空外键关联项目。v12 为新旧对话增加 `web_mode`，默认 `auto`，关闭时保存 `off`。「本次必查」仅作用于当轮请求。
 - `chat_turns(id, thread_id, question, answer, status, started_at, attempt)` 把问题与回复保存在同一行。按插入顺序读取。部分唯一索引使每段对话同时最多有一轮处于 `pending`。成功为 `done`，中断为 `failed`。重试标识防止过期生成覆盖新版回复。
 - `chat_sessions(digest, expires)` 仅保存家庭会话令牌的摘要。口令由服务端环境提供，更换后旧令牌失效。
 - `chat_login_limits(address, since, failures)` 跨 worker 记录五分钟内的失败尝试。表中的时间均为 Unix 秒。

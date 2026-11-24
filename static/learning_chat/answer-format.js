@@ -88,6 +88,11 @@ const answerMarkdown = (() => {
     // External image links in a saved answer must not request a resource when it is opened.
     md.renderer.rules.image = (tokens,index,options,env,renderer) =>
         escape(renderer.renderInlineAsText(tokens[index].children || [],options,env));
+    md.renderer.rules.link_open = (tokens,index,options,env,renderer) => {
+        tokens[index].attrSet("target","_blank");
+        tokens[index].attrSet("rel","noopener noreferrer");
+        return renderer.renderToken(tokens,index,options);
+    };
     return md;
 })();
 
