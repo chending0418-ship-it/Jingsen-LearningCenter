@@ -14,7 +14,11 @@ button,a { -webkit-tap-highlight-color:transparent }
 .mast a:hover { color:var(--teal) }
 .mast-divider { height:18px; border-left:1px solid #aaafa7 }
 .brand { font-weight:650; font-size:14px }
-#logout { margin-left:auto }
+#logout { margin-left:auto; flex:none }
+#companionButton { color:var(--teal); min-width:0; min-height:44px; padding:0 3px; gap:5px }
+#companionButton span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+#companionButton svg { width:14px; height:14px }
+.mast a { flex:none }
 .primary,.quiet,.icon { min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:5px; font-size:14px; font-weight:650 }
 .primary { background:var(--teal); color:white; padding:0 18px }
 .primary:hover:not(:disabled) { background:#094c3d }

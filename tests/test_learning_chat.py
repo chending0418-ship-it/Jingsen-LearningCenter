@@ -246,3 +246,28 @@ def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
     failed = events(client.post(route+"/turns",json={**body,"id":str(uuid4())}))
     assert failed[-1]["type"] == "error" and "未能取得" in failed[-1]["message"]
     assert client.get(route).json()["turns"][-1]["status"] == "failed"
+
+
+def test_family_companion_name_survives_reload_and_reaches_existing_threads(client, monkeypatch):
+    route = ROOT + "/companion"
+    assert client.put(route, json={"name":"小满"}).status_code == 401
+    unlock(client)
+    assert client.get(ROOT + "/workspace").json()["companion_name"] == ""
+    thread_id, first_id = str(uuid4()), str(uuid4())
+    attempt, _, _ = chat.start_turn(thread_id, first_id, "上一题", None, True)
+    chat.finish_turn(first_id, attempt, "原来的回复", "done")
+    assert client.put(route, json={"name":"  小满  "}).json() == {"companion_name":"小满"}
+    other = TestClient(client.app)
+    unlock(other)
+    assert other.get(ROOT + "/workspace").json()["companion_name"] == "小满"
+    for invalid in ["  ", "字"*25, "一行\n两行"]:
+        assert other.put(route, json={"name":invalid}).status_code == 422
+    assert other.put(route, json={"name":"云朵"}).is_success
+    prompts = []
+    async def chunks(messages, mode):
+        prompts.append(messages)
+        yield "云朵"
+    monkeypatch.setattr(api,"model_chunks",chunks)
+    client.post(ROOT + "/threads/" + thread_id + "/turns", json={"id":str(uuid4()),"question":"你叫什么？"})
+    assert '"云朵"' in prompts[0][0]["content"] and "小满" not in prompts[0][0]["content"]
+    assert client.get(ROOT + "/threads/" + thread_id).json()["turns"][0]["answer"] == "原来的回复"
