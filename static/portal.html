@@ -50,8 +50,9 @@
         .course-card:nth-child(1) { grid-column:span 4; background:#ffcec5; }
         .course-card:nth-child(2) { grid-column:span 3; background:var(--blue); color:white; }
         .course-card:nth-child(3) { grid-column:span 5; background:var(--acid); }
-        .course-card:nth-child(4) { grid-column:span 7; background:#ffd16a; }
-        .course-card:nth-child(5) { grid-column:span 5; background:var(--purple); }
+        .course-card:nth-child(4) { grid-column:span 4; background:#ffd16a; }
+        .course-card:nth-child(5) { grid-column:span 4; background:#9ed9cd; }
+        .course-card:nth-child(6) { grid-column:span 4; background:var(--purple); }
         .card-top { display:flex; justify-content:space-between; align-items:start; gap:16px; position:relative; z-index:2; font:500 10px/1 "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
         .card-symbol { margin:auto 0 22px; position:relative; z-index:2; font-size:clamp(68px,7vw,116px); font-weight:800; line-height:.75; letter-spacing:-.08em; }
         .course-card h3 { margin:0; position:relative; z-index:2; font-size:clamp(32px,4.2vw,64px); line-height:.86; letter-spacing:-.065em; }
@@ -76,8 +77,8 @@
             .hero { min-height:560px; grid-template-columns:1fr; align-content:end; }
             .hero-intro { margin:0; }
             .course-card:nth-child(1),.course-card:nth-child(2),.course-card:nth-child(3) { grid-column:span 4; }
-            .course-card:nth-child(4) { grid-column:span 7; }
-            .course-card:nth-child(5) { grid-column:span 5; }
+            .course-card:nth-child(4) { grid-column:span 4; }
+            .course-card:nth-child(5),.course-card:nth-child(6) { grid-column:span 4; }
         }
         @media(max-width:620px) {
             nav { min-height:70px; }
@@ -110,7 +111,7 @@
         </header>
 
         <main class="course-section">
-            <div class="section-heading"><h2>What are we<br>learning today?</h2><span>05 SPACES / ALWAYS IN PROGRESS</span></div>
+            <div class="section-heading"><h2>What are we<br>learning today?</h2><span>06 SPACES / ALWAYS IN PROGRESS</span></div>
             <div class="course-grid">
                 <a class="course-card" href="/learningcenter/chinese" data-subject="chinese">
                     <div class="card-top"><span>01 / LANGUAGE</span><span>BUILDING ↗</span></div>
@@ -132,8 +133,13 @@
                     <span class="card-symbol" aria-hidden="true">✓</span>
                     <h3>Learning Todo</h3><p>Turn plans into the next clear action and keep the learning rhythm visible.</p><span class="card-orb" aria-hidden="true"></span>
                 </a>
+                <a class="course-card" href="/learningcenter/chat" data-subject="chat">
+                    <div class="card-top"><span>05 / STUDY CHAT</span><span>↗</span></div>
+                    <span class="card-symbol" aria-hidden="true">?</span>
+                    <h3 lang="zh-CN">学习对话</h3><p>Ask a question, revisit a conversation, or collect your work in a project.</p><span class="card-orb" aria-hidden="true"></span>
+                </a>
                 <button class="course-card" type="button" data-subject="admin" onclick="openAdminAuth()">
-                    <div class="card-top"><span>05 / PRIVATE</span><span>↗</span></div>
+                    <div class="card-top"><span>06 / PRIVATE</span><span>↗</span></div>
                     <span class="card-symbol" aria-hidden="true">⚙</span>
                     <h3>Admin</h3><p>Manage Learning Center content, Todo, Gallery, Baseball, and the index.</p><span class="card-orb" aria-hidden="true"></span>
                 </button>

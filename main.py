@@ -3,13 +3,15 @@ Jingsen 学习中心 1.0 - 主应用入口
 多学科题目生成后端系统
 """
 import logging
+from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, reading, report_history, skills, vocabulary_skills, todo
-from api import familymeeting, word_matching
+from api import familymeeting, learning_chat, word_matching
 from config import config
 from services.admin_session_service import is_admin_authenticated
 from services.model_settings_service import get_model_settings_service
@@ -65,6 +67,8 @@ app.include_router(gallery.admin_router)
 app.include_router(reading.public_router)
 app.include_router(reading.admin_router)
 app.include_router(familymeeting.router)
+app.include_router(learning_chat.router)
+app.include_router(learning_chat.router, prefix=BASE_PATH)
 
 app.include_router(english.router, prefix=BASE_PATH)
 app.include_router(word_matching.router, prefix=BASE_PATH)
@@ -159,6 +163,17 @@ async def serve_baseball_asset(filename: str):
     if filename not in {"baseballmaster-horizontal.svg", "scorekeeper-icon.png", "coach-icon.png"}:
         return JSONResponse(status_code=404, content={"error": "Asset not found"})
     return serve_static_file(f"static/baseball/{filename}", "Baseball asset not found")
+
+
+@app.get("/chat")
+@app.get(f"{BASE_PATH}/chat")
+async def serve_learning_chat():
+    return serve_static_file("static/learning_chat.html", "Learning chat page not found")
+
+
+chat_assets = StaticFiles(directory=Path(__file__).resolve().parent / "static" / "learning_chat")
+app.mount("/static/learning_chat", chat_assets, name="chat-assets")
+app.mount(f"{BASE_PATH}/static/learning_chat", chat_assets, name="prefixed-chat-assets")
 
 
 @app.get("/english")

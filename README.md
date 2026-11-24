@@ -494,3 +494,13 @@ python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 - 课程按原书章节顺序匹配（包含两个 1975），Night 排除致谢等书末材料；不匹配的版本需人工核对章节，不套用错误页码。课程 Note、问题及原文在开始时保存快照。
 - 启动时自动幂等升级 Schema v6，仅新增 `reading_sessions.preparation_json`，默认旧记录为 `{}`。部署必须保留服务器 `data/`，课程配置随代码发布，不能用本地数据库覆盖线上数据库。
 - 测试：`python -m pytest tests/test_reading.py tests/test_reading_preparation.py tests/test_sqlite_migration.py -q`。
+
+## 家庭学习对话
+
+Learning 首页的「学习对话」打开 `/learningcenter/chat`。在服务环境中设置独立的 `FAMILY_CHAT_PASSWORD` 后，家人可从不同设备进入同一个学习空间。留空会锁定入口。口令更换后，旧设备需重新输入。生产 HTTPS 请启用现有的 `ADMIN_COOKIE_SECURE` 安全 Cookie 配置。
+
+对话使用现有 V-API 配置和 Admin 选择的模型。第一版支持文字输入、流式文字回复、自动保存、重命名、项目归类及项目指令。SQLite 保存完整聊天记录，每次模型请求携带当前项目指令和最近的完整问答，总上下文按 32,000 字符控制，回复长度沿用 V-API 和所选模型的默认设置。项目中的其他聊天独立保存。
+
+助手回复支持 Markdown 标题、列表、表格、代码块，以及行内和独立 LaTeX 公式。使用「复制原文」可取得模型返回的 Markdown。打开历史记录时，页面会用同样的方式重新排版。
+
+联网默认「自动」，由当前对话模型判断是否需要检索公开资料。「关闭」随对话保存，「本次必查」只影响下一次提问。搜索模型固定为现有 V-API 的 `qwen3.5-flash-search`，通过 `/v1/responses` 调用 `web_search`。搜索请求只携带模型提取的检索词。系统收到已完成的检索记录和来源地址后，交给对话模型组织回答，并把可点击的检索来源随回复一起保存。暂时缺少来源时会提示重试。
