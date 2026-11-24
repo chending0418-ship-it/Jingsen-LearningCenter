@@ -107,23 +107,6 @@ function header() {
     el("threadTitle").textContent = current?.title || "新对话";
 }
 
-// Interpret common emphasis using text nodes, so model HTML stays literal.
-function formatAnswer(container, text) {
-    for (const paragraph of text.trim().split(/\n\s*\n/)) {
-        const block = document.createElement("p");
-        const inline = /(\*\*([^*\n]+)\*\*|`([^`\n]+)`)/g;
-        let offset = 0;
-        for (const match of paragraph.matchAll(inline)) {
-            block.append(paragraph.slice(offset,match.index));
-            const emphasis = document.createElement(match[2] ? "strong" : "code");
-            emphasis.textContent = match[2] || match[3];
-            block.append(emphasis);
-            offset = match.index + match[0].length;
-        }
-        block.append(paragraph.slice(offset)); container.append(block);
-    }
-}
-
 function renderTurns() {
     const messages = el("messages"); messages.replaceChildren();
     el("empty").hidden = turns.length > 0;
@@ -135,9 +118,18 @@ function renderTurns() {
         const assistant = document.createElement("div"); assistant.className = "assistant";
         const speaker = document.createElement("p"); speaker.className = "speaker"; speaker.textContent = "学习助手";
         const answer = document.createElement("div"); answer.className = "answer";
-        if (turn.answer && turn.status !== "pending") formatAnswer(answer,turn.answer);
+        if (turn.answer) formatAnswer(answer,turn.answer);
         else answer.textContent = turn.answer || (turn.status === "pending" ? "正在思考…" : "");
         assistant.append(speaker,answer);
+        if (turn.answer && turn.status !== "pending") {
+            const copy = action("复制原文", async () => {
+                try {
+                    await navigator.clipboard.writeText(turn.answer);
+                    notice("已复制 Markdown 原文");
+                } catch { notice("无法访问剪贴板，请在浏览器中允许复制。"); }
+            }, "copy-source");
+            assistant.append(copy);
+        }
         if (turn.status === "failed") {
             const msg = document.createElement("span"); msg.className = "failed"; msg.textContent = "回复中断";
             assistant.append(msg);
@@ -268,7 +260,7 @@ async function sendTurn(retry) {
     busy = true; revision++; clearTimeout(poll); notice("正在连接学习助手…");
     turns = retry ? [...turns.slice(0,-1),turn] : [...turns,turn];
     renderTurns(); renderLists(); bottom();
-    let accepted = false;
+    let accepted = false, renderTimer;
     try {
         const response = await request("/threads/" + threadId + "/turns","POST",
             {id,question,create_thread:fresh,project_id:filter},true);
@@ -276,11 +268,16 @@ async function sendTurn(retry) {
         if (fresh) current = {id:threadId,title:question.slice(0,36),project_id:filter};
         remember(threadId); header(); el("question").value = ""; notice("正在回复…");
         const answer = el("messages").lastElementChild.querySelector(".answer");
-        await readReply(response, text => {
+        const paint = () => {
+            renderTimer = undefined;
             const area = el("scroller");
             const nearEnd = area.scrollHeight - area.clientHeight - area.scrollTop < 90;
-            turn.answer += text; answer.textContent = turn.answer;
+            formatAnswer(answer,turn.answer);
             if (nearEnd) bottom();
+        };
+        await readReply(response, text => {
+            turn.answer += text;
+            if (renderTimer === undefined) renderTimer = setTimeout(paint,100);
         });
         turn.status = "done"; notice("已自动保存");
     } catch (error) {
@@ -294,6 +291,7 @@ async function sendTurn(retry) {
             if (turns.some(t => t.id === id)) { unsent = null; el("question").value = ""; }
         } catch { /* An unaccepted first turn has no server-side thread yet. */ }
     } finally {
+        clearTimeout(renderTimer);
         busy = false;
         if (!el("workspace").hidden) {
             renderTurns(); renderLists();

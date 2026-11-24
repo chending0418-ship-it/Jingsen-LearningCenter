@@ -57,15 +57,39 @@ aside { padding:22px 18px; background:#efefe7; border-right:1px solid var(--line
 #contextLabel { font-size:12px; color:var(--muted) }
 #scroller { overflow:auto; overflow-wrap:anywhere; padding:22px clamp(16px,4vw,60px); position:relative }
 #messages,.compose-area { width:min(100%,790px); margin:0 auto }
-#messages { display:grid; gap:22px }
-.turn { display:grid; gap:18px }
+#messages { display:grid; grid-template-columns:minmax(0,1fr); gap:22px }
+.turn { display:grid; grid-template-columns:minmax(0,1fr); gap:18px }
 .speaker { font-size:12px; font-weight:700; color:var(--teal); margin:0 0 6px }
 .answer,.ask { font-size:16px; line-height:1.75; white-space:pre-wrap; margin:0 }
+.answer { white-space:normal; min-width:0 }
+.answer :is(h1,h2,h3,h4,h5,h6) { margin:1.1em 0 .4em; line-height:1.35; letter-spacing:-.02em }
+.answer h1 { font-size:1.45em }
+.answer h2 { font-size:1.25em }
+.answer :is(h3,h4,h5,h6) { font-size:1.05em }
+.answer > :first-child { margin-top:0 }
 .answer p { margin:0 0 .65em }
+.answer :is(ul,ol) { margin:.4em 0 .8em; padding-inline-start:1.6em }
+.answer li + li { margin-top:.2em }
+.answer blockquote { margin:.65em 0; border-left:3px solid var(--teal); padding:.1em .8em; color:var(--muted) }
+.answer a { color:var(--teal); text-underline-offset:.15em }
+.answer pre { overflow-x:auto; padding:12px 14px; background:#eaece5; border-radius:5px; line-height:1.45; white-space:pre }
+.answer pre code { padding:0; background:none }
+.answer .table-scroll, .answer .display-math { max-width:100%; overflow-x:auto; margin:.65em 0 }
+.answer table { border-collapse:collapse; font-size:.95em; width:max-content; min-width:min(100%,22rem) }
+.answer th,.answer td { border:1px solid var(--line); padding:.3em .85em; text-align:start }
+.answer th { background:var(--pale) }
+.answer .katex { display:inline-block; max-width:100%; overflow-x:auto; vertical-align:middle }
+.answer math { font-family:math; font-size:1.08em; math-style:normal }
+.answer .display-math .katex { display:block; overflow:visible }
+.answer.plain-reply { white-space:pre-wrap }
+.answer .display-math { display:block; padding:.5em .75em; background:#efefe7; border-radius:4px }
+.answer .display-math math { width:max-content; margin-inline:auto; font-size:1.22em }
+.copy-source { color:var(--muted); padding:6px 2px; min-height:32px; font-size:12px; text-decoration:underline; text-underline-offset:3px }
+.copy-source:hover { color:var(--teal) }
 .answer p:last-child { margin-bottom:0 }
 .answer code { font-size:.92em; background:#e8eae3; padding:1px 4px; border-radius:3px }
 .user { justify-self:end; max-width:88%; background:var(--pale); padding:11px 16px; border-radius:12px 12px 2px 12px }
-.assistant { max-width:96%; padding:0 2px }
+.assistant { min-width:0; max-width:96%; padding:0 2px }
 .failed,.error { color:#a33328 !important }
 .retry { text-decoration:underline; color:var(--teal); min-height:38px }
 #empty { position:absolute; top:46%; transform:translateY(-50%); width:calc(100% - 2 * clamp(16px,4vw,60px)); text-align:center }

@@ -11,7 +11,7 @@ from database import database_for_data_root
 HISTORY_CHARS = 32000
 STREAM_SECONDS = 90
 STALE_SECONDS = STREAM_SECONDS + 30
-SYSTEM_MESSAGE = "你是家庭学习助手。使用学生提问的语言，以清晰、适龄的方式帮助学生理解。"
+SYSTEM_MESSAGE = "你是家庭学习助手。使用学生提问的语言，以清晰、适龄的方式帮助学生理解。需要排版时使用 Markdown，行内公式用 $…$，独立公式用 $$…$$。"
 
 
 def workspace():

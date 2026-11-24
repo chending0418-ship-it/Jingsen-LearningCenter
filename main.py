@@ -3,9 +3,11 @@ Jingsen 学习中心 1.0 - 主应用入口
 多学科题目生成后端系统
 """
 import logging
+from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from api import english, chinese, math, admin, gallery, homepage, map_language_arts, model_settings, reading, report_history, skills, vocabulary_skills, todo
@@ -169,12 +171,9 @@ async def serve_learning_chat():
     return serve_static_file("static/learning_chat.html", "Learning chat page not found")
 
 
-@app.get("/static/learning_chat/{filename}", include_in_schema=False)
-@app.get(f"{BASE_PATH}/static/learning_chat/{{filename}}", include_in_schema=False)
-async def serve_learning_chat_asset(filename: str):
-    if filename not in {"chat.css", "chat.js"}:
-        return JSONResponse(status_code=404, content={"error": "Asset not found"})
-    return serve_static_file(f"static/learning_chat/{filename}", "Asset not found")
+chat_assets = StaticFiles(directory=Path(__file__).resolve().parent / "static" / "learning_chat")
+app.mount("/static/learning_chat", chat_assets, name="chat-assets")
+app.mount(f"{BASE_PATH}/static/learning_chat", chat_assets, name="prefixed-chat-assets")
 
 
 @app.get("/english")
