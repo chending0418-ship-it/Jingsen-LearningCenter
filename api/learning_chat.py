@@ -102,7 +102,7 @@ async def model_chunks(messages):
     async with AsyncOpenAI(api_key=config.OPENAI_API_KEY, base_url=config.fix_base_url(),
                            timeout=config.AI_REQUEST_TIMEOUT, max_retries=0) as client:
         stream = await client.chat.completions.create(
-            model=model, messages=messages, stream=True, max_tokens=2048,
+            model=model, messages=messages, stream=True,
             extra_body=AIGenerator.completion_options(model),
         )
         finished = False

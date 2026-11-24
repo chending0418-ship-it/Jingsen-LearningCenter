@@ -138,6 +138,8 @@ def test_gateway_stream_must_finish_before_marking_saved(client, monkeypatch, te
         payload = json.loads(request.content)
         assert payload["stream"] and payload["thinking"] == {"type": "disabled"}
         assert payload["model"] == "deepseek-v4.1-flash"
+        assert "max_tokens" not in payload
+        assert "max_completion_tokens" not in payload
         def chunk(content, reason):
             return "data: " + json.dumps({"id":"test", "model":payload["model"], "created":0,
                 "object":"chat.completion.chunk", "choices":[{"index":0, "delta":content,
