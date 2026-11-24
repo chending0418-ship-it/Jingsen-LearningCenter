@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f6f0">
+    <title>学习对话 · Jingsen Learning Center</title>
+    <link rel="stylesheet" href="static/learning_chat/chat.css">
+    <script defer src="static/learning_chat/chat.js"></script>
+</head>
+<body>
+<svg class="icons" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="folder" viewBox="0 0 24 24"><path d="M3 7V5h7l2 3h9v12H3z"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M12 20V4m-7 7 7-7 7 7"/></symbol>
+    <symbol id="back" viewBox="0 0 24 24"><path d="M20 12H4m7 7-7-7 7-7"/></symbol>
+    <symbol id="edit" viewBox="0 0 24 24"><path d="m4 16 12-12 4 4L8 20H4zm10-10 4 4"/></symbol>
+</svg>
+<header class="mast">
+    <a href="portal"><svg><use href="#back"/></svg>Learning Center</a>
+    <span class="mast-divider"></span><span class="brand">学习对话</span>
+    <button id="logout" class="quiet" hidden>退出空间</button>
+</header>
+<main id="gate" hidden>
+    <div class="gate-sheet">
+        <span class="folio" lang="en">JINGSEN / STUDY CHAT</span>
+        <h1>学习对话<span>.</span></h1>
+        <p>输入家庭口令，打开你的项目和对话记录。</p>
+        <form id="loginForm"><label for="password">家庭口令</label>
+            <input id="password" type="password" autocomplete="current-password" required maxlength="512">
+            <button class="primary" type="submit">进入学习空间 <span aria-hidden="true">→</span></button>
+        </form>
+        <p id="loginError" class="error" role="alert"></p>
+    </div>
+</main>
+<main id="workspace" hidden>
+    <button id="scrim" hidden aria-label="关闭目录"></button>
+    <aside id="sidebar" aria-label="项目与对话">
+        <div class="side-heading"><span class="side-title">家庭学习空间</span><button id="closeNav" class="quiet mobile">关闭</button></div>
+        <button id="newChat" class="primary"><svg><use href="#plus"/></svg>新对话</button>
+        <div class="list-head"><h2>项目</h2><button id="newProject" class="icon" aria-label="新建项目" title="新建项目"><svg><use href="#plus"/></svg></button></div>
+        <div id="projects"></div>
+        <div class="list-head history-head"><h2 id="listTitle">最近对话</h2></div>
+        <div id="threads"></div>
+    </aside>
+    <section class="desk" aria-label="对话内容">
+        <div class="desk-head">
+            <button id="openNav" class="icon mobile" aria-label="打开项目与对话" aria-expanded="false" aria-controls="sidebar"><svg><use href="#menu"/></svg></button>
+            <div class="title-wrap"><span id="contextLabel"></span><h1 id="threadTitle">新对话</h1></div>
+            <button id="settings" class="quiet" hidden><svg><use href="#edit"/></svg>整理对话</button>
+        </div>
+        <div id="scroller" tabindex="0" aria-label="聊天记录">
+            <div id="messages"></div>
+            <div id="empty"><span class="folio" lang="en">STUDY CHAT</span><h2>今天想弄懂什么？</h2><p>从一个问题开始，也可以从目录打开以前的对话。</p></div>
+        </div>
+        <div class="compose-area">
+            <p id="notice" role="status"></p>
+            <form id="composer"><textarea id="question" rows="2" maxlength="8000" aria-label="你的问题" placeholder="写下你的问题，或接着追问…" required></textarea>
+                <div class="compose-foot"><span>Enter 发送 · Shift + Enter 换行</span><button id="send" class="primary" type="submit">发送<svg><use href="#arrow"/></svg></button></div>
+            </form>
+        </div>
+    </section>
+</main>
+<dialog id="editor" aria-labelledby="editorTitle">
+    <form id="editForm">
+        <div class="dialog-head"><h2 id="editorTitle"></h2><button type="button" id="cancel" class="quiet">取消</button></div>
+        <label for="name" id="nameLabel">名称</label><input id="name" maxlength="100" required>
+        <div id="instructionField"><label for="instructions">项目指令</label><textarea id="instructions" rows="4" maxlength="2000" placeholder="例如：先给我一个提示，等我尝试后再讲解。"></textarea><p>这个项目中的每段对话都会遵循这些指令。</p></div>
+        <div id="projectField"><label for="moveTo">归到项目</label><select id="moveTo"></select></div>
+        <p id="editError" class="error" role="alert"></p><button class="primary" type="submit">保存</button>
+    </form>
+</dialog>
+<div id="loading" role="status">正在打开学习空间…</div>
+</body>
+</html>

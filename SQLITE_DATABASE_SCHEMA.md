@@ -5,8 +5,8 @@
 - 数据库类型：SQLite
 - 默认数据库文件：`data/learning-center.sqlite3`
 - Schema 定义来源：`database/sqlite.py` 中的 `SCHEMA`
-- 当前 Schema 版本：`10`
-- 表总数：`31`
+- 当前 Schema 版本：`11`
+- 表总数：`36`
 - 本文中的“维度”指表中的字段（列）。
 - SQLite 中的布尔值使用 `INTEGER` 保存：`1` 表示 `true`，`0` 表示 `false`。
 - 日期时间通常使用 `TEXT` 保存 ISO 8601 字符串；日期使用 `YYYY-MM-DD`，月份使用 `YYYY-MM`。
@@ -47,6 +47,11 @@
 | 29 | `word_matching_attempts` | Word Matching | 保存未批改的配对题快照 | 3 |
 | 30 | `todo_family_schedule` | Todo | 保存家庭日程和重复规则 | 11 |
 | 31 | `todo_family_schedule_labels` | Todo | 保存家庭日程标签和最近使用顺序 | 2 |
+| 32 | `chat_projects` | 学习对话 | 项目名称、共用学习指令 | 3 |
+| 33 | `chat_threads` | 学习对话 | 标题、项目外键、最近活动时间 | 4 |
+| 34 | `chat_turns` | 学习对话 | 一轮提问、回复、状态及重试标识 | 7 |
+| 35 | `chat_sessions` | 家庭访问 | 会话摘要及过期时间 | 2 |
+| 36 | `chat_login_limits` | 家庭访问 | 登录失败窗口及次数 | 3 |
 
 ## 3. 系统与迁移表
 
@@ -656,3 +661,12 @@
 - 异步生成任务的状态、进度和题目通过事务写入统一 SQLite 数据库，可由多个应用 worker 安全共享。
 - Book Reading 的 PDF、封面和 SQLite 记录都位于 `data/` 范围内，会被现有全量快照与清单校验保护。
 - Math Schema v5 仅新增两张表，不重写已有英语、阅读或 Todo 记录；数学历史随统一 SQLite 一起由现有 `data/` 快照保护。
+
+
+## 13. 家庭学习对话
+
+- `chat_projects(id, name, instructions)` 保存每个项目的学习指令。每次提问读取当前指令。
+- `chat_threads(id, title, project_id, updated_at)` 通过可空外键关联项目。未归类的对话也可继续使用。
+- `chat_turns(id, thread_id, question, answer, status, started_at, attempt)` 把问题与回复保存在同一行。按插入顺序读取。部分唯一索引使每段对话同时最多有一轮处于 `pending`。成功为 `done`，中断为 `failed`。重试标识防止过期生成覆盖新版回复。
+- `chat_sessions(digest, expires)` 仅保存家庭会话令牌的摘要。口令由服务端环境提供，更换后旧令牌失效。
+- `chat_login_limits(address, since, failures)` 跨 worker 记录五分钟内的失败尝试。表中的时间均为 Unix 秒。

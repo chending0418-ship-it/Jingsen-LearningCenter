@@ -68,18 +68,23 @@ class AIGenerator:
                 return json.loads(text[start:end + 1])
             raise
 
-    async def _create_chat_completion(self, *, prefer_no_reasoning: bool = False, **kwargs):
-        model = str(kwargs.get("model") or "").strip().lower()
+    @classmethod
+    def completion_options(cls, model: str, prefer_no_reasoning: bool = False, extra_body=None):
+        model = model.strip().lower()
         # Pass provider-specific options through the production OpenAI SDK 1.x.
-        extra_body = dict(kwargs.get("extra_body") or {})
+        extra_body = dict(extra_body or {})
         if model == "deepseek-v4.1-flash":
             extra_body["thinking"] = {"type": "disabled"}
-        elif prefer_no_reasoning and model in self.NO_REASONING_MODELS:
+        elif prefer_no_reasoning and model in cls.NO_REASONING_MODELS:
             extra_body.setdefault("reasoning_effort", "none")
-        elif self._uses_minimal_reasoning(model):
+        elif cls._uses_minimal_reasoning(model):
             extra_body.setdefault("reasoning_effort", "minimal")
-        if extra_body:
-            kwargs["extra_body"] = extra_body
+        return extra_body
+
+    async def _create_chat_completion(self, *, prefer_no_reasoning: bool = False, **kwargs):
+        options = self.completion_options(kwargs.get("model") or "", prefer_no_reasoning, kwargs.get("extra_body"))
+        if options:
+            kwargs["extra_body"] = options
         try:
             return await asyncio.wait_for(
                 asyncio.to_thread(self.client.chat.completions.create, **kwargs),

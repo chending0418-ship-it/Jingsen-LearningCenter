@@ -159,6 +159,28 @@ CREATE TABLE IF NOT EXISTS generation_jobs (
 CREATE INDEX IF NOT EXISTS idx_generation_jobs_expiry
     ON generation_jobs(expires_at);
 
+CREATE TABLE IF NOT EXISTS chat_projects (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, instructions TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS chat_threads (
+    id TEXT PRIMARY KEY, title TEXT NOT NULL,
+    project_id TEXT REFERENCES chat_projects(id), updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS chat_turns (
+    id TEXT PRIMARY KEY,
+    thread_id TEXT NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+    question TEXT NOT NULL, answer TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL CHECK(status IN ('pending','done','failed')),
+    started_at INTEGER NOT NULL, attempt TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_chat_turns_thread ON chat_turns(thread_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_chat_pending ON chat_turns(thread_id) WHERE status='pending';
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    digest TEXT PRIMARY KEY, expires INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS chat_login_limits (
+    address TEXT PRIMARY KEY, since INTEGER NOT NULL, failures INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS model_settings (
     id INTEGER PRIMARY KEY CHECK(id = 1),
     selected_model TEXT,
@@ -466,6 +488,9 @@ class SQLiteDatabase:
                         )
                         self._migrate_schedule_recurrence(connection)
                         self._migrate_word_matching_visibility(connection)
+                        connection.execute(
+                            "INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(11, ?)", (_now(),)
+                        )
                     break
                 except sqlite3.OperationalError as exc:
                     if "locked" not in str(exc).lower() or attempt == 5:

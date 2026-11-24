@@ -52,6 +52,8 @@ class Config:
     ADMIN_SESSION_HOURS: int = int(os.environ.get("ADMIN_SESSION_HOURS", "12"))
     ADMIN_COOKIE_SECURE: bool = os.environ.get("ADMIN_COOKIE_SECURE", "0").lower() in {"1", "true", "yes", "on"}
 
+    FAMILY_CHAT_PASSWORD: str = os.environ.get("FAMILY_CHAT_PASSWORD", "")
+
     # Learning Todo 使用独立子目录，避免与词库、Skills、Daily Reports 数据冲突。
     TODO_DATA_DIR: str = os.environ.get(
         "TODO_DATA_DIR",
