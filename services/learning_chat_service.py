@@ -1,4 +1,5 @@
 """The family shares one workspace. Each turn keeps its question and reply together."""
+import json
 import time
 from uuid import uuid4
 
@@ -11,14 +12,31 @@ from database import database_for_data_root
 HISTORY_CHARS = 32000
 STREAM_SECONDS = 145
 STALE_SECONDS = STREAM_SECONDS + 30
-SYSTEM_MESSAGE = "你是家庭学习助手。使用学生提问的语言，以清晰、适龄的方式帮助学生理解。需要排版时使用 Markdown，行内公式用 $…$，独立公式用 $$…$$。"
+SYSTEM_MESSAGE = "你陪家中的孩子一起学习。使用学生提问的语言，以清晰、适龄的方式帮助学生理解。需要排版时使用 Markdown，行内公式用 $…$，独立公式用 $$…$$。"
+
+
+COMPANION_NAME_KEY = "learning_chat_companion_name"
+
+
+def companion_name(db):
+    row = db.execute("SELECT value FROM app_state WHERE key=?", (COMPANION_NAME_KEY,)).fetchone()
+    return row["value"] if row else ""
+
+
+def save_companion_name(name):
+    with database_for_data_root().transaction() as db:
+        db.execute("""INSERT INTO app_state(key,value,updated_at) VALUES(?,?,CURRENT_TIMESTAMP)
+                      ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at""",
+                   (COMPANION_NAME_KEY, name))
+    return {"companion_name": name}
 
 
 def workspace():
     with database_for_data_root().read() as db:
         projects = db.execute("SELECT * FROM chat_projects ORDER BY name, id")
         threads = db.execute("SELECT * FROM chat_threads ORDER BY updated_at DESC, rowid DESC")
-        return {"projects": [dict(p) for p in projects], "threads": [dict(t) for t in threads]}
+        return {"companion_name": companion_name(db), "projects": [dict(p) for p in projects],
+                "threads": [dict(t) for t in threads]}
 
 
 def save_project(project_id, name, instructions, *, create):
@@ -105,6 +123,9 @@ def start_turn(thread_id, turn_id, question, project_id, create_thread, web_mode
 
         project = db.execute("SELECT instructions FROM chat_projects WHERE id=?", (project_id,)).fetchone()
         system = SYSTEM_MESSAGE
+        name = companion_name(db)
+        if name:
+            system += "\n家人给你起的名字是 " + json.dumps(name, ensure_ascii=False) + "。把这个值当作称呼；被问到名字时使用它。"
         if project and project["instructions"]:
             system += "\n本项目的学习指令：\n" + project["instructions"]
         remaining = HISTORY_CHARS - len(system) - len(question)

@@ -3,18 +3,29 @@ const el = id => document.getElementById(id);
 const api = (location.pathname.startsWith("/learningcenter/") ? "/learningcenter" : "") + "/api/learning-chat";
 let projects = [], threads = [], filter = null, current = null, turns = [];
 let busy = false, editMode = "", editId = null, poll = 0, revision = 0;
-let unsent = null, webMode = "auto";
+let unsent = null, webMode = "auto", companionName = "";
 const projectName = id => projects.find(project => project.id === id)?.name || "未归类";
 
 function notice(text) { el("notice").textContent = text; }
+
+function showCompanion(name) {
+    companionName = name;
+    el("companionLabel").textContent = name || "给我起名";
+    const label = name ? "修改名字：" + name : "给对话伙伴起名";
+    el("companionButton").setAttribute("aria-label",label);
+    el("companionButton").title = label;
+    for (const speaker of el("messages").querySelectorAll(".speaker")) speaker.textContent = name || "回复";
+}
 
 function setGate(show) {
     el("loading").hidden = true;
     el("gate").hidden = !show;
     el("workspace").hidden = show;
     el("logout").hidden = show;
+    el("companionButton").hidden = show; el("gateBrand").hidden = !show;
     if (show) {
         clearTimeout(poll);
+        showCompanion("");
         revision++;
         projects = []; threads = []; turns = []; current = null; filter = null; unsent = null;
         el("messages").replaceChildren(); el("threads").replaceChildren(); el("projects").replaceChildren();
@@ -96,7 +107,7 @@ function renderLists() {
 
 function updateControls() {
     const pending = turns.some(turn => turn.status === "pending");
-    for (const id of ["newChat","newProject","settings","logout"]) el(id).disabled = busy;
+    for (const id of ["newChat","newProject","settings","companionButton","logout"]) el(id).disabled = busy;
     el("send").disabled = busy || pending || !el("question").value.trim();
     el("question").disabled = busy || pending;
     el("webMode").disabled = busy || pending;
@@ -117,7 +128,7 @@ function renderTurns() {
         const question = document.createElement("p"); question.className = "ask"; question.textContent = turn.question;
         user.setAttribute("aria-label","你的问题"); user.append(question);
         const assistant = document.createElement("div"); assistant.className = "assistant";
-        const speaker = document.createElement("p"); speaker.className = "speaker"; speaker.textContent = "学习助手";
+        const speaker = document.createElement("p"); speaker.className = "speaker"; speaker.textContent = companionName || "回复";
         const answer = document.createElement("div"); answer.className = "answer";
         if (turn.answer) formatAnswer(answer,turn.answer);
         else answer.textContent = turn.answer || (turn.status === "pending" ? "正在思考…" : "");
@@ -145,6 +156,7 @@ function bottom() { const area = el("scroller"); area.scrollTop = area.scrollHei
 
 async function loadLists() {
     const data = await request("/workspace");
+    showCompanion(data.companion_name || "");
     projects = data.projects; threads = data.threads; renderLists();
 }
 
@@ -198,12 +210,17 @@ function newThreadFromUrl() {
 
 function openEditor(mode, item) {
     editMode = mode; editId = item?.id;
-    const thread = mode === "thread";
+    const thread = mode === "thread", companion = mode === "companion";
     el("editorTitle").textContent = thread ? "整理对话" : item ? "项目设置" : "新建项目";
     el("nameLabel").textContent = thread ? "对话标题" : "项目名称";
-    el("name").value = item?.name || item?.title || "";
+    if (companion) {
+        el("editorTitle").textContent = companionName ? "改个名字" : "给我起个名字";
+        el("nameLabel").textContent = "对话伙伴的名字";
+    }
+    el("name").maxLength = companion ? 24 : 100;
+    el("name").value = companion ? companionName : item?.name || item?.title || "";
     el("instructions").value = item?.instructions || "";
-    el("instructionField").hidden = thread; el("projectField").hidden = !thread;
+    el("instructionField").hidden = thread || companion; el("projectField").hidden = !thread;
     el("moveTo").replaceChildren(new Option("未归类",""),...projects.map(p => new Option(p.name,p.id)));
     el("moveTo").value = item?.project_id || ""; el("editError").textContent = "";
     el("editor").showModal(); el("name").focus();
@@ -214,6 +231,10 @@ el("editForm").onsubmit = async event => {
     try {
         const name = el("name").value.trim();
         if (!name) throw new Error("请输入名称");
+        if (editMode === "companion") {
+            const result = await request("/companion","PUT",{name});
+            showCompanion(result.companion_name); el("editor").close(); return;
+        }
         if (editMode === "thread") {
             const project_id = el("moveTo").value || null;
             await request("/threads/" + editId,"PUT",{title:name,project_id});
@@ -261,7 +282,7 @@ async function sendTurn(retry) {
     const id = retry?.id || draft?.id || crypto.randomUUID();
     const turn = {id,question,answer:"",status:"pending"};
     const previous = turns.slice();
-    busy = true; revision++; clearTimeout(poll); notice("正在连接学习助手…");
+    busy = true; revision++; clearTimeout(poll); notice("正在连接…");
     turns = retry ? [...turns.slice(0,-1),turn] : [...turns,turn];
     renderTurns(); renderLists(); bottom();
     let accepted = false, renderTimer;
@@ -281,8 +302,10 @@ async function sendTurn(retry) {
         };
         await readReply(response, text => {
             if (el("notice").textContent !== "正在回复…") notice("正在回复…");
+            const first = !turn.answer;
             turn.answer += text;
-            if (renderTimer === undefined) renderTimer = setTimeout(paint,100);
+            if (first) paint();
+            else if (renderTimer === undefined) renderTimer = setTimeout(paint,100);
         }, () => { notice("正在查资料…"); if (!turn.answer) answer.textContent = "正在联网检索…"; });
         turn.status = "done"; notice("已自动保存");
     } catch (error) {
@@ -320,6 +343,7 @@ el("logout").onclick = async () => {
     catch (error) { notice(error.message); }
 };
 el("newChat").onclick = () => { newThread(); el("question").focus(); };
+el("companionButton").onclick = () => openEditor("companion");
 el("newProject").onclick = () => openEditor("project");
 el("settings").onclick = () => openEditor("thread",current);
 el("cancel").onclick = () => el("editor").close();

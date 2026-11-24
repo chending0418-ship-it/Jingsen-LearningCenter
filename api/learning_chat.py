@@ -33,6 +33,11 @@ class Password(BaseModel):
     password: str = Field(min_length=1, max_length=512)
 
 
+class CompanionName(BaseModel):
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=24,
+                                           pattern=r"^[^\x00-\x1f\x7f]+$")]
+
+
 class Project(BaseModel):
     name: Name
     instructions: str = Field(default="", max_length=2000)
@@ -84,6 +89,11 @@ def logout(request: Request, response: Response):
 @private.get("/workspace")
 def workspace():
     return chat.workspace()
+
+
+@private.put("/companion")
+def rename_companion(body: CompanionName):
+    return chat.save_companion_name(body.name)
 
 
 @private.post("/projects")
