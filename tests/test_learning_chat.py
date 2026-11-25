@@ -184,18 +184,15 @@ def test_search_pref_is_authoritative_and_once_is_temporary(client, monkeypatch)
     assert modes == ["off", "off", "once", "auto"]
 
 
-def test_web_evidence_requires_tool_metadata():
-    from services.learning_chat_search import read_evidence, SearchUnavailable
-    link = "https://science.nasa.gov/moon/"
-    answer = {"type":"message", "role":"assistant", "content":[
-        {"type":"output_text", "text":"资料 " + link, "annotations":[]}]}
-    result = {"status":"completed","output":[answer]}
-    with pytest.raises(SearchUnavailable):
-        read_evidence(result)
-    hits = [{"url":"javascript:void(0)"}, {"url":"https://example.org/"}, {"url":link}]
-    result["output"].append({"type":"web_search_call", "status":"completed", "action":{"sources":hits}})
-    evidence = read_evidence(result)
-    assert [s["url"] for s in evidence["sources"]] == [link, "https://example.org/"]
+def test_grounding_links_prioritize_cited_pages_and_ignore_non_web_chunks():
+    first, cited = "https://example.org/", "https://science.nasa.gov/moon/"
+    metadata = {"groundingChunks": [
+        {"web":{"uri":first}}, {"web":{"uri":"javascript:invalid"}}, {"maps":{"uri":first}},
+        {"web":{"uri":cited, "title":"nasa.gov"}}, {"web":{"uri":cited}}],
+        "groundingSupports":[{"groundingChunkIndices":[-1, 10, 3, 3], "segment":{"text":"月球同步自转"}}]}
+    links = api.search.grounding_links(metadata)
+    assert list(links) == [cited, first]
+    assert links[cited]["title"] == "nasa.gov · 月球同步自转"
 
 
 def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
@@ -209,7 +206,7 @@ def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
         requests.append(body)
         if body["messages"][-1]["role"] == "tool":
             assert "tools" not in body
-            assert "NASA" in body["messages"][-1]["content"]
+            assert json.loads(body["messages"][-1]["content"]) == {"notes":"NASA 资料", "sources":["NASA"]}
             parts = [({"content":"潮汐锁定。"}, None), ({}, "stop")]
         else:
             assert body["tools"][0]["function"]["name"] == "search_web"
@@ -277,57 +274,68 @@ def test_family_companion_name_survives_reload_and_reaches_existing_threads(clie
     assert client.get(ROOT + "/threads/" + thread_id).json()["turns"][0]["answer"] == "原来的回复"
 
 
-@pytest.mark.parametrize("ending", ["completed", "interrupted", "failed", "json"])
+@pytest.mark.parametrize("ending", [
+    "completed", "interrupted", "blocked", "error", "json", "json-array", "no-search", "no-sources", "no-notes",
+])
 def test_search_stream_uses_verified_sources_before_final_evidence(monkeypatch, ending):
     import asyncio
     from contextlib import asynccontextmanager
     import httpx
 
     url = "https://science.nasa.gov/moon/"
-    sources = [{"url":url,"title":"NASA"}, {"url":url}, {"url":"javascript:invalid"}]
-    item = {"type":"web_search_call", "status":"completed", "action":{"sources":sources}}
-    result = {"status":"completed", "output":[item, {"type":"message","role":"assistant",
-              "content":[{"type":"output_text","text":"检索笔记","annotations":[]}]}]}
+    chunks = [{"web":{"uri":url, "title":"NASA"}}, {"web":{"uri":url}}, {"web":{"uri":"javascript:invalid"}}]
+    parts = [{"text":"隐藏思考", "thought":True}]
+    if ending != "no-notes":
+        parts.append({"text":"检索笔记"})
+    queries = [] if ending == "no-search" else ["NASA 月球"]
+    metadata = {"webSearchQueries":queries, "groundingChunks":[] if ending == "no-sources" else chunks}
+    def chunk(**fields):
+        return {"candidates":[fields]}
+    def frame(value):
+        return ("data: " + json.dumps(value) + "\n\n").encode()
     visible = []
-    def frame(kind, **data):
-        payload = json.dumps({"type":kind, **data})
-        return ("data: " + payload + "\n\n").encode()
 
     class Stream(httpx.AsyncByteStream):
         async def __aiter__(self):
             yield b": heartbeat\n\n"
-            yield frame("response.output_item.done", item={**item, "status":"in_progress"})
+            yield frame(chunk(content={"parts":parts}, groundingMetadata={"groundingChunks":metadata["groundingChunks"]}))
             assert visible == []
-            yield frame("response.output_item.done", item=item)
-            assert [kind for kind, _ in visible] == ["sources"]
-            yield frame("response.output_item.done", item=item)
-            if ending == "completed":
-                yield frame("response.completed", response=result)
-            if ending == "failed":
-                yield frame("response.failed")
-            yield b"data: [DONE]\n\n"
+            yield frame(chunk(groundingMetadata={"webSearchQueries":queries}))
+            if ending not in {"no-search", "no-sources"}:
+                assert [kind for kind, _ in visible] == ["sources"]
+            yield frame(chunk(groundingMetadata=metadata))
+            if ending == "error":
+                yield frame({"error":{"code":503}})
+            elif ending != "interrupted":
+                yield frame(chunk(finishReason="SAFETY" if ending == "blocked" else "STOP"))
 
     @asynccontextmanager
     async def upstream(self, method, endpoint, *, headers, json):
-        assert json["stream"] and json["model"] == "qwen3.5-flash-search"
-        request = httpx.Request(method, "https://example.invalid/responses")
-        response = (httpx.Response(200, request=request, json=result) if ending == "json" else
-                    httpx.Response(200, request=request, stream=Stream(), headers={"Content-Type":"text/event-stream"}))
+        assert method == "POST" and endpoint == "https://example.invalid/v1beta/models/gemini-3.5-flash-lite-search:streamGenerateContent?alt=sse"
+        assert json["contents"] == [{"role":"user","parts":[{"text":"NASA 月球"}]}]
+        assert json["tools"] == [{"google_search":{}}] and headers == {"x-goog-api-key":"test"}
+        request = httpx.Request(method, endpoint)
+        if ending.startswith("json"):
+            full = chunk(content={"parts":parts}, groundingMetadata=metadata, finishReason="STOP")
+            response = httpx.Response(200, request=request, json=[full] if ending == "json-array" else full)
+        else:
+            response = httpx.Response(200, request=request, stream=Stream(), headers={"Content-Type":"text/event-stream"})
         try:
             yield response
         finally:
             await response.aclose()
 
     monkeypatch.setattr(httpx.AsyncClient, "stream", upstream)
+    monkeypatch.setattr(api.search.config, "fix_base_url", lambda: "https://example.invalid/v1")
+    monkeypatch.setattr(api.search.config, "OPENAI_API_KEY", "test")
     async def run():
         async for update in api.search.search_web("NASA 月球"):
             visible.append(update)
-    if ending in {"completed", "json"}:
+    if ending in {"completed", "json", "json-array"}:
         asyncio.run(run())
         assert [kind for kind, _ in visible] == ["sources","evidence"]
-        assert visible[-1][1]["notes"] == "检索笔记"
+        assert visible[-1][1] == {"notes":"检索笔记","sources":[{"title":"NASA","url":url}]}
     else:
         with pytest.raises(api.search.SearchUnavailable):
             asyncio.run(run())
-        assert [kind for kind, _ in visible] == ["sources"]
-    assert [source["url"] for source in visible[0][1]] == [url]
+        assert [kind for kind, _ in visible] == ([] if ending in {"no-search","no-sources"} else ["sources"])
