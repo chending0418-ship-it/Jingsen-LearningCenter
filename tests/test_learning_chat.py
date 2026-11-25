@@ -228,9 +228,11 @@ def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
 
     async def research(query):
         queries.append(query)
+        sources = [{"title":"NASA","url":"https://science.nasa.gov/moon/"}]
+        yield "sources", sources
         if len(queries) > 1:
             raise api.search.SearchUnavailable()
-        return {"notes":"NASA 资料", "sources":[{"title":"NASA","url":"https://science.nasa.gov/moon/"}]}
+        yield "evidence", {"notes":"NASA 资料", "sources":sources}
 
     monkeypatch.setattr(api, "AsyncOpenAI", sdk)
     monkeypatch.setattr(api.search, "search_web", research)
@@ -238,7 +240,8 @@ def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
     route = ROOT + "/threads/" + str(uuid4())
     body = {"id":str(uuid4()), "question":"根据资料讲讲月球", "create_thread":True}
     first = events(client.post(route+"/turns",json=body))
-    assert [e["type"] for e in first] == ["searching","delta","delta","done"]
+    assert [e["type"] for e in first] == ["searching","sources","delta","delta","done"]
+    assert first[1]["sources"][0]["title"] == "NASA"
     persisted = client.get(route).json()["turns"][0]["answer"]
     assert "https://science.nasa.gov/moon/" in persisted
     assert events(client.post(route+"/turns",json=body))[0]["text"] == persisted
@@ -246,6 +249,7 @@ def test_streamed_tool_round_trip_save_replay_and_failure(client, monkeypatch):
     failed = events(client.post(route+"/turns",json={**body,"id":str(uuid4())}))
     assert failed[-1]["type"] == "error" and "未能取得" in failed[-1]["message"]
     assert client.get(route).json()["turns"][-1]["status"] == "failed"
+    assert "science.nasa.gov" not in client.get(route).json()["turns"][-1]["answer"]
 
 
 def test_family_companion_name_survives_reload_and_reaches_existing_threads(client, monkeypatch):
@@ -271,3 +275,59 @@ def test_family_companion_name_survives_reload_and_reaches_existing_threads(clie
     client.post(ROOT + "/threads/" + thread_id + "/turns", json={"id":str(uuid4()),"question":"你叫什么？"})
     assert '"云朵"' in prompts[0][0]["content"] and "小满" not in prompts[0][0]["content"]
     assert client.get(ROOT + "/threads/" + thread_id).json()["turns"][0]["answer"] == "原来的回复"
+
+
+@pytest.mark.parametrize("ending", ["completed", "interrupted", "failed", "json"])
+def test_search_stream_uses_verified_sources_before_final_evidence(monkeypatch, ending):
+    import asyncio
+    from contextlib import asynccontextmanager
+    import httpx
+
+    url = "https://science.nasa.gov/moon/"
+    sources = [{"url":url,"title":"NASA"}, {"url":url}, {"url":"javascript:invalid"}]
+    item = {"type":"web_search_call", "status":"completed", "action":{"sources":sources}}
+    result = {"status":"completed", "output":[item, {"type":"message","role":"assistant",
+              "content":[{"type":"output_text","text":"检索笔记","annotations":[]}]}]}
+    visible = []
+    def frame(kind, **data):
+        payload = json.dumps({"type":kind, **data})
+        return ("data: " + payload + "\n\n").encode()
+
+    class Stream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b": heartbeat\n\n"
+            yield frame("response.output_item.done", item={**item, "status":"in_progress"})
+            assert visible == []
+            yield frame("response.output_item.done", item=item)
+            assert [kind for kind, _ in visible] == ["sources"]
+            yield frame("response.output_item.done", item=item)
+            if ending == "completed":
+                yield frame("response.completed", response=result)
+            if ending == "failed":
+                yield frame("response.failed")
+            yield b"data: [DONE]\n\n"
+
+    @asynccontextmanager
+    async def upstream(self, method, endpoint, *, headers, json):
+        assert json["stream"] and json["model"] == "qwen3.5-flash-search"
+        request = httpx.Request(method, "https://example.invalid/responses")
+        response = (httpx.Response(200, request=request, json=result) if ending == "json" else
+                    httpx.Response(200, request=request, stream=Stream(), headers={"Content-Type":"text/event-stream"}))
+        try:
+            yield response
+        finally:
+            await response.aclose()
+
+    monkeypatch.setattr(httpx.AsyncClient, "stream", upstream)
+    async def run():
+        async for update in api.search.search_web("NASA 月球"):
+            visible.append(update)
+    if ending in {"completed", "json"}:
+        asyncio.run(run())
+        assert [kind for kind, _ in visible] == ["sources","evidence"]
+        assert visible[-1][1]["notes"] == "检索笔记"
+    else:
+        with pytest.raises(api.search.SearchUnavailable):
+            asyncio.run(run())
+        assert [kind for kind, _ in visible] == ["sources"]
+    assert [source["url"] for source in visible[0][1]] == [url]

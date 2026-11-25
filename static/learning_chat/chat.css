@@ -94,6 +94,10 @@ aside { padding:22px 18px; background:#efefe7; border-right:1px solid var(--line
 .answer code { font-size:.92em; background:#e8eae3; padding:1px 4px; border-radius:3px }
 .user { justify-self:end; max-width:88%; background:var(--pale); padding:11px 16px; border-radius:12px 12px 2px 12px }
 .assistant { min-width:0; max-width:96%; padding:0 2px }
+.source-preview { margin:.65em 0; border-left:2px solid var(--line); padding-left:12px }
+.source-preview p { margin:0 0 4px; color:var(--muted); font-weight:600; font-size:13px }
+.source-preview ul { margin:0; padding:0; list-style:none }
+.source-preview a { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; line-height:1.8; font-size:14px; color:var(--teal); text-underline-offset:.15em }
 .failed,.error { color:#a33328 !important }
 .retry { text-decoration:underline; color:var(--teal); min-height:38px }
 #empty { position:absolute; top:46%; transform:translateY(-50%); width:calc(100% - 2 * clamp(16px,4vw,60px)); text-align:center }
