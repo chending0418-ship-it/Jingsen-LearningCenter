@@ -10,6 +10,13 @@
 - 当前公网入口：`https://jingsen.cc/learningcenter/`。
 
 
+## 2026-11-25 Gemini 联网检索已部署并通过公网验收
+
+- [PR #75](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/75) 将搜索切换至 `gemini-3.5-flash-lite-search`。功能测试提交 `174ea30ae07a41ec0e5bdb45f952ecaf7c2600c2`，首次部署提交 `837a092a0dab5dbb8cc81b7dde9f30b5f3198038`，快照 `/www/wwwroot/learningcenter/backups/releases/20261125-110852-3924074`。首次公网验收的月球题来源、正文首字为 6.1、7.8 秒。天文图题为 5.2、6.5 秒，原文链接正确，回答提示未核实摄影者。
+- [PR #76](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/76) 补全查询生成要求。测试提交 `60efcf47861d317f2459e8c3665a5e30950d4275`，最终上线提交 `bc8a4a5c8e365a6de716233868fdf3027e834122`，快照 `/www/wwwroot/learningcenter/backups/releases/20261125-111204-3925131`。两次均按 `updateNew.md` 等待活跃生成任务结束并停写备份。环境文件和词库清单通过比对。SQLite 保持 v12，完整性、外键以及 35 张业务表的行数与内容通过核对。既有归档过程重建 58 条归档词条的内部标识，内容及顺序一致。
+- 最终版本使用 390px Chrome 从公网发送两题。月球题在 7.2 秒显示来源、8.8 秒开始显示 DeepSeek 正文。天文图题分别为 5.8 秒和 8.3 秒。NASA 题的标题和摄影者 David Cruz 与原文一致。两题均从生成的引用实际打开 NASA 页面，刷新后来源一致。两轮共四段验收专用对话已清理。健康接口确认 `deepseek-v4.1-flash`，匿名访问聊天工作区返回 401。
+- 两题计时为本次单轮样本。回答质量和速度依赖检索覆盖和网关负载。回退检索模型可通过 PR 逆序撤回 #76 和 #75，按发布流程保留当前家庭数据后重启。归档快照供故障恢复。
+
 ## 2026-11-25 学习对话的联网检索保留逐项查证要求
 
 - [PR #75](https://github.com/chending0418-ship-it/Jingsen-LearningCenter/pull/75) 切换搜索模型后的公网验收中，NASA 图片标题和原文来源正确，回答报告署名未核实。隔离复现发现，查询生成指令只要求保留主题和日期，可能丢失用户实际要查的字段。
