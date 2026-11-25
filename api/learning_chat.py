@@ -199,9 +199,16 @@ async def model_chunks(messages, mode):
             return
         if request is None:
             return
-        yield {"type": "searching"}
+        yield {"kind": "searching"}
         try:
-            evidence = await search.search_web(request.query)
+            async with aclosing(search.search_web(request.query)) as research:
+                async for kind, value in research:
+                    if kind == "evidence":
+                        evidence = value
+                        break
+                    yield {"kind": "sources", "sources": value}
+                else:
+                    raise search.SearchUnavailable()
         except (ValueError, httpx.HTTPError, search.SearchUnavailable) as exc:
             raise search.SearchUnavailable() from exc
         result = json.dumps(evidence, ensure_ascii=False)
@@ -244,7 +251,7 @@ async def reply(turn_id, attempt, messages, mode):
                 except StopAsyncIteration:
                     break
                 if isinstance(text, dict):
-                    yield event(text["type"])
+                    yield event(**text)
                     continue
                 parts.append(text)
                 yield event("delta", text=text)

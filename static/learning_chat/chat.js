@@ -249,7 +249,24 @@ el("editForm").onsubmit = async event => {
     finally { submit.disabled = false; }
 };
 
-async function readReply(response,onText,onSearch) {
+function showSourcePreview(panel, sources) {
+    const heading = document.createElement("p");
+    heading.textContent = "已找到的来源";
+    const list = document.createElement("ul");
+    for (const source of sources) {
+        const link = document.createElement("a");
+        link.href = source.url;
+        if (!["https:","http:"].includes(link.protocol)) continue;
+        link.textContent = source.title || link.hostname;
+        link.target = "_blank"; link.rel = "noopener noreferrer";
+        const row = document.createElement("li");
+        row.append(link); list.append(row);
+    }
+    panel.replaceChildren(heading,list);
+    panel.hidden = !list.childElementCount;
+}
+
+async function readReply(response,onText,onSearch,onSources) {
     const reader = response.body.getReader(), decoder = new TextDecoder();
     let buffer = "", done = false;
     try {
@@ -262,6 +279,7 @@ async function readReply(response,onText,onSearch) {
                 const event = JSON.parse(line);
                 if (event.type === "delta") onText(event.text);
                 else if (event.type === "searching") onSearch();
+                else if (event.type === "sources") onSources(event.sources);
                 else if (event.type === "error") throw new Error(event.message);
                 else if (event.type === "done") done = true;
             }
@@ -293,10 +311,14 @@ async function sendTurn(retry) {
         if (fresh) current = {id:threadId,title:question.slice(0,36),project_id:filter};
         remember(threadId); header(); el("question").value = ""; notice("正在回复…");
         const answer = el("messages").lastElementChild.querySelector(".answer");
+        const preview = document.createElement("div");
+        preview.className = "source-preview"; preview.hidden = true;
+        answer.after(preview);
+        const area = el("scroller");
+        const nearBottom = () => area.scrollHeight - area.clientHeight - area.scrollTop < 90;
         const paint = () => {
             renderTimer = undefined;
-            const area = el("scroller");
-            const nearEnd = area.scrollHeight - area.clientHeight - area.scrollTop < 90;
+            const nearEnd = nearBottom();
             formatAnswer(answer,turn.answer);
             if (nearEnd) bottom();
         };
@@ -305,8 +327,16 @@ async function sendTurn(retry) {
             const first = !turn.answer;
             turn.answer += text;
             if (first) paint();
-            else if (renderTimer === undefined) renderTimer = setTimeout(paint,100);
-        }, () => { notice("正在查资料…"); if (!turn.answer) answer.textContent = "正在联网检索…"; });
+            else if (renderTimer === undefined) renderTimer = setTimeout(paint,32);
+        }, () => {
+            notice("正在查资料…");
+            if (!turn.answer) answer.textContent = "正在联网检索…";
+        }, sources => {
+            const nearEnd = nearBottom();
+            if (!turn.answer) answer.textContent = "";
+            showSourcePreview(preview,sources); notice("正在整理检索资料…");
+            if (nearEnd) bottom();
+        });
         turn.status = "done"; notice("已自动保存");
     } catch (error) {
         if (el("workspace").hidden) return;
