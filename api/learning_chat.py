@@ -172,7 +172,7 @@ async def model_chunks(messages, mode):
     today = datetime.now(ZoneInfo("Asia/Shanghai")).date().isoformat()
     policy = ("本轮联网已关闭。遇到需要实时核实的问题，说明可在输入框选择「本次必查」。"
               if mode == "off" else "时效问题、要求查证或寻找出处时调用 search_web。概念、普通练习或基于前文的追问直接回答。"
-              "检索词只包含问题所需的公开主题和日期。")
+              "检索时把公开主题、限定条件和用户要求核实的每一项写成独立可懂的问题，省略家庭私事。")
     messages = [{**messages[0], "content": messages[0]["content"] + f"\n今天是{today}。{policy}"}, *messages[1:]]
     async with AsyncOpenAI(api_key=config.OPENAI_API_KEY, base_url=config.fix_base_url(),
                            timeout=config.AI_REQUEST_TIMEOUT, max_retries=0) as client:
